@@ -58,7 +58,7 @@ async function boot(id='cove', viewport={width:1440,height:900}, storage={}) {
   const source=await fs.readFile(path.join(root,'js/board.js'),'utf8');
   const marker='    start, enterPhase1, help, stop,';
   assert(source.includes(marker),'Battle test hook must match the public API');
-  await page.route('**/js/board.js',r=>r.fulfill({contentType:'application/javascript',body:source.replace(marker,hook+marker)}));
+  await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:source.replace(marker,hook+marker)}));
   await page.goto(base+'#board='+id,{waitUntil:'networkidle'});
   await page.locator('#gate').click();
   await idle();

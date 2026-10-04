@@ -35,6 +35,8 @@ python3 -m http.server 8791
 
 GitHub Pages の公開元は GitHub Actions です。`main` ブランチへ変更を push すると、`.github/workflows/deploy.yml` がJavaScriptの構文と戦闘のブラウザ回帰テストを確認し、成功した場合にゲーム本体と素材を自動で公開します。Actions 画面の「Deploy game to GitHub Pages」から手動実行もできます。
 
+JavaScript・CSSを更新するときは、`index.html` の読み込みURLに付けた `v` の値も更新します。前のプログラムがブラウザに残っていても、同じ版の画面とゲーム処理を読み込めます。
+
 ## 戦闘のテスト
 
 Node.js 24 で次を実行してください。テスト用のHTTPサーバーは自動で起動・終了します。
