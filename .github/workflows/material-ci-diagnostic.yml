@@ -1,0 +1,68 @@
+name: Observe material CI failure once
+
+on:
+  push:
+    branches: [material-ci-observe-set10]
+
+permissions:
+  contents: read
+
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: set09-baseline
+            snapshot: f3bc5e181574525ec9b52b575cc02b8a018a09b5
+          - label: set10-candidate
+            snapshot: 8fe3d4bcc56a69392286984b66b0eb73e2086e30
+    steps:
+      - name: Check out diagnostic driver
+        uses: actions/checkout@v6
+        with:
+          path: diagnostic-driver
+          sparse-checkout: tools/material-ci-observe.cjs
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - name: Check out exact unmodified game snapshot
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ matrix.snapshot }}
+          path: game
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: game/package-lock.json
+      - name: Check JavaScript syntax
+        working-directory: game
+        run: |
+          for file in js/*.js; do node --check "$file"; done
+          node --check "$GITHUB_WORKSPACE/diagnostic-driver/tools/material-ci-observe.cjs"
+      - name: Install unchanged test dependencies
+        working-directory: game
+        run: npm ci --ignore-scripts
+      - name: Install existing test browser
+        working-directory: game
+        run: npx playwright install --with-deps chromium
+      - name: Run original tests with failure observation
+        id: tests
+        working-directory: game
+        env:
+          CI_MATERIAL_DIAGNOSTIC: '1'
+          CI_MATERIAL_SNAPSHOT: ${{ matrix.snapshot }}
+          NODE_OPTIONS: --require ${{ github.workspace }}/diagnostic-driver/tools/material-ci-observe.cjs
+        run: npm test
+      - name: Save failure-only observation
+        if: ${{ failure() && steps.tests.outcome == 'failure' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: material-ci-${{ matrix.label }}
+          path: game/ci-observe/failure-*.json
+          if-no-files-found: warn
+          retention-days: 3
