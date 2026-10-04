@@ -1,0 +1,326 @@
+[
+  {
+    "id": "water_arrow",
+    "name": "水鏡の矢",
+    "skillId": "gran_wave",
+    "spirit": "gran",
+    "direction": "right",
+    "reference": "gran_tide",
+    "durationsMs": [
+      140,
+      120,
+      100,
+      100,
+      100,
+      100,
+      100,
+      140
+    ],
+    "phases": [
+      [
+        "anticipation",
+        0,
+        2
+      ],
+      [
+        "release",
+        2,
+        4
+      ],
+      [
+        "impact",
+        4,
+        5
+      ],
+      [
+        "decay",
+        5,
+        8
+      ]
+    ],
+    "prompt": "Use case: stylized-concept. Asset type: Color Resonance 2D battle skill effect sheet. Input image 1 is an existing game's water effect style/palette reference only. Create an ORIGINAL matching effect for the actual learned skill 水鏡の矢 / water-mirror arrow: a smooth cyan water arrow thrusts toward the RIGHT and dissipates on impact. Output exactly a 4 columns x 2 rows regular equal-cell sprite sheet, 1536x1024 total, each cell 384x512, row-major eight consecutive animation key poses. Transparent background. In every cell leave at least 36px EMPTY transparent gutter on all four sides; absolutely no image ink, glow, or adjacent-cell crossing in gutters. The effect's stable reference center is x192,y256 within each cell. Keep same perspective and same smooth cel-rendered style as the reference, clean cyan/blue-white highlights, broad simple ribbons of water, no realistic surface texture, no luminous fog background. Cells: 0 small cyan droplet seed near center-left; 1 compact horizontal streak begins to form; 2 a pointed water arrow with two broad trailing water ribbons, aimed right; 3 same arrow fully condensed with longer broad stream, moving slightly right, within margin; 4 same arrow strikes, clean 3-lobed splash at its pointed right tip, no opponent or object; 5 a smaller splash resolving into two large droplets; 6 two smaller fading droplets; 7 one very small soft pale cyan droplet fading at center. All stages belong to ONE coherent effect, all within fixed equal cells. The largest arrow is under 300px wide and under 190px tall, neither clipped nor tilted. No weapon handle, bow, character, scenery, ground shadow, text, numbers, borders, checkerboard, watermark, or black rectangle. Glow only as a thin contained rim around painted water; preserve genuine alpha. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」 「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "uniformInsetScale": 0.65,
+    "frameOffsetsSourcePx": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        32,
+        60
+      ],
+      [
+        0,
+        65
+      ],
+      [
+        0,
+        60
+      ],
+      [
+        0,
+        60
+      ]
+    ],
+    "fadeOpacities": [
+      0.9,
+      0.75,
+      0.6,
+      0.45
+    ],
+    "fadeDurationsMs": [
+      100,
+      100,
+      100,
+      100
+    ],
+    "source": "source/water_arrow.png",
+    "decayScales": [
+      0.7,
+      0.42,
+      0.18,
+      0.06
+    ],
+    "decayAnchorPx": [
+      151,
+      215
+    ]
+  },
+  {
+    "id": "flower_guard",
+    "name": "花守り",
+    "skillId": "ivy_bloom",
+    "spirit": "ivy",
+    "direction": "front",
+    "reference": "ivy_vines",
+    "durationsMs": [
+      160,
+      140,
+      140,
+      160,
+      260,
+      180,
+      140,
+      160
+    ],
+    "phases": [
+      [
+        "anticipation",
+        0,
+        2
+      ],
+      [
+        "release",
+        2,
+        4
+      ],
+      [
+        "hold",
+        4,
+        5
+      ],
+      [
+        "decay",
+        5,
+        8
+      ]
+    ],
+    "prompt": "Use case: stylized-concept. Asset type: Color Resonance learned skill 花守り (ivy_bloom), original 2D battle HEALING/GUARD effect, separate from characters. Image1 is ONLY the existing ivy effect's smooth leaf style and green palette reference. Create a NEW matching flower protection effect: THREE broad green leaves weave into an open oval protective wreath, with ONE five-petal white flower at the top and two smaller five-petal ivory blossoms at the sides. No thorn spikes. Soft fresh green and cream, smooth broad painted shapes and simple cel shading. Output exactly eight key poses in a 4 columns x 2 rows regular equal-cell transparent sprite sheet, 1536x1024; each cell384x512. Frame order row-major. Keep wreath same camera, center x192/y266 and maximum width240/height270 within each cell; minimum50px perfectly clear transparent gutters. Each cell completely isolated; absolutely no translucent fog or background halo. Only narrow highlights attached directly to leaves/petals may glow. Phases:0 tiny closed flower bud above a short curling leaf;1 two leaves extend upward into a half-oval, bud still closed;2 leaves gently complete open oval protective ring and bud opens halfway;3 same ring, top five-petal flower fully opens, two small side blossoms emerge;4 same complete wreath held with a single clean thin green arc on the inner edge, brightest healing moment;5 flowers settle and wreath gently opens at the bottom as protection subsides;6 two small leaf tips with fading ivory petals;7 just one tiny fading leaf and petal. Center and viewpoint fixed. Preserve ONE coherent wreath design through all frames; no multiplying flowers, no particle glitter, no microscopic veins. No text, labels, numbers, frames, watermark, floor, scenery, character, black/white matte or baked checkerboard. Real transparent alpha around exact smooth painted silhouettes. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」 「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "uniformInsetScale": 0.7,
+    "frameOffsetsSourcePx": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        49
+      ],
+      [
+        0,
+        37
+      ],
+      [
+        0,
+        49
+      ],
+      [
+        0,
+        49
+      ]
+    ],
+    "fadeOpacities": [
+      0.9,
+      0.75,
+      0.6,
+      0.45
+    ],
+    "fadeDurationsMs": [
+      100,
+      100,
+      100,
+      100
+    ],
+    "source": "source/flower_guard.png",
+    "decayScales": [
+      0.7,
+      0.42,
+      0.18,
+      0.06
+    ],
+    "decayAnchorPx": [
+      142,
+      225
+    ]
+  },
+  {
+    "id": "golden_thrust",
+    "name": "金継ぎの突き",
+    "skillId": "spinel_break",
+    "spirit": "spinel",
+    "direction": "right",
+    "reference": "spinel_shield",
+    "durationsMs": [
+      160,
+      130,
+      100,
+      100,
+      100,
+      100,
+      120,
+      160
+    ],
+    "phases": [
+      [
+        "anticipation",
+        0,
+        2
+      ],
+      [
+        "release",
+        2,
+        4
+      ],
+      [
+        "impact",
+        4,
+        5
+      ],
+      [
+        "decay",
+        5,
+        8
+      ]
+    ],
+    "prompt": "Use case: stylized-concept. Asset type: Color Resonance 2D battle learned skill 金継ぎの突き (spinel_break), independent original attack effect. Reference1 supplies existing game's clean broad golden crystal color and cel illustration style ONLY; do NOT create another shield. Create a RIGHT-facing narrow golden light thrust with an asymmetric pointed crystalline spearhead and one elegant long KINTSUGI repair seam through it. No weapon handle or physical sword, just a magical thrust. Eight successive key stages in a precisely regular4x2 sprite sheet,1536x1024 total,each384x512 transparent cell,row-major. Activation center fixed x192,y256; motion travels right with same horizontal axis, same clean geometric spear silhouette across frames, minimum45px genuinely empty gutters around EVERY cell. Largest effect under290px wide and150px tall; reserve generous empty space. No aura fog, no dust cloud, no translucent yellow rectangles, no lighting behind the effect. Only thin tight attached edge highlights. 0 short hairline horizontal golden repair seam at center-left;1 seam lengthens and one small diamond tip appears pointing right;2 seam condenses into a smooth sharp golden crystalline thrust, compact;3 SAME thrust at maximum reach toward right, small bright edge at point;4 impact with a simple clean three-prong golden flare AT SAME POINT and two large flat gray armor fragments pushed to the right, not bloody;5 the two gray fragments separate while light withdraws;6 one small fading golden shard, no armor left;7 tiny short faint gold seam almost extinguished. Preserve viewpoint, axis, scale logic and progression. Soft amber,cream-gold,bright ivory highlights and muted flat charcoal fragments. Smooth broad facets only, no microscopic cracks, no glitter, no scales,no repetitive intricate texture. No victim, character, ground, shadow, text, labels, frames,numbers,checkerboard,watermark,white/black backdrop. True transparent alpha. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」 「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "uniformInsetScale": 0.58,
+    "frameOffsetsSourcePx": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        80,
+        60
+      ],
+      [
+        0,
+        60
+      ],
+      [
+        0,
+        60
+      ],
+      [
+        58,
+        60
+      ]
+    ],
+    "fadeOpacities": [
+      0.9,
+      0.75,
+      0.6,
+      0.45
+    ],
+    "fadeDurationsMs": [
+      100,
+      100,
+      100,
+      100
+    ],
+    "repairPrompt": "Use case: precise-object-edit. Input is the edit target, a 1536x1024 eight-cel golden-thrust effect sheet, four columns x two rows. Remove only stray fragments crossing cell boundaries. In bottom row SECOND cell (canvas x384..767,y512..1023), erase the TWO tiny black vertical slivers right against its LEFT edge near canvas x384,y655 and x384,y798. They are fragments leaked from the adjacent gray armor and are NOT part of that cel. Also remove isolated gold/black slivers within the outermost 8 pixels of any cell if they are disconnected from the intended effect. Do not remove the two large gray armor fragments inside bottom row FIRST cell. Keep ALL eight intended complete golden thrust shapes, positions, face-free designs, palette, scale, lighting and grid exactly unchanged. Preserve genuine transparent alpha background. Don't invent new artwork. Don't enlarge anything. Don't add marks, particles, black matte, fog, white background or text. The two unwanted left-edge black slivers must be absent. Same 1536x1024 transparent sheet. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」 「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "source": "source/golden_thrust.png",
+    "extractionGuardPx": 8,
+    "cellClipSourcePx": {
+      "1": [
+        8,
+        8,
+        328,
+        504
+      ],
+      "2": [
+        8,
+        8,
+        328,
+        504
+      ]
+    },
+    "decayScales": [
+      0.7,
+      0.42,
+      0.18,
+      0.06
+    ],
+    "decayAnchorPx": [
+      153,
+      206
+    ],
+    "sourceEdit": {
+      "base": "source/golden_thrust-base.png",
+      "generatedEdit": "source/golden_thrust-impact-edit.png",
+      "region": [
+        0,
+        512,
+        384,
+        1024
+      ]
+    },
+    "impactRepairPrompt": "Use case: precise-object-edit. This transparent 1536x1024 4-column 2-row sheet is the exact edit target. Repair ONLY the impact cel in bottom row FIRST cell (canvas x0..383,y512..1023). The TWO gray broken-armor rocks at the right are cut by the cell's right edge and leak into the next cell. REPLACE BOTH ROCKS with new fully drawn complete charcoal faceted rock shards. In this one cell, top rock must fit inside local x270..355,y145..225 and bottom rock inside local x270..355,y242..325. Both rocks need natural COMPLETE closed outer silhouettes, fully rounded angular polygon contours at their right sides, and at least 28px of genuine clear transparent space to the cell's right edge. They must NOT touch x383, NOT be cropped, NOT cross into the neighboring cell. Erase the tiny isolated far-right gold fleck near local x376,y240 rather than clipping it. Keep the gold thrust tip in this cel at local x265,y240, showing impact between the two rocks. Leave ALL seven other cels' intended gold effects unchanged, and keep the exact 1536x1024 grid, palette, broad smooth cel shading and transparent alpha. In bottom row SECOND cell, no black vertical rock slivers on its left edge; remove those fully. No text/borders/numbers/shadow/background/dust/glitter. Do not enlarge the rocks; make their complete shapes SMALLER so they fit. Preserve all actual art outside this tiny gray-rock repair. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」 「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」"
+  }
+]

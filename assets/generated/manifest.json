@@ -3,10 +3,10 @@
   "title": "Color Resonance ゲーム素材",
   "counts": {
     "characters": 18,
-    "effects": 8,
-    "sourceSheets": 26,
-    "pngCels": 208,
-    "gifs": 103
+    "effects": 11,
+    "sourceSheets": 29,
+    "pngCels": 244,
+    "gifs": 109
   },
   "production": {
     "generator": "built-in imagegen",
@@ -15,8 +15,13 @@
       2
     ],
     "gifTransparency": "1-bit; PNG retains original smooth alpha",
-    "poseAlignment": "fixed source grid; no per-pose crop or scale",
-    "directionCount": 1
+    "poseAlignment": "fixed source grid; explicit effect landmarks and extraction windows; decay transform only in derived cels",
+    "directionCount": 1,
+    "extendedSpriteGrid": [
+      4,
+      3
+    ],
+    "gridAuthority": "assets[].grid"
   },
   "assets": [
     {
@@ -4030,6 +4035,396 @@
           "durationMs": 1640,
           "gifRepeatsForPreview": true,
           "gifAlphaThreshold": 96
+        }
+      }
+    },
+    {
+      "id": "water_arrow",
+      "name": "水鏡の矢",
+      "category": "fx",
+      "source": "source/water_arrow.png",
+      "sheet": "sheets/water_arrow.png",
+      "frames": [
+        "frames/water_arrow/000.png",
+        "frames/water_arrow/001.png",
+        "frames/water_arrow/002.png",
+        "frames/water_arrow/003.png",
+        "frames/water_arrow/004.png",
+        "frames/water_arrow/005.png",
+        "frames/water_arrow/006.png",
+        "frames/water_arrow/007.png",
+        "frames/water_arrow/008.png",
+        "frames/water_arrow/009.png",
+        "frames/water_arrow/010.png",
+        "frames/water_arrow/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          288,
+          384
+        ],
+        "order": "row-major"
+      },
+      "scenes": [
+        "gran",
+        "chrome"
+      ],
+      "skillId": "gran_wave",
+      "spirit": "gran",
+      "direction": "right",
+      "anchorPx": [
+        144,
+        192
+      ],
+      "productionSet": "learned-set-01",
+      "animations": {
+        "effect": {
+          "name": "水鏡の矢",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            100,
+            140,
+            120,
+            100,
+            100,
+            100,
+            100,
+            100,
+            140,
+            100,
+            100,
+            100,
+            100,
+            720
+          ],
+          "loop": false,
+          "phases": [
+            {
+              "name": "anticipation",
+              "startMs": 100,
+              "endMs": 360
+            },
+            {
+              "name": "release",
+              "startMs": 360,
+              "endMs": 560
+            },
+            {
+              "name": "impact",
+              "startMs": 560,
+              "endMs": 660
+            },
+            {
+              "name": "decay",
+              "startMs": 660,
+              "endMs": 1400
+            }
+          ],
+          "visibleEndMs": 1400,
+          "frameStartsMs": [
+            0,
+            100,
+            240,
+            360,
+            460,
+            560,
+            660,
+            760,
+            860,
+            1000,
+            1100,
+            1200,
+            1300,
+            1400
+          ],
+          "gif": "gifs/water_arrow/effect.gif",
+          "size": [
+            288,
+            384
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 2120,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/water_arrow/preview.gif",
+          "previewGifLoops": true
+        }
+      }
+    },
+    {
+      "id": "flower_guard",
+      "name": "花守り",
+      "category": "fx",
+      "source": "source/flower_guard.png",
+      "sheet": "sheets/flower_guard.png",
+      "frames": [
+        "frames/flower_guard/000.png",
+        "frames/flower_guard/001.png",
+        "frames/flower_guard/002.png",
+        "frames/flower_guard/003.png",
+        "frames/flower_guard/004.png",
+        "frames/flower_guard/005.png",
+        "frames/flower_guard/006.png",
+        "frames/flower_guard/007.png",
+        "frames/flower_guard/008.png",
+        "frames/flower_guard/009.png",
+        "frames/flower_guard/010.png",
+        "frames/flower_guard/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          288,
+          384
+        ],
+        "order": "row-major"
+      },
+      "scenes": [
+        "ivy",
+        "chrome"
+      ],
+      "skillId": "ivy_bloom",
+      "spirit": "ivy",
+      "direction": "front",
+      "anchorPx": [
+        144,
+        192
+      ],
+      "productionSet": "learned-set-01",
+      "animations": {
+        "effect": {
+          "name": "花守り",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            100,
+            160,
+            140,
+            140,
+            160,
+            260,
+            180,
+            140,
+            160,
+            100,
+            100,
+            100,
+            100,
+            720
+          ],
+          "loop": false,
+          "phases": [
+            {
+              "name": "anticipation",
+              "startMs": 100,
+              "endMs": 400
+            },
+            {
+              "name": "release",
+              "startMs": 400,
+              "endMs": 700
+            },
+            {
+              "name": "hold",
+              "startMs": 700,
+              "endMs": 960
+            },
+            {
+              "name": "decay",
+              "startMs": 960,
+              "endMs": 1840
+            }
+          ],
+          "visibleEndMs": 1840,
+          "frameStartsMs": [
+            0,
+            100,
+            260,
+            400,
+            540,
+            700,
+            960,
+            1140,
+            1280,
+            1440,
+            1540,
+            1640,
+            1740,
+            1840
+          ],
+          "gif": "gifs/flower_guard/effect.gif",
+          "size": [
+            288,
+            384
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 2560,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/flower_guard/preview.gif",
+          "previewGifLoops": true
+        }
+      }
+    },
+    {
+      "id": "golden_thrust",
+      "name": "金継ぎの突き",
+      "category": "fx",
+      "source": "source/golden_thrust.png",
+      "sheet": "sheets/golden_thrust.png",
+      "frames": [
+        "frames/golden_thrust/000.png",
+        "frames/golden_thrust/001.png",
+        "frames/golden_thrust/002.png",
+        "frames/golden_thrust/003.png",
+        "frames/golden_thrust/004.png",
+        "frames/golden_thrust/005.png",
+        "frames/golden_thrust/006.png",
+        "frames/golden_thrust/007.png",
+        "frames/golden_thrust/008.png",
+        "frames/golden_thrust/009.png",
+        "frames/golden_thrust/010.png",
+        "frames/golden_thrust/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          288,
+          384
+        ],
+        "order": "row-major"
+      },
+      "scenes": [
+        "spinel",
+        "chrome"
+      ],
+      "skillId": "spinel_break",
+      "spirit": "spinel",
+      "direction": "right",
+      "anchorPx": [
+        144,
+        192
+      ],
+      "productionSet": "learned-set-01",
+      "animations": {
+        "effect": {
+          "name": "金継ぎの突き",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            100,
+            160,
+            130,
+            100,
+            100,
+            100,
+            100,
+            120,
+            160,
+            100,
+            100,
+            100,
+            100,
+            720
+          ],
+          "loop": false,
+          "phases": [
+            {
+              "name": "anticipation",
+              "startMs": 100,
+              "endMs": 390
+            },
+            {
+              "name": "release",
+              "startMs": 390,
+              "endMs": 590
+            },
+            {
+              "name": "impact",
+              "startMs": 590,
+              "endMs": 690
+            },
+            {
+              "name": "decay",
+              "startMs": 690,
+              "endMs": 1470
+            }
+          ],
+          "visibleEndMs": 1470,
+          "frameStartsMs": [
+            0,
+            100,
+            260,
+            390,
+            490,
+            590,
+            690,
+            790,
+            910,
+            1070,
+            1170,
+            1270,
+            1370,
+            1470
+          ],
+          "gif": "gifs/golden_thrust/effect.gif",
+          "size": [
+            288,
+            384
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 2190,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/golden_thrust/preview.gif",
+          "previewGifLoops": true
         }
       }
     }

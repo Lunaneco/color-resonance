@@ -1,10 +1,10 @@
 {
   "counts": {
     "characters": 18,
-    "effects": 8,
-    "sourceSheets": 26,
-    "pngCels": 208,
-    "gifs": 103
+    "effects": 11,
+    "sourceSheets": 29,
+    "pngCels": 244,
+    "gifs": 109
   },
   "alpha": [
     {
@@ -308,5 +308,235 @@
     "loop boundary",
     "cropping",
     "translucent PNG on light/dark backdrops"
-  ]
+  ],
+  "learnedSet01": {
+    "assetCount": 3,
+    "checks": [
+      {
+        "id": "water_arrow",
+        "pngCellSize": [
+          288,
+          384
+        ],
+        "pngCount": 12,
+        "gifFrameCount": 14,
+        "durationMs": 2120,
+        "clearBorderPx": [
+          24,
+          32
+        ],
+        "transparentFirstAndLast": true,
+        "sharedPalette": true,
+        "disposal": 2,
+        "pngAlphaPreserved": true,
+        "singleShotGif": true,
+        "separateLoopPreview": true,
+        "finalOpacity": 0.45,
+        "finalScale": 0.06,
+        "opaqueBboxes": [
+          [
+            123,
+            198,
+            164,
+            225
+          ],
+          [
+            73,
+            184,
+            200,
+            239
+          ],
+          [
+            58,
+            171,
+            216,
+            255
+          ],
+          [
+            51,
+            170,
+            222,
+            254
+          ],
+          [
+            85,
+            138,
+            251,
+            273
+          ],
+          [
+            99,
+            154,
+            217,
+            257
+          ],
+          [
+            112,
+            186,
+            190,
+            236
+          ],
+          [
+            135,
+            203,
+            168,
+            227
+          ]
+        ]
+      },
+      {
+        "id": "flower_guard",
+        "pngCellSize": [
+          288,
+          384
+        ],
+        "pngCount": 12,
+        "gifFrameCount": 14,
+        "durationMs": 2560,
+        "clearBorderPx": [
+          24,
+          32
+        ],
+        "transparentFirstAndLast": true,
+        "sharedPalette": true,
+        "disposal": 2,
+        "pngAlphaPreserved": true,
+        "singleShotGif": true,
+        "separateLoopPreview": true,
+        "finalOpacity": 0.45,
+        "finalScale": 0.06,
+        "opaqueBboxes": [
+          [
+            114,
+            157,
+            183,
+            304
+          ],
+          [
+            73,
+            134,
+            219,
+            303
+          ],
+          [
+            54,
+            113,
+            222,
+            304
+          ],
+          [
+            53,
+            111,
+            226,
+            304
+          ],
+          [
+            55,
+            103,
+            240,
+            305
+          ],
+          [
+            57,
+            102,
+            239,
+            287
+          ],
+          [
+            59,
+            162,
+            225,
+            284
+          ],
+          [
+            119,
+            171,
+            165,
+            280
+          ]
+        ]
+      },
+      {
+        "id": "golden_thrust",
+        "pngCellSize": [
+          288,
+          384
+        ],
+        "pngCount": 12,
+        "gifFrameCount": 14,
+        "durationMs": 2190,
+        "clearBorderPx": [
+          24,
+          32
+        ],
+        "transparentFirstAndLast": true,
+        "sharedPalette": true,
+        "disposal": 2,
+        "pngAlphaPreserved": true,
+        "singleShotGif": true,
+        "separateLoopPreview": true,
+        "finalOpacity": 0.45,
+        "finalScale": 0.06,
+        "opaqueBboxes": [
+          [
+            98,
+            181,
+            155,
+            234
+          ],
+          [
+            81,
+            180,
+            167,
+            238
+          ],
+          [
+            63,
+            181,
+            191,
+            237
+          ],
+          [
+            63,
+            189,
+            213,
+            239
+          ],
+          [
+            109,
+            167,
+            248,
+            255
+          ],
+          [
+            97,
+            188,
+            217,
+            227
+          ],
+          [
+            131,
+            193,
+            168,
+            224
+          ],
+          [
+            133,
+            190,
+            172,
+            222
+          ]
+        ]
+      }
+    ]
+  },
+  "playbackContract": {
+    "engine": "actual copy GameArt.sample",
+    "sourceSha256": "955553cdecf0dd598dd469de631557718add3311dec327a01cb8877fe2d164a9",
+    "assertions": 84,
+    "scope": "3 effects: every frame start, 1ms before transition, exact one-shot end",
+    "status": "passed",
+    "visualPlayback": "not verified",
+    "gamePlacement": "not verified"
+  }
 }
