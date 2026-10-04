@@ -1,0 +1,317 @@
+[
+  {
+    "id": "kegare_release",
+    "name": "穢れの外皮の切り離し",
+    "trigger": "d.side === 'enemy' && !cfg.inverted && !d.dead",
+    "reference": "references/shade-release-cel.png",
+    "generatedImage": "exec-33844dab-989e-4b8d-b40d-c6daeb9249d5.png",
+    "editBaseGeneratedImage": "exec-21277f1b-5547-46e9-81ba-450c866bb1dd.png",
+    "targetWidthPx": 34,
+    "source": "source/kegare_release.png",
+    "editBase": "source/kegare_release-base.png",
+    "prompt": "Create ONE original game-effect editing master, a square canvas on completely transparent background. EXACTLY TWO large isolated curved exterior wrapper strips, laid out side by side with a wide transparent gutter between them. Left strip is a broad open C shape opening to the right; right strip is a broad reverse C shape opening to the left. Blunt softly rounded endpoints, solid broad clean silhouettes. Each stays within its half of the canvas with generous clear margins, about twice as tall as wide. They are two detached OUTER COVERINGS, never a character. No head, no face, no eyes, no body, no limb, no clothing on a person, no hair, no blade, no text, no floor, no cast shadow. No small particles, no grain, no glitter, no stars, no thin threads, no scallops, no scales, no complicated repeated folds. The space between and inside the open curves must be transparent. Single smooth painted folds/shading, readable at64px, opaque material interior with clean anti-aliased edge. These same two shapes will be rigidly moved outward and gently upward, then reduced into quiet disappearance after detaching. Do not depict an explosion or harm to a body. Use the reference only for its muted slate-charcoal/lavender outer haze palette and soft anime game shading; DO NOT draw any of the creature or its eyes. Both strips are broad smooth CURLS OF DULL EXTERIOR HAZE, muted gray-violet outside and one restrained lighter slate-blue fold. Keep them dull and quiet, no bright purple flames, no hard metal bevel, no armored plate. A soft but well-defined curled exterior film made of three broad tonal zones, no wispy fuzzy fringe. This is for ordinary chapters only, where an imposed gray crust detaches; do not portray a person's true black color being erased. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」\n「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "editPrompt": "Edit the supplied two isolated open-C exterior haze strips. Keep both silhouettes and their open inward-facing curves, arrangement, empty central gutter, and smooth broad shading. Change ONLY the material colors and outer contour cleanliness. Desaturate the bright purple heavily into muted slate-charcoal gray with a faint violet cast: broad regions around RGB(70,66,80) to RGB(99,94,116), with only a restrained soft lavender-gray highlight. No vivid purple or fluorescent blue outline. Remove every stray colored speck, grain, glitter, jagged protrusion, fuzzy fringe and halo around both silhouettes and from all transparent space. Two smooth broad opaque forms with clean anti-aliased edges, no tiny disconnected parts. Do not add any character, eyes, face, blade, particle, border or extra strip. Fully transparent background. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」\n「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "cellSize": [
+      256,
+      192
+    ],
+    "pivotPx": [
+      128,
+      128
+    ],
+    "scaleReferenceTileWidthPx": 80,
+    "pieces": [
+      {
+        "name": "left wrapper",
+        "cropBoxPx": [
+          0,
+          0,
+          627,
+          1254
+        ],
+        "targetWidthPx": 34,
+        "startCenterPx": [
+          100,
+          88
+        ],
+        "velocityPxPerSec": [
+          -40,
+          -25
+        ],
+        "rotationDeg": 0,
+        "angularVelocityDegPerSec": -20
+      },
+      {
+        "name": "right wrapper",
+        "cropBoxPx": [
+          627,
+          0,
+          1254,
+          1254
+        ],
+        "targetWidthPx": 34,
+        "startCenterPx": [
+          156,
+          88
+        ],
+        "velocityPxPerSec": [
+          40,
+          -25
+        ],
+        "rotationDeg": 0,
+        "angularVelocityDegPerSec": 20
+      }
+    ],
+    "frameStartsRelativeMs": [
+      0,
+      80,
+      160,
+      240,
+      320,
+      400,
+      480,
+      560,
+      640,
+      760,
+      880,
+      1000
+    ],
+    "celDurationsMs": [
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      120,
+      120,
+      120,
+      120
+    ],
+    "celDissipationScales": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0.75,
+      0.5,
+      0.28,
+      0.1
+    ],
+    "celOpacities": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0.9,
+      0.8,
+      0.7,
+      0.6
+    ],
+    "gifRgbDecayFactors": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0.9,
+      0.7,
+      0.5,
+      0.3
+    ],
+    "preRollMs": 80,
+    "transparentTailMs": 640,
+    "centralClearWindowPx": [
+      120,
+      32,
+      136,
+      156
+    ],
+    "hook": "defeat(d, killer): before d.dead = true"
+  },
+  {
+    "id": "white_membrane_release",
+    "name": "白い膜の切り離し",
+    "trigger": "d.side === 'enemy' && cfg.inverted && d.kind === 'membrane' && !d.dead",
+    "reference": "references/membrane-release-cel.png",
+    "generatedImage": "exec-8c43f253-66f6-4b3c-9e69-3ef833248a8b.png",
+    "editBaseGeneratedImage": "exec-72758acc-2571-4e73-85f1-af01a795ecef.png",
+    "targetWidthPx": 30,
+    "source": "source/white_membrane_release.png",
+    "editBase": "source/white_membrane_release-base.png",
+    "prompt": "Create ONE original game-effect editing master, a square canvas on completely transparent background. EXACTLY TWO large isolated curved exterior wrapper strips, laid out side by side with a wide transparent gutter between them. Left strip is a broad open C shape opening to the right; right strip is a broad reverse C shape opening to the left. Blunt softly rounded endpoints, solid broad clean silhouettes. Each stays within its half of the canvas with generous clear margins, about twice as tall as wide. They are two detached OUTER COVERINGS, never a character. No head, no face, no eyes, no body, no limb, no clothing on a person, no hair, no blade, no text, no floor, no cast shadow. No small particles, no grain, no glitter, no stars, no thin threads, no scallops, no scales, no complicated repeated folds. The space between and inside the open curves must be transparent. Single smooth painted folds/shading, readable at64px, opaque material interior with clean anti-aliased edge. These same two shapes will be rigidly moved outward and gently upward, then reduced into quiet disappearance after detaching. Do not depict an explosion or harm to a body. Use the reference ONLY for its cold ivory/lavender-gray thin membrane palette, never for the creature silhouette or head. Both strips are detached cold WHITE MEMBRANE sheets, softly folded once into open C arcs. Broad ivory surface with subdued very pale lavender-blue shadow inside one fold. Thin flexible sheet, no metal thickness, no armor edge. NO radiant halo, NO holy light, NO golden glow, NO rainbow blast, NO angel, NO purifying black color. The story removes only an imposed white membrane; the person's own night-black color remains untouched and is not pictured in this master. These are two large simple sheets, no ragged tear grain or tiny scraps. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」\n「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "editPrompt": "Edit the supplied two detached white membrane strips. Preserve BOTH large inward-facing open C shapes, their broad ivory surfaces and single pale lavender fold, as well as their side-by-side arrangement and fully transparent central gap. Repair ONLY the outer contours and empty space: remove ALL white frill, white specks, fuzzy white fringe, tiny protrusions, blue debris, isolated grains and stray pixels around/outside the two strips. Clean continuous smooth anti-aliased contours with NO outer white outline or halo. The existing broad opaque ivory interiors remain opaque and smooth. No added lines or small folds. No body, head, face, angel, halo, stars, particles or new object. Exterior completely transparent alpha0, including the entire central space. Exactly two intact strips. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」\n「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "cellSize": [
+      256,
+      192
+    ],
+    "pivotPx": [
+      128,
+      128
+    ],
+    "scaleReferenceTileWidthPx": 80,
+    "pieces": [
+      {
+        "name": "left wrapper",
+        "cropBoxPx": [
+          0,
+          0,
+          627,
+          1254
+        ],
+        "targetWidthPx": 30,
+        "startCenterPx": [
+          100,
+          88
+        ],
+        "velocityPxPerSec": [
+          -40,
+          -25
+        ],
+        "rotationDeg": 0,
+        "angularVelocityDegPerSec": -20
+      },
+      {
+        "name": "right wrapper",
+        "cropBoxPx": [
+          627,
+          0,
+          1254,
+          1254
+        ],
+        "targetWidthPx": 30,
+        "startCenterPx": [
+          156,
+          88
+        ],
+        "velocityPxPerSec": [
+          40,
+          -25
+        ],
+        "rotationDeg": 0,
+        "angularVelocityDegPerSec": 20
+      }
+    ],
+    "frameStartsRelativeMs": [
+      0,
+      80,
+      160,
+      240,
+      320,
+      400,
+      480,
+      560,
+      640,
+      760,
+      880,
+      1000
+    ],
+    "celDurationsMs": [
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      120,
+      120,
+      120,
+      120
+    ],
+    "celDissipationScales": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0.75,
+      0.5,
+      0.28,
+      0.1
+    ],
+    "celOpacities": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0.9,
+      0.8,
+      0.7,
+      0.6
+    ],
+    "gifRgbDecayFactors": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "preRollMs": 80,
+    "transparentTailMs": 640,
+    "centralClearWindowPx": [
+      120,
+      32,
+      136,
+      156
+    ],
+    "hook": "defeat(d, killer): before d.dead = true",
+    "gifDissipationAnchorTimeMs": 640,
+    "gifDissipationScales": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0.75,
+      0.5,
+      0.28,
+      0.06
+    ],
+    "gifCelOpacities": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  }
+]

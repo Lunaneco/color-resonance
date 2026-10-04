@@ -3,10 +3,10 @@
   "title": "Color Resonance ゲーム素材",
   "counts": {
     "characters": 18,
-    "effects": 26,
-    "sourceSheets": 44,
-    "pngCels": 412,
-    "gifs": 135
+    "effects": 28,
+    "sourceSheets": 46,
+    "pngCels": 436,
+    "gifs": 139
   },
   "production": {
     "generator": "built-in imagegen",
@@ -6534,6 +6534,250 @@
               "name": "着地後の消失縮小",
               "startMs": 800,
               "endMs": 1160
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "kegare_release",
+      "name": "穢れの外皮の切り離し",
+      "category": "fx",
+      "assetRole": "exterior-release",
+      "source": "source/kegare_release.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sheet": "sheets/kegare_release.png",
+      "frames": [
+        "frames/kegare_release/000.png",
+        "frames/kegare_release/001.png",
+        "frames/kegare_release/002.png",
+        "frames/kegare_release/003.png",
+        "frames/kegare_release/004.png",
+        "frames/kegare_release/005.png",
+        "frames/kegare_release/006.png",
+        "frames/kegare_release/007.png",
+        "frames/kegare_release/008.png",
+        "frames/kegare_release/009.png",
+        "frames/kegare_release/010.png",
+        "frames/kegare_release/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          256,
+          192
+        ],
+        "order": "row-major"
+      },
+      "pivotPx": [
+        128,
+        128
+      ],
+      "scaleReferenceTileWidthPx": 80,
+      "triggerCondition": "d.side === 'enemy' && !cfg.inverted && !d.dead",
+      "productionSet": "release-set-09",
+      "direction": "front-isometric",
+      "animations": {
+        "effect": {
+          "name": "穢れの外皮の切り離し",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            120,
+            120,
+            120,
+            120,
+            640
+          ],
+          "frameStartsMs": [
+            0,
+            80,
+            160,
+            240,
+            320,
+            400,
+            480,
+            560,
+            640,
+            720,
+            840,
+            960,
+            1080,
+            1200
+          ],
+          "loop": false,
+          "gif": "gifs/kegare_release/effect.gif",
+          "size": [
+            256,
+            192
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 1840,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/kegare_release/preview.gif",
+          "visibleEndMs": 1200,
+          "pngVisibleEndMs": 1200,
+          "gifTransparentTailMs": 640,
+          "phases": [
+            {
+              "name": "外向きの切り離し",
+              "startMs": 80,
+              "endMs": 720
+            },
+            {
+              "name": "小さくなって消失",
+              "startMs": 720,
+              "endMs": 1200
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "white_membrane_release",
+      "name": "白い膜の切り離し",
+      "category": "fx",
+      "assetRole": "exterior-release",
+      "source": "source/white_membrane_release.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sheet": "sheets/white_membrane_release.png",
+      "frames": [
+        "frames/white_membrane_release/000.png",
+        "frames/white_membrane_release/001.png",
+        "frames/white_membrane_release/002.png",
+        "frames/white_membrane_release/003.png",
+        "frames/white_membrane_release/004.png",
+        "frames/white_membrane_release/005.png",
+        "frames/white_membrane_release/006.png",
+        "frames/white_membrane_release/007.png",
+        "frames/white_membrane_release/008.png",
+        "frames/white_membrane_release/009.png",
+        "frames/white_membrane_release/010.png",
+        "frames/white_membrane_release/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          256,
+          192
+        ],
+        "order": "row-major"
+      },
+      "pivotPx": [
+        128,
+        128
+      ],
+      "scaleReferenceTileWidthPx": 80,
+      "triggerCondition": "d.side === 'enemy' && cfg.inverted && d.kind === 'membrane' && !d.dead",
+      "productionSet": "release-set-09",
+      "direction": "front-isometric",
+      "animations": {
+        "effect": {
+          "name": "白い膜の切り離し",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            120,
+            120,
+            120,
+            120,
+            640
+          ],
+          "frameStartsMs": [
+            0,
+            80,
+            160,
+            240,
+            320,
+            400,
+            480,
+            560,
+            640,
+            720,
+            840,
+            960,
+            1080,
+            1200
+          ],
+          "loop": false,
+          "gif": "gifs/white_membrane_release/effect.gif",
+          "size": [
+            256,
+            192
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 1840,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/white_membrane_release/preview.gif",
+          "visibleEndMs": 1200,
+          "pngVisibleEndMs": 1200,
+          "gifTransparentTailMs": 640,
+          "phases": [
+            {
+              "name": "外向きの切り離し",
+              "startMs": 80,
+              "endMs": 720
+            },
+            {
+              "name": "小さくなって消失",
+              "startMs": 720,
+              "endMs": 1200
             }
           ]
         }

@@ -1,6 +1,6 @@
 # Color Resonance ゲーム素材
 
-ゲームの物語・敵・仲間・技に合わせ、組み込みimagegenで生成した素材ライブラリです。キャラクター18種類、技・状態・環境・装甲エフェクト26種類、主原画44枚、透過PNGコマ412枚、動作GIF135本（動作・単発技・継続ループ121本と専用反復プレビュー14本）を収録しています。水面の4×4配置用GIF2本は別枠の確認画像です。
+ゲームの物語・敵・仲間・技に合わせ、組み込みimagegenで生成した素材ライブラリです。キャラクター18種類、技・状態・環境・装甲・外皮エフェクト28種類、主原画46枚、透過PNGコマ436枚、動作GIF139本（動作・単発技・継続ループ123本と専用反復プレビュー16本）を収録しています。水面の4×4配置用GIF2本は別枠の確認画像です。
 
 [素材一覧を開く](https://lunaneco.github.io/color-resonance/assets/generated/) では名前・技名で検索し、動作を切り替え、明暗背景で透過を確認できます。`index.html` を直接開いても閲覧できます。
 
@@ -359,4 +359,47 @@ function drawArmorFragments(ctx, asset, sheet, elapsedMs, footX, footY, tw) {
 
 ```sh
 python3 tools/build_armor_assets.py
+```
+
+## 外皮の切り離し 第9セット
+
+[穢れの外皮・白い膜の2点をZIPでまとめて保存](downloads/release-set09.zip)できます。
+
+| 素材ID | 対象 | 単発GIF |
+|---|---|---|
+| kegare_release | 通常章の敵の穢れの外皮 | [effect.gif](gifs/kegare_release/effect.gif) |
+| white_membrane_release | 終章の膜の敵のみ | [effect.gif](gifs/white_membrane_release/effect.gif) |
+
+実コピーの敵消去 `defeat(d, killer)` にある、通常章の灰色smokeと終章の白いsmokeの分岐を元に作りました。`d.dead=true` を設定する前の1回だけ選びます。通常用は `d.side==='enemy' && !cfg.inverted`、白い膜は `d.side==='enemy' && cfg.inverted && d.kind==='membrane'` が条件です。**白い膜の素材はクロム本体へ適用しません。** 正稿では切り離すのは貼りついた白い膜だけで、その人の本当の夜空の黒は残します。対象の身体・顔・武器・光輪を描かず、少数の大きな外皮2枚が離れる表現です。既存のルノワールへ飛ぶorbと組み合わせる場合も、追加のorbを描きません。ゲーム本体には未接続です。
+
+各256×192・12PNGセル・4列×3行1024×576のシートです。開始透明80ms、セル000〜007各80ms、008〜011各120ms、終了透明640msの14コマGIF、総尺1840ms、PNG/GIFとも可視終端1200msです。`effect.gif` は1回だけ再生し、`preview.gif` は一覧用に反復します。`sequence:[null,0,1,2,3,4,5,6,7,8,9,10,11,null]`、`loop:false` を使います。
+
+足元pivot(128,128)、基準タイル幅80です。初期の片の中心は、足元から左右±0.35tw・上へ0.5twです。開始の透明80msの後、完成した外皮が出現するため、敵表示の左右の外皮へ重なる始点として使い、そこから離す用法を想定しています。必要なら全コマ共通の位置と倍率で合わせます。実ゲームでの重なり位置は未確認です。実敵画像の外皮を正確に分割した素材ではなく、低彩度の灰紫も含めて参照から新たに解釈した表現です。
+
+左・右の外皮は各同じ形を保持し、左右±40px/sと上向き25px/sで漂って離れます。初めの8セルは固定スケール、PNGと灰色GIFの後半4セルはそれぞれの漂う中心へ0.75→0.50→0.28→0.10倍に縮小します。中央の矩形(120,32)-(136,156)は全PNG/GIFでalpha0、外枠24pxも完全透明です。元の2片から作り、追加の粒子は描きません。低alphaのAAによる孤立画素が残る場合があり、厳密に孤立画素ゼロとはしません。
+
+PNGは後半のalpha0.9→0.8→0.7→0.6を保持します。灰色GIFは同じ縮小にRGB暗化0.9→0.7→0.5→0.3と二値透過を併用します。**白い膜GIFは白・薄紫の色を保ち、暗化しません。** 可視開始から640msの中心(74.4,72)・(181.6,72)と回転±12.8度を固定し、0.75→0.50→0.28→0.06倍へ縮小します。PNGは漂う中心のまま0.10倍まで、白GIFは固定中心で0.06倍までと、末段階の位置・大きさが異なります。滑らかな半透明はPNGを使います。共通255色＋透過色、alpha閾値96、ディザなし、disposal=2です。復号GIFの最後5セルの不透明面積は灰紫1706→954→424→126→11、白1333→760→348→103→7画素です。灰紫の平均RGBは各段階で暗くなり、白GIFの平均RGBは224.81〜230.08の白・薄紫を保っています。
+
+```js
+function releaseAssetId(d, cfg) {
+  if (d.dead || d.side !== 'enemy') return null;
+  return cfg.inverted ? (d.kind === 'membrane' ? 'white_membrane_release' : null)
+    : 'kegare_release';
+}
+function drawReleaseWrappers(ctx, asset, sheet, elapsedMs, footX, footY, tw) {
+  const cel = GameArt.sample(asset.id, 'effect', elapsedMs);
+  if (!sheet || cel == null) return;
+  const [w, h] = asset.grid.cellSize, scale = tw / 80;
+  ctx.drawImage(sheet, (cel % 4) * w, Math.floor(cel / 4) * h, w, h,
+    footX - 128 * scale, footY - 128 * scale, w * scale, h * scale);
+}
+// defeatのdead設定前にIDとunitXY(d)の足元・開始時刻を保持する。
+// GameArt.load([id])でシートを読み込み、1840msでイベント終了。
+// GameArt.drawのbboxフィットではなく、固定pivotとscaleで描く。
+```
+
+実shade/membraneの参照、生成原画とGPT Image修正前原画、両プロンプト、切り出し・漂う速度・回転・全セル位置は `release-set-09.json` / `prompts.json` とZIPに保存しています。実コピー `GameArt.sample` の90アサートが通過しています。**連続視覚再生・実ゲーム内配置は未確認**です。
+
+```sh
+python3 tools/build_release_assets.py
 ```

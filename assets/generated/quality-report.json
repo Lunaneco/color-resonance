@@ -2910,5 +2910,685 @@
       "toleratedBottomPixelDifferencePx": 1,
       "scope": "static independent audit; partial alpha cannot be reproduced by GIF"
     }
+  },
+  "releaseSet09": {
+    "assetCount": 2,
+    "checks": [
+      {
+        "id": "kegare_release",
+        "pngCels": 12,
+        "gifFrames": 14,
+        "totalDurationMs": 1840,
+        "loop": false,
+        "visibleEndMs": 1200,
+        "pngVisibleEndMs": 1200,
+        "transparentTailMs": 640,
+        "noTargetBody": true,
+        "deliberateWrapperCount": 2,
+        "noAdditionalParticleSystem": true,
+        "alphaFringeLimit": "faint isolated antialias pixels can remain; not an assertion of zero isolated pixels",
+        "centralClearWindowPx": [
+          120,
+          32,
+          136,
+          156
+        ],
+        "centralWindowAlpha": 0,
+        "transparentClearancePx": 24,
+        "uniformDetachmentScales": [
+          0.06640625,
+          0.06576402321083172
+        ],
+        "celPositions": [
+          {
+            "cel": 0,
+            "relativeTimeMs": 0,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  100,
+                  88
+                ],
+                "rotationDeg": 0,
+                "dissipationScale": 1
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  156,
+                  88
+                ],
+                "rotationDeg": 0,
+                "dissipationScale": 1
+              }
+            ]
+          },
+          {
+            "cel": 1,
+            "relativeTimeMs": 80,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  96.8,
+                  86
+                ],
+                "rotationDeg": -1.6,
+                "dissipationScale": 1
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  159.2,
+                  86
+                ],
+                "rotationDeg": 1.6,
+                "dissipationScale": 1
+              }
+            ]
+          },
+          {
+            "cel": 2,
+            "relativeTimeMs": 160,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  93.6,
+                  84
+                ],
+                "rotationDeg": -3.2,
+                "dissipationScale": 1
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  162.4,
+                  84
+                ],
+                "rotationDeg": 3.2,
+                "dissipationScale": 1
+              }
+            ]
+          },
+          {
+            "cel": 3,
+            "relativeTimeMs": 240,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  90.4,
+                  82
+                ],
+                "rotationDeg": -4.8,
+                "dissipationScale": 1
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  165.6,
+                  82
+                ],
+                "rotationDeg": 4.8,
+                "dissipationScale": 1
+              }
+            ]
+          },
+          {
+            "cel": 4,
+            "relativeTimeMs": 320,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  87.2,
+                  80
+                ],
+                "rotationDeg": -6.4,
+                "dissipationScale": 1
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  168.8,
+                  80
+                ],
+                "rotationDeg": 6.4,
+                "dissipationScale": 1
+              }
+            ]
+          },
+          {
+            "cel": 5,
+            "relativeTimeMs": 400,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  84,
+                  78
+                ],
+                "rotationDeg": -8,
+                "dissipationScale": 1
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  172,
+                  78
+                ],
+                "rotationDeg": 8,
+                "dissipationScale": 1
+              }
+            ]
+          },
+          {
+            "cel": 6,
+            "relativeTimeMs": 480,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  80.8,
+                  76
+                ],
+                "rotationDeg": -9.6,
+                "dissipationScale": 1
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  175.2,
+                  76
+                ],
+                "rotationDeg": 9.6,
+                "dissipationScale": 1
+              }
+            ]
+          },
+          {
+            "cel": 7,
+            "relativeTimeMs": 560,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  77.6,
+                  74
+                ],
+                "rotationDeg": -11.2,
+                "dissipationScale": 1
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  178.4,
+                  74
+                ],
+                "rotationDeg": 11.2,
+                "dissipationScale": 1
+              }
+            ]
+          },
+          {
+            "cel": 8,
+            "relativeTimeMs": 640,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  74.4,
+                  72
+                ],
+                "rotationDeg": -12.8,
+                "dissipationScale": 0.75
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  181.6,
+                  72
+                ],
+                "rotationDeg": 12.8,
+                "dissipationScale": 0.75
+              }
+            ]
+          },
+          {
+            "cel": 9,
+            "relativeTimeMs": 760,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  69.6,
+                  69
+                ],
+                "rotationDeg": -15.2,
+                "dissipationScale": 0.5
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  186.4,
+                  69
+                ],
+                "rotationDeg": 15.2,
+                "dissipationScale": 0.5
+              }
+            ]
+          },
+          {
+            "cel": 10,
+            "relativeTimeMs": 880,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  64.8,
+                  66
+                ],
+                "rotationDeg": -17.6,
+                "dissipationScale": 0.28
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  191.2,
+                  66
+                ],
+                "rotationDeg": 17.6,
+                "dissipationScale": 0.28
+              }
+            ]
+          },
+          {
+            "cel": 11,
+            "relativeTimeMs": 1000,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  60,
+                  63
+                ],
+                "rotationDeg": -20,
+                "dissipationScale": 0.1
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  196,
+                  63
+                ],
+                "rotationDeg": 20,
+                "dissipationScale": 0.1
+              }
+            ]
+          }
+        ],
+        "gifLastFiveOpaqueRgbMeans": [
+          93.18171160609613,
+          84.47973445143256,
+          66.10298742138365,
+          48.84391534391534,
+          33.333333333333336
+        ],
+        "gifLastFiveOpaqueAreas": [
+          1706,
+          954,
+          424,
+          126,
+          11
+        ],
+        "pngEndMethod": "four-stage shrink and partial alpha fade",
+        "gifEndMethod": "four-stage shrink and RGB dimming with binary-alpha edge loss",
+        "continuousVisualPlayback": "NOT VERIFIED",
+        "actualGamePlacement": "NOT VERIFIED"
+      },
+      {
+        "id": "white_membrane_release",
+        "pngCels": 12,
+        "gifFrames": 14,
+        "totalDurationMs": 1840,
+        "loop": false,
+        "visibleEndMs": 1200,
+        "pngVisibleEndMs": 1200,
+        "transparentTailMs": 640,
+        "noTargetBody": true,
+        "deliberateWrapperCount": 2,
+        "noAdditionalParticleSystem": true,
+        "alphaFringeLimit": "faint isolated antialias pixels can remain; not an assertion of zero isolated pixels",
+        "centralClearWindowPx": [
+          120,
+          32,
+          136,
+          156
+        ],
+        "centralWindowAlpha": 0,
+        "transparentClearancePx": 24,
+        "uniformDetachmentScales": [
+          0.06097560975609756,
+          0.06289308176100629
+        ],
+        "celPositions": [
+          {
+            "cel": 0,
+            "relativeTimeMs": 0,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  100,
+                  88
+                ],
+                "rotationDeg": 0,
+                "dissipationScale": 1
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  156,
+                  88
+                ],
+                "rotationDeg": 0,
+                "dissipationScale": 1
+              }
+            ]
+          },
+          {
+            "cel": 1,
+            "relativeTimeMs": 80,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  96.8,
+                  86
+                ],
+                "rotationDeg": -1.6,
+                "dissipationScale": 1
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  159.2,
+                  86
+                ],
+                "rotationDeg": 1.6,
+                "dissipationScale": 1
+              }
+            ]
+          },
+          {
+            "cel": 2,
+            "relativeTimeMs": 160,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  93.6,
+                  84
+                ],
+                "rotationDeg": -3.2,
+                "dissipationScale": 1
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  162.4,
+                  84
+                ],
+                "rotationDeg": 3.2,
+                "dissipationScale": 1
+              }
+            ]
+          },
+          {
+            "cel": 3,
+            "relativeTimeMs": 240,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  90.4,
+                  82
+                ],
+                "rotationDeg": -4.8,
+                "dissipationScale": 1
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  165.6,
+                  82
+                ],
+                "rotationDeg": 4.8,
+                "dissipationScale": 1
+              }
+            ]
+          },
+          {
+            "cel": 4,
+            "relativeTimeMs": 320,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  87.2,
+                  80
+                ],
+                "rotationDeg": -6.4,
+                "dissipationScale": 1
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  168.8,
+                  80
+                ],
+                "rotationDeg": 6.4,
+                "dissipationScale": 1
+              }
+            ]
+          },
+          {
+            "cel": 5,
+            "relativeTimeMs": 400,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  84,
+                  78
+                ],
+                "rotationDeg": -8,
+                "dissipationScale": 1
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  172,
+                  78
+                ],
+                "rotationDeg": 8,
+                "dissipationScale": 1
+              }
+            ]
+          },
+          {
+            "cel": 6,
+            "relativeTimeMs": 480,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  80.8,
+                  76
+                ],
+                "rotationDeg": -9.6,
+                "dissipationScale": 1
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  175.2,
+                  76
+                ],
+                "rotationDeg": 9.6,
+                "dissipationScale": 1
+              }
+            ]
+          },
+          {
+            "cel": 7,
+            "relativeTimeMs": 560,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  77.6,
+                  74
+                ],
+                "rotationDeg": -11.2,
+                "dissipationScale": 1
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  178.4,
+                  74
+                ],
+                "rotationDeg": 11.2,
+                "dissipationScale": 1
+              }
+            ]
+          },
+          {
+            "cel": 8,
+            "relativeTimeMs": 640,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  74.4,
+                  72
+                ],
+                "rotationDeg": -12.8,
+                "dissipationScale": 0.75
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  181.6,
+                  72
+                ],
+                "rotationDeg": 12.8,
+                "dissipationScale": 0.75
+              }
+            ]
+          },
+          {
+            "cel": 9,
+            "relativeTimeMs": 760,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  69.6,
+                  69
+                ],
+                "rotationDeg": -15.2,
+                "dissipationScale": 0.5
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  186.4,
+                  69
+                ],
+                "rotationDeg": 15.2,
+                "dissipationScale": 0.5
+              }
+            ]
+          },
+          {
+            "cel": 10,
+            "relativeTimeMs": 880,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  64.8,
+                  66
+                ],
+                "rotationDeg": -17.6,
+                "dissipationScale": 0.28
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  191.2,
+                  66
+                ],
+                "rotationDeg": 17.6,
+                "dissipationScale": 0.28
+              }
+            ]
+          },
+          {
+            "cel": 11,
+            "relativeTimeMs": 1000,
+            "pieces": [
+              {
+                "name": "left wrapper",
+                "centerPx": [
+                  60,
+                  63
+                ],
+                "rotationDeg": -20,
+                "dissipationScale": 0.1
+              },
+              {
+                "name": "right wrapper",
+                "centerPx": [
+                  196,
+                  63
+                ],
+                "rotationDeg": 20,
+                "dissipationScale": 0.1
+              }
+            ]
+          }
+        ],
+        "gifLastFiveOpaqueRgbMeans": [
+          224.814703675919,
+          226.03508771929825,
+          227.8735632183908,
+          230.07766990291262,
+          224.61904761904762
+        ],
+        "gifLastFiveOpaqueAreas": [
+          1333,
+          760,
+          348,
+          103,
+          7
+        ],
+        "pngEndMethod": "four-stage shrink and partial alpha fade",
+        "gifEndMethod": "ivory/lavender colors retained; fixed centers/rotation after 640ms; .75/.5/.28/.06 shrink, no RGB dimming",
+        "continuousVisualPlayback": "NOT VERIFIED",
+        "actualGamePlacement": "NOT VERIFIED"
+      }
+    ],
+    "playbackContract": {
+      "assertions": 90,
+      "scope": "Read-only VM of actual copied GameArt.sample; onset/midpoint/preceding-ms of every cel; end and future timestamps remain null. No browser/rendering.",
+      "actualArtJsSha256": "955553cdecf0dd598dd469de631557718add3311dec327a01cb8877fe2d164a9",
+      "continuousVisualPlayback": "NOT VERIFIED",
+      "actualGamePlacement": "NOT VERIFIED"
+    }
   }
 }
