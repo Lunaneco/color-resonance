@@ -3,10 +3,10 @@
   "title": "Color Resonance ゲーム素材",
   "counts": {
     "characters": 18,
-    "effects": 28,
-    "sourceSheets": 46,
-    "pngCels": 436,
-    "gifs": 139
+    "effects": 30,
+    "sourceSheets": 48,
+    "pngCels": 460,
+    "gifs": 143
   },
   "production": {
     "generator": "built-in imagegen",
@@ -6778,6 +6778,260 @@
               "name": "小さくなって消失",
               "startMs": 720,
               "endMs": 1200
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "thorn_ranged_hit",
+      "name": "茨の射撃着弾",
+      "category": "fx",
+      "assetRole": "enemy-ranged-impact",
+      "source": "source/thorn_ranged_hit.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sheet": "sheets/thorn_ranged_hit.png",
+      "frames": [
+        "frames/thorn_ranged_hit/000.png",
+        "frames/thorn_ranged_hit/001.png",
+        "frames/thorn_ranged_hit/002.png",
+        "frames/thorn_ranged_hit/003.png",
+        "frames/thorn_ranged_hit/004.png",
+        "frames/thorn_ranged_hit/005.png",
+        "frames/thorn_ranged_hit/006.png",
+        "frames/thorn_ranged_hit/007.png",
+        "frames/thorn_ranged_hit/008.png",
+        "frames/thorn_ranged_hit/009.png",
+        "frames/thorn_ranged_hit/010.png",
+        "frames/thorn_ranged_hit/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          256,
+          192
+        ],
+        "order": "row-major"
+      },
+      "impactPivotPx": [
+        128,
+        96
+      ],
+      "scaleReferenceTileWidthPx": 80,
+      "direction": "right; align to attacker-to-target vector",
+      "triggerCondition": "a.side === 'enemy' && a.kind === 'thorn' && ranged && !r.miss && !r.pass",
+      "productionSet": "impact-set-10",
+      "animations": {
+        "effect": {
+          "name": "茨の射撃着弾",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            60,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            80,
+            80,
+            80,
+            80,
+            500
+          ],
+          "frameStartsMs": [
+            0,
+            60,
+            100,
+            140,
+            180,
+            220,
+            260,
+            300,
+            340,
+            380,
+            460,
+            540,
+            620,
+            700
+          ],
+          "loop": false,
+          "gif": "gifs/thorn_ranged_hit/effect.gif",
+          "size": [
+            256,
+            192
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 1200,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/thorn_ranged_hit/preview.gif",
+          "visibleEndMs": 700,
+          "pngVisibleEndMs": 700,
+          "gifTransparentTailMs": 500,
+          "phases": [
+            {
+              "name": "着弾の広がり",
+              "startMs": 60,
+              "endMs": 180
+            },
+            {
+              "name": "圧力跡のピーク",
+              "startMs": 180,
+              "endMs": 260
+            },
+            {
+              "name": "圧力跡の収縮",
+              "startMs": 260,
+              "endMs": 700
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "membrane_pressure_hit",
+      "name": "膜の圧迫着弾",
+      "category": "fx",
+      "assetRole": "enemy-ranged-impact",
+      "source": "source/membrane_pressure_hit.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sheet": "sheets/membrane_pressure_hit.png",
+      "frames": [
+        "frames/membrane_pressure_hit/000.png",
+        "frames/membrane_pressure_hit/001.png",
+        "frames/membrane_pressure_hit/002.png",
+        "frames/membrane_pressure_hit/003.png",
+        "frames/membrane_pressure_hit/004.png",
+        "frames/membrane_pressure_hit/005.png",
+        "frames/membrane_pressure_hit/006.png",
+        "frames/membrane_pressure_hit/007.png",
+        "frames/membrane_pressure_hit/008.png",
+        "frames/membrane_pressure_hit/009.png",
+        "frames/membrane_pressure_hit/010.png",
+        "frames/membrane_pressure_hit/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          256,
+          192
+        ],
+        "order": "row-major"
+      },
+      "impactPivotPx": [
+        128,
+        96
+      ],
+      "scaleReferenceTileWidthPx": 80,
+      "direction": "right; align to attacker-to-target vector",
+      "triggerCondition": "a.side === 'enemy' && a.kind === 'membrane' && ranged && !r.miss && !r.pass",
+      "productionSet": "impact-set-10",
+      "animations": {
+        "effect": {
+          "name": "膜の圧迫着弾",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            60,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            80,
+            80,
+            80,
+            80,
+            500
+          ],
+          "frameStartsMs": [
+            0,
+            60,
+            100,
+            140,
+            180,
+            220,
+            260,
+            300,
+            340,
+            380,
+            460,
+            540,
+            620,
+            700
+          ],
+          "loop": false,
+          "gif": "gifs/membrane_pressure_hit/effect.gif",
+          "size": [
+            256,
+            192
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 1200,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/membrane_pressure_hit/preview.gif",
+          "visibleEndMs": 700,
+          "pngVisibleEndMs": 700,
+          "gifTransparentTailMs": 500,
+          "phases": [
+            {
+              "name": "着弾の広がり",
+              "startMs": 60,
+              "endMs": 180
+            },
+            {
+              "name": "圧力跡のピーク",
+              "startMs": 180,
+              "endMs": 260
+            },
+            {
+              "name": "圧力跡の収縮",
+              "startMs": 260,
+              "endMs": 700
             }
           ]
         }

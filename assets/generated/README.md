@@ -1,6 +1,6 @@
 # Color Resonance ゲーム素材
 
-ゲームの物語・敵・仲間・技に合わせ、組み込みimagegenで生成した素材ライブラリです。キャラクター18種類、技・状態・環境・装甲・外皮エフェクト28種類、主原画46枚、透過PNGコマ436枚、動作GIF139本（動作・単発技・継続ループ123本と専用反復プレビュー16本）を収録しています。水面の4×4配置用GIF2本は別枠の確認画像です。
+ゲームの物語・敵・仲間・技に合わせ、組み込みimagegenで生成した素材ライブラリです。キャラクター18種類、技・状態・環境・装甲・外皮・着弾エフェクト30種類、主原画48枚、透過PNGコマ460枚、動作GIF143本（動作・単発技・継続ループ125本と専用反復プレビュー18本）を収録しています。水面の4×4配置用GIF2本は別枠の確認画像です。
 
 [素材一覧を開く](https://lunaneco.github.io/color-resonance/assets/generated/) では名前・技名で検索し、動作を切り替え、明暗背景で透過を確認できます。`index.html` を直接開いても閲覧できます。
 
@@ -402,4 +402,44 @@ function drawReleaseWrappers(ctx, asset, sheet, elapsedMs, footX, footY, tw) {
 
 ```sh
 python3 tools/build_release_assets.py
+```
+
+## 敵の遠隔着弾 第10セット
+
+[茨の射撃着弾・膜の圧迫着弾の2点をZIPでまとめて保存](downloads/impact-set10.zip)できます。
+
+| 素材ID | 対象 | 単発GIF |
+|---|---|---|
+| thorn_ranged_hit | 茨の遠隔攻撃の命中点 | [effect.gif](gifs/thorn_ranged_hit/effect.gif) |
+| membrane_pressure_hit | 膜の遠隔攻撃の命中点 | [effect.gif](gifs/membrane_pressure_hit/effect.gif) |
+
+実コピー `board.js` の茨の射程2〜3・膜の射程1〜2と、`attack(a,d)` の遠隔分岐を元に作りました。既存分岐の線と着弾に添える短い圧力跡です。`a.side==='enemy' && a.kind==='thorn'` または `a.kind==='membrane'`、かつ `ranged && !r.miss && !r.pass` の命中時だけ1回使います。3本の大きな跡を実敵セルの色から新たに描いた表現で、飛翔体・身体の分割・新しい武器やダメージ効果は含みません。第9セットの消去時の外皮とは別の用途です。ゲーム本体には未接続です。
+
+各256×192・12PNGセル・4列×3行1024×576シートです。開始透明60ms、セル000〜007各40ms、008〜011各80ms、終了透明500msの14コマGIFで総尺1200ms。PNG/GIFとも可視終端700msです。`effect.gif` は一度だけ、一覧用 `preview.gif` だけ反復します。セル003と004は同じピーク形状を合計80ms保持します。12セル全てが別形状ではありません。
+
+固定の**命中点pivot(128,96)**、基準タイル幅80です。足元ではなく、実分岐の `hitX=pd.x` / `hitY=pd.y-tw*d.hgt*.5` に合わせます。元は左から右へ向かう跡で、攻撃側から対象へのベクトルに合わせて回します。全体を同じ支点で0.15→0.35→0.65→1倍へ広げ、最後は0.65→0.40→0.20→0.07倍へ収縮します。可視跡は支点の手前にあり、pivot画素自体は全PNG/GIFでalpha0です。全コマの外枠24pxも完全透明です。
+
+PNGの最後4セルはalpha0.9→0.8→0.7→0.6も保持します。GIFは原画の色を保った輪郭収縮で消し、RGB暗化を行いません。特に白い膜は最後まで白・薄紫を保持し、灰黒へ変えません。共通255色＋透過色、alpha閾値96、ディザなし、disposal=2です。復号GIFの終盤の不透明面積は茨1318→501→120→14、膜1648→625→156→18画素。膜の終盤平均RGBは232.93〜234.75です。
+
+原画の大きな跡は3本ですが、縮小とラスタ化で1〜3pxの分離画素が一部に残ります。茨PNG006にalpha200/193、膜PNG002/008にalpha130/117の画素があり、全てが低alphaのAAではありません。先端から約2.24px離れる場合もあります。追加の粒子システムは使いませんが、孤立画素ゼロ・全コマで3本が明瞭とはしません。64pxではピークの3本は判別でき、開始と末尾は点状です。膜は明るい床でコントラストが弱く、**実ゲームでの視認性と連続視覚再生・実配置は未確認**です。
+
+```js
+function drawRangedImpact(ctx, asset, sheet, elapsedMs, hitX, hitY, tw, angle) {
+  const cel = GameArt.sample(asset.id, 'effect', elapsedMs);
+  if (!sheet || cel == null) return;
+  const [w, h] = asset.grid.cellSize, scale = tw / 80;
+  ctx.save(); ctx.translate(hitX, hitY); ctx.rotate(angle);
+  ctx.drawImage(sheet, (cel % 4) * w, Math.floor(cel / 4) * h, w, h,
+    -128 * scale, -96 * scale, w * scale, h * scale);
+  ctx.restore();
+}
+// 遠隔命中分岐でa.kindからIDを選び、命中点・方向・開始時刻を保持する。
+// GameArt.load([id])で読み込み、1200msでイベント終了。
+// GameArt.drawのbboxフィットを避け、全セル共通の命中点と倍率で描く。
+```
+
+実敵セル参照、生成原画、膜の修正前原画、全プロンプトと支点・尺度・時間は `impact-set-10.json` / `prompts.json` とZIPに保存しています。実コピー `GameArt.sample` の開始・中点・直前・終端について90アサートが通過しました。各コマの確認画像は `review/thorn_ranged_hit.jpg` / `review/membrane_pressure_hit.jpg` です。
+
+```sh
+python3 tools/build_impact_assets.py
 ```

@@ -3590,5 +3590,86 @@
       "continuousVisualPlayback": "NOT VERIFIED",
       "actualGamePlacement": "NOT VERIFIED"
     }
+  },
+  "impactSet10": {
+    "assetCount": 2,
+    "checks": [
+      {
+        "id": "thorn_ranged_hit",
+        "pngCels": 12,
+        "gifFrames": 14,
+        "durationMs": 1200,
+        "visibleEndMs": 700,
+        "pngVisibleEndMs": 700,
+        "transparentTailMs": 500,
+        "loop": false,
+        "firstLastBlank": true,
+        "impactPivotPx": [
+          128,
+          96
+        ],
+        "impactPivotAlpha": 0,
+        "transparentClearancePx": 24,
+        "sourceMajorTraces": 3,
+        "additionalParticleSystem": false,
+        "rasterIsolatedPixels": "1–3px raster separations may remain, including alpha200/193 in thorn cel006 and alpha130/117 in membrane cel002/008; not all are low-alpha AA",
+        "readability": "three major traces distinguishable at 64px peak; onset/tail become dots; membrane contrast weak on light floors; actual game visibility NOT VERIFIED",
+        "gifEndOpaqueAreas": [
+          1318,
+          501,
+          120,
+          14
+        ],
+        "gifWhiteEndRgbMeans": null,
+        "pngEndMethod": "geometric contraction plus partial alpha",
+        "gifEndMethod": "geometric contraction retaining source colors; no RGB darkening",
+        "continuousVisualPlayback": "NOT VERIFIED",
+        "actualGamePlacement": "NOT VERIFIED"
+      },
+      {
+        "id": "membrane_pressure_hit",
+        "pngCels": 12,
+        "gifFrames": 14,
+        "durationMs": 1200,
+        "visibleEndMs": 700,
+        "pngVisibleEndMs": 700,
+        "transparentTailMs": 500,
+        "loop": false,
+        "firstLastBlank": true,
+        "impactPivotPx": [
+          128,
+          96
+        ],
+        "impactPivotAlpha": 0,
+        "transparentClearancePx": 24,
+        "sourceMajorTraces": 3,
+        "additionalParticleSystem": false,
+        "rasterIsolatedPixels": "1–3px raster separations may remain, including alpha200/193 in thorn cel006 and alpha130/117 in membrane cel002/008; not all are low-alpha AA",
+        "readability": "three major traces distinguishable at 64px peak; onset/tail become dots; membrane contrast weak on light floors; actual game visibility NOT VERIFIED",
+        "gifEndOpaqueAreas": [
+          1648,
+          625,
+          156,
+          18
+        ],
+        "gifWhiteEndRgbMeans": [
+          234.57584951456312,
+          234.752,
+          234.42948717948718,
+          232.92592592592595
+        ],
+        "pngEndMethod": "geometric contraction plus partial alpha",
+        "gifEndMethod": "geometric contraction retaining source colors; no RGB darkening",
+        "continuousVisualPlayback": "NOT VERIFIED",
+        "actualGamePlacement": "NOT VERIFIED"
+      }
+    ],
+    "playbackContract": {
+      "assertions": 90,
+      "scope": "Read-only VM of actual copied GameArt.sample; onset/midpoint/preceding-ms of every cel; end and future timestamps remain null. No browser/rendering.",
+      "actualArtJsSha256": "955553cdecf0dd598dd469de631557718add3311dec327a01cb8877fe2d164a9",
+      "continuousVisualPlayback": "NOT VERIFIED",
+      "actualGamePlacement": "NOT VERIFIED"
+    }
   }
 }

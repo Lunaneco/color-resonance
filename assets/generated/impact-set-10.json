@@ -1,0 +1,155 @@
+[
+  {
+    "id": "thorn_ranged_hit",
+    "name": "茨の射撃着弾",
+    "source": "source/thorn_ranged_hit.png",
+    "reference": "references/thorn-hit-cel.png",
+    "generatedImage": "exec-dad136d9-7280-416b-8162-079de158482c.png",
+    "sourceCropBoxPx": [
+      302,
+      307,
+      946,
+      951
+    ],
+    "sourceImpactPivotPx": [
+      958,
+      634
+    ],
+    "trigger": "a.side === 'enemy' && a.kind === 'thorn' && ranged && !r.miss && !r.pass",
+    "prompt": "Create ONE original transparent game IMPACT EFFECT master for the existing Japanese ColorResonance tactical game. No character is pictured. A compact group of EXACTLY THREE large, simple, broad pressure streaks/wedges, arranged as a short fan pointing to the RIGHT toward an EMPTY small impact center. Each has a blunt rounded broad base and a clean tapered tip. Keep the middle impact point clear, no solid central burst, no ring. These are abstract impact traces, NOT a weapon, projectile flight, body pieces or material debris. Very smooth clean anime game painting, two or three broad tonal regions per streak, crisp simple solid shapes with clean anti-aliased edges. Three traces only, no little shards or detached particles, no dots, no grains, no glitter, no tiny parallel hatchmarks, no intricate cracks, no lightning. Entire group centered with very generous fully transparent margins, occupies about 45%width and45%height of square canvas. Fully opaque interior, fully transparent exterior; no background, no ground shadow, no fog halo. No body, no head, no face, no eyes, no hands, no hair, no person, no monster, no text. Readable at64px; this single fixed shape will be scaled as a short impact pulse then shrunk into disappearance. Canonical incoming direction LEFT to RIGHT. Use the reference only for the actual thorn enemy's muted dark aubergine and pink-violet thorn accents with a restrained deep-green accent. The three broad marks should feel like thorn-shaped pressure traces, a little curved, no vine coil, no full plant, no friendly flower, no poison status symbol. Preserve dark plum and subdued pink-violet, no fluorescent neon or red blood appearance. No new weapon or character. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」\n「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "cellSize": [
+      256,
+      192
+    ],
+    "impactPivotPx": [
+      128,
+      96
+    ],
+    "scaleReferenceTileWidthPx": 80,
+    "peakWidthPx": 90,
+    "direction": "right; align to attacker-to-target vector",
+    "sourceMeaning": "stylized impact traces; no body/projectile flight/new damage mechanic",
+    "celScaleEnvelope": [
+      0.15,
+      0.35,
+      0.65,
+      1,
+      1,
+      0.95,
+      0.9,
+      0.85,
+      0.65,
+      0.4,
+      0.2,
+      0.07
+    ],
+    "celPngOpacities": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0.9,
+      0.8,
+      0.7,
+      0.6
+    ],
+    "celDurationsMs": [
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      80,
+      80,
+      80,
+      80
+    ],
+    "preRollMs": 60,
+    "transparentTailMs": 500
+  },
+  {
+    "id": "membrane_pressure_hit",
+    "name": "膜の圧迫着弾",
+    "source": "source/membrane_pressure_hit.png",
+    "reference": "references/membrane-hit-cel.png",
+    "generatedImage": "exec-73b25c1f-772d-43e1-bc59-6632852b4caf.png",
+    "editBase": "source/membrane_pressure_hit-base.png",
+    "editBaseGeneratedImage": "exec-4bf89d5f-9685-471b-9466-e010667e0bf4.png",
+    "editPrompt": "Repair the supplied WHITE impact glyph editing master. Preserve the EXACT THREE large tapered ivory-white pressure streak shapes, their smooth broad lavender folds, their left-to-right direction, and their arrangement. DO NOT redraw or add any object. Remove ALL of the many tiny white particles and white crumbs from the GAPS BETWEEN THE THREE STREAKS, and from the entire transparent exterior. Erase every small speck, fuzzy fringe, white scallop, isolated pixel, dot and irregular little protrusion that is not part of one of the THREE MAIN SOLID STREAKS. Each of the three shapes must have ONE perfectly continuous smooth clean contour. There must be NOTHING at all between the three shapes: completely alpha0 empty transparent space, including next to their inner edges and near their tips. No white outer halo or extra outline. Keep the existing opaque broad smooth interiors and their large simple pale lavender shading. Exactly three smooth large shapes only, no texture or fragments. Transparent background. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」\n「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "sourceCropBoxPx": [
+      228,
+      140,
+      1071,
+      1149
+    ],
+    "sourceImpactPivotPx": [
+      1080,
+      664
+    ],
+    "trigger": "a.side === 'enemy' && a.kind === 'membrane' && ranged && !r.miss && !r.pass",
+    "prompt": "Create ONE original transparent game IMPACT EFFECT master for the existing Japanese ColorResonance tactical game. No character is pictured. A compact group of EXACTLY THREE large, simple, broad pressure streaks/wedges, arranged as a short fan pointing to the RIGHT toward an EMPTY small impact center. Each has a blunt rounded broad base and a clean tapered tip. Keep the middle impact point clear, no solid central burst, no ring. These are abstract impact traces, NOT a weapon, projectile flight, body pieces or material debris. Very smooth clean anime game painting, two or three broad tonal regions per streak, crisp simple solid shapes with clean anti-aliased edges. Three traces only, no little shards or detached particles, no dots, no grains, no glitter, no tiny parallel hatchmarks, no intricate cracks, no lightning. Entire group centered with very generous fully transparent margins, occupies about 45%width and45%height of square canvas. Fully opaque interior, fully transparent exterior; no background, no ground shadow, no fog halo. No body, no head, no face, no eyes, no hands, no hair, no person, no monster, no text. Readable at64px; this single fixed shape will be scaled as a short impact pulse then shrunk into disappearance. Canonical incoming direction LEFT to RIGHT. Use the reference ONLY for cold ivory-white and very pale lavender-gray material shading. The three broad marks are smooth cold flat WHITE pressure traces with just one simple pale lavender fold each. No holy light, no angel, no golden glow, no rainbow, no halo, no star or magical sparkle. The white is a hostile imposed membrane's impact cue; it does not represent purity or erasing somebody's night-black color. Keep the traces as large simple pale shapes with no fuzzy fringes or white frill. No new ability, no creature silhouette, no torso or face. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」\n「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "cellSize": [
+      256,
+      192
+    ],
+    "impactPivotPx": [
+      128,
+      96
+    ],
+    "scaleReferenceTileWidthPx": 80,
+    "peakWidthPx": 90,
+    "direction": "right; align to attacker-to-target vector",
+    "sourceMeaning": "stylized impact traces; no body/projectile flight/new damage mechanic",
+    "celScaleEnvelope": [
+      0.15,
+      0.35,
+      0.65,
+      1,
+      1,
+      0.95,
+      0.9,
+      0.85,
+      0.65,
+      0.4,
+      0.2,
+      0.07
+    ],
+    "celPngOpacities": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0.9,
+      0.8,
+      0.7,
+      0.6
+    ],
+    "celDurationsMs": [
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      80,
+      80,
+      80,
+      80
+    ],
+    "preRollMs": 60,
+    "transparentTailMs": 500
+  }
+]
