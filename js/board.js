@@ -6,6 +6,7 @@ const Board = (() => {
   const g = cv.getContext('2d');
   const floatLayer = $id('floatLayer');
   const hintEl = $id('hint');
+  const hintTextEl = $id('hintText');
   const subjEl = $id('boardSubject');
   const vignette = $id('vignette');
   const cmdMenu = $id('cmdMenu');
@@ -727,13 +728,14 @@ const Board = (() => {
     screen.animate([{ transform: 'translate(0,0)' }, { transform: `translate(${-px}px,${px * 0.5}px)` }, { transform: `translate(${px}px,${-px * 0.6}px)` }, { transform: `translate(${-px * 0.5}px,${px * 0.3}px)` }, { transform: 'translate(0,0)' }], { duration: 380 });
   }
   let hintTimer = null;
-  function say(who, text, ms = 0) {
-    hintEl.innerHTML = (who ? `<span class="hn">${who}</span>` : '') + text;
+  function say(who, text, ms = 8000) {
+    hintTextEl.innerHTML = (who ? `<span class="hn">${who}</span>` : '') + text;
     hintEl.classList.add('show');
     if (hintTimer) hintTimer();
     hintTimer = ms ? later(() => hintEl.classList.remove('show'), ms) : null;
   }
   function hideSay() { if (hintTimer) hintTimer(); hintTimer = null; hintEl.classList.remove('show'); }
+  $id('hintClose').addEventListener('click', e => { e.stopPropagation(); hideSay(); });
   async function showBanner(kind, main, sub) {
     bannerEl.className = '';
     bannerEl.innerHTML = `<div class="pb-line"></div><div class="pb-main">${main}</div><div class="pb-sub">${sub}</div>`;
@@ -1242,6 +1244,7 @@ const Board = (() => {
   }
   function endPlayerPhase() { return runTask((async () => {
     if (phase !== 'player' || busy || over || paused) return;
+    hideSay();
     const my = sess;
     busy = true; deselect(); threat = null; endBtn.disabled = true;
     phaseLabel.textContent = '';
@@ -1358,6 +1361,7 @@ const Board = (() => {
   }
   function cancel() {
     if (busy || over) return;
+    hideSay();
     if (mode === 'target') { targets = null; targetCmd = null; mode = 'selected'; if (sel) { moveInfo = sel.moved ? null : reachable(sel); showMenu(sel, menuSub); phaseLabel.textContent = sel.moved ? '行動を選んでください' : '光る床へ移動／本人に触れて、その場で行動'; } return; }
     if (mode === 'selected' && sel) {
       if (menuSub) { showMenu(sel); return; }
@@ -1411,6 +1415,7 @@ const Board = (() => {
   }
   function command(k, arg) {
     if (!running || phase !== 'player' || busy || !sel || over || paused || Panel.isOpen()) return;
+    hideSay();
     const u = sel;
     Audio2.sfx.choose();
     if (k === 'attack') enterTarget('attack', attackTargets(u));
@@ -1449,6 +1454,7 @@ const Board = (() => {
   }
   function onClick(cell) {
     if (!running || busy || over || phase !== 'player' || paused || Panel.isOpen()) return;
+    hideSay();
     if (!cell) { if (mode !== 'selected') cancel(); return; }
     const id = idx(cell.r, cell.c), u = unitAt(cell);
     if (mode === 'target') {
@@ -1501,8 +1507,8 @@ const Board = (() => {
     cancelBtn.classList.toggle('hidden', !st);
     cancelBtn.textContent = st === 't' ? '戻る' : st === 'm' ? '移動を戻す' : '選び直す';
   }
-  actHereBtn.addEventListener('click', e => { e.stopPropagation(); if (sel && !busy) { Audio2.sfx.choose(); showMenu(sel); } });
-  cancelBtn.addEventListener('click', e => { e.stopPropagation(); if (!sel || busy) return; if (mode === 'selected' && !sel.moved && !menuSub) { deselect(); return; } cancel(); });
+  actHereBtn.addEventListener('click', e => { e.stopPropagation(); if (sel && !busy) { hideSay(); Audio2.sfx.choose(); showMenu(sel); } });
+  cancelBtn.addEventListener('click', e => { e.stopPropagation(); if (!sel || busy) return; hideSay(); if (mode === 'selected' && !sel.moved && !menuSub) { deselect(); return; } cancel(); });
   function hideMenu() { cmdMenu.classList.add('hidden'); }
   function showMenu(u, sub) {
     if (!u || u.acted) { hideMenu(); return; }
@@ -1627,6 +1633,7 @@ const Board = (() => {
       b.onclick = () => {
         if (busy || phase !== 'player' || over || paused) return;
         const a2 = ariaU(); if (!a2 || a2.acted) return;
+        hideSay();
         if (sel !== a2) { if (sel && sel.moved) return; select(a2, true); }
         if (mode === 'target') { mode = 'selected'; targets = null; targetCmd = null; moveInfo = a2.moved ? null : reachable(a2); }
         showMenu(a2, 'spirit');
@@ -1700,7 +1707,7 @@ const Board = (() => {
     if (!s || s.wait !== ev) return;
     tut.i++;
     const n = tut.steps[tut.i];
-    if (n) say(n.who, n.text); else hideSay();
+    if (n) say(n.who, n.text); else { tut = null; hideSay(); }
   }
 
   // ---------- 勝敗 ----------
@@ -1868,6 +1875,7 @@ const Board = (() => {
   $id('boardMenu').onclick = () => Main.gameMenu();
 
   function help() {
+    hideSay();
     Panel.open('戦い方', `
       <h4>目的</h4>盤のどこかにいる<b>穢れの影</b>を、すべて心剣で切り分けてください。アリアが倒れると、やり直しになります。
       <h4>動かし方</h4>味方に触れると、<b>光る床</b>が歩ける場所。床に触れると移動し、そのあとメニューが開きます。<br>動かずに行動したいときは、本人にもう一度触れるか「その場で行動」。届く敵に直接触れても攻撃できます。<br>右クリック／Esc／「選び直す」：戻る　E：ターン終了　A：攻撃　W：待機

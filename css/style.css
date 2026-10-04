@@ -147,7 +147,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 #hint{position:absolute;left:22px;top:84px;width:min(270px,22vw);padding:16px 18px;border-radius:16px;background:linear-gradient(180deg,rgba(18,28,56,.86),rgba(8,12,28,.9));border:1px solid var(--line);box-shadow:0 14px 40px rgba(0,0,0,.4);font-family:var(--mincho);font-size:14.5px;line-height:1.8;letter-spacing:.04em;text-align:left;opacity:0;transition:opacity .5s;pointer-events:none}
 #hint::before{content:"";position:absolute;left:16px;right:16px;top:0;height:1px;background:var(--prism);opacity:.6}
 #hint small{display:block;margin-top:4px;font-size:12px;color:var(--ink-faint)}
-#hint.show{opacity:1}
+#hint{visibility:hidden}
+#hint.show{opacity:1;visibility:visible}
+#hintText{padding-right:30px}
+#hintClose{position:absolute;top:4px;right:4px;width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.06);color:var(--ink);font-family:var(--gothic);font-size:22px;line-height:1;pointer-events:auto}
+#hintClose:hover,#hintClose:focus-visible{background:rgba(255,255,255,.16);outline:2px solid #cfe0ff;outline-offset:2px}
 #hint .hn{display:block;font-size:12px;letter-spacing:.25em;color:#ffd98a;margin-bottom:2px}
 #floatLayer{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .floatWord{position:absolute;transform:translate(-50%,-50%);font-family:var(--mincho);font-weight:600;font-size:clamp(15px,1.5vw,20px);letter-spacing:.12em;white-space:nowrap;animation:wordUp 3.6s ease-out forwards;text-shadow:0 2px 12px rgba(0,0,0,.8)}

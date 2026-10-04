@@ -100,6 +100,46 @@ test('Clicking Aria’s body opens her menu without moving to a floor behind her
   assert(await page.locator('#cmdMenu').isVisible());
 });
 
+for(const viewport of [{width:1440,height:900},{width:390,height:844},{width:667,height:375}]){
+  test(`The first battle explanation can be dismissed without taking an action at ${viewport.width} × ${viewport.height}`,async()=>{
+    await boot('cove',viewport);const before=await state();
+    assert(await page.locator('#hint').evaluate(e=>e.classList.contains('show')));
+    await inViewport('hintClose');
+    if(viewport.width<900)await page.locator('#hintClose').tap();else await page.locator('#hintClose').click();
+    assert(!await page.locator('#hint').evaluate(e=>e.classList.contains('show')));
+    const after=await state();assert.deepEqual([aria(after).r,aria(after).c,after.turn,after.mode],[aria(before).r,aria(before).c,before.turn,before.mode]);
+    assert(!aria(after).moved&&!aria(after).acted);
+    await page.locator('#boardHelp').click();assert(await page.evaluate(()=>Panel.isOpen()));
+    assert((await page.locator('.pn-body').textContent()).includes('動かし方'));
+  });
+}
+
+test('Opening the action menu clears the first battle explanation',async()=>{
+  await boot();await openMenu();assert(!await page.locator('#hint').evaluate(e=>e.classList.contains('show')));
+});
+
+test('The first battle explanation expires even when the player takes no action',async()=>{
+  await boot();await page.waitForFunction(()=>!document.getElementById('hint').classList.contains('show'),{},{timeout:10000});
+  const s=await state();assert.equal(s.turn,1);assert(!aria(s).moved&&!aria(s).acted);
+});
+
+test('Dismissing a tutorial preserves later instructions, and the last instruction clears on the next turn',async()=>{
+  await boot();
+  await page.evaluate(()=>Board.start({...BOARDS.cove,map:{low:['land_flat'],mid:['land_flat'],high:['land_flat'],hills:0,obsAmt:0,water:null},enemies:[{kind:'shade',lv:1,n:2}],beats:[]}));
+  await idle();
+  await page.evaluate(()=>{Math.random=()=>.5;const foes=Board.__test.state().units.filter(u=>u.side==='enemy');Board.__test.arrange([{kind:'aria',r:5,c:4,hp:1000,mhp:1000,atk:999},{id:foes[0].id,r:2,c:2,hp:1},{id:foes[1].id,r:1,c:1,hp:1000,mhp:1000,atk:1}]);});
+  await page.locator('#hintClose').click();
+  const cell=await legalCell();assert(cell);await page.mouse.click(cell.x,cell.y);await idle();
+  assert((await page.locator('#hintText').textContent()).includes('歩いた床は'));
+  assert(await page.locator('#hint').evaluate(e=>e.classList.contains('show')));
+  await page.evaluate(()=>{const s=Board.__test.state(),a=s.units.find(u=>u.kind==='aria'),e=s.units.find(u=>u.side==='enemy');Board.__test.arrange([{id:e.id,r:a.r===0?1:a.r-1,c:a.c}]);});
+  await page.locator('[data-k=attack]').click();await clickUnit(enemy(await state()),true);
+  await page.waitForFunction(()=>document.getElementById('hintText').textContent.includes('言葉が煙になって'));
+  assert(await page.locator('#hint').evaluate(e=>e.classList.contains('show')));
+  await page.waitForFunction(()=>Board.__test.state().turn===2&&!Board.__test.state().busy,{},{timeout:25000});
+  assert(!await page.locator('#hint').evaluate(e=>e.classList.contains('show')));
+});
+
 for(const viewport of [{width:320,height:480},{width:320,height:640},{width:390,height:844},{width:820,height:600},{width:667,height:375},{width:844,height:390},{width:1440,height:900}]){
   test(`Battle controls and spirit menu fit ${viewport.width} × ${viewport.height}`,async()=>{
     await boot('king',viewport);
