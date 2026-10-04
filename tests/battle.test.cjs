@@ -401,6 +401,9 @@ test('All twelve learned skills and the back button can be reached on a small to
   await page.screenshot({path:'/tmp/cr-skills-320.png'});
   await page.locator('[data-k=skill][data-a=king_resonance]').scrollIntoViewIfNeeded();
   assert(await page.locator('[data-k=skill][data-a=king_resonance]').isVisible());
+  await page.locator('[data-k=skill][data-a=king_resonance]').hover();
+  assert.equal(await page.locator('#cmdMenu .cm-desc').evaluate(e=>getComputedStyle(e).display),'none');
+  assert.match(await page.locator('[data-k=skill][data-a=king_resonance] small').textContent(),/七色の斬撃/);
   await page.locator('[data-k=back]').click();assert(await page.locator('[data-k=learned]').isVisible());
 });
 

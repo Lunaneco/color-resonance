@@ -1616,7 +1616,7 @@ const Board = (() => {
       it.push(`<div class="cm-head">精霊から覚えた技<small>共鳴 ${sp}</small></div>`);
       Progression.learned(party).forEach(s => {
         it.push(`<div class="cm-skill-label" style="color:${SPIRITS[s.spirit].color}">${SPIRITS[s.spirit].name}・${s.type}</div>`);
-        it.push(btn('skill', s.name, { a: s.id, cost: s.cost, dis: sp < s.cost || !skillTargets(u, s).size, d: s.desc + '（行動を使う）' }));
+        it.push(`<button class="cm-b cm-learned" data-k="skill" data-a="${s.id}" data-d="" ${sp < s.cost || !skillTargets(u, s).size ? 'disabled' : ''}><span>${s.name}<em>${s.cost}</em></span><small>${s.desc}</small></button>`);
       });
       it.push(btn('back', 'もどる'));
     } else if (sub === 'item') {

@@ -615,6 +615,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .cm-skill-label{font-size:10px;line-height:1.4;margin:6px 10px 2px}
 #cmdMenu.learned{width:270px}
 #boardScreen.compact #cmdMenu.sheet.learned{grid-template-columns:minmax(0,1fr)}
+#cmdMenu.learned .cm-desc{display:none}
+.cm-b.cm-learned{flex-direction:column;align-items:stretch;gap:5px}
+.cm-learned>span{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cm-learned small{font-family:var(--gothic);font-size:11px;line-height:1.6;letter-spacing:0;color:var(--ink-dim)}
+#boardScreen.compact #cmdMenu.sheet .cm-learned{text-align:left;justify-content:flex-start;font-size:13px}
 .cm-spn small{display:block;margin-left:0;font-family:var(--gothic);font-size:10px;letter-spacing:0}
 .r-difficulty,.r-bond{font-size:12px;line-height:1.6;margin:6px 0;color:var(--ink-dim)}
 .wm-pan-note{display:none}
