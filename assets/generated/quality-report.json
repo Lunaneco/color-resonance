@@ -1762,5 +1762,156 @@
       "continuousVisualPlayback": "NOT VERIFIED",
       "actualGamePlacement": "NOT VERIFIED"
     }
+  },
+  "environmentSet07": {
+    "assetCount": 2,
+    "checks": [
+      {
+        "id": "sea_surface_prism",
+        "pngCels": 12,
+        "gifFrames": 12,
+        "durationMs": 2400,
+        "loop": true,
+        "phaseAtPeriodReturnsStart": true,
+        "loopBoundaryPhaseStep": 0.08333333333333333,
+        "noDuplicateHoldFrame": true,
+        "allPngAlphaIdentical": true,
+        "allGifAlphaIdentical": true,
+        "centerAlpha": 255,
+        "planeVerticesPx": [
+          [
+            128,
+            42
+          ],
+          [
+            228,
+            96
+          ],
+          [
+            128,
+            150
+          ],
+          [
+            28,
+            96
+          ]
+        ],
+        "minimumSampledSourceAlpha": 255,
+        "transparentClearancePx": 24,
+        "allFrameNeighborOpaqueRgbDifference": 0,
+        "neighborPairsPerFrame": 324,
+        "coverageApronScale": 1.02,
+        "luminanceNormalization": {
+          "sourceUvMean": 214.1674664173568,
+          "beforeNormalization": 213.26422142028807,
+          "uniformRgbGain": 1.004235333011104,
+          "afterNormalization": 214.2627291717529
+        },
+        "continuousVisualPlayback": "NOT VERIFIED",
+        "actualGamePlacement": "NOT VERIFIED"
+      },
+      {
+        "id": "sea_surface_dull",
+        "pngCels": 12,
+        "gifFrames": 12,
+        "durationMs": 2400,
+        "loop": true,
+        "phaseAtPeriodReturnsStart": true,
+        "loopBoundaryPhaseStep": 0.08333333333333333,
+        "noDuplicateHoldFrame": true,
+        "allPngAlphaIdentical": true,
+        "allGifAlphaIdentical": true,
+        "centerAlpha": 255,
+        "planeVerticesPx": [
+          [
+            128,
+            42
+          ],
+          [
+            228,
+            96
+          ],
+          [
+            128,
+            150
+          ],
+          [
+            28,
+            96
+          ]
+        ],
+        "minimumSampledSourceAlpha": 255,
+        "transparentClearancePx": 24,
+        "allFrameNeighborOpaqueRgbDifference": 0,
+        "neighborPairsPerFrame": 324,
+        "coverageApronScale": 1.02,
+        "luminanceNormalization": {
+          "sourceUvMean": 51.393120316734546,
+          "beforeNormalization": 53.17003310852051,
+          "uniformRgbGain": 0.9665805588618073,
+          "afterNormalization": 51.386927749633784
+        },
+        "continuousVisualPlayback": "NOT VERIFIED",
+        "actualGamePlacement": "NOT VERIFIED"
+      }
+    ],
+    "playbackContract": {
+      "assertions": 140,
+      "scope": "Read-only actual copied GameArt.sample VM; three loops, transitions, preceding ms; no browser/rendering.",
+      "actualArtJsSha256": "955553cdecf0dd598dd469de631557718add3311dec327a01cb8877fe2d164a9",
+      "continuousVisualPlayback": "NOT VERIFIED",
+      "actualGamePlacement": "NOT VERIFIED"
+    },
+    "temporalMeasurements": [
+      {
+        "id": "sea_surface_prism",
+        "uniqueGifFrames": 12,
+        "luminanceMin": 216.61359826824525,
+        "luminanceMax": 217.05245647640925,
+        "luminanceSpanPercent": 0.20259956515773503,
+        "cyclicAdjacentMeanRgbDifferences": [
+          1.1320904753490015,
+          1.2258349531719386,
+          1.2023620192024504,
+          1.2023914708134535,
+          1.227395888555104,
+          1.1378629911056135,
+          1.169376214878954,
+          1.1611886670200862,
+          1.166283795723626,
+          1.1702008599870413,
+          1.1561524415385522,
+          1.1624256346822173
+        ],
+        "loopBoundaryRgbDifference": 1.1624256346822173,
+        "phaseStep": 0.08333333333333333
+      },
+      {
+        "id": "sea_surface_dull",
+        "uniqueGifFrames": 12,
+        "luminanceMin": 51.831473422866225,
+        "luminanceMax": 51.937383972433295,
+        "luminanceSpanPercent": 0.20433636663770294,
+        "cyclicAdjacentMeanRgbDifferences": [
+          0.6657242151145668,
+          0.6706720857630912,
+          0.6588030865288331,
+          0.666519408611651,
+          0.6791541497319904,
+          0.6659009247805855,
+          0.6416622489250162,
+          0.6419862166460505,
+          0.6714672792601756,
+          0.6633091830123108,
+          0.638687636213701,
+          0.6425752488661131
+        ],
+        "loopBoundaryRgbDifference": 0.6425752488661131,
+        "phaseStep": 0.08333333333333333
+      }
+    ],
+    "sourceRevision": "r3 new broad low-contrast opaque square UV masters",
+    "floorTransition480ms": "NOT VERIFIED",
+    "appearanceLimit": "subtle periodic repetition remains; intended for calm/flat sea surface"
   }
 }

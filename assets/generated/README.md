@@ -277,3 +277,48 @@ python3 tools/build_status_assets.py
 ```
 
 `status-set-06.json` に単一原画のクロップ枠・一律倍率・透過穴の実測中心・pivot・明るさを保存しています。クロップは同じ原画の一度だけの共通枠で、コマ別のフィットや位置合わせは行いません。全コマの色以外は固定です。主原画、黄金環の編集前原画、実参照PNG、初回・修正の生成プロンプト、PNG/GIF・シート・レビュー画像と再生成スクリプトを保持しています。
+
+
+## 環境水面 第7セット
+
+[虹・くすみの水面ループをZIPでまとめて保存](downloads/environment-set07.zip)できます。
+
+| 素材ID | 床の状態 | 1枚のGIF | 4×4配置GIF |
+|---|---|---|---|
+| sea_surface_prism | 虹 | [ambient.gif](gifs/sea_surface_prism/ambient.gif) | [4×4](review/sea_surface_prism-4x4.gif) |
+| sea_surface_dull | くすみ | [ambient.gif](gifs/sea_surface_dull/ambient.gif) | [4×4](review/sea_surface_dull-4x4.gif) |
+
+各256×192・12PNGセル・4列×3行の1024×576シート・12コマGIFです。PNGは `sequence:[0,1,2,3,4,5,6,7,8,9,10,11]`、各200ms、`loop:true` とGIFと同じ時刻で再生します。総尺2400ms、保存用GIFもループします。固定の模様の上を、広い周期反射が進みます。位相は0/12〜11/12の等間隔で、次周0/12へ同じ1/12の歩幅で進むため、800msの静止区間はありません。先頭と末尾は異なる画ですが、周回境界の位相差は他のコマ間と同じです。
+
+実ゲームは `th=tw*0.54` の盤面です。反復する楕円や白い帯を抑えるため、広く穏やかな色変化の正方形UV原画を新たに生成しました。各辺の約2%を除いた範囲を256×256のUVへ写し、半周期ずらした4パッチを `sin²(πs)sin²(πt)` の窓で合成して周期化しました。ずらした側の座標は軸反転し、窓は切れ目で0になります。u/vの対辺が周期的につながります。周期化による平均の偏りは、RGB全体へ一律の倍率をかけて生成原画UVの平均輝度へ戻しています。周期化前後のUV PNGと倍率を保持しています。
+
+反射は `0.5+0.5*cos(2π(u-phase))` の広い一周期で、色の加算は虹(8,8,5)、くすみ(3,4,5)です。同じ素材の隣接面で色・照明が一致します。薄い周期反復は残るため、穏やかな静水面用として使います。**全ての海タイルへ同じ盤面時刻・位相を使います。** タイルごとのランダム位相や独立した開始時刻は使いません。虹/くすみの色境界は床の状態表示として残します。
+
+論理平面は200×108、頂点(128,42)・(228,96)・(128,150)・(28,96)、pivot(128,96)です。出力アルファは原画のアルファではなく、固定の平面被覆を使います。アンチエイリアスした縁が隣の面と重なって暗い線を作らないよう、被覆だけ2%広げた縁の重なりを持ちます。論理的なタイル幅200は同じです。中心と面内は不透明、全PNG/GIFで同じアルファ、24px以上の外枠は完全透明です。
+
+通常章の `sea_calm`・`sea_flat`・`sea_shallow` の上面候補です。虹とくすみを `floor` に対応させ、終章の `cfg.inverted` と中立床、通れない深海には適用しません。既存タイルを保持して上面へ重ね、480msの床切り替えでは既存の `prev` / `floor` と `k` に従いクロスフェードします。範囲表示・経路・キャラより前に描いて、操作情報を隠さない順序にします。ゲーム本体には未接続です。
+
+```js
+// assetはmanifestの該当エントリー。sheetはGameArt.load([asset.id])の返すPNG。
+function drawWaterSurface(ctx, asset, sheet, boardElapsedMs, x, y, tw, opacity = 1) {
+  const cel = GameArt.sample(asset.id, 'ambient', boardElapsedMs);
+  if (!sheet || cel == null || opacity <= 0) return;
+  const [w, h] = asset.grid.cellSize;
+  const scale = tw / 200; // 論理平面の高さ108*scale = tw*.54
+  ctx.save(); ctx.globalAlpha *= opacity;
+  ctx.drawImage(sheet, (cel % 4) * w, Math.floor(cel / 4) * h, w, h,
+    x - 128 * scale, y - 96 * scale, w * scale, h * scale);
+  ctx.restore();
+}
+// 全海面へ同じboardElapsedMsを渡す。drawCellの(x,y)に配置する。
+// prevの面を1-k、floorの面をkで描画。対象外/neutral/invertedの面は描かない。
+// 範囲や経路より前に置く。2%の縁の重なりを別のbboxフィットで拡縮しない。
+```
+
+全12コマの隣接面を(±100,54)ずらして、不透明な重なり324組/コマのRGB差がPNG/GIFとも0であることを確認しています。4×4配置の全コマGIFと複数時刻の静止配置も確認しています。実コピー `GameArt.sample` の3周140アサートが通過しています。GIFは共通255色＋透過色、閾値96・ディザなし・disposal=2で、滑らかな色勾配に量子化の段が出る場合があります。**連続視覚再生・実ゲーム内配置・480msの床切り替え遷移は未確認**です。
+
+```sh
+python3 tools/build_environment_assets.py
+```
+
+生成・修正原画、以前の原画とプロンプトの履歴、実タイル参照、周期化前後のUV、照明と投影設定を `environment-set-07.json` / `prompts.json` とZIPに保存しています。模様の物理的な変形は行わず、周期的な照明が動きます。

@@ -3,10 +3,10 @@
   "title": "Color Resonance ゲーム素材",
   "counts": {
     "characters": 18,
-    "effects": 22,
-    "sourceSheets": 40,
-    "pngCels": 364,
-    "gifs": 129
+    "effects": 24,
+    "sourceSheets": 42,
+    "pngCels": 388,
+    "gifs": 131
   },
   "production": {
     "generator": "built-in imagegen",
@@ -6028,6 +6028,246 @@
             1320,
             1440
           ]
+        }
+      }
+    },
+    {
+      "id": "sea_surface_prism",
+      "name": "虹の静水面",
+      "category": "fx",
+      "assetRole": "environment",
+      "facing": "floor-isometric",
+      "source": "source/sea_surface_prism-r3-master.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sheet": "sheets/sea_surface_prism.png",
+      "frames": [
+        "frames/sea_surface_prism/000.png",
+        "frames/sea_surface_prism/001.png",
+        "frames/sea_surface_prism/002.png",
+        "frames/sea_surface_prism/003.png",
+        "frames/sea_surface_prism/004.png",
+        "frames/sea_surface_prism/005.png",
+        "frames/sea_surface_prism/006.png",
+        "frames/sea_surface_prism/007.png",
+        "frames/sea_surface_prism/008.png",
+        "frames/sea_surface_prism/009.png",
+        "frames/sea_surface_prism/010.png",
+        "frames/sea_surface_prism/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          256,
+          192
+        ],
+        "order": "row-major"
+      },
+      "pivotPx": [
+        128,
+        96
+      ],
+      "planeVerticesPx": [
+        [
+          128,
+          42
+        ],
+        [
+          228,
+          96
+        ],
+        [
+          128,
+          150
+        ],
+        [
+          28,
+          96
+        ]
+      ],
+      "footprintWidthPx": 200,
+      "coverageApronScale": 1.02,
+      "floorCondition": "!cfg.inverted && tile type sea_calm/sea_flat/sea_shallow && cell.floor === 'rainbow'",
+      "productionSet": "environment-set-07",
+      "tilePreviewGif": "review/sea_surface_prism-4x4.gif",
+      "animations": {
+        "ambient": {
+          "name": "水面の広い反射",
+          "sequence": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ],
+          "durationsMs": [
+            200,
+            200,
+            200,
+            200,
+            200,
+            200,
+            200,
+            200,
+            200,
+            200,
+            200,
+            200
+          ],
+          "frameStartsMs": [
+            0,
+            200,
+            400,
+            600,
+            800,
+            1000,
+            1200,
+            1400,
+            1600,
+            1800,
+            2000,
+            2200
+          ],
+          "loop": true,
+          "gif": "gifs/sea_surface_prism/ambient.gif",
+          "size": [
+            256,
+            192
+          ],
+          "gifFrameCount": 12,
+          "durationMs": 2400,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96
+        }
+      }
+    },
+    {
+      "id": "sea_surface_dull",
+      "name": "くすんだ静水面",
+      "category": "fx",
+      "assetRole": "environment",
+      "facing": "floor-isometric",
+      "source": "source/sea_surface_dull-r3-master.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sheet": "sheets/sea_surface_dull.png",
+      "frames": [
+        "frames/sea_surface_dull/000.png",
+        "frames/sea_surface_dull/001.png",
+        "frames/sea_surface_dull/002.png",
+        "frames/sea_surface_dull/003.png",
+        "frames/sea_surface_dull/004.png",
+        "frames/sea_surface_dull/005.png",
+        "frames/sea_surface_dull/006.png",
+        "frames/sea_surface_dull/007.png",
+        "frames/sea_surface_dull/008.png",
+        "frames/sea_surface_dull/009.png",
+        "frames/sea_surface_dull/010.png",
+        "frames/sea_surface_dull/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          256,
+          192
+        ],
+        "order": "row-major"
+      },
+      "pivotPx": [
+        128,
+        96
+      ],
+      "planeVerticesPx": [
+        [
+          128,
+          42
+        ],
+        [
+          228,
+          96
+        ],
+        [
+          128,
+          150
+        ],
+        [
+          28,
+          96
+        ]
+      ],
+      "footprintWidthPx": 200,
+      "coverageApronScale": 1.02,
+      "floorCondition": "!cfg.inverted && tile type sea_calm/sea_flat/sea_shallow && cell.floor === 'dull'",
+      "productionSet": "environment-set-07",
+      "tilePreviewGif": "review/sea_surface_dull-4x4.gif",
+      "animations": {
+        "ambient": {
+          "name": "水面の広い反射",
+          "sequence": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ],
+          "durationsMs": [
+            200,
+            200,
+            200,
+            200,
+            200,
+            200,
+            200,
+            200,
+            200,
+            200,
+            200,
+            200
+          ],
+          "frameStartsMs": [
+            0,
+            200,
+            400,
+            600,
+            800,
+            1000,
+            1200,
+            1400,
+            1600,
+            1800,
+            2000,
+            2200
+          ],
+          "loop": true,
+          "gif": "gifs/sea_surface_dull/ambient.gif",
+          "size": [
+            256,
+            192
+          ],
+          "gifFrameCount": 12,
+          "durationMs": 2400,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96
         }
       }
     }

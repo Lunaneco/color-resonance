@@ -4,7 +4,7 @@
 
 **プレイする:** https://lunaneco.github.io/color-resonance/
 
-**画像生成素材:** [キャラクター・動作GIF・技エフェクトの素材一覧](https://lunaneco.github.io/color-resonance/assets/generated/)。18種類のキャラクター、22種類の技・状態エフェクト、129本のGIFと透過PNGを収録しています。使い方は [素材README](assets/generated/README.md) を参照してください。
+**画像生成素材:** [キャラクター・動作GIF・技エフェクトの素材一覧](https://lunaneco.github.io/color-resonance/assets/generated/)。18種類のキャラクター、24種類の技・状態・環境エフェクト、131本の動作GIFと透過PNGを収録しています。使い方は [素材README](assets/generated/README.md) を参照してください。
 
 ## 遊び方
 

@@ -1,7 +1,7 @@
 'use strict';
 (() => {
   const manifest = window.COLOR_ASSETS;
-  const categories = {all:'すべて',enemy:'敵',ally:'仲間',npc:'モブ・会話',support:'ルノワール',fx:'技・状態'};
+  const categories = {all:'すべて',enemy:'敵',ally:'仲間',npc:'モブ・会話',support:'ルノワール',fx:'技・状態・環境'};
   const grid = document.querySelector('#grid');
   const search = document.querySelector('#search');
   const animate = document.querySelector('#animate');

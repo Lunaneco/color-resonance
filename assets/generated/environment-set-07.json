@@ -1,0 +1,75 @@
+[
+  {
+    "id": "sea_surface_prism",
+    "name": "虹の静水面",
+    "source": "source/sea_surface_prism-r3-master.png",
+    "reflectionAddRgb": [
+      8,
+      8,
+      5
+    ],
+    "floorCondition": "!cfg.inverted && tile type sea_calm/sea_flat/sea_shallow && cell.floor === 'rainbow'",
+    "reference": "source/sea_surface_prism.png",
+    "imageGenPrompt": "Generate one NEW original full-frame opaque SQUARE UV material texture for the Japanese ColorResonance game. Do not draw a tile shape: the entire canvas is the water material, no transparent margins, no objects, no horizon, no text. Reference supplies COLORS ONLY; ignore all its caustic shapes and pattern geometry. Quiet luminous cyan water, very gentle broad pale mint and lavender variation, only a trace of warm peach at low contrast. A calm liquid surface with extremely wide, shallow, smoothly blended reflection tones. NO caustic network, NO outlined cells, NO ovals, NO rings, NO scales, NO fine waves, NO periodic bands, NO decorative repeating motifs, NO bright white lines, NO glitter or grains. Shade differences should be modest: broad color areas have comparable brightness; no bright spots with a surrounding dark ring. The field should look calm and clean across a 4x4 tile repetition at 64px per tile, with no identifiable small object that repeats. Use smooth cel-painted material shading, sharp high-quality color data, no blur/fog filter. This is an editable UV color master to be projected and periodicized later; animation will add only one very gentle moving broad reflection. Fill the whole square with opaque color.「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」\n「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "editBase": "source/sea_surface_prism-base.png",
+    "generatedImage": "exec-94623049-b60e-4bf8-b592-a72e88ee3792.png",
+    "periodicUv": "source/sea_surface_prism-periodic-uv.png",
+    "unperiodizedUv": "source/sea_surface_prism-uv-before-periodic.png",
+    "sourceHistory": [
+      {
+        "source": "source/sea_surface_prism.png",
+        "imageGenPrompt": "Create ONE original transparent top-surface tile overlay for the existing Japanese ColorResonance isometric game, guided by the luminous water material in the reference. A single perfectly flat rhombus diamond with four exact vertices at top center, right center, bottom center, left center. Projected width exactly TWO TIMES height. ONLY the top plane, NO thickness, NO visible side faces, NO bevel extrusion, NO border decoration, NO shadow, NO glow outside the plane. Diamond occupies central 65% canvas width, centered with generous transparent margins. Every pixel inside the diamond is opaque, glass/water appearance achieved through colors only, not alpha transparency. Smooth pale cyan water, broad softly blended lavender, mint, and warm peach reflections across the SAME flat plane. One or two large quiet undulating value patches, no cracks, no mosaic cells, no scales, no repeated small waves, no sparkles, no stars, no tiny highlights, no white gritty perimeter. A clean calm luminous surface readable at 64px. The empty exterior must be alpha0. This is a static editing master for subsequent derived lighting movement. Match the reference color/material but remove its slab thickness and micro patterns.「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」\n「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+        "editBase": "source/sea_surface_prism-base.png",
+        "editPrompt": "Edit the supplied flat luminous water diamond. Preserve the smooth pastel cyan/mint/lavender/peach water interior and the four geometric corners at top, right, bottom, left. Repair ONLY the OUTER CONTOUR. The four sides must each be perfectly straight and clean with a thin natural cyan edge matching the adjacent water interior. Remove every stray white speck, white frill, white protrusion, pixel jag, fuzzy white halo and particle along and outside all four sides. No white perimeter line at all. Exterior is fully transparent alpha0. No detached pixels outside the perfect rhombus. Keep width:height of the diamond exactly2:1, retain a perfectly flat single opaque surface, no bevel or side faces. This will be a 64px tactical floor tile; the clean four-sided silhouette is more important than fine caustics. Do not add waves, marks, outline textures, sparkles or any ornaments.「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」\n「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+        "generatedImage": "exec-d2eac7fe-f64a-4011-909f-2bbc7c6ec3c8.png",
+        "editBaseGeneratedImage": "exec-b45cb50d-b400-4353-a6ef-6119c1c729bf.png",
+        "reference": "references/crys_sea_calm.png"
+      }
+    ],
+    "originalTileReference": "references/crys_sea_calm.png",
+    "sourceLayout": "square-uv",
+    "sourceUvCropPx": [
+      25,
+      25,
+      1229,
+      1229
+    ]
+  },
+  {
+    "id": "sea_surface_dull",
+    "name": "くすんだ静水面",
+    "source": "source/sea_surface_dull-r3-master.png",
+    "reflectionAddRgb": [
+      3,
+      4,
+      5
+    ],
+    "floorCondition": "!cfg.inverted && tile type sea_calm/sea_flat/sea_shallow && cell.floor === 'dull'",
+    "reference": "source/sea_surface_dull.png",
+    "imageGenPrompt": "Generate one NEW original full-frame opaque SQUARE UV material texture for the Japanese ColorResonance game. Do not draw a tile shape: fill the whole canvas with water material, no transparent margins, no objects, no horizon, no text. Reference supplies COLORS ONLY, not wave or shape geometry. Extremely calm, dark subdued slate blue-charcoal water. Wide gentle nearly even surfaces, only a slight smooth blue-gray value drift spanning the entire canvas. Keep luminance low and contrast small: about dark blue RGB(35,49,63) to slightly lighter slate RGB(43,57,71), NOT bright white-gray ridges. NO visible wave outlines, NO dark ovals, NO white rings, NO bright ridges, NO scales, NO repeated little waves, NO foam, NO caustic cells, NO periodic stripes or diamond grid, NO grain. There must not be any recognizable high contrast motif that repeats when this material is tiled4x4 at64px. Preserve a natural liquid impression through one very wide barely perceptible reflectance drift, with no distinct enclosed patch and no closed contour. Smooth clean cel-painted color shading with sharp color data, not a blur or fog effect. Animation will add a subdued broad reflection later. Full square opaque texture master.「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」\n「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "editBase": "source/sea_surface_dull-base.png",
+    "generatedImage": "exec-6d65a7fe-19e6-4427-96df-a196715eacbf.png",
+    "periodicUv": "source/sea_surface_dull-periodic-uv.png",
+    "unperiodizedUv": "source/sea_surface_dull-uv-before-periodic.png",
+    "sourceHistory": [
+      {
+        "source": "source/sea_surface_dull.png",
+        "imageGenPrompt": "Create ONE original transparent top-surface tile overlay for the existing Japanese ColorResonance isometric game, guided by the dark water colors in the reference. A single perfectly flat rhombus diamond with four exact vertices at top center, right center, bottom center, left center. Projected width exactly TWO TIMES height. ONLY the top plane, NO thickness, NO visible side faces, NO bevel extrusion, NO border decoration, NO shadow, NO exterior glow. Diamond occupies central 65% canvas width, centered with generous transparent margins. Every pixel inside the diamond is fully opaque. A smooth subdued slate blue charcoal water surface with a muted blue-gray broad highlight and one large quiet undulating value patch. No cracks, no faceted mosaic, no scales, no ridges, no repeated small waves, no foam, no sparkles, no tiny highlights, no white perimeter. Very clean broad tonal shading readable at 64px. Keep it clearly darker and grayer than the luminous allied rainbow surface; this represents enemy DULL territory. Exterior alpha0. This is a static editing master for later derived lighting movement. Match reference colors only and remove the entire slab thickness and scale pattern.「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」\n「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+        "editBase": "source/sea_surface_dull-base.png",
+        "editPrompt": "Edit image1 (the dark slate water plane). Preserve its subdued blue-charcoal smooth broad water shading. Use ONLY the RHOMBUS GEOMETRY of image2, not its colors: top vertex at50% canvas width and10% canvas height; left at10%width50%height; right90%width50%height; bottom50%width90%height. The landscape canvas width is twice its height, so this projected flat diamond is exactly2:1. Four perfectly straight clean sides, only the flat top plane, no thickness. Fill the new projected top plane completely with the existing dark smooth blue-gray water material, every interior pixel opaque. Do not copy the pale pastel colors, no particles, no white edges, no repeated scales or small waves. Exterior fully transparent alpha0. This is a matching isometric floor overlay, large simple surface readable at64px.「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」\n「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+        "generatedImage": "exec-86b0cf84-9e45-4dec-8246-8c62563db600.png",
+        "editBaseGeneratedImage": "exec-8b43c574-4275-40ed-911b-bdc69dc60c53.png",
+        "reference": "references/dark_sea_calm.png",
+        "geometryReference": "source/sea_surface_prism-base.png"
+      }
+    ],
+    "originalTileReference": "references/dark_sea_calm.png",
+    "sourceLayout": "square-uv",
+    "sourceUvCropPx": [
+      25,
+      25,
+      1229,
+      1229
+    ]
+  }
+]
