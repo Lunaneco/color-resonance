@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Color Resonance — 夜空の黒と透明の剣</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Shippori+Mincho+B1:wght@400;600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+  <!-- 背景 -->
+  <div id="bgLayer">
+    <div class="bg" id="bgA"></div>
+    <div class="bg" id="bgB"></div>
+    <div id="bgTint"></div>
+  </div>
+  <canvas id="fxCanvas"></canvas>
+
+  <!-- 立ち絵・CG -->
+  <div id="stage">
+    <div id="cgLayer"></div>
+    <img id="charAria" class="char" src="assets/img/aria.png" alt="">
+    <div id="bigAura" class="aura big"><div class="core"></div><div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div></div>
+  </div>
+
+  <!-- 戦場 -->
+  <div id="boardScreen" class="hidden">
+    <canvas id="boardCanvas"></canvas>
+    <div id="boardSubject"></div>
+    <div id="vignette"></div>
+    <div id="boardTop">
+      <div id="boardTitle"><span class="bt-act"></span><span class="bt-name"></span></div>
+      <div id="floorBar">
+        <div class="fb-row"><span class="fb-l fb-lr"></span><div class="fb-track"><div class="fb-rain"></div><div class="fb-dull"></div><i style="left:25%"></i><i style="left:45%"></i><i style="left:65%"></i><i class="d" style="right:25%"></i><i class="d" style="right:45%"></i><i class="d" style="right:65%"></i></div><span class="fb-l fb-ld"></span></div>
+        <div class="fb-buff"><span class="fb-ba"></span><span class="fb-be"></span></div>
+      </div>
+      <div id="kegareCount"></div>
+    </div>
+    <div id="boardSide">
+      <div id="renoirBox"><canvas id="renoirCanvas" width="180" height="180"></canvas><div class="rn-label">ルノワール</div></div>
+      <div id="resonance"><span class="rs-label">共鳴</span><span class="rs-val">0</span></div>
+      <div id="missionBox"></div>
+    </div>
+    <div id="skills"></div>
+    <div id="unitInfo" class="hidden"></div>
+    <div id="cmdMenu" class="hidden"></div>
+    <div id="cmdBar"><span id="phaseLabel"></span><button id="actHere" class="cb-b hidden">その場で行動</button><button id="cancelSel" class="cb-b hidden">選び直す</button><button id="endTurn">ターン終了<kbd>E</kbd></button></div>
+    <div id="hint"></div>
+    <div id="floatLayer"></div>
+    <div id="phaseBanner"></div>
+    <div id="skillName"></div>
+    <div id="cutin"></div>
+    <button id="boardHelp" title="戦い方">？</button>
+    <button id="boardMenu" title="メニュー">≡</button>
+  </div>
+
+  <!-- ワールドマップ -->
+  <div id="world" class="hidden">
+    <div id="wmMap"><svg id="wmSvg" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet"></svg><div id="wmNodes"></div><div id="wmAria"><img src="assets/img/aria.png" alt=""></div></div>
+    <div id="wmTop">
+      <div class="wm-title"><span>World Map</span>ワールドマップ</div>
+      <div class="wm-stat"><span>アリア LV<b id="wmLv">1</b></span><span>しずく<b id="wmGold">0</b></span></div>
+      <div class="wm-btns"><button data-w="equip">装備</button><button data-w="party">仲間</button><button data-w="title">タイトル</button></div>
+    </div>
+    <div id="wmPanel" class="hidden"></div>
+  </div>
+
+  <!-- テキスト -->
+  <div id="centerText"></div>
+  <div id="textbox" class="hidden">
+    <div id="namePlate"><div class="aura mini"><div class="core"></div><div class="ring r1"></div><div class="ring r2"></div></div><span id="speaker"></span></div>
+    <div id="text"></div>
+    <div id="nextMark">◆</div>
+    <div id="tbButtons"><button data-act="log">ログ</button><button data-act="auto">オート</button><button data-act="skip">スキップ</button><button data-act="menu">メニュー</button></div>
+  </div>
+  <div id="choiceBox" class="hidden"></div>
+  <div id="chapterCard" class="hidden"><div class="cc-act"></div><div class="cc-line"></div><div class="cc-title"></div></div>
+
+  <!-- HUD（物語中） -->
+  <div id="toast"></div>
+  <div id="pouch" class="hidden" title="布の包み"><span class="p-ico"></span><span class="p-n">0</span></div>
+
+  <!-- タイトル -->
+  <div id="title" class="screen">
+    <div class="t-glow"></div>
+    <img class="t-aria" src="assets/img/aria.png" alt="">
+    <img class="t-sword" src="assets/img/sword.png" alt="">
+    <div class="t-main">
+      <div class="t-logo">Color Resonance</div>
+      <div class="t-sub">夜空の黒と透明の剣</div>
+      <div class="t-menu">
+        <button data-m="new">はじめから</button>
+        <button data-m="continue">つづきから</button>
+        <button data-m="chapters">章をえらぶ</button>
+        <button data-m="world">ワールドマップ</button>
+        <button data-m="settings">設定</button>
+      </div>
+    </div>
+    <div class="t-foot">「穢れ」と「その人の色」は、分けられるか。</div>
+  </div>
+
+  <div id="gate" class="screen"><div class="g-in"><div class="g-logo">Color Resonance</div><div class="g-tap">画面にふれて、はじめる</div><div class="g-note">音が鳴ります（ヘッドホン推奨）</div></div></div>
+
+  <!-- パネル -->
+  <div id="panel" class="hidden"><div class="pn-box"><div class="pn-head"><span class="pn-title"></span><button class="pn-close">×</button></div><div class="pn-body"></div></div></div>
+</div>
+
+<script src="js/audio.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/renoir.js"></script>
+<script src="js/board.js"></script>
+<script src="js/story.js"></script>
+<script src="js/world.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

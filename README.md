@@ -1,0 +1,35 @@
+# Color Resonance — 夜空の黒と透明の剣
+
+物語とターン制の戦闘を楽しむ、ブラウザ向けゲームです。HTML、CSS、JavaScriptで動作し、ビルドやサーバー側の処理は不要です。
+
+**プレイする:** https://lunaneco.github.io/color-resonance/
+
+## 遊び方
+
+画面に触れて音を有効にし、「はじめから」を選んでください。
+
+- 物語: クリックまたは Enter で読み進めます。Ctrl 長押しでスキップできます。
+- 戦闘: 味方と移動先の床を選び、表示されるメニューで行動します。E でターン終了、Esc で選び直します。
+- 進行状況はブラウザのローカルストレージへ自動保存します。ブラウザや端末を変えた場合、セーブは引き継がれません。
+- BGM、効果音、文字の速さ、難易度は「設定」で調整できます。
+
+## ローカルで起動
+
+リポジトリのディレクトリで次を実行し、http://localhost:8791/ を開いてください。
+
+```sh
+python3 -m http.server 8791
+```
+
+戦闘用のデータを `fetch` で読み込むため、`index.html` を直接開くのではなく、HTTPサーバーを使います。
+
+## 公開と更新
+
+GitHub Pages の公開元は GitHub Actions です。`main` ブランチへ変更を push すると、`.github/workflows/deploy.yml` がJavaScriptの構文を確認し、ゲーム本体と素材を自動で公開します。Actions 画面の「Deploy game to GitHub Pages」から手動実行もできます。
+
+## ファイル構成
+
+- `index.html`: ゲーム画面
+- `css/`: スタイル
+- `js/`: 物語、戦闘、マップ、音声、演出
+- `assets/`: 立ち絵、背景、タイル、BGM
