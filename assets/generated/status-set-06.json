@@ -1,0 +1,71 @@
+[
+  {
+    "id": "root_hold",
+    "name": "蔦の束縛・足元環",
+    "source": "source/root_hold.png",
+    "sourcePivotPx": [
+      898.299,
+      452.222
+    ],
+    "cropBoxPx": [
+      439,
+      305,
+      1360,
+      678
+    ],
+    "uniformScale": 0.22099447513812154,
+    "pivotPx": [
+      128,
+      96
+    ],
+    "brightnessFactors": [
+      0.9,
+      0.92,
+      0.94,
+      0.96,
+      0.98,
+      1
+    ],
+    "statusCondition": "unit.root > 0",
+    "placement": "unitXY foot center; before actor; recommended footprint width 0.65*tw",
+    "reference": "frames/vine_round_dance/003.png",
+    "imageGenPrompt": "Create ONE original transparent game status overlay for the existing Japanese ColorResonance game, matching the smooth cel-painted saturated green leaf material in the reference. No sprite grid and no text. This is a small persistent ROOTED status marker underneath a character's feet on an isometric tactical board. Show one low horizontal ellipse of a supple green vine, width exactly twice its projected height, as viewed from elevated isometric camera. THREE small distinct broad leaves attached to the vine at upper-left, upper-right, and lower-middle; single clean curled vine segment joining them. Open transparent hole through the center, leaves point outward and never invade the empty center. No plant pot, no soil, no character, no grass, no floating particles, no bright white perimeter. Entire silhouette occupies only central 65% of the canvas width, with generous transparent clearance on all sides. The far arc is darker teal green, near arc fresh emerald lime; crisp clean readable shapes at 64px wide, smoothly shaded broad surfaces, no tiny veins, no fine spikes. Thin emerald outline naturally integrated in leaf colors. This is one complete static editing master; animation later will be a restrained color pulse without geometric deformation. The reference is color/style guidance only; change its upright circle into this low 2:1 ellipse.「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」\n「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "generatedImage": "exec-36649c82-f6f2-4035-b9c8-90dc0f12b7cd.png"
+  },
+  {
+    "id": "guard_hold",
+    "name": "黄金の守り・足元環",
+    "source": "source/guard_hold.png",
+    "sourcePivotPx": [
+      769.437,
+      487.143
+    ],
+    "cropBoxPx": [
+      161,
+      133,
+      1376,
+      849
+    ],
+    "uniformScale": 0.16,
+    "pivotPx": [
+      128,
+      96
+    ],
+    "brightnessFactors": [
+      0.9,
+      0.92,
+      0.94,
+      0.96,
+      0.98,
+      1
+    ],
+    "statusCondition": "unit.guard > 0",
+    "placement": "unitXY foot center; before actor; recommended footprint width 0.65*tw",
+    "reference": "frames/golden_aegis/004.png",
+    "imageGenPrompt": "Create ONE original transparent game status overlay for the existing Japanese ColorResonance game, matching the clean broad golden facets in the shield reference. No sprite grid and no text. This is a small persistent GUARDED status marker underneath a character's feet on an isometric tactical board. Show ONE low horizontal closed gold ring, width exactly twice its projected height, as viewed from elevated isometric camera, with four small clean kite-shaped facets attached at left, top, right, bottom. A large empty fully transparent interior leaves the feet clearly visible. Simple coherent continuous amber-gold rim with broad light yellow facets; far arc muted amber, near arc warm honey gold. No full shield, no vertical halo, no character, no terrain, no lightning, no particles, no white outer glow. Entire silhouette occupies only central 65% of canvas width, generous transparent clearance all around. Readable at 64px wide, simple elegant bevel facets with smooth clean surfaces and no microtexture. This is one complete static editing master; animation later will be a restrained color pulse without geometric deformation. The reference is color/material guidance only; use the horizontal ring geometry described.「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」\n「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "generatedImage": "exec-28c63828-5f6d-4ab1-bf38-7bf71f41a8d9.png",
+    "editBase": "source/guard_hold-base.png",
+    "editPrompt": "Edit only the supplied golden status ring image. Keep the existing four kite facets and continuous ellipse geometry and gold material. Remove ALL diffuse glow everywhere. Remove ALL pixels across the entire central hollow so that the hole is perfectly fully transparent alpha=0, with no amber wash, no dark wash, no cast shadow. The outer background must also be alpha=0 outside the crisp ring silhouette, except subpixel antialiasing at the rim only. Solid clean amber-gold edges, no white outer rim. No fog and no luminous aura. Retain one complete ring and exactly four diamond facets. Do not add anything. Keep the fixed layout and leave generous transparent outer margins. This is an underfoot status marker, its center MUST remain empty so feet can be seen through it.「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」\n「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "editBaseGeneratedImage": "exec-2795143f-415d-480d-99ea-576bbedd3e4e.png"
+  }
+]

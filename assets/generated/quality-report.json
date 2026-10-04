@@ -1704,5 +1704,63 @@
       "gifTransparentTailMs": 820,
       "gifAndPngMediaUnchanged": true
     }
+  },
+  "statusSet06": {
+    "assetCount": 2,
+    "checks": [
+      {
+        "id": "root_hold",
+        "cellSize": [
+          256,
+          192
+        ],
+        "pngCels": 6,
+        "gifFrames": 12,
+        "durationMs": 1600,
+        "loop": true,
+        "firstLastGifBytesIdentical": true,
+        "allPngAlphaIdentical": true,
+        "allGifAlphaIdentical": true,
+        "pivotPx": [
+          128,
+          96
+        ],
+        "pivotAlpha": 0,
+        "transparentClearancePx": 24,
+        "gifAlphaThreshold": 96,
+        "actualGamePlacement": "not verified",
+        "continuousVisualPlayback": "not verified"
+      },
+      {
+        "id": "guard_hold",
+        "cellSize": [
+          256,
+          192
+        ],
+        "pngCels": 6,
+        "gifFrames": 12,
+        "durationMs": 1600,
+        "loop": true,
+        "firstLastGifBytesIdentical": true,
+        "allPngAlphaIdentical": true,
+        "allGifAlphaIdentical": true,
+        "pivotPx": [
+          128,
+          96
+        ],
+        "pivotAlpha": 0,
+        "transparentClearancePx": 24,
+        "gifAlphaThreshold": 96,
+        "actualGamePlacement": "not verified",
+        "continuousVisualPlayback": "not verified"
+      }
+    ],
+    "playbackContract": {
+      "assertions": 140,
+      "scope": "Read-only VM execution of actual copied GameArt.sample with new manifest; three loops, exact transitions and one ms before; no browser/rendering.",
+      "actualArtJsSha256": "955553cdecf0dd598dd469de631557718add3311dec327a01cb8877fe2d164a9",
+      "continuousVisualPlayback": "NOT VERIFIED",
+      "actualGamePlacement": "NOT VERIFIED"
+    }
   }
 }

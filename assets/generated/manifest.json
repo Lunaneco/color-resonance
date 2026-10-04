@@ -3,10 +3,10 @@
   "title": "Color Resonance ゲーム素材",
   "counts": {
     "characters": 18,
-    "effects": 20,
-    "sourceSheets": 38,
-    "pngCels": 352,
-    "gifs": 127
+    "effects": 22,
+    "sourceSheets": 40,
+    "pngCels": 364,
+    "gifs": 129
   },
   "production": {
     "generator": "built-in imagegen",
@@ -5836,6 +5836,198 @@
           "previewGif": "gifs/palette_resonance/preview.gif",
           "previewGifLoops": true,
           "gifSource": "source/palette_resonance-gif-contour.png"
+        }
+      }
+    },
+    {
+      "id": "root_hold",
+      "name": "蔦の束縛・足元環",
+      "category": "fx",
+      "assetRole": "status",
+      "statusCondition": "unit.root > 0",
+      "facing": "floor-isometric",
+      "source": "source/root_hold.png",
+      "sourceSize": [
+        1774,
+        887
+      ],
+      "sheet": "sheets/root_hold.png",
+      "frames": [
+        "frames/root_hold/000.png",
+        "frames/root_hold/001.png",
+        "frames/root_hold/002.png",
+        "frames/root_hold/003.png",
+        "frames/root_hold/004.png",
+        "frames/root_hold/005.png"
+      ],
+      "grid": {
+        "columns": 3,
+        "rows": 2,
+        "cellSize": [
+          256,
+          192
+        ],
+        "order": "row-major"
+      },
+      "pivotPx": [
+        128,
+        96
+      ],
+      "footprintWidthPx": 200,
+      "placement": "unitXY foot center; before actor; recommended footprint width 0.65*tw",
+      "productionSet": "status-set-06",
+      "animations": {
+        "status": {
+          "name": "蔦の束縛・足元環（状態継続）",
+          "sequence": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            5,
+            4,
+            3,
+            2,
+            1,
+            0
+          ],
+          "durationsMs": [
+            160,
+            120,
+            120,
+            120,
+            120,
+            160,
+            160,
+            120,
+            120,
+            120,
+            120,
+            160
+          ],
+          "loop": true,
+          "gif": "gifs/root_hold/status.gif",
+          "size": [
+            256,
+            192
+          ],
+          "gifFrameCount": 12,
+          "durationMs": 1600,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "semanticLoop": "while unit status is active",
+          "frameStartsMs": [
+            0,
+            160,
+            280,
+            400,
+            520,
+            640,
+            800,
+            960,
+            1080,
+            1200,
+            1320,
+            1440
+          ]
+        }
+      }
+    },
+    {
+      "id": "guard_hold",
+      "name": "黄金の守り・足元環",
+      "category": "fx",
+      "assetRole": "status",
+      "statusCondition": "unit.guard > 0",
+      "facing": "floor-isometric",
+      "source": "source/guard_hold.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "sheet": "sheets/guard_hold.png",
+      "frames": [
+        "frames/guard_hold/000.png",
+        "frames/guard_hold/001.png",
+        "frames/guard_hold/002.png",
+        "frames/guard_hold/003.png",
+        "frames/guard_hold/004.png",
+        "frames/guard_hold/005.png"
+      ],
+      "grid": {
+        "columns": 3,
+        "rows": 2,
+        "cellSize": [
+          256,
+          192
+        ],
+        "order": "row-major"
+      },
+      "pivotPx": [
+        128,
+        96
+      ],
+      "footprintWidthPx": 191,
+      "placement": "unitXY foot center; before actor; recommended footprint width 0.65*tw",
+      "productionSet": "status-set-06",
+      "animations": {
+        "status": {
+          "name": "黄金の守り・足元環（状態継続）",
+          "sequence": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            5,
+            4,
+            3,
+            2,
+            1,
+            0
+          ],
+          "durationsMs": [
+            160,
+            120,
+            120,
+            120,
+            120,
+            160,
+            160,
+            120,
+            120,
+            120,
+            120,
+            160
+          ],
+          "loop": true,
+          "gif": "gifs/guard_hold/status.gif",
+          "size": [
+            256,
+            192
+          ],
+          "gifFrameCount": 12,
+          "durationMs": 1600,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "semanticLoop": "while unit status is active",
+          "frameStartsMs": [
+            0,
+            160,
+            280,
+            400,
+            520,
+            640,
+            800,
+            960,
+            1080,
+            1200,
+            1320,
+            1440
+          ]
         }
       }
     }

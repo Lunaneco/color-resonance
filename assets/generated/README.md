@@ -235,3 +235,45 @@ python3 tools/build_learned_assets.py --records assets/generated/learned-set-05.
 | 翠蔦の輪舞 | 2540ms | 1820ms | 1720ms | 720ms | 1820ms |
 | 七色の結界 | 2540ms | 1820ms | 1720ms | 720ms | 1820ms |
 | パレット・レゾナンス | 2540ms | 1720ms | 1620ms | 820ms | 1820ms |
+
+
+## 状態継続 第6セット
+
+[蔦の束縛・黄金の守りの足元環をZIPでまとめて保存](downloads/status-set06.zip)できます。
+
+| 素材ID | 対応する実コードの状態 | GIF | 再生 |
+|---|---|---|---|
+| root_hold | `unit.root > 0` | [status.gif](gifs/root_hold/status.gif) | 1600msの常時ループ |
+| guard_hold | `unit.guard > 0` | [status.gif](gifs/guard_hold/status.gif) | 1600msの常時ループ |
+
+各256×192・6PNGセル・3列×2行の768×384シート・12コマGIFです。状態が付いている間だけ反復し、状態解除と同時に描画を止めます。習得技の単発GIFとは異なり、保存用の `status.gif` 自体がループします。rootは移動を縛る蔦、guardは味方の守りを示します。`js/board.js` の状態輪（root/guard）を置き換える素材候補で、ゲーム本体へはまだ接続していません。
+
+単一のGPT Image原画から同じ輪郭・アルファを保持し、RGBの明るさだけ90→100→90%へ変える控えめな色の呼吸です。葉3枚・金の菱形4枚・中抜きは同じ形を保ちます。全PNG/GIFのアルファ形状が同一、GIFの先頭と末尾がピクセル単位で同じで、足元pivot(128,96)は常に完全透明です。PNG外枠は24px以上完全透明。GIFは共通255色＋透過色、閾値96・ディザなし・disposal=2で、半透明の縁は二値になります。明るい床では細い輪郭の硬さが出る場合があります。
+
+PNGの再生順はGIFと同じ `sequence:[0,1,2,3,4,5,5,4,3,2,1,0]`、保持時間は `durationsMs:[160,120,120,120,120,160,160,120,120,120,120,160]` です。明るい折り返し（5→5）は320ms、周回境界（最後の0→次の最初の0）も320ms同じ絵を保持します。下の使用例は `GameArt.sample` を通してこの往復順と保持時間を使用します。6枚のPNGを番号順に反復する再生は、この動作定義とは異なります。
+
+**配置はシートのpivotを使います。** 実コピーの `GameArt.draw` は輪郭bboxの中央または下端に合わせるため、この足元pivotとは一致しません。`GameArt.load` が返すPNGシートと `GameArt.sample(id,'status',elapsed)` を使い、以下のように固定pivotへ描画できます。影の後、キャラ本体より前に描き、環の実幅を `tw*0.65` 程度にします。rootとguardが同時に付く場合の重なりや、選択環・床との読みやすさは実ゲームで調整してください。
+
+```js
+// GameArt.ready完了後。assetはmanifestの該当エントリー。
+const [sheet] = await GameArt.load([asset.id]);
+function drawStatus(ctx, asset, sheet, elapsedMs, footX, footY, tw) {
+  const cel = GameArt.sample(asset.id, 'status', elapsedMs);
+  if (!sheet || cel == null) return;
+  const [w, h] = asset.grid.cellSize;
+  const [px, py] = asset.pivotPx;
+  const scale = tw * 0.65 / asset.footprintWidthPx;
+  ctx.drawImage(sheet,
+    (cel % asset.grid.columns) * w, Math.floor(cel / asset.grid.columns) * h, w, h,
+    footX - px * scale, footY - py * scale, w * scale, h * scale);
+}
+// root/guardが0になったら呼ばない。elapsedMsは状態付与時からの経過時間。
+```
+
+実コピーの `GameArt.sample` を読み取り専用VMで実行し、3周分のコマ開始・切替直前1ms・次周の開始について140アサートが通過しています。**連続視覚再生と実ゲーム内配置は未確認**です。静止構造・全コマデコード・ループ境界と再生定義を検証した候補として使用してください。
+
+```sh
+python3 tools/build_status_assets.py
+```
+
+`status-set-06.json` に単一原画のクロップ枠・一律倍率・透過穴の実測中心・pivot・明るさを保存しています。クロップは同じ原画の一度だけの共通枠で、コマ別のフィットや位置合わせは行いません。全コマの色以外は固定です。主原画、黄金環の編集前原画、実参照PNG、初回・修正の生成プロンプト、PNG/GIF・シート・レビュー画像と再生成スクリプトを保持しています。

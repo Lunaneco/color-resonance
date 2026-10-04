@@ -1,7 +1,7 @@
 'use strict';
 (() => {
   const manifest = window.COLOR_ASSETS;
-  const categories = {all:'すべて',enemy:'敵',ally:'仲間',npc:'モブ・会話',support:'ルノワール',fx:'技エフェクト'};
+  const categories = {all:'すべて',enemy:'敵',ally:'仲間',npc:'モブ・会話',support:'ルノワール',fx:'技・状態'};
   const grid = document.querySelector('#grid');
   const search = document.querySelector('#search');
   const animate = document.querySelector('#animate');
@@ -10,7 +10,7 @@
   if (!manifest) { document.querySelector('#result-count').textContent = '対応表を読み込めませんでした。ページを再読み込みしてください。'; return; }
   animate.checked = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const make = (tag, className, text) => { const el = document.createElement(tag); if (className) el.className = className; if (text !== undefined) el.textContent = text; return el; };
-  const stats = [[manifest.counts.characters,'キャラクター'],[manifest.counts.effects,'技エフェクト'],[manifest.counts.gifs,'動作GIF']];
+  const stats = [[manifest.counts.characters,'キャラクター'],[manifest.counts.effects,'エフェクト'],[manifest.counts.gifs,'動作GIF']];
   for (const [number,label] of stats) { const el=make('div','stat'); el.append(make('strong','',number),document.createTextNode(label)); document.querySelector('#stats').append(el); }
   for (const [id,label] of Object.entries(categories)) {
     const button = make('button','',label); button.type='button'; button.dataset.category=id; button.setAttribute('aria-pressed',String(id==='all'));
