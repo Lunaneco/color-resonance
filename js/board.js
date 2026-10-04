@@ -116,20 +116,47 @@ const Board = (() => {
   let tw = 80, th = 43, hStep = 18, ox = 0, oy = 0, W = 0, H = 0, dpr = 1;
   const cam = { z: 1, x: 0, y: 0, tz: 1, tx: 0, ty: 0 };
   const fxp = [];
-  let t0 = performance.now(), running = false, sess = 0;
+  let t0 = performance.now(), running = false, sess = 0, renderFrame = null;
   let turn = 0, phase = 'player', stage = 1, busy = false, over = false, paused = false;
   let sel = null, mode = 'idle', moveInfo = null, targets = null, targetCmd = null, hover = null, threat = null, menuSub = null, infoU = null;
   let sp = 0, skyCharges = 0, enchantUsed = false;
   let stats = null, difficulty = 'normal', tierA = 0, tierE = 0, ratioA = 0, ratioE = 0, kegIdx = 0, colorIdx = 0, totalFoes = 0;
   let hudReady = false;
 
-  const wait = (ms) => new Promise(r => setTimeout(r, ms));
+  // 終了・やり直しをまたいで、古い戦闘の演出や行動を続けない。
+  const cancelled = Symbol('battle cancelled');
+  const pending = new Set();
+  const runTask = (work) => work.catch(e => { if (e !== cancelled) throw e; });
+  function cancelPending() { for (const cancel of [...pending]) cancel(); }
+  function later(fn, ms) {
+    const my = sess;
+    const cancel = () => { clearTimeout(timer); pending.delete(cancel); };
+    const timer = setTimeout(() => { pending.delete(cancel); if (my === sess && running) fn(); }, ms);
+    pending.add(cancel);
+    return cancel;
+  }
+  function wait(ms) {
+    const my = sess;
+    return new Promise((resolve, reject) => {
+      const cancel = () => { clearTimeout(timer); pending.delete(cancel); reject(cancelled); };
+      const timer = setTimeout(() => { pending.delete(cancel); if (my === sess && running) resolve(); else reject(cancelled); }, ms);
+      pending.add(cancel);
+    });
+  }
   // 画面が隠れていても止まらないように（タブを切り替えたときなど）
   function tween(dur, fn) {
-    return new Promise(res => {
+    const my = sess;
+    return new Promise((res, reject) => {
       const s = performance.now();
-      const next = () => document.hidden ? setTimeout(step, 16) : requestAnimationFrame(step);
-      const step = () => { const k = Math.min(1, (performance.now() - s) / dur); fn(k); if (k < 1 && running) next(); else res(); };
+      let frame, timer;
+      const cancel = () => { cancelAnimationFrame(frame); clearTimeout(timer); pending.delete(cancel); reject(cancelled); };
+      const next = () => { if (document.hidden) timer = setTimeout(step, 16); else frame = requestAnimationFrame(step); };
+      const step = () => {
+        if (my !== sess || !running) { cancel(); return; }
+        const k = Math.min(1, (performance.now() - s) / dur); fn(k);
+        if (k < 1) next(); else { pending.delete(cancel); res(); }
+      };
+      pending.add(cancel);
       next();
     });
   }
@@ -246,10 +273,13 @@ const Board = (() => {
     dpr = Math.min(2, devicePixelRatio || 1);
     W = innerWidth; H = innerHeight;
     cv.width = W * dpr; cv.height = H * dpr;
-    const narrow = W < 820;
-    const top = narrow ? 128 : 96, bottom = narrow ? 200 : 84;
-    const availW = narrow ? W - 12 : W - 60;
-    const availH = H - top - bottom;
+    const narrow = matchMedia('(max-width: 820px), (max-height: 500px)').matches;
+    const short = narrow && H <= 500 && W > H;
+    screen.classList.toggle('compact', narrow);
+    screen.classList.toggle('short', short);
+    const top = narrow ? (short ? 74 : 128) : 96, bottom = narrow ? (short ? 70 : 200) : 84;
+    const availW = Math.max(80, narrow ? W - (short ? 340 : 12) : W - 60);
+    const availH = Math.max(60, H - top - bottom);
     const span = (cols + rows) / 2;
     tw = Math.min(availW / span, availH / (span * 0.54 + 1.05), 116);
     th = tw * 0.54; hStep = th * 0.44;
@@ -286,15 +316,20 @@ const Board = (() => {
       if (Math.abs(mx - p.x) / (tw / 2) + Math.abs(my - yy) / (th / 2) <= 1) { tile = c; break; }
     }
     const tid = tile ? idx(tile.r, tile.c) : -1;
-    // 移動先・対象を選んでいる間は、床をいちばんに優先する（背の高い者に隠れていても選べる）
-    if (tile && mode === 'selected' && sel && !sel.moved && moveInfo && moveInfo.ends.has(tid)) return tile;
-    if (tile && mode === 'target' && targets && targets.has(tid)) return tile;
+    let hitUnit = null;
     const us = live().sort((a, b) => (b.r + b.c) - (a.r + a.c));
     for (const u of us) {
       const p = unitXY(u), hw = tw * 0.22, top = p.y - tw * u.hgt * 0.9;
-      if (mx > p.x - hw && mx < p.x + hw && my > top && my < p.y + th * 0.2) return cellAt(u.r, u.c);
+      if (mx > p.x - hw && mx < p.x + hw && my > top && my < p.y + th * 0.2) { hitUnit = u; break; }
     }
-    return tile;
+    const uid = hitUnit ? idx(hitUnit.r, hitUnit.c) : -1;
+    // 本人・味方・届く敵の体に触れたら、その者を選ぶ。
+    // それ以外の体に隠れた移動先は、床を選べるようにしておく。
+    if (hitUnit && mode === 'selected' && sel && (hitUnit === sel || hitUnit.side === 'ally' || attackTargets(sel).has(uid))) return cellOf(hitUnit);
+    if (hitUnit && mode === 'target' && targets && targets.has(uid)) return cellOf(hitUnit);
+    if (tile && mode === 'selected' && sel && !sel.moved && moveInfo && moveInfo.ends.has(tid)) return tile;
+    if (tile && mode === 'target' && targets && targets.has(tid)) return tile;
+    return hitUnit ? cellOf(hitUnit) : tile;
   }
 
   // ---------- 描画 ----------
@@ -354,7 +389,7 @@ const Board = (() => {
       const v = cells.filter(c => c.floor === 'rainbow');
       if (v.length) { const c = pickOf(v); const p = topOf(c); fxp.push({ k: 'spark', x: p.x + (Math.random() - .5) * tw * 0.5, y: p.y - Math.random() * 6, vx: 0, vy: -0.3, r: 4, h: [190, 260, 320, 50, 150][(Math.random() * 5) | 0], life: 0, max: 1.2, nograv: true }); }
     }
-    requestAnimationFrame(render);
+    renderFrame = requestAnimationFrame(render);
   }
 
   function drawCell(c, t, now, area, path, atkSet) {
@@ -695,10 +730,10 @@ const Board = (() => {
   function say(who, text, ms = 0) {
     hintEl.innerHTML = (who ? `<span class="hn">${who}</span>` : '') + text;
     hintEl.classList.add('show');
-    clearTimeout(hintTimer);
-    if (ms) hintTimer = setTimeout(() => hintEl.classList.remove('show'), ms);
+    if (hintTimer) hintTimer();
+    hintTimer = ms ? later(() => hintEl.classList.remove('show'), ms) : null;
   }
-  function hideSay() { hintEl.classList.remove('show'); }
+  function hideSay() { if (hintTimer) hintTimer(); hintTimer = null; hintEl.classList.remove('show'); }
   async function showBanner(kind, main, sub) {
     bannerEl.className = '';
     bannerEl.innerHTML = `<div class="pb-line"></div><div class="pb-main">${main}</div><div class="pb-sub">${sub}</div>`;
@@ -715,7 +750,7 @@ const Board = (() => {
     void skillEl.offsetWidth;
     skillEl.className = 'show';
     await wait(520);
-    setTimeout(() => { skillEl.className = ''; }, 700);
+    later(() => { skillEl.className = ''; }, 700);
   }
   async function cutIn(kind, id) {
     const s = SPIRITS[id];
@@ -1009,7 +1044,7 @@ const Board = (() => {
       }
       if (killer && killer.side === 'ally') { gainExp(killer.kind, expKill(killer, d), killer); if (killer.enchant) gainExp(killer.enchant.id, 12, null); sp = Math.min(spCap(), sp + 2); }
       maybeColorWord(p);
-      (cfg.beats || []).forEach(b => { if (!b.shown && stats.kills >= b.at) { b.shown = true; setTimeout(() => { if (running && !over) say(b.who, b.text, 4600); }, 900); } });
+      (cfg.beats || []).forEach(b => { if (!b.shown && stats.kills >= b.at) { b.shown = true; later(() => { if (!over) say(b.who, b.text, 4600); }, 900); } });
       updateSubject();
       tutorialStep('kill');
       refreshHud();
@@ -1029,7 +1064,7 @@ const Board = (() => {
   function maybeColorWord(p) {
     const words = cfg.colorWords || [];
     if (!words.length || stats.kills % 2 === 0 && stats.kills > 1) return;
-    setTimeout(() => { if (running) floatText(p.x + tw * 0.6, p.y - tw * 1.6, words[colorIdx++ % words.length], 'color', cfg.wordHue || cfg.hue); }, 700);
+    later(() => floatText(p.x + tw * 0.6, p.y - tw * 1.6, words[colorIdx++ % words.length], 'color', cfg.wordHue || cfg.hue), 700);
   }
 
   // ---------- 技 ----------
@@ -1135,8 +1170,8 @@ const Board = (() => {
     refreshHud();
     unfocus(); await wait(200);
   }
-  async function doEnchant(a, id) {
-    busy = true; hideMenu();
+  function doEnchant(a, id) { return runTask((async () => {
+    busy = true; hideMenu(); endBtn.disabled = true;
     sp -= COST_ENCHANT; enchantUsed = true;
     await cutIn('enchant', id);
     const s = SPIRITS[id];
@@ -1146,10 +1181,10 @@ const Board = (() => {
     fxp.push({ k: 'beam', x: p.x, y: p.y, col: s.rgb, w: 0.55, life: 0, max: 1 });
     burst(p.x, p.y - tw * 0.7, 16, { col: s.rgb });
     floatText(p.x, p.y - tw * 1.6, `${s.name}が、心剣に宿った`, 'color', s.color);
-    busy = false;
+    busy = false; endBtn.disabled = false;
     refreshHud();
     if (sel === a) { if (!a.moved) moveInfo = reachable(a); showMenu(a); showInfo(a); }
-  }
+  })()); }
   async function departSpirit(u) {
     const p = unitXY(u);
     floatText(p.x, p.y - tw * 1.2, `${u.name}は、アリアの胸の中へ還った`, 'color', SPIRITS[u.kind].color);
@@ -1205,7 +1240,7 @@ const Board = (() => {
     if (a && (live().filter(u => u.side === 'ally').length === 1 || turn === 1)) select(a, true);
     tutorialStep('turn');
   }
-  async function endPlayerPhase() {
+  function endPlayerPhase() { return runTask((async () => {
     if (phase !== 'player' || busy || over || paused) return;
     const my = sess;
     busy = true; deselect(); threat = null; endBtn.disabled = true;
@@ -1213,7 +1248,7 @@ const Board = (() => {
     await enemyPhase();
     if (my !== sess || over) return;
     await playerPhase();
-  }
+  })()); }
   async function enemyPhase() {
     const my = sess;
     phase = 'enemy';
@@ -1346,7 +1381,7 @@ const Board = (() => {
     hideMenu();
     phaseLabel.textContent = '対象を選んでください（右クリック／Escで戻る）';
   }
-  async function act(u, fn) {
+  function act(u, fn) { return runTask((async () => {
     const my = sess;
     busy = true; hideMenu(); targets = null; targetCmd = null; mode = 'acting'; threat = null;
     endBtn.disabled = true; phaseLabel.textContent = '';
@@ -1360,7 +1395,7 @@ const Board = (() => {
     tutorialStep('attack');
     if (stage === 0 && (stats.phase0 || 0) >= 2 && !paused) {
       paused = true; busy = true; endBtn.disabled = true;
-      setTimeout(() => {
+      later(() => {
         if (my !== sess || !running) return;
         if (cfg.onPhase0) cfg.onPhase0();
         else enterPhase1({ skyCharges: 4, say: { who: 'アリア', text: 'あなたの黒は、穢れじゃない。<br>白い膜だけを、切り分ける。' } });
@@ -1369,13 +1404,13 @@ const Board = (() => {
     }
     void r;
     autoEnd();
-  }
+  })()); }
   function autoEnd() {
     if (paused || over) return;
-    if (live().filter(u => u.side === 'ally').every(u => u.acted)) setTimeout(() => { if (phase === 'player' && !busy && !over && !paused) endPlayerPhase(); }, 500);
+    if (live().filter(u => u.side === 'ally').every(u => u.acted)) later(() => { if (phase === 'player' && !busy && !over && !paused) endPlayerPhase(); }, 500);
   }
   function command(k, arg) {
-    if (busy || !sel || over) return;
+    if (!running || phase !== 'player' || busy || !sel || over || paused || Panel.isOpen()) return;
     const u = sel;
     Audio2.sfx.choose();
     if (k === 'attack') enterTarget('attack', attackTargets(u));
@@ -1443,7 +1478,7 @@ const Board = (() => {
     threat = u.side === 'enemy' ? reachable(u) : null;
     Audio2.sfx.hover();
   }
-  async function doMove(u, cell) {
+  function doMove(u, cell) { return runTask((async () => {
     busy = true; hideMenu();
     const path = pathTo(moveInfo, idx(cell.r, cell.c));
     u.undo = { r: u.r, c: u.c, dir: u.dir, floors: [] };
@@ -1453,7 +1488,7 @@ const Board = (() => {
     u.moved = true; busy = false;
     tutorialStep('move');
     if (sel === u) { showMenu(u); showInfo(u); phaseLabel.textContent = '行動を選んでください'; }
-  }
+  })()); }
 
   // ---------- 画面の部品 ----------
   const actHereBtn = $id('actHere'), cancelBtn = $id('cancelSel');
@@ -1519,8 +1554,9 @@ const Board = (() => {
       b.onmouseenter = () => { desc.textContent = b.dataset.d || ''; };
     });
     // 位置（狭い画面では下に敷く）
-    cmdMenu.classList.toggle('sheet', W < 820);
-    if (W < 820) { cmdMenu.style.left = cmdMenu.style.top = ''; return; }
+    const narrow = screen.classList.contains('compact');
+    cmdMenu.classList.toggle('sheet', narrow);
+    if (narrow) { cmdMenu.style.left = cmdMenu.style.top = ''; return; }
     const p = toScreen(unitXY(u).x, unitXY(u).y);
     const mw = cmdMenu.offsetWidth || 200, mh = cmdMenu.offsetHeight || 200;
     let top = p.y - tw * 1.35;
@@ -1542,8 +1578,8 @@ const Board = (() => {
       else if (down + mh <= H - 60 && !hit(left, down)) top = down;
       else { const other = left < p.x ? p.x + tw * 0.5 : p.x - tw * 0.5 - mw; if (other >= 8 && other + mw <= W - 8 && !hit(other, top)) left = other; }
     }
-    cmdMenu.style.left = Math.max(8, left) + 'px';
-    cmdMenu.style.top = top + 'px';
+    cmdMenu.style.left = Math.max(8, Math.min(W - mw - 8, left)) + 'px';
+    cmdMenu.style.top = Math.max(8, Math.min(H - mh - 8, top)) + 'px';
   }
   function showInfo(u) {
     if (!u) { unitInfo.classList.add('hidden'); infoU = null; return; }
@@ -1592,7 +1628,7 @@ const Board = (() => {
         if (busy || phase !== 'player' || over || paused) return;
         const a2 = ariaU(); if (!a2 || a2.acted) return;
         if (sel !== a2) { if (sel && sel.moved) return; select(a2, true); }
-        if (mode === 'target') { mode = 'selected'; targets = null; }
+        if (mode === 'target') { mode = 'selected'; targets = null; targetCmd = null; moveInfo = a2.moved ? null : reachable(a2); }
         showMenu(a2, 'spirit');
       };
       spiritBox.appendChild(b);
@@ -1736,7 +1772,7 @@ const Board = (() => {
     stats.time = (performance.now() - stats.start) / 1000;
     settle();
     saveParty();
-    setTimeout(() => { hideSay(); showResult(); }, 2200);
+    later(() => { hideSay(); showResult(); }, 2200);
   }
   const RANK_NAME = { S: '澄みきった共鳴', A: '迷いのない刃', B: '揺れながら、届いた', C: 'それでも、隣にいた' };
   // ミッションの達成数でランクが決まる
@@ -1790,8 +1826,7 @@ const Board = (() => {
     if (over) return;
     over = true; hideMenu(); Audio2.sfx.lose(); FX.flash('10,0,20', 0.9); shake(10);
     saveParty();
-    setTimeout(() => {
-      if (!running) return;
+    later(() => {
       Panel.open('', `<div class="result"><div class="r-name" style="margin-top:8px">${cfg.loseText || '黒が、すべてを覆った。'}</div>
         <p style="margin:10px 0 4px">リラの声がした気がした。<br>「急がなくていい。凪いだ水面を選びなさい」</p>
         <p style="font-size:12px;color:var(--ink-faint)">得た経験は、残っています。</p>
@@ -1847,11 +1882,14 @@ const Board = (() => {
 
   // ---------- 開始・終了 ----------
   function start(conf, done) {
+    stop();
     baseCfg = conf; onDone = done;
-    return ready.then(() => restart());
+    const my = sess;
+    return ready.then(() => { if (my === sess) restart(); });
   }
   function restart() {
     sess++;
+    cancelPending();
     cfg = JSON.parse(JSON.stringify(baseCfg));
     cfg.onPhase0 = baseCfg.onPhase0;
     cols = cfg.cols; rows = cfg.rows;
@@ -1894,15 +1932,16 @@ const Board = (() => {
     bannerEl.className = ''; cutinEl.className = ''; skillEl.className = '';
     buildSubject();
     layout();
+    missionOpen = !screen.classList.contains('short');
     hudReady = false; refreshHud(); hudReady = true;
     showInfo(units[0]);
     if (cfg.tutorial) { tut = { steps: cfg.tutorial, i: 0 }; const s = tut.steps[0]; say(s.who, s.text); }
     else { tut = null; if (cfg.intro) say(cfg.intro.who, cfg.intro.text, 7000); else hideSay(); }
-    if (!running) { running = true; t0 = performance.now(); requestAnimationFrame(render); }
-    playerPhase();
+    if (!running) { running = true; t0 = performance.now(); renderFrame = requestAnimationFrame(render); }
+    runTask(playerPhase());
   }
   // 終章：第二段へ
-  async function enterPhase1(opt = {}) {
+  function enterPhase1(opt = {}) { return runTask((async () => {
     const my = sess;
     stage = 1; paused = false;
     const ch = units.find(u => u.kind === 'chrome');
@@ -1919,15 +1958,19 @@ const Board = (() => {
     if (opt.say) say(opt.say.who, opt.say.text, 8000);
     await wait(1000);
     if (my !== sess) return;
-    playerPhase();
-  }
+    await playerPhase();
+  })()); }
   function stop() {
     sess++; running = false; over = true;
+    cancelAnimationFrame(renderFrame); renderFrame = null;
+    cancelPending();
     screen.classList.add('hidden'); hideSay(); floatLayer.innerHTML = ''; hideMenu();
-    cutinEl.className = ''; bannerEl.className = '';
+    cutinEl.className = ''; bannerEl.className = ''; skillEl.className = '';
   }
   function end(won) {
     sess++;
+    cancelAnimationFrame(renderFrame); renderFrame = null;
+    cancelPending();
     running = false; screen.classList.add('hidden'); hideSay(); floatLayer.innerHTML = ''; hideMenu();
     document.getElementById('pouch').style.visibility = '';
     const cb = onDone; onDone = null; cb && cb(won);

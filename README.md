@@ -25,7 +25,19 @@ python3 -m http.server 8791
 
 ## 公開と更新
 
-GitHub Pages の公開元は GitHub Actions です。`main` ブランチへ変更を push すると、`.github/workflows/deploy.yml` がJavaScriptの構文を確認し、ゲーム本体と素材を自動で公開します。Actions 画面の「Deploy game to GitHub Pages」から手動実行もできます。
+GitHub Pages の公開元は GitHub Actions です。`main` ブランチへ変更を push すると、`.github/workflows/deploy.yml` がJavaScriptの構文と戦闘のブラウザ回帰テストを確認し、成功した場合にゲーム本体と素材を自動で公開します。Actions 画面の「Deploy game to GitHub Pages」から手動実行もできます。
+
+## 戦闘のテスト
+
+Node.js 24 で次を実行してください。テスト用のHTTPサーバーは自動で起動・終了します。
+
+```sh
+npm ci
+npx playwright install chromium
+npm test
+```
+
+移動と取り消し、攻撃とターン進行、回復、精霊、勝敗と再挑戦、戦闘中断、終章の切り替え、およびPC・スマートフォンの画面配置を確認します。テストでは独立したブラウザを使うので、プレイヤーのセーブデータは変更しません。
 
 ## ファイル構成
 
