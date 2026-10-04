@@ -1,10 +1,10 @@
 {
   "counts": {
     "characters": 18,
-    "effects": 15,
-    "sourceSheets": 33,
-    "pngCels": 292,
-    "gifs": 117
+    "effects": 17,
+    "sourceSheets": 35,
+    "pngCels": 316,
+    "gifs": 121
   },
   "alpha": [
     {
@@ -939,6 +939,376 @@
       "opaqueDurationMs": 1720,
       "transparentTailMs": 720,
       "pngTimeAuthority": "Manifest sequence and durations; standalone PNG has no intrinsic time."
+    }
+  },
+  "learnedSet04": {
+    "assetCount": 2,
+    "checks": [
+      {
+        "id": "azure_tide_strike",
+        "pngCellSize": [
+          288,
+          384
+        ],
+        "pngCount": 12,
+        "gifFrameCount": 14,
+        "durationMs": 2540,
+        "clearBorderPx": [
+          24,
+          32
+        ],
+        "transparentFirstAndLast": true,
+        "sharedPalette": true,
+        "disposal": 2,
+        "pngAlphaPreserved": true,
+        "singleShotGif": true,
+        "separateLoopPreview": true,
+        "gifVisibleEndMs": 1720,
+        "pngVisibleEndMs": 1820,
+        "gifTransparentTailMs": 820,
+        "finalOpacity": 0.45,
+        "finalScale": 0.06,
+        "opaqueBboxes": [
+          [
+            85,
+            277,
+            190,
+            308
+          ],
+          [
+            91,
+            251,
+            224,
+            308
+          ],
+          [
+            80,
+            202,
+            217,
+            308
+          ],
+          [
+            68,
+            156,
+            228,
+            309
+          ],
+          [
+            67,
+            156,
+            229,
+            308
+          ],
+          [
+            81,
+            183,
+            214,
+            308
+          ],
+          [
+            95,
+            210,
+            198,
+            308
+          ],
+          [
+            109,
+            238,
+            183,
+            308
+          ]
+        ]
+      },
+      {
+        "id": "dawn_shatter",
+        "pngCellSize": [
+          288,
+          384
+        ],
+        "pngCount": 12,
+        "gifFrameCount": 14,
+        "durationMs": 2540,
+        "clearBorderPx": [
+          24,
+          32
+        ],
+        "transparentFirstAndLast": true,
+        "sharedPalette": true,
+        "disposal": 2,
+        "pngAlphaPreserved": true,
+        "singleShotGif": true,
+        "separateLoopPreview": true,
+        "gifVisibleEndMs": 1720,
+        "pngVisibleEndMs": 1820,
+        "gifTransparentTailMs": 820,
+        "finalOpacity": 0.45,
+        "finalScale": 0.06,
+        "opaqueBboxes": [
+          [
+            122,
+            236,
+            166,
+            309
+          ],
+          [
+            106,
+            184,
+            181,
+            308
+          ],
+          [
+            90,
+            131,
+            197,
+            308
+          ],
+          [
+            74,
+            88,
+            213,
+            308
+          ],
+          [
+            73,
+            88,
+            213,
+            308
+          ],
+          [
+            86,
+            127,
+            201,
+            308
+          ],
+          [
+            99,
+            167,
+            188,
+            307
+          ],
+          [
+            112,
+            207,
+            176,
+            307
+          ]
+        ]
+      }
+    ],
+    "releaseContinuity": {
+      "method": "Whole held cel4 contracts about fixed bottom support, retaining the entire wave or core and both side rays",
+      "anchorPx": [
+        144,
+        307
+      ],
+      "scales": [
+        0.82,
+        0.64,
+        0.46
+      ],
+      "gifOpaqueAreaPxFromHold": {
+        "azure_tide_strike": [
+          15324,
+          10305,
+          6271,
+          3239,
+          1567,
+          563,
+          99,
+          0
+        ],
+        "dawn_shatter": [
+          8636,
+          5800,
+          3526,
+          1817,
+          889,
+          316,
+          57,
+          0
+        ]
+      }
+    },
+    "geometryMeasurement": {
+      "opaqueBboxesAlphaThreshold": 96,
+      "bboxCoordinateConvention": "left/top inclusive, right/bottom exclusive",
+      "supportBottomRangePx": [
+        307,
+        309
+      ],
+      "scope": "Major cels0–7, thresholded contour, not full nonzero PNG alpha extent.",
+      "rasterizationNote": "Fixed transform landmark, not every contour pixel. Gold lower contour can rise by2–4px during final tiny contraction due to rasterization and alpha threshold."
+    },
+    "timeMeasurement": {
+      "visibleStartMs": 100,
+      "gifVisibleEndMs": 1720,
+      "gifOpaqueDurationMs": 1620,
+      "pngVisibleEndMs": 1820,
+      "pngTimeAuthority": "Manifest sequence and durations; standalone PNG has no intrinsic time.",
+      "gifTransparentTailMs": 820
+    },
+    "playbackContract": {
+      "scope": "Read-only VM execution of the actual copied game GameArt.sample function with this manifest; no browser or rendering.",
+      "assertions": 56,
+      "actualArtJsSha256": "955553cdecf0dd598dd469de631557718add3311dec327a01cb8877fe2d164a9",
+      "frameStarts": true,
+      "oneMsBeforeTransitions": true,
+      "singleShotEnd": true,
+      "continuousVisualPlayback": "NOT VERIFIED",
+      "actualGamePlacement": "NOT VERIFIED"
+    },
+    "alphaContract": {
+      "gifAlphaLevels": [
+        0,
+        255
+      ],
+      "gifDecay": "whole silhouette contraction with binary transparency",
+      "pngDecay": "whole silhouette contraction plus alpha attenuation",
+      "finalOpacityScope": "PNG alpha multiplier only"
+    },
+    "decodedGifContours": {
+      "azure_tide_strike": [
+        null,
+        [
+          85,
+          277,
+          190,
+          308
+        ],
+        [
+          91,
+          251,
+          224,
+          308
+        ],
+        [
+          80,
+          202,
+          217,
+          308
+        ],
+        [
+          68,
+          156,
+          228,
+          309
+        ],
+        [
+          67,
+          156,
+          229,
+          308
+        ],
+        [
+          81,
+          183,
+          214,
+          308
+        ],
+        [
+          95,
+          210,
+          198,
+          308
+        ],
+        [
+          109,
+          238,
+          183,
+          308
+        ],
+        [
+          119,
+          259,
+          171,
+          307
+        ],
+        [
+          129,
+          278,
+          160,
+          307
+        ],
+        [
+          138,
+          295,
+          151,
+          307
+        ],
+        null,
+        null
+      ],
+      "dawn_shatter": [
+        null,
+        [
+          122,
+          236,
+          166,
+          309
+        ],
+        [
+          106,
+          184,
+          181,
+          308
+        ],
+        [
+          90,
+          131,
+          197,
+          308
+        ],
+        [
+          74,
+          88,
+          213,
+          308
+        ],
+        [
+          73,
+          88,
+          213,
+          308
+        ],
+        [
+          86,
+          127,
+          201,
+          308
+        ],
+        [
+          99,
+          167,
+          188,
+          307
+        ],
+        [
+          112,
+          207,
+          176,
+          307
+        ],
+        [
+          121,
+          237,
+          166,
+          307
+        ],
+        [
+          131,
+          266,
+          157,
+          306
+        ],
+        [
+          139,
+          291,
+          149,
+          305
+        ],
+        null,
+        null
+      ]
     }
   }
 }

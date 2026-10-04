@@ -1,0 +1,266 @@
+[
+  {
+    "uniformInsetScale": 0.65,
+    "decayAnchorPx": [
+      144,
+      307
+    ],
+    "fadeOpacities": [
+      0.9,
+      0.75,
+      0.6,
+      0.45
+    ],
+    "decayScales": [
+      0.7,
+      0.42,
+      0.18,
+      0.06
+    ],
+    "fadeDurationsMs": [
+      100,
+      100,
+      100,
+      100
+    ],
+    "durationsMs": [
+      140,
+      140,
+      160,
+      160,
+      300,
+      140,
+      140,
+      140
+    ],
+    "phases": [
+      [
+        "anticipation",
+        0,
+        2
+      ],
+      [
+        "release",
+        2,
+        4
+      ],
+      [
+        "impact",
+        4,
+        5
+      ],
+      [
+        "decay",
+        5,
+        8
+      ]
+    ],
+    "phaseTransforms": {
+      "5": {
+        "sourceCel": 4,
+        "anchorPx": [
+          144,
+          307
+        ],
+        "scale": 0.82,
+        "opacity": 0.94
+      },
+      "6": {
+        "sourceCel": 4,
+        "anchorPx": [
+          144,
+          307
+        ],
+        "scale": 0.64,
+        "opacity": 0.88
+      },
+      "7": {
+        "sourceCel": 4,
+        "anchorPx": [
+          144,
+          307
+        ],
+        "scale": 0.46,
+        "opacity": 0.82
+      }
+    },
+    "releaseMethod": "All constituents in held source cel4 contract together about fixed bottom support; original cels5–7 remain retained.",
+    "id": "azure_tide_strike",
+    "name": "蒼海の一太刀",
+    "skillId": "gran_tide",
+    "spirit": "gran",
+    "direction": "right",
+    "reference": "gran_tide",
+    "referenceCel": "frames/gran_tide/003.png",
+    "source": "source/azure_tide_strike.png",
+    "editBase": "source/azure_tide_strike-base.png",
+    "prompt": "Use case: stylized-concept. Create Color Resonance's original learned AREA attack 蒼海の一太刀 (gran_tide), an independent right-facing 2D magical great-wave slash. Reference supplies only the game's broad cyan/blue/ivory water shapes. Make ONE complete curled blue wave with ONE broad IVORY cutting edge following its upper crest, like a water blade sweeping toward the right. It is one connected solid silhouette: no detached droplets, spray, bubbles, foam beads, rings, microscopic repeated waves or extra curls. Only two broad blue shaded areas, clean attached highlight. Exact4x2 equal-cell transparent sprite sheet1536x1024,each cell384x512,row-major. Every effect whole inside its own cel, at least60px transparent side gutters,50px top/bottom. Same right-facing camera and bottom-center support local(192,430) in all8 cells. Biggest entire wave max240px wide290px high. Phases:0 tiny short curved water blade at bottom support;1 SAME blade grows into a low wave;2 SAME connected wave curls upward to half height;3 SAME full wave reaches a complete upper crest slashing RIGHT with a broad ivory edge;4 SAME wave holds at its strongest, same bottom support, no detached impact debris;5 WHOLE same wave retreats to80% size;6 WHOLE same wave to60%;7 WHOLE same wave to40%, bottom support fixed. All constituent parts remain connected through retreat, no jump to a puddle or isolated droplet. Transparent immediately outside silhouette, no fog/aura/glow cloud, no ground shadow. No character,enemy,weapon,landscape,sky,water surface/floor,text,numbers,cell lines,watermark,checkerboard,black/white matte. Smooth clean painted cel game effect, broad readable shapes with a forceful single cutting crest. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」 「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "repairPrompt": "Use case: precise-object-edit. The edit target is this 1536x1024 transparent4x2 wave sprite sheet. Some huge waves cross the384px cell boundary, especially bottom-row FIRST cel. REAUTHOR the wave designs as COMPACT fully complete curls, do not crop or mask the huge waves. All eight are isolated objects centered in their own exact384x512 cells. Each wave must have a SHORT compact rounded base, absolutely NO long pointed horizontal trailing foot. Maximum width220px and maximum height260px in each cell, at least80px clear transparent left/right gutters. Wave curls/ivory cutting crest point right. Same bottom-center point local(192,430), both rows. Preserve smooth cyan/blue/ivory single-wave style, one connected silhouette, no detached droplets. Eight poses:0 small short curved blade at fixed bottom center, max100px wide;1 low compact rising curl max140px wide;2 middle-height curl max180px wide;3 full COMPACT curl max220px wide and260px tall, contained;4 same complete compact curl holds without moving or widening;5 whole curl80% size from fixed bottom;6 whole curl60%;7 whole curl40%. Bottom row should never overlap adjacent cells. True-transparent directly around complete wave contour, no aura/fog/halo/background glow, no ground shadow. Do not add text, borders, grid lines, particles, spray, bubbles, foam beads, glitter or micro-detail. The top-row FOURTH and bottom-row FIRST cel must have equal full curl dimensions and equal local bottom support. Technical priority: ample empty cell gutters and every water tip visibly finishes INSIDE its cell. Keep one broad ivory cutting crest and two broad smooth blue tones. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」 「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "frameOffsetsSourcePx": [
+      [
+        -7,
+        38
+      ],
+      [
+        20,
+        38
+      ],
+      [
+        2,
+        37
+      ],
+      [
+        2,
+        38
+      ],
+      [
+        1,
+        102
+      ],
+      [
+        -31,
+        105
+      ],
+      [
+        -27,
+        106
+      ],
+      [
+        -20,
+        105
+      ]
+    ],
+    "recommendedPlacement": "One wave above the selected area center, bottom support is stable. Flip only the effect layer for the opposite sweep; tune game placement separately."
+  },
+  {
+    "uniformInsetScale": 0.65,
+    "decayAnchorPx": [
+      144,
+      307
+    ],
+    "fadeOpacities": [
+      0.9,
+      0.75,
+      0.6,
+      0.45
+    ],
+    "decayScales": [
+      0.7,
+      0.42,
+      0.18,
+      0.06
+    ],
+    "fadeDurationsMs": [
+      100,
+      100,
+      100,
+      100
+    ],
+    "durationsMs": [
+      140,
+      140,
+      160,
+      160,
+      300,
+      140,
+      140,
+      140
+    ],
+    "phases": [
+      [
+        "anticipation",
+        0,
+        2
+      ],
+      [
+        "release",
+        2,
+        4
+      ],
+      [
+        "impact",
+        4,
+        5
+      ],
+      [
+        "decay",
+        5,
+        8
+      ]
+    ],
+    "phaseTransforms": {
+      "5": {
+        "sourceCel": 4,
+        "anchorPx": [
+          144,
+          307
+        ],
+        "scale": 0.82,
+        "opacity": 0.94
+      },
+      "6": {
+        "sourceCel": 4,
+        "anchorPx": [
+          144,
+          307
+        ],
+        "scale": 0.64,
+        "opacity": 0.88
+      },
+      "7": {
+        "sourceCel": 4,
+        "anchorPx": [
+          144,
+          307
+        ],
+        "scale": 0.46,
+        "opacity": 0.82
+      }
+    },
+    "releaseMethod": "All constituents in held source cel4 contract together about fixed bottom support; original cels5–7 remain retained.",
+    "id": "dawn_shatter",
+    "name": "暁の砕光",
+    "skillId": "spinel_sun",
+    "spirit": "spinel",
+    "direction": "front",
+    "reference": "spinel_shield",
+    "referenceCel": "frames/spinel_shield/003.png",
+    "source": "source/dawn_shatter.png",
+    "prompt": "Use case: stylized-concept. Create Color Resonance's original learned AREA attack 暁の砕光 (spinel_sun), an independent front-facing 2D piercing golden sunlight burst. Reference supplies only existing gold/amber/ivory broad crystal facets, no shield motif. Design ONE CONNECTED vertical lance of golden light: a broad tapered ivory shaft with a downward lower spear point, and exactly TWO short broad triangular side rays joined at its shoulders. Only three connected major forms. The effect is a compact 4-point sunlight spear with very long top and bottom points and short horizontal points, NOT a weapon held by a person, NOT a shield, no separate satellite shards/rays. One ivory core, broad golden facets, amber outer edge. True-transparent1536x1024 PNG in EXACT4x2 equal384x512 cells,row-major, at least60px clear side gutters and50px top/bottom. Same front camera and lowest lower-point support local(192,430) in all8 cells, including row2. Largest whole burst max220px wide290px high. Phases:0 tiny WHOLE four-point sunlight lance at bottom support;1 SAME silhouette grows to25%;2 SAME silhouette55%;3 SAME silhouette90%;4 SAME full lance holds with brighter ivory core, stable support;5 SAME WHOLE lance contracts80%;6 SAME60%;7 SAME40%, support never moves. Keep the two side rays connected in every cel; no popping parts, no crack debris, no victim. Clear alpha immediately outside closed clean silhouette. No fog/halo/glow cloud, ground shadow,dust,grain,sparkles,tiny repeated lines,scenery,floor,sun disk,text,numbers,frames,borders,watermark,checkerboard,black/white matte. Smooth clean broad cel illumination, warm gold identity, readable piercing dawn magic. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」 「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "frameOffsetsSourcePx": [
+      [
+        0,
+        16
+      ],
+      [
+        0,
+        14
+      ],
+      [
+        0,
+        15
+      ],
+      [
+        0,
+        14
+      ],
+      [
+        1,
+        29
+      ],
+      [
+        0,
+        48
+      ],
+      [
+        1,
+        49
+      ],
+      [
+        0,
+        73
+      ]
+    ],
+    "recommendedPlacement": "A single upright golden sunlight lance over the selected area; lower point is the fixed placement landmark."
+  }
+]
