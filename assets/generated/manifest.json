@@ -3,10 +3,10 @@
   "title": "Color Resonance ゲーム素材",
   "counts": {
     "characters": 18,
-    "effects": 11,
-    "sourceSheets": 29,
-    "pngCels": 244,
-    "gifs": 109
+    "effects": 13,
+    "sourceSheets": 31,
+    "pngCels": 268,
+    "gifs": 113
   },
   "production": {
     "generator": "built-in imagegen",
@@ -4424,6 +4424,314 @@
           "gifRepeatsForPreview": false,
           "gifAlphaThreshold": 96,
           "previewGif": "gifs/golden_thrust/preview.gif",
+          "previewGifLoops": true
+        }
+      }
+    },
+    {
+      "id": "young_leaf_bind",
+      "name": "若葉の縛り",
+      "category": "fx",
+      "source": "source/young_leaf_bind.png",
+      "sheet": "sheets/young_leaf_bind.png",
+      "frames": [
+        "frames/young_leaf_bind/000.png",
+        "frames/young_leaf_bind/001.png",
+        "frames/young_leaf_bind/002.png",
+        "frames/young_leaf_bind/003.png",
+        "frames/young_leaf_bind/004.png",
+        "frames/young_leaf_bind/005.png",
+        "frames/young_leaf_bind/006.png",
+        "frames/young_leaf_bind/007.png",
+        "frames/young_leaf_bind/008.png",
+        "frames/young_leaf_bind/009.png",
+        "frames/young_leaf_bind/010.png",
+        "frames/young_leaf_bind/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          288,
+          384
+        ],
+        "order": "row-major"
+      },
+      "scenes": [
+        "ivy",
+        "chrome"
+      ],
+      "skillId": "ivy_bind",
+      "spirit": "ivy",
+      "direction": "front",
+      "anchorPx": [
+        144,
+        192
+      ],
+      "productionSet": "learned-set-02",
+      "animations": {
+        "effect": {
+          "name": "若葉の縛り",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            100,
+            160,
+            140,
+            140,
+            160,
+            260,
+            180,
+            140,
+            160,
+            100,
+            100,
+            100,
+            100,
+            720
+          ],
+          "loop": false,
+          "phases": [
+            {
+              "name": "anticipation",
+              "startMs": 100,
+              "endMs": 400
+            },
+            {
+              "name": "release",
+              "startMs": 400,
+              "endMs": 700
+            },
+            {
+              "name": "hold",
+              "startMs": 700,
+              "endMs": 960
+            },
+            {
+              "name": "decay",
+              "startMs": 960,
+              "endMs": 1740
+            }
+          ],
+          "visibleEndMs": 1740,
+          "pngVisibleEndMs": 1840,
+          "gifTransparentTailMs": 820,
+          "pngPhases": [
+            {
+              "name": "anticipation",
+              "startMs": 100,
+              "endMs": 400
+            },
+            {
+              "name": "release",
+              "startMs": 400,
+              "endMs": 700
+            },
+            {
+              "name": "hold",
+              "startMs": 700,
+              "endMs": 960
+            },
+            {
+              "name": "decay",
+              "startMs": 960,
+              "endMs": 1840
+            }
+          ],
+          "frameStartsMs": [
+            0,
+            100,
+            260,
+            400,
+            540,
+            700,
+            960,
+            1140,
+            1280,
+            1440,
+            1540,
+            1640,
+            1740,
+            1840
+          ],
+          "gif": "gifs/young_leaf_bind/effect.gif",
+          "size": [
+            288,
+            384
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 2560,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/young_leaf_bind/preview.gif",
+          "previewGifLoops": true
+        }
+      }
+    },
+    {
+      "id": "prism_bolt",
+      "name": "虹彩の光弾",
+      "category": "fx",
+      "source": "source/prism_bolt.png",
+      "sheet": "sheets/prism_bolt.png",
+      "frames": [
+        "frames/prism_bolt/000.png",
+        "frames/prism_bolt/001.png",
+        "frames/prism_bolt/002.png",
+        "frames/prism_bolt/003.png",
+        "frames/prism_bolt/004.png",
+        "frames/prism_bolt/005.png",
+        "frames/prism_bolt/006.png",
+        "frames/prism_bolt/007.png",
+        "frames/prism_bolt/008.png",
+        "frames/prism_bolt/009.png",
+        "frames/prism_bolt/010.png",
+        "frames/prism_bolt/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          288,
+          384
+        ],
+        "order": "row-major"
+      },
+      "scenes": [
+        "king",
+        "chrome"
+      ],
+      "skillId": "king_prism",
+      "spirit": "king",
+      "direction": "right",
+      "anchorPx": [
+        144,
+        192
+      ],
+      "productionSet": "learned-set-02",
+      "animations": {
+        "effect": {
+          "name": "虹彩の光弾",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            100,
+            140,
+            120,
+            100,
+            100,
+            100,
+            100,
+            100,
+            140,
+            100,
+            100,
+            100,
+            100,
+            720
+          ],
+          "loop": false,
+          "phases": [
+            {
+              "name": "anticipation",
+              "startMs": 100,
+              "endMs": 360
+            },
+            {
+              "name": "release",
+              "startMs": 360,
+              "endMs": 560
+            },
+            {
+              "name": "impact",
+              "startMs": 560,
+              "endMs": 660
+            },
+            {
+              "name": "decay",
+              "startMs": 660,
+              "endMs": 1300
+            }
+          ],
+          "visibleEndMs": 1300,
+          "pngVisibleEndMs": 1400,
+          "gifTransparentTailMs": 820,
+          "pngPhases": [
+            {
+              "name": "anticipation",
+              "startMs": 100,
+              "endMs": 360
+            },
+            {
+              "name": "release",
+              "startMs": 360,
+              "endMs": 560
+            },
+            {
+              "name": "impact",
+              "startMs": 560,
+              "endMs": 660
+            },
+            {
+              "name": "decay",
+              "startMs": 660,
+              "endMs": 1400
+            }
+          ],
+          "frameStartsMs": [
+            0,
+            100,
+            240,
+            360,
+            460,
+            560,
+            660,
+            760,
+            860,
+            1000,
+            1100,
+            1200,
+            1300,
+            1400
+          ],
+          "gif": "gifs/prism_bolt/effect.gif",
+          "size": [
+            288,
+            384
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 2120,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/prism_bolt/preview.gif",
           "previewGifLoops": true
         }
       }

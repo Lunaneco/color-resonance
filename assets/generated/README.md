@@ -1,6 +1,6 @@
 # Color Resonance ゲーム素材
 
-ゲームの物語・敵・仲間・技に合わせ、組み込みimagegenで生成した素材ライブラリです。キャラクター18種類、技エフェクト11種類、原本シート29枚、透過PNGコマ244枚、GIF109本（動作・単発技106本と専用反復プレビュー3本）を収録しています。
+ゲームの物語・敵・仲間・技に合わせ、組み込みimagegenで生成した素材ライブラリです。キャラクター18種類、技エフェクト13種類、主原本シート31枚、透過PNGコマ268枚、GIF113本（動作・単発技108本と専用反復プレビュー5本）を収録しています。
 
 [素材一覧を開く](https://lunaneco.github.io/color-resonance/assets/generated/) では名前・技名で検索し、動作を切り替え、明暗背景で透過を確認できます。`index.html` を直接開いても閲覧できます。
 
@@ -119,4 +119,28 @@ GIF全コマ復号、寸法・保持時間・共通パレット・背景消去�
 python3 tools/build_learned_assets.py
 ```
 
-全素材を再構築する場合は従来の `build_game_assets.py --force` の後に、`build_learned_assets.py` を実行してください。金の主原本は、生成した命中コマだけを編集前シートへ差し替えたものです。編集前の `source/golden_thrust-base.png`、生成編集シート `source/golden_thrust-impact-edit.png`、採用矩形も保存しています。生成原本、生成・局所修正プロンプト、固定登録座標、撮影コマの設定は `prompts.json` と `learned-set-01.json` に保存しています。
+全素材を再構築する場合は従来の `build_game_assets.py --force` の後に、各追加セットの `build_learned_assets.py` を実行してください。金の主原本は、生成した命中コマだけを編集前シートへ差し替えたものです。編集前の `source/golden_thrust-base.png`、生成編集シート `source/golden_thrust-impact-edit.png`、採用矩形も保存しています。生成原本、生成・局所修正プロンプト、固定登録座標、撮影コマの設定は `prompts.json` と `learned-set-01.json` に保存しています。
+
+
+## 習得技 第2セット
+
+[若葉の縛り・虹彩の光弾をZIPでまとめて保存](downloads/learned-set02.zip)できます。
+
+| 素材ID | 習得技ID | 方向 | 単発GIF | 総尺 / GIF可視終端 / PNG可視終端 |
+|---|---|---|---|---|
+| young_leaf_bind | ivy_bind | 正面 | [effect.gif](gifs/young_leaf_bind/effect.gif) | 2560ms / 1740ms / 1840ms |
+| prism_bolt | king_prism | 右 | [effect.gif](gifs/prism_bolt/effect.gif) | 2120ms / 1300ms / 1400ms |
+
+第一セットと同じ各288×384・12PNGセル・4列×3行シート・14コマの単発GIFです。`preview.gif` だけ反復します。開始100msと終了720msは透明、最後の4セルは固定支点で残光や葉を縮退させる消失コマです。`sequence`、`durationsMs`、`frameStartsMs`、`loop:false` で再生を制御します。第一セットのCanvas例をそのまま使えます。
+
+この2技では最終PNGセルの最大アルファが若葉93/255、虹彩25/255です。GIFの透過閾値96未満になるため、その100msセルも完全透明となり、GIFの連続透明尾部は820msです。`visibleEndMs` と `phases` は復号GIFの可視終端に一致し、`pngVisibleEndMs` と `pngPhases` はPNGの微弱な残光まで含めた終端を示します。総尺とコマ時刻は同じです。
+
+若葉の縛りは蔦の根元を固定して閉じ、締まった輪と3枚の葉を一体のまま縮退させます。解除セル5〜7は保持セル4を根元(144,307)で0.82→0.64→0.46倍へ縮め、その後4段階の残光へつなぎます。上葉だけが消えるポーズ切替はありません。根元は閉じる前後で1px差です。虹彩の光弾は白い芯を固定したコンパクトな虹色の光弾が、命中の扇状の光へ変わります。右向きの効果レイヤーは方向に合わせて反転できます。キャラのレイヤーは別に扱います。`king_prism` は既存の素材IDでもあるため、新しい素材IDを `prism_bolt` とし、`skillId` で習得技に対応させています。
+
+実コピーの `GameArt.sample` で2技の全コマ開始・切替直前1ms・単発終了の56アサートが通過しています。GIF全コマ、共通パレット、透過外枠、単発終端を検証しています。連続視覚再生と実ゲーム内配置の確認は未実施です。ゲーム本体への自動組み込みは行っていません。
+
+```sh
+python3 tools/build_learned_assets.py --records assets/generated/learned-set-02.json
+```
+
+採用した生成原本と、虹彩の光弾の編集前シート `source/prism_bolt-base.png` を保持しています。初稿の長い帯を画像生成でコンパクトな光弾へ交換し、セル内で輪郭を完結させました。若葉の元の開蔦ポーズは原本内に残し、書き出し時の `phaseTransforms` で保持ポーズを縮退させています。生成・局所修正プロンプト、登録座標、消失コマ設定は `prompts.json` と `learned-set-02.json` にあります。

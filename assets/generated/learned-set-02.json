@@ -1,0 +1,234 @@
+[
+  {
+    "id": "young_leaf_bind",
+    "name": "若葉の縛り",
+    "skillId": "ivy_bind",
+    "spirit": "ivy",
+    "direction": "front",
+    "reference": "ivy_vines",
+    "referenceCel": "frames/ivy_vines/003.png",
+    "source": "source/young_leaf_bind.png",
+    "prompt": "Use case: stylized-concept. Asset type: original Color Resonance learned skill 若葉の縛り (ivy_bind), separate 2D magical binding effect. Input1 is ONLY the existing game's ivy leaf style and green color reference, not a layout reference. Generate an original eight-pose 4-column by 2-row equal-cell sprite sheet,1536x1024 transparent PNG; each cell384x512,row-major. Each cell is separate and every shape is fully contained, with minimum48px EMPTY transparent gutters on all sides. Use TWO smooth broad green vines with only THREE large young leaves total, forming a vertical open oval around an EMPTY space where an enemy can later be composited. No character, flower, weapons, scenery or floor. All eight phases keep the same camera and bottom anchor at local x192,y430, including both rows; the largest bound oval is max230px wide and300px tall. One coherent design, no vine multiplying or microscopic veins. Phases:0 a short tiny curved green shoot near bottom anchor;1 two vines rise symmetrically to half height;2 both curve inward to form two-thirds of an oval;3 the complete open oval closes with a soft crossing at its TOP and three broad leaves pointing inward, anchored to exactly same bottom point;4 SAME oval holds, tightened slightly inward, one clean pale-green highlight along each vine, same bottom anchor;5 it gently unlocks at the TOP, vines lower but keep bottom anchor;6 only two short leaves remain at bottom anchor;7 one small simple green leaf remains near bottom anchor, under45px tall. No diffuse fog/aura/background glow, just thin attached rim highlights. Use smooth clean painted cel shapes, restrained bright green/lime palette from the reference. Equal fixed grid. No text,numbers,borders,checkerboard,black matte,watermark,particle glitter. All effects fully contained inside their own cells; true alpha background. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」 「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "uniformInsetScale": 0.65,
+    "frameOffsetsSourcePx": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        40
+      ],
+      [
+        0,
+        40
+      ],
+      [
+        0,
+        40
+      ],
+      [
+        0,
+        40
+      ]
+    ],
+    "decayAnchorPx": [
+      144,
+      307
+    ],
+    "fadeOpacities": [
+      0.9,
+      0.75,
+      0.6,
+      0.45
+    ],
+    "decayScales": [
+      0.7,
+      0.42,
+      0.18,
+      0.06
+    ],
+    "fadeDurationsMs": [
+      100,
+      100,
+      100,
+      100
+    ],
+    "durationsMs": [
+      160,
+      140,
+      140,
+      160,
+      260,
+      180,
+      140,
+      160
+    ],
+    "phases": [
+      [
+        "anticipation",
+        0,
+        2
+      ],
+      [
+        "release",
+        2,
+        4
+      ],
+      [
+        "hold",
+        4,
+        5
+      ],
+      [
+        "decay",
+        5,
+        8
+      ]
+    ],
+    "phaseTransforms": {
+      "5": {
+        "sourceCel": 4,
+        "anchorPx": [
+          144,
+          307
+        ],
+        "scale": 0.82,
+        "opacity": 0.94
+      },
+      "6": {
+        "sourceCel": 4,
+        "anchorPx": [
+          144,
+          307
+        ],
+        "scale": 0.64,
+        "opacity": 0.88
+      },
+      "7": {
+        "sourceCel": 4,
+        "anchorPx": [
+          144,
+          307
+        ],
+        "scale": 0.46,
+        "opacity": 0.82
+      }
+    },
+    "releaseMethod": "Whole held oval and all three leaves contract together into the fixed root; source cels 5–7 retained as unused original artwork."
+  },
+  {
+    "id": "prism_bolt",
+    "name": "虹彩の光弾",
+    "skillId": "king_prism",
+    "spirit": "king",
+    "direction": "right",
+    "reference": "king_prism",
+    "referenceCel": "frames/king_prism/004.png",
+    "source": "source/prism_bolt.png",
+    "prompt": "Use case: stylized-concept. Asset type: original Color Resonance learned skill 虹彩の光弾 (king_prism), independent magical projectile effect. Input1 supplies ONLY the existing game's broad crystal facets, purple-cyan-gold palette and clean cel illumination, not its tower design. Make a NEW single right-facing prism-light projectile: ONE smooth elongated jewel orb with SEVEN broad simple color bands (red,orange,yellow,green,cyan,blue,violet), an ivory core highlight, and only TWO wide trailing ribbons. No surrounding satellite gems or dust. Eight sequential key poses in an exactly regular 4x2 equal-cell transparent sprite sheet1536x1024; each cell384x512,row-major. Every cel has minimum48px absolutely empty transparent gutters; all shapes fully contained. Stable horizontal axis local y285 in BOTH rows. Activation point starts at x140 and advances to impact x290; no jumping upward in second row. Largest effect280px wide/180px tall; retain safe margins. Phases:0 tiny violet seed gem at(140,285);1 same seed grows into a small seven-color jewel orb;2 orb points to right with two short broad rainbow ribbons behind;3 same orb thrusts right with two extended smooth ribbons, tip at x290,y285;4 impact AT EXACT same x290,y285 into one clean compact fan of three broad rainbow petals, no victim or fragments crossing border;5 fan retracts to a smaller three-petal glow at same impact location;6 one small seven-color diamond remains at(290,285);7 SAME tiny diamond at(290,285), under30px tall, fading. Crystal magic stays one coherent design. Smooth painted broad facets and restrained rim highlights attached to shape, no diffuse fog/aura/background halo, no microscopic cracks, no glitter or grain/noise on outlines. Genuine transparent alpha, no text,number,grid,border,watermark,scenery,character,ground shadow,white/black matte,checkerboard. Source ref's spirit identity/colors preserved, different learned ability readable as a light bolt. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」 「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "repairPrompt": "Use case: precise-object-edit. Edit target is this transparent 1536x1024 4x2 rainbow projectile sprite sheet. The top-row THIRD and FOURTH cels have huge trailing ribbons crossing into neighboring cells. REPLACE those two entire long-streak illustrations with NEW COMPACT jewel light bolts: one simple seven-color jewel, at most180px wide and140px tall, horizontal/pointed right, no trailing ribbons at all. Do not just clip or mask the existing long ribbons. Center both new jewels inside their OWN equal384x512 cells at local(192,285), leaving at least70px clear transparent space left and right. Cel2 modest compact point, cel3 brighter compact point. Also REPLACE bottom-row FIRST cel's wide fan with a NEW SMALL complete three-petal rainbow impact flare max170px wide/160px tall, centered at local(192,285), entire silhouette completed with clear60px gutters, no cropping against right edge. Keep cels0 and1 as small growing crystal seeds, keep cel5 as the small withdraw flare but center at same(192,285), and cels6/7 as one small/tiny final rainbow crystal centered(192,285). Match original jewel's red-to-violet seven broad smooth crystal facets and ivory highlight. Exactly8 separate complete compact shapes in exact4x2 grid; each cell independent, no overlap, no satellite gems. REMOVE the thin horizontal separator line at canvas y512. No fog background, no glitter, no borders/numbers/text/watermark/checkerboard/black matte. True transparent alpha. All eight artwork centers use same local y285 in both rows. The technical priority is complete compact silhouettes with ample EMPTY transparent cell gutters. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」 「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "uniformInsetScale": 0.6,
+    "frameOffsetsSourcePx": [
+      [
+        12,
+        0
+      ],
+      [
+        -8,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        -8,
+        1
+      ],
+      [
+        62,
+        26
+      ],
+      [
+        42,
+        26
+      ],
+      [
+        1,
+        30
+      ],
+      [
+        2,
+        25
+      ]
+    ],
+    "decayAnchorPx": [
+      144,
+      205
+    ],
+    "fadeOpacities": [
+      0.9,
+      0.75,
+      0.6,
+      0.45
+    ],
+    "decayScales": [
+      0.7,
+      0.42,
+      0.18,
+      0.06
+    ],
+    "fadeDurationsMs": [
+      100,
+      100,
+      100,
+      100
+    ],
+    "durationsMs": [
+      140,
+      120,
+      100,
+      100,
+      100,
+      100,
+      100,
+      140
+    ],
+    "phases": [
+      [
+        "anticipation",
+        0,
+        2
+      ],
+      [
+        "release",
+        2,
+        4
+      ],
+      [
+        "impact",
+        4,
+        5
+      ],
+      [
+        "decay",
+        5,
+        8
+      ]
+    ],
+    "editBase": "source/prism_bolt-base.png"
+  }
+]

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Append learned-skill sprites from saved ImageGen sheets; retain existing assets."""
+import argparse
 import hashlib
 import json
 from pathlib import Path
@@ -12,7 +13,12 @@ CELL = (288, 384)
 
 
 def main():
-    records = json.loads((OUT / 'learned-set-01.json').read_text())
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--records',type=Path,default=OUT/'learned-set-01.json')
+    args=parser.parse_args()
+    set_name=args.records.stem
+    qc_key='learnedSet'+set_name.rsplit('-',1)[-1]
+    records = json.loads(args.records.read_text())
     manifest = json.loads((OUT / 'manifest.json').read_text())
     ids = {r['id'] for r in records}
     manifest['assets'] = [a for a in manifest['assets'] if a['id'] not in ids]
@@ -64,6 +70,22 @@ def main():
             cel.save(OUT / path)
             paths.append(path)
             cels.append(cel)
+        # Optional animation transforms reuse a whole generated pose about a
+        # fixed landmark. This avoids dropping individual leaves/parts when a
+        # separately drawn release pose has a different silhouette.
+        originals=[cel.copy() for cel in cels]
+        for index,step in rec.get('phaseTransforms',{}).items():
+            i=int(index)
+            ax,ay=step['anchorPx']
+            scale=step['scale']
+            cel=originals[step['sourceCel']].transform(
+                CELL,Image.Transform.AFFINE,
+                (1/scale,0,ax-ax/scale,0,1/scale,ay-ay/scale),
+                resample=Image.Resampling.BICUBIC)
+            cel.putalpha(cel.getchannel('A').point(lambda a: round(a*step['opacity'])))
+            cel.save(OUT/paths[i])
+            cels[i]=cel
+            bboxes[i]=cel.getchannel('A').point(lambda a:255 if a>=96 else 0).getbbox()
         # The remaining magic contracts about one fixed landmark and fades.
         # This deliberate decay also stays readable in GIF's 1-bit alpha.
         ax,ay=rec['decayAnchorPx']
@@ -96,12 +118,22 @@ def main():
               'previewGif':preview['gif'],'previewGifLoops':True}
         clock = [0]
         for duration in durations: clock.append(clock[-1] + duration)
+        with Image.open(OUT/spec['gif']) as check:
+            decoded=[f.convert('RGBA').copy() for f in ImageSequence.Iterator(check)]
+        gif_end=max(clock[i+1] for i,f in enumerate(decoded)
+                    if f.getchannel('A').getextrema()[1]>0)
+        png_end=max(clock[i+1] for i,f in enumerate(frames)
+                    if f.getchannel('A').getextrema()[1]>0)
         phases = [dict(name=name, startMs=clock[start+1], endMs=clock[end+1])
                   for name,start,end in rec['phases']]
-        phases[-1]['endMs']=clock[-2]
+        phases[-1]['endMs']=gif_end
+        png_phases=[dict(phase) for phase in phases]
+        png_phases[-1]['endMs']=png_end
         animation = dict(name=rec['name'], sequence=sequence, durationsMs=durations,
                          loop=False, phases=phases,
-                         visibleEndMs=clock[-2], frameStartsMs=clock[:-1],
+                         visibleEndMs=gif_end,pngVisibleEndMs=png_end,
+                         gifTransparentTailMs=clock[-1]-gif_end,
+                         pngPhases=png_phases,frameStartsMs=clock[:-1],
                          **spec)
         manifest['assets'].append(dict(
             id=aid,name=rec['name'],category='fx',source=rec['source'],
@@ -110,17 +142,19 @@ def main():
             scenes=[rec['spirit'],'chrome'],
             skillId=rec['skillId'],spirit=rec['spirit'],
             direction=rec['direction'],anchorPx=[144,192],
-            productionSet='learned-set-01',animations={'effect':animation}))
+            productionSet=set_name,animations={'effect':animation}))
         prompts.append(dict(id=aid,name=rec['name'],category='fx',
                             file=rec['source'],tool='built-in imagegen',
-                            reference=f'source/{rec["reference"]}.png',
+                            reference=rec.get('referenceCel',f'source/{rec["reference"]}.png'),
                             prompt=rec['prompt'],
                             **({'repairPrompt':rec['repairPrompt']} if 'repairPrompt' in rec else {}),
                             **({'sourceEdit':rec['sourceEdit'],'impactRepairPrompt':rec['impactRepairPrompt']} if 'sourceEdit' in rec else {}),
+                            **({'editBase':rec['editBase']} if 'editBase' in rec else {}),
                             export=dict(cellSize=list(CELL),uniformInsetScale=rec['uniformInsetScale'],
                                         fixedGrid=True,frameOffsetsSourcePx=rec['frameOffsetsSourcePx'],
                                         fadeOpacities=rec['fadeOpacities'],
                                         decayScales=rec['decayScales'],decayAnchorPx=rec['decayAnchorPx'],
+                                        phaseTransforms=rec.get('phaseTransforms',{}),
                                         extractionGuardPx=rec.get('extractionGuardPx',0),
                                         cellClipSourcePx=rec.get('cellClipSourcePx',{}))))
         contact([(f'{aid} / {i}', f) for i,f in enumerate(cels)],OUT/f'review/{aid}.jpg')
@@ -135,6 +169,8 @@ def main():
                            clearBorderPx=[24,32],transparentFirstAndLast=True,
                            sharedPalette=True,disposal=2,pngAlphaPreserved=True,
                            singleShotGif=True,separateLoopPreview=True,
+                           gifVisibleEndMs=gif_end,pngVisibleEndMs=png_end,
+                           gifTransparentTailMs=clock[-1]-gif_end,
                            finalOpacity=rec['fadeOpacities'][-1],
                            finalScale=rec['decayScales'][-1],opaqueBboxes=bboxes))
     assets = manifest['assets']
@@ -152,15 +188,15 @@ def main():
              for a in assets],OUT/'overview.jpg',columns=5)
     quality=json.loads((OUT/'quality-report.json').read_text())
     quality['counts']=manifest['counts']
-    quality['learnedSet01']=dict(assetCount=len(records),checks=qc)
+    quality[qc_key]=dict(assetCount=len(records),checks=qc)
     write(OUT/'quality-report.json',quality)
-    overview=Image.new('RGB',(864,1536),'#152033')
+    overview=Image.new('RGB',(288*len(records),1536),'#152033')
     for col,rec in enumerate(records):
         for row,(cel,bg) in enumerate([(2,'#152033'),(4,'#152033'),(4,'#f2efea'),(7,'#f2efea')]):
             plate=Image.new('RGBA',CELL,bg)
             plate.alpha_composite(Image.open(OUT/f'frames/{rec["id"]}/{cel:03d}.png').convert('RGBA'))
             overview.paste(plate.convert('RGB'),(col*288,row*384))
-    overview.save(OUT/'review/learned-set-01.png')
+    overview.save(OUT/f'review/{set_name}.png')
     print(json.dumps(dict(counts=manifest['counts'],checks=qc),ensure_ascii=False))
 
 

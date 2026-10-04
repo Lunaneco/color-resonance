@@ -1,10 +1,10 @@
 {
   "counts": {
     "characters": 18,
-    "effects": 11,
-    "sourceSheets": 29,
-    "pngCels": 244,
-    "gifs": 109
+    "effects": 13,
+    "sourceSheets": 31,
+    "pngCels": 268,
+    "gifs": 113
   },
   "alpha": [
     {
@@ -538,5 +538,193 @@
     "status": "passed",
     "visualPlayback": "not verified",
     "gamePlacement": "not verified"
+  },
+  "learnedSet02": {
+    "assetCount": 2,
+    "checks": [
+      {
+        "id": "young_leaf_bind",
+        "pngCellSize": [
+          288,
+          384
+        ],
+        "pngCount": 12,
+        "gifFrameCount": 14,
+        "durationMs": 2560,
+        "clearBorderPx": [
+          24,
+          32
+        ],
+        "transparentFirstAndLast": true,
+        "sharedPalette": true,
+        "disposal": 2,
+        "pngAlphaPreserved": true,
+        "singleShotGif": true,
+        "separateLoopPreview": true,
+        "gifVisibleEndMs": 1740,
+        "pngVisibleEndMs": 1840,
+        "gifTransparentTailMs": 820,
+        "finalOpacity": 0.45,
+        "finalScale": 0.06,
+        "opaqueBboxes": [
+          [
+            102,
+            267,
+            184,
+            309
+          ],
+          [
+            79,
+            174,
+            205,
+            309
+          ],
+          [
+            66,
+            129,
+            220,
+            309
+          ],
+          [
+            66,
+            92,
+            224,
+            309
+          ],
+          [
+            72,
+            108,
+            213,
+            308
+          ],
+          [
+            85,
+            144,
+            200,
+            308
+          ],
+          [
+            98,
+            179,
+            188,
+            308
+          ],
+          [
+            111,
+            215,
+            176,
+            308
+          ]
+        ]
+      },
+      {
+        "id": "prism_bolt",
+        "pngCellSize": [
+          288,
+          384
+        ],
+        "pngCount": 12,
+        "gifFrameCount": 14,
+        "durationMs": 2120,
+        "clearBorderPx": [
+          24,
+          32
+        ],
+        "transparentFirstAndLast": true,
+        "sharedPalette": true,
+        "disposal": 2,
+        "pngAlphaPreserved": true,
+        "singleShotGif": true,
+        "separateLoopPreview": true,
+        "gifVisibleEndMs": 1300,
+        "pngVisibleEndMs": 1400,
+        "gifTransparentTailMs": 820,
+        "finalOpacity": 0.45,
+        "finalScale": 0.06,
+        "opaqueBboxes": [
+          [
+            127,
+            171,
+            160,
+            236
+          ],
+          [
+            104,
+            163,
+            182,
+            244
+          ],
+          [
+            85,
+            174,
+            206,
+            235
+          ],
+          [
+            67,
+            170,
+            210,
+            238
+          ],
+          [
+            142,
+            133,
+            239,
+            259
+          ],
+          [
+            142,
+            164,
+            213,
+            243
+          ],
+          [
+            125,
+            176,
+            162,
+            233
+          ],
+          [
+            133,
+            185,
+            156,
+            222
+          ]
+        ]
+      }
+    ],
+    "playbackContract": {
+      "scope": "Read-only VM execution of the actual copied game GameArt.sample function with this manifest; no browser or rendering.",
+      "assertions": 56,
+      "actualArtJsSha256": "955553cdecf0dd598dd469de631557718add3311dec327a01cb8877fe2d164a9",
+      "frameStarts": true,
+      "oneMsBeforeTransitions": true,
+      "singleShotEnd": true,
+      "continuousVisualPlayback": "NOT VERIFIED",
+      "actualGamePlacement": "NOT VERIFIED"
+    },
+    "releaseContinuity": {
+      "id": "young_leaf_bind",
+      "method": "Held cel4 plus all three leaves contracts as one whole silhouette about fixed root",
+      "anchorPx": [
+        144,
+        307
+      ],
+      "scales": [
+        0.82,
+        0.64,
+        0.46
+      ],
+      "gifOpaqueAreaPxFromHold": [
+        7788,
+        5214,
+        3178,
+        1636,
+        794,
+        273,
+        48,
+        0
+      ]
+    }
   }
 }
