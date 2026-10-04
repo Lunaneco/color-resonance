@@ -3,13 +3,80 @@
 import argparse
 import hashlib
 import json
+import math
+import shutil
+import subprocess
+import sys
+import tempfile
+from collections import deque
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFont, ImageSequence
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont, ImageSequence
 from build_game_assets import gif, contact, write, RESAMPLE
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'assets/generated'
 CELL = (288, 384)
+
+
+def compose_gif_contour(rec):
+    """Adopt generated contour colors only; keep base geometry/alpha exactly."""
+    edit=rec['gifSourceEdit']
+    base=Image.open(OUT/edit['base']).convert('RGBA')
+    donor=Image.open(OUT/edit['generatedEdit']).convert('RGBA')
+    assert base.size==donor.size==(1536,1024)
+    result=base.copy()
+    masks=Image.new('L',base.size)
+    radius=edit['radiusPx']
+    for cy in range(2):
+        for cx in range(4):
+            box=(cx*384,cy*512,(cx+1)*384,(cy+1)*512)
+            original=base.crop(box)
+            colors=donor.crop(box)
+            opaque=original.getchannel('A').point(lambda a:255 if a>=96 else 0)
+            band=ImageChops.subtract(opaque.filter(ImageFilter.MaxFilter(radius*2+1)),
+                                     opaque.filter(ImageFilter.MinFilter(radius*2+1)))
+            # Extend generated opaque edge colors to nearby antialias pixels,
+            # independently per source cel. Never sample its zero-alpha RGB.
+            pixels=list(colors.get_flattened_data())
+            owner=[-1]*len(pixels)
+            queue=deque()
+            for i,pixel in enumerate(pixels):
+                if pixel[3]>=200:owner[i]=i;queue.append(i)
+            assert queue
+            while queue:
+                i=queue.popleft();x,y=i%384,i//384
+                for j in ([i-1] if x else [])+([i+1] if x<383 else [])+([i-384] if y else [])+([i+384] if y<511 else []):
+                    if owner[j]<0:owner[j]=owner[i];queue.append(j)
+            original_pixels=list(original.get_flattened_data())
+            band_pixels=list(band.get_flattened_data())
+            replacement=[(*pixels[owner[i]][:3],pixel[3])
+                         if band_pixels[i] and pixel[3] else pixel
+                         for i,pixel in enumerate(original_pixels)]
+            composed=Image.new('RGBA',(384,512));composed.putdata(replacement)
+            result.paste(composed,(cx*384,cy*512));masks.paste(band,(cx*384,cy*512))
+    assert result.getchannel('A').tobytes()==base.getchannel('A').tobytes()
+    result.save(OUT/rec['gifSource'])
+    masks.save(OUT/edit['mask'])
+
+
+def render_gif_source(rec,set_name):
+    """Use the same exporter in isolation, retaining the canonical PNG set."""
+    with tempfile.TemporaryDirectory(prefix='color-resonance-gif-') as directory:
+        root=Path(directory);out=root/'assets/generated';(out/'source').mkdir(parents=True)
+        (out/'sheets').mkdir();(out/'review').mkdir()
+        (root/'tools').mkdir()
+        for name in ['build_game_assets.py','build_learned_assets.py']:
+            shutil.copyfile(ROOT/'tools'/name,root/'tools'/name)
+        alternate={k:v for k,v in rec.items() if k not in ['gifSource','gifSourceEdit','gifEdgePrompt']}
+        alternate['source']=rec['gifSource']
+        shutil.copyfile(OUT/rec['gifSource'],out/rec['gifSource'])
+        write(out/'manifest.json',{'assets':[],'production':{}})
+        write(out/'prompts.json',[]);write(out/'quality-report.json',{})
+        records=out/(set_name+'.json');write(records,[alternate])
+        subprocess.run([sys.executable,str(root/'tools/build_learned_assets.py'),'--records',str(records)],
+                       cwd=root,check=True,stdout=subprocess.DEVNULL)
+        for name in ['effect.gif','preview.gif']:
+            path=f'gifs/{rec["id"]}/{name}';shutil.copyfile(out/path,OUT/path)
 
 
 def main():
@@ -78,9 +145,17 @@ def main():
             i=int(index)
             ax,ay=step['anchorPx']
             scale=step['scale']
+            angle=step.get('rotationDeg',0)
+            if angle:
+                # Positive angles rotate clockwise in screen coordinates.
+                radians=math.radians(angle)
+                c,s=math.cos(radians)/scale,math.sin(radians)/scale
+                coefficients=(c,s,ax-c*ax-s*ay,-s,c,ay+s*ax-c*ay)
+            else:
+                # Retain the exact old arithmetic for existing unrotated sets.
+                coefficients=(1/scale,0,ax-ax/scale,0,1/scale,ay-ay/scale)
             cel=originals[step['sourceCel']].transform(
-                CELL,Image.Transform.AFFINE,
-                (1/scale,0,ax-ax/scale,0,1/scale,ay-ay/scale),
+                CELL,Image.Transform.AFFINE,coefficients,
                 resample=Image.Resampling.BICUBIC)
             cel.putalpha(cel.getchannel('A').point(lambda a: round(a*step['opacity'])))
             cel.save(OUT/paths[i])
@@ -99,6 +174,11 @@ def main():
             cel.save(OUT/path)
             paths.append(path)
             cels.append(cel)
+        for i,cel in enumerate(cels):
+            alpha=cel.getchannel('A')
+            for edge in (alpha.crop((0,0,24,384)),alpha.crop((264,0,288,384)),
+                         alpha.crop((0,0,288,32)),alpha.crop((0,352,288,384))):
+                assert edge.getextrema()[1]==0,f'{aid}/{i}: transformed edge not clear'
         sheet = Image.new('RGBA', (1152,1152))
         for i, cel in enumerate(cels):
             sheet.alpha_composite(cel, ((i%4)*288,(i//4)*384))
@@ -114,6 +194,9 @@ def main():
         blob=(OUT/preview['gif']).read_bytes()
         assert blob.count(netscape) == 1
         (OUT/f'gifs/{aid}/effect.gif').write_bytes(blob.replace(netscape,b'',1))
+        if 'gifSource' in rec:
+            compose_gif_contour(rec)
+            render_gif_source(rec,set_name)
         spec={**preview,'gif':f'gifs/{aid}/effect.gif','gifRepeatsForPreview':False,
               'previewGif':preview['gif'],'previewGifLoops':True}
         clock = [0]
@@ -134,6 +217,7 @@ def main():
                          visibleEndMs=gif_end,pngVisibleEndMs=png_end,
                          gifTransparentTailMs=clock[-1]-gif_end,
                          pngPhases=png_phases,frameStartsMs=clock[:-1],
+                         **({'gifSource':rec['gifSource']} if 'gifSource' in rec else {}),
                          **spec)
         manifest['assets'].append(dict(
             id=aid,name=rec['name'],category='fx',source=rec['source'],
@@ -150,6 +234,10 @@ def main():
                             **({'repairPrompt':rec['repairPrompt']} if 'repairPrompt' in rec else {}),
                             **({'sourceEdit':rec['sourceEdit'],'impactRepairPrompt':rec['impactRepairPrompt']} if 'sourceEdit' in rec else {}),
                             **({'editBase':rec['editBase']} if 'editBase' in rec else {}),
+                            **({key:rec[key] for key in ['gifSource','gifSourceEdit','gifEdgePrompt']}
+                               if 'gifSource' in rec else {}),
+                            **({key:rec[key] for key in ['adoptedSourceCells','unusedSourceCells','sourceSelectionReason']}
+                               if 'adoptedSourceCells' in rec else {}),
                             export=dict(cellSize=list(CELL),uniformInsetScale=rec['uniformInsetScale'],
                                         fixedGrid=True,frameOffsetsSourcePx=rec['frameOffsetsSourcePx'],
                                         fadeOpacities=rec['fadeOpacities'],

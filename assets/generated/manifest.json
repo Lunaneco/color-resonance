@@ -3,10 +3,10 @@
   "title": "Color Resonance ゲーム素材",
   "counts": {
     "characters": 18,
-    "effects": 17,
-    "sourceSheets": 35,
-    "pngCels": 316,
-    "gifs": 121
+    "effects": 20,
+    "sourceSheets": 38,
+    "pngCels": 352,
+    "gifs": 127
   },
   "production": {
     "generator": "built-in imagegen",
@@ -4394,10 +4394,10 @@
             {
               "name": "decay",
               "startMs": 690,
-              "endMs": 1470
+              "endMs": 1370
             }
           ],
-          "visibleEndMs": 1470,
+          "visibleEndMs": 1370,
           "frameStartsMs": [
             0,
             100,
@@ -4424,7 +4424,31 @@
           "gifRepeatsForPreview": false,
           "gifAlphaThreshold": 96,
           "previewGif": "gifs/golden_thrust/preview.gif",
-          "previewGifLoops": true
+          "previewGifLoops": true,
+          "pngPhases": [
+            {
+              "name": "anticipation",
+              "startMs": 100,
+              "endMs": 390
+            },
+            {
+              "name": "release",
+              "startMs": 390,
+              "endMs": 590
+            },
+            {
+              "name": "impact",
+              "startMs": 590,
+              "endMs": 690
+            },
+            {
+              "name": "decay",
+              "startMs": 690,
+              "endMs": 1470
+            }
+          ],
+          "pngVisibleEndMs": 1470,
+          "gifTransparentTailMs": 820
         }
       }
     },
@@ -5349,6 +5373,469 @@
           "gifAlphaThreshold": 96,
           "previewGif": "gifs/dawn_shatter/preview.gif",
           "previewGifLoops": true
+        }
+      }
+    },
+    {
+      "id": "vine_round_dance",
+      "name": "翠蔦の輪舞",
+      "category": "fx",
+      "source": "source/vine_round_dance.png",
+      "sheet": "sheets/vine_round_dance.png",
+      "frames": [
+        "frames/vine_round_dance/000.png",
+        "frames/vine_round_dance/001.png",
+        "frames/vine_round_dance/002.png",
+        "frames/vine_round_dance/003.png",
+        "frames/vine_round_dance/004.png",
+        "frames/vine_round_dance/005.png",
+        "frames/vine_round_dance/006.png",
+        "frames/vine_round_dance/007.png",
+        "frames/vine_round_dance/008.png",
+        "frames/vine_round_dance/009.png",
+        "frames/vine_round_dance/010.png",
+        "frames/vine_round_dance/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          288,
+          384
+        ],
+        "order": "row-major"
+      },
+      "scenes": [
+        "ivy",
+        "chrome"
+      ],
+      "skillId": "ivy_dance",
+      "spirit": "ivy",
+      "direction": "front",
+      "anchorPx": [
+        144,
+        192
+      ],
+      "productionSet": "learned-set-05",
+      "animations": {
+        "effect": {
+          "name": "翠蔦の輪舞",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            100,
+            140,
+            140,
+            160,
+            160,
+            300,
+            140,
+            140,
+            140,
+            100,
+            100,
+            100,
+            100,
+            720
+          ],
+          "loop": false,
+          "phases": [
+            {
+              "name": "anticipation",
+              "startMs": 100,
+              "endMs": 380
+            },
+            {
+              "name": "release",
+              "startMs": 380,
+              "endMs": 700
+            },
+            {
+              "name": "hold",
+              "startMs": 700,
+              "endMs": 1000
+            },
+            {
+              "name": "decay",
+              "startMs": 1000,
+              "endMs": 1820
+            }
+          ],
+          "visibleEndMs": 1820,
+          "pngVisibleEndMs": 1820,
+          "gifTransparentTailMs": 720,
+          "pngPhases": [
+            {
+              "name": "anticipation",
+              "startMs": 100,
+              "endMs": 380
+            },
+            {
+              "name": "release",
+              "startMs": 380,
+              "endMs": 700
+            },
+            {
+              "name": "hold",
+              "startMs": 700,
+              "endMs": 1000
+            },
+            {
+              "name": "decay",
+              "startMs": 1000,
+              "endMs": 1820
+            }
+          ],
+          "frameStartsMs": [
+            0,
+            100,
+            240,
+            380,
+            540,
+            700,
+            1000,
+            1140,
+            1280,
+            1420,
+            1520,
+            1620,
+            1720,
+            1820
+          ],
+          "gif": "gifs/vine_round_dance/effect.gif",
+          "size": [
+            288,
+            384
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 2540,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/vine_round_dance/preview.gif",
+          "previewGifLoops": true
+        }
+      }
+    },
+    {
+      "id": "seven_color_barrier",
+      "name": "七色の結界",
+      "category": "fx",
+      "source": "source/seven_color_barrier.png",
+      "sheet": "sheets/seven_color_barrier.png",
+      "frames": [
+        "frames/seven_color_barrier/000.png",
+        "frames/seven_color_barrier/001.png",
+        "frames/seven_color_barrier/002.png",
+        "frames/seven_color_barrier/003.png",
+        "frames/seven_color_barrier/004.png",
+        "frames/seven_color_barrier/005.png",
+        "frames/seven_color_barrier/006.png",
+        "frames/seven_color_barrier/007.png",
+        "frames/seven_color_barrier/008.png",
+        "frames/seven_color_barrier/009.png",
+        "frames/seven_color_barrier/010.png",
+        "frames/seven_color_barrier/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          288,
+          384
+        ],
+        "order": "row-major"
+      },
+      "scenes": [
+        "king",
+        "chrome"
+      ],
+      "skillId": "king_canvas",
+      "spirit": "king",
+      "direction": "front",
+      "anchorPx": [
+        144,
+        192
+      ],
+      "productionSet": "learned-set-05",
+      "animations": {
+        "effect": {
+          "name": "七色の結界",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            100,
+            140,
+            140,
+            160,
+            160,
+            300,
+            140,
+            140,
+            140,
+            100,
+            100,
+            100,
+            100,
+            720
+          ],
+          "loop": false,
+          "phases": [
+            {
+              "name": "anticipation",
+              "startMs": 100,
+              "endMs": 380
+            },
+            {
+              "name": "release",
+              "startMs": 380,
+              "endMs": 700
+            },
+            {
+              "name": "hold",
+              "startMs": 700,
+              "endMs": 1000
+            },
+            {
+              "name": "decay",
+              "startMs": 1000,
+              "endMs": 1820
+            }
+          ],
+          "visibleEndMs": 1820,
+          "pngVisibleEndMs": 1820,
+          "gifTransparentTailMs": 720,
+          "pngPhases": [
+            {
+              "name": "anticipation",
+              "startMs": 100,
+              "endMs": 380
+            },
+            {
+              "name": "release",
+              "startMs": 380,
+              "endMs": 700
+            },
+            {
+              "name": "hold",
+              "startMs": 700,
+              "endMs": 1000
+            },
+            {
+              "name": "decay",
+              "startMs": 1000,
+              "endMs": 1820
+            }
+          ],
+          "frameStartsMs": [
+            0,
+            100,
+            240,
+            380,
+            540,
+            700,
+            1000,
+            1140,
+            1280,
+            1420,
+            1520,
+            1620,
+            1720,
+            1820
+          ],
+          "gif": "gifs/seven_color_barrier/effect.gif",
+          "size": [
+            288,
+            384
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 2540,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/seven_color_barrier/preview.gif",
+          "previewGifLoops": true
+        }
+      }
+    },
+    {
+      "id": "palette_resonance",
+      "name": "パレット・レゾナンス",
+      "category": "fx",
+      "source": "source/palette_resonance.png",
+      "sheet": "sheets/palette_resonance.png",
+      "frames": [
+        "frames/palette_resonance/000.png",
+        "frames/palette_resonance/001.png",
+        "frames/palette_resonance/002.png",
+        "frames/palette_resonance/003.png",
+        "frames/palette_resonance/004.png",
+        "frames/palette_resonance/005.png",
+        "frames/palette_resonance/006.png",
+        "frames/palette_resonance/007.png",
+        "frames/palette_resonance/008.png",
+        "frames/palette_resonance/009.png",
+        "frames/palette_resonance/010.png",
+        "frames/palette_resonance/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          288,
+          384
+        ],
+        "order": "row-major"
+      },
+      "scenes": [
+        "king",
+        "chrome"
+      ],
+      "skillId": "king_resonance",
+      "spirit": "king",
+      "direction": "right",
+      "anchorPx": [
+        144,
+        192
+      ],
+      "productionSet": "learned-set-05",
+      "animations": {
+        "effect": {
+          "name": "パレット・レゾナンス",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            100,
+            140,
+            140,
+            160,
+            160,
+            300,
+            140,
+            140,
+            140,
+            100,
+            100,
+            100,
+            100,
+            720
+          ],
+          "loop": false,
+          "phases": [
+            {
+              "name": "anticipation",
+              "startMs": 100,
+              "endMs": 380
+            },
+            {
+              "name": "release",
+              "startMs": 380,
+              "endMs": 700
+            },
+            {
+              "name": "hold",
+              "startMs": 700,
+              "endMs": 1000
+            },
+            {
+              "name": "decay",
+              "startMs": 1000,
+              "endMs": 1720
+            }
+          ],
+          "visibleEndMs": 1720,
+          "pngVisibleEndMs": 1820,
+          "gifTransparentTailMs": 820,
+          "pngPhases": [
+            {
+              "name": "anticipation",
+              "startMs": 100,
+              "endMs": 380
+            },
+            {
+              "name": "release",
+              "startMs": 380,
+              "endMs": 700
+            },
+            {
+              "name": "hold",
+              "startMs": 700,
+              "endMs": 1000
+            },
+            {
+              "name": "decay",
+              "startMs": 1000,
+              "endMs": 1820
+            }
+          ],
+          "frameStartsMs": [
+            0,
+            100,
+            240,
+            380,
+            540,
+            700,
+            1000,
+            1140,
+            1280,
+            1420,
+            1520,
+            1620,
+            1720,
+            1820
+          ],
+          "gif": "gifs/palette_resonance/effect.gif",
+          "size": [
+            288,
+            384
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 2540,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/palette_resonance/preview.gif",
+          "previewGifLoops": true,
+          "gifSource": "source/palette_resonance-gif-contour.png"
         }
       }
     }

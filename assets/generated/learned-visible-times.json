@@ -1,0 +1,138 @@
+{
+  "authority": "Decoded GIF alpha; PNG time comes from manifest sequence and durations.",
+  "alphaMeasurement": "GIF0/255; PNG any nonzero alpha.",
+  "effects": [
+    {
+      "id": "water_arrow",
+      "skillId": "gran_wave",
+      "name": "水鏡の矢",
+      "durationMs": 2120,
+      "gifVisibleStartMs": 100,
+      "gifVisibleEndMs": 1400,
+      "gifOpaqueDurationMs": 1300,
+      "gifTransparentTailMs": 720,
+      "pngManifestVisibleEndMs": 1400
+    },
+    {
+      "id": "flower_guard",
+      "skillId": "ivy_bloom",
+      "name": "花守り",
+      "durationMs": 2560,
+      "gifVisibleStartMs": 100,
+      "gifVisibleEndMs": 1840,
+      "gifOpaqueDurationMs": 1740,
+      "gifTransparentTailMs": 720,
+      "pngManifestVisibleEndMs": 1840
+    },
+    {
+      "id": "golden_thrust",
+      "skillId": "spinel_break",
+      "name": "金継ぎの突き",
+      "durationMs": 2190,
+      "gifVisibleStartMs": 100,
+      "gifVisibleEndMs": 1370,
+      "gifOpaqueDurationMs": 1270,
+      "gifTransparentTailMs": 820,
+      "pngManifestVisibleEndMs": 1470
+    },
+    {
+      "id": "young_leaf_bind",
+      "skillId": "ivy_bind",
+      "name": "若葉の縛り",
+      "durationMs": 2560,
+      "gifVisibleStartMs": 100,
+      "gifVisibleEndMs": 1740,
+      "gifOpaqueDurationMs": 1640,
+      "gifTransparentTailMs": 820,
+      "pngManifestVisibleEndMs": 1840
+    },
+    {
+      "id": "prism_bolt",
+      "skillId": "king_prism",
+      "name": "虹彩の光弾",
+      "durationMs": 2120,
+      "gifVisibleStartMs": 100,
+      "gifVisibleEndMs": 1300,
+      "gifOpaqueDurationMs": 1200,
+      "gifTransparentTailMs": 820,
+      "pngManifestVisibleEndMs": 1400
+    },
+    {
+      "id": "tide_mend",
+      "skillId": "gran_mend",
+      "name": "潮の癒し",
+      "durationMs": 2540,
+      "gifVisibleStartMs": 100,
+      "gifVisibleEndMs": 1820,
+      "gifOpaqueDurationMs": 1720,
+      "gifTransparentTailMs": 720,
+      "pngManifestVisibleEndMs": 1820
+    },
+    {
+      "id": "golden_aegis",
+      "skillId": "spinel_guard",
+      "name": "黄金の庇護",
+      "durationMs": 2540,
+      "gifVisibleStartMs": 100,
+      "gifVisibleEndMs": 1820,
+      "gifOpaqueDurationMs": 1720,
+      "gifTransparentTailMs": 720,
+      "pngManifestVisibleEndMs": 1820
+    },
+    {
+      "id": "azure_tide_strike",
+      "skillId": "gran_tide",
+      "name": "蒼海の一太刀",
+      "durationMs": 2540,
+      "gifVisibleStartMs": 100,
+      "gifVisibleEndMs": 1720,
+      "gifOpaqueDurationMs": 1620,
+      "gifTransparentTailMs": 820,
+      "pngManifestVisibleEndMs": 1820
+    },
+    {
+      "id": "dawn_shatter",
+      "skillId": "spinel_sun",
+      "name": "暁の砕光",
+      "durationMs": 2540,
+      "gifVisibleStartMs": 100,
+      "gifVisibleEndMs": 1720,
+      "gifOpaqueDurationMs": 1620,
+      "gifTransparentTailMs": 820,
+      "pngManifestVisibleEndMs": 1820
+    },
+    {
+      "id": "vine_round_dance",
+      "skillId": "ivy_dance",
+      "name": "翠蔦の輪舞",
+      "durationMs": 2540,
+      "gifVisibleStartMs": 100,
+      "gifVisibleEndMs": 1820,
+      "gifOpaqueDurationMs": 1720,
+      "gifTransparentTailMs": 720,
+      "pngManifestVisibleEndMs": 1820
+    },
+    {
+      "id": "seven_color_barrier",
+      "skillId": "king_canvas",
+      "name": "七色の結界",
+      "durationMs": 2540,
+      "gifVisibleStartMs": 100,
+      "gifVisibleEndMs": 1820,
+      "gifOpaqueDurationMs": 1720,
+      "gifTransparentTailMs": 720,
+      "pngManifestVisibleEndMs": 1820
+    },
+    {
+      "id": "palette_resonance",
+      "skillId": "king_resonance",
+      "name": "パレット・レゾナンス",
+      "durationMs": 2540,
+      "gifVisibleStartMs": 100,
+      "gifVisibleEndMs": 1720,
+      "gifOpaqueDurationMs": 1620,
+      "gifTransparentTailMs": 820,
+      "pngManifestVisibleEndMs": 1820
+    }
+  ]
+}

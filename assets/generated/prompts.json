@@ -1240,5 +1240,378 @@
       "extractionGuardPx": 0,
       "cellClipSourcePx": {}
     }
+  },
+  {
+    "id": "vine_round_dance",
+    "name": "翠蔦の輪舞",
+    "category": "fx",
+    "file": "source/vine_round_dance.png",
+    "tool": "built-in imagegen",
+    "reference": "frames/ivy_vines/003.png",
+    "prompt": "Use case: stylized-concept. Create Color Resonance's learned AREA slash-and-binding skill 翠蔦の輪舞 (ivy_dance), a separate front-facing 2D green leaf dance ring. Reference supplies only the existing game's broad smooth green leaves/vines and lime highlights, no character. ONE closed slender green circular vine ring around an EMPTY circular center, with exactly THREE broad smooth crescent LEAF BLADES attached at120-degree intervals to its perimeter. Every blade is joined to the ring, no detached particles or extra leaves. All three blade tips curve clockwise, giving an obvious rotating cutting dance. No roots/floor/shoots. Generate1536x1024 true-transparent PNG, exact regular4 columns x2 rows equal384x512 cells,row-major. Every full object within its own cell with at least60px transparent gutters. Largest whole ring with blades max250px wide250px high. Fixed ring center local(192,285) in ALL8 cels, same front camera, circle not tilted or perspective changed. Phases:0 tiny complete ring with all3 blades at center,25% size;1 same3-blade ring40% size, orientation0deg;2 same60% size rotated30deg clockwise;3 same90% size rotated60deg;4 samefull ring rotated90deg, broad pale lime cutting rims, center unchanged;5 same whole full design80% size at90deg;6 same60%;7 same40%, center never moves. Keep all three leaves throughout, never replace by separate sprouts. One coherent green design with clean broad leaf shadows, one simple vein per leaf at most, no serration/texture or scales. Clear alpha directly outside whole closed silhouette, no glow/fog cloud/halo/background haze/ground shadow, no flowers,characters,weapon,scene,particles,glitter,micro-grain,text,numbers,borders,cell dividers,watermark,checkerboard,white/black matte. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」 「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "repairPrompt": "Use case: precise-object-edit. Edit target is this1536x1024 transparent4x2 green three-leaf ring sprite sheet. Bottom-row FIRST cel is TOO WIDE and a leaf tip crosses into the next cell. REAUTHOR all8 ring illustrations as SMALLER complete objects, do NOT crop/mask the large leaves. EXACT384x512 equal cells,row-major. Largest WHOLE ring and all3 attached crescent leaves must be at most220x220px, centered at local(192,285), leaving at least80px empty side gutters. All ring tips fully complete inside own cell. Same closed green vine ring with EMPTY interior, exactly THREE smooth crescent leaf blades attached around circumference, no extra leaves. Phases small25%,40%,60%,90%,100%,80%,60%,40%; all center(192,285) in BOTH rows. Same orientation in all8, we will rotate the final cels in animation composition. Keep the original's broad smooth green/lime leaf colors and one simple vein, no serrations or micrograin. REMOVE any leaf bleeding at x384,768,1152; each cel independent. Source cel4 whole maximum220x220px, not a370px object. Source cel5 should NOT contain a stray neighboring leaf. True transparent around clean finished silhouettes and fully transparent interior, no glow/haze/background aura, shadows, text,numbers,frames,gridlines,watermark,checkerboard,black/white matte. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」 「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "editBase": "source/vine_round_dance-base.png",
+    "adoptedSourceCells": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "unusedSourceCells": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "sourceSelectionReason": "The complete source cel3 is used for peak/decay; raw larger cels4–5 crossing grid boundaries are not adopted. Original and edit retained.",
+    "export": {
+      "cellSize": [
+        288,
+        384
+      ],
+      "uniformInsetScale": 0.55,
+      "fixedGrid": true,
+      "frameOffsetsSourcePx": [
+        [
+          0,
+          -5
+        ],
+        [
+          2,
+          -3
+        ],
+        [
+          4,
+          -10
+        ],
+        [
+          6,
+          -8
+        ],
+        [
+          0,
+          40
+        ],
+        [
+          -9,
+          50
+        ],
+        [
+          -13,
+          44
+        ],
+        [
+          -15,
+          23
+        ]
+      ],
+      "fadeOpacities": [
+        0.9,
+        0.75,
+        0.6,
+        0.45
+      ],
+      "decayScales": [
+        0.7,
+        0.42,
+        0.18,
+        0.06
+      ],
+      "decayAnchorPx": [
+        144,
+        205
+      ],
+      "phaseTransforms": {
+        "0": {
+          "sourceCel": 0,
+          "anchorPx": [
+            144,
+            205
+          ],
+          "rotationDeg": 0,
+          "scale": 1,
+          "opacity": 1
+        },
+        "1": {
+          "sourceCel": 1,
+          "anchorPx": [
+            144,
+            205
+          ],
+          "rotationDeg": 0,
+          "scale": 1,
+          "opacity": 1
+        },
+        "2": {
+          "sourceCel": 2,
+          "anchorPx": [
+            144,
+            205
+          ],
+          "rotationDeg": 30,
+          "scale": 1,
+          "opacity": 1
+        },
+        "3": {
+          "sourceCel": 3,
+          "anchorPx": [
+            144,
+            205
+          ],
+          "rotationDeg": 60,
+          "scale": 1,
+          "opacity": 1
+        },
+        "4": {
+          "sourceCel": 3,
+          "anchorPx": [
+            144,
+            205
+          ],
+          "rotationDeg": 90,
+          "scale": 1,
+          "opacity": 1
+        },
+        "5": {
+          "sourceCel": 3,
+          "anchorPx": [
+            144,
+            205
+          ],
+          "rotationDeg": 90,
+          "scale": 0.82,
+          "opacity": 0.94
+        },
+        "6": {
+          "sourceCel": 3,
+          "anchorPx": [
+            144,
+            205
+          ],
+          "rotationDeg": 90,
+          "scale": 0.64,
+          "opacity": 0.88
+        },
+        "7": {
+          "sourceCel": 3,
+          "anchorPx": [
+            144,
+            205
+          ],
+          "rotationDeg": 90,
+          "scale": 0.46,
+          "opacity": 0.82
+        }
+      },
+      "extractionGuardPx": 0,
+      "cellClipSourcePx": {}
+    }
+  },
+  {
+    "id": "seven_color_barrier",
+    "name": "七色の結界",
+    "category": "fx",
+    "file": "source/seven_color_barrier.png",
+    "tool": "built-in imagegen",
+    "reference": "frames/king_prism/004.png",
+    "prompt": "Use case: stylized-concept. Create Color Resonance's learned ally-area healing/protective skill 七色の結界 (king_canvas), a separate front-facing 2D HOLLOW seven-color crystal barrier. Reference supplies only the original game's broad clean prism facets, ivory edge highlights, warm left/cool right color identity. Make ONE closed hollow upright PRISM FRAME: an elegant gem-shaped oval/dome with one top point, broad shoulders, gently pointed bottom, and a LARGE EMPTY transparent interior for an ally. The thick rim is exactly SEVEN broad connected colored facets:red,orange,yellow on the LEFT, green at TOP, cyan,blue,violet on the RIGHT; warm-left/cool-right, same order all phases. One attached ivory INNER BEVEL line, no floating satellite gems, pedestal, ring, sun, or particles. Center fully transparent, NOT a filled shield or translucent colored glass. True-transparent1536x1024 PNG with exact4x2 equal384x512 sprite cells,row-major, at least60px empty side gutters and50px top/bottom. Largest complete frame max230px wide290px tall. Same front camera and lowest bottom point local(192,430) in all8 cels. Phases:0 tiny COMPLETE seven-facet hollow frame at bottom support25%size;1 SAME40%;2 SAME60%;3 SAME90%;4 SAME100% full frame holds, rim's ivory line brightens, empty interior;5 WHOLE frame80%;6 WHOLE60%;7 WHOLE40%, bottom point fixed. Keep all7 colors as connected facets in every cel, no color bands popping away. No haze,aura,background cloud,ground shadow,glitter,grain,microcracks,text,symbols,numbers,borders,grid,watermark,checkerboard,character,weapon,scenery,black/white matte. Smooth clean geometric cel magic, facets broad and readable. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」 「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "repairPrompt": "Use case: precise-object-edit. This1536x1024 transparent4x2 seven-color hollow frame sheet has a CLIPPED GREEN TOP POINT in bottom-row FIRST cel: the peak sits on y512 boundary. REAUTHOR the frame illustrations as SMALLER complete jewel rings, do NOT just mask/crop the point. Exact4x2 equal384x512 cells,row-major. Largest full outer frame MAX180px wide and250px high, all colored tips complete, local bottom point(192,430), so top point is safely below localy180. Every cel at least80px empty on all sides except bottom where70px. Use same seven connected broad crystal color facets, red/orange/yellow left, green top, cyan/blue/violet right, ivory inner bevel. ONE closed gem-shaped oval frame with LARGE CLEAR TRANSPARENT interior, not glass. Phases25%,40%,60%,90%,100%,80%,60%,40% scaling from FIXED BOTTOM POINT(192,430) in ALL cells and BOTH rows. Top-row FOURTH and bottom-row FIRST must have almost same full shape, ALL TOP/BOTTOM/LEFT/RIGHT points visible, no source-point touches a cell border. No extra satellite jewels/dust, no halo/aura/fog, no shadows,text,numbers,frame/gridlines,watermark,checkerboard,white/black matte. Real clear alpha everywhere outside the rim and across its EMPTY interior. Technical priority: full green top point and violet bottom point preserved with generous transparent gutters, every one of the8 source cels fully complete. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」 「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "editBase": "source/seven_color_barrier-base.png",
+    "export": {
+      "cellSize": [
+        288,
+        384
+      ],
+      "uniformInsetScale": 0.65,
+      "fixedGrid": true,
+      "frameOffsetsSourcePx": [
+        [
+          -5,
+          30
+        ],
+        [
+          23,
+          30
+        ],
+        [
+          31,
+          25
+        ],
+        [
+          22,
+          22
+        ],
+        [
+          -6,
+          46
+        ],
+        [
+          -11,
+          55
+        ],
+        [
+          -9,
+          58
+        ],
+        [
+          7,
+          62
+        ]
+      ],
+      "fadeOpacities": [
+        0.9,
+        0.75,
+        0.6,
+        0.45
+      ],
+      "decayScales": [
+        0.7,
+        0.42,
+        0.18,
+        0.06
+      ],
+      "decayAnchorPx": [
+        144,
+        307
+      ],
+      "phaseTransforms": {
+        "5": {
+          "sourceCel": 4,
+          "anchorPx": [
+            144,
+            307
+          ],
+          "scale": 0.82,
+          "opacity": 0.94
+        },
+        "6": {
+          "sourceCel": 4,
+          "anchorPx": [
+            144,
+            307
+          ],
+          "scale": 0.64,
+          "opacity": 0.88
+        },
+        "7": {
+          "sourceCel": 4,
+          "anchorPx": [
+            144,
+            307
+          ],
+          "scale": 0.46,
+          "opacity": 0.82
+        }
+      },
+      "extractionGuardPx": 0,
+      "cellClipSourcePx": {}
+    }
+  },
+  {
+    "id": "palette_resonance",
+    "name": "パレット・レゾナンス",
+    "category": "fx",
+    "file": "source/palette_resonance.png",
+    "tool": "built-in imagegen",
+    "reference": "frames/king_prism/004.png",
+    "prompt": "Use case: stylized-concept. Create Color Resonance's ultimate learned AREA slash skill パレット・レゾナンス (king_resonance), an independent right-facing 2D SEVEN-COLOR crescent slash. Reference supplies the original game's broad prism facets/ivory highlights and warm-left/cool-right royal magic. ONE connected curved crescent cutting stroke, its broad face divided into exactly SEVEN broad adjoining colored segments (red,orange,yellow,green,cyan,blue,violet), with ONE ivory cutting-edge rim. It is one whole unified seven-color slash, no detached satellite blades, dust, crystals, dots, tiny repeated ribs or streaks. Warm reds/oranges toward LEFT/rear, cool cyan/blue/violet toward RIGHT cutting tip, color order consistent across8 poses. The crescent curls up and forward to RIGHT, short COMPLETE rounded lower support, no long trailing ribbon crossing cell boundary. Exact regular4x2 transparent sprite sheet1536x1024, equal384x512 cells,row-major. Maxwidth230px/maxheight290px for largest whole stroke, at least70px transparent side gutters and50px top/bottom. Same front-right view and bottom-center support local(192,430) in all8 cells, no row2 jump. Phases:0 tiny complete seven-color curved stroke at bottom support25%;1 SAME40%;2 SAME60%;3 SAME90%;4 SAME100% brightest connected crescent slash, stable support;5 WHOLE same stroke80%;6 WHOLE60%;7 WHOLE40%, every color retained while contracting. Clean broad painted crystal facets with one smooth ivory edge, no dense texture. Genuine alpha right outside silhouette, no aura/fog cloud/background halo,ground shadow,scene,characters,weapons,text,numbers,borders,cell lines,watermark,checkerboard,black/white matte. Every curved tip visibly finishes INSIDE its own cell, no overlap. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」 「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "gifSource": "source/palette_resonance-gif-contour.png",
+    "gifSourceEdit": {
+      "base": "source/palette_resonance.png",
+      "generatedEdit": "source/palette_resonance-gif-edge-donor.png",
+      "mask": "source/palette_resonance-gif-edge-mask.png",
+      "radiusPx": 8,
+      "scope": "Generated color adoption only within an8px band around the original contour; original alpha and all pixels outside band preserved. PNG source/cels unchanged."
+    },
+    "gifEdgePrompt": "Use case: precise-object-edit. This is the exact Color Resonance seven-color crescent slash sprite sheet. Prepare a GIF-only clean-edge version. Preserve the exact8 crescent poses, all seven broad rainbow color facets, overall silhouettes, cell positions, sizes, direction and bottom landmarks. Do not redesign the slash or add anything. The bright WHITE OUTER RIM is causing a jagged white fringe when converted to1-bit transparency. REPLACE that outer white glowing rim with a THIN SOLID COLORED outline, matching the adjacent blue/violet edge at upper/right tip and adjacent red/yellow at lower/left. Keep a restrained PALE IVORY highlight just INSIDE the fully opaque colored silhouette. Remove all soft glowing pixels OUTSIDE the contour: no halo, haze, blurred white feathering, fog or partially transparent light outside the stroke. Only2px smooth attached colored outline at source resolution, with ordinary antialias right against fully clear alpha. Preserve original white inner facet highlights, just fix the outer fringe. Exact1536x1024 regular4x2 grid with eight separate384x512 cells, row-major, existing shapes remain complete in own cells. All color bands stay connected as one crescent; warm left/cool right, no particles. Technical purpose is an edge suitable for GIF255-color/1bit transparency without white jagged glow. PNG alpha background genuine, zero-alpha outside. No text,numbers,cell borders,watermark,checkerboard,black/white matte. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」 「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "export": {
+      "cellSize": [
+        288,
+        384
+      ],
+      "uniformInsetScale": 0.65,
+      "fixedGrid": true,
+      "frameOffsetsSourcePx": [
+        [
+          23,
+          32
+        ],
+        [
+          41,
+          40
+        ],
+        [
+          47,
+          40
+        ],
+        [
+          46,
+          40
+        ],
+        [
+          35,
+          56
+        ],
+        [
+          39,
+          58
+        ],
+        [
+          37,
+          58
+        ],
+        [
+          25,
+          55
+        ]
+      ],
+      "fadeOpacities": [
+        0.9,
+        0.75,
+        0.6,
+        0.45
+      ],
+      "decayScales": [
+        0.7,
+        0.42,
+        0.18,
+        0.06
+      ],
+      "decayAnchorPx": [
+        144,
+        307
+      ],
+      "phaseTransforms": {
+        "5": {
+          "sourceCel": 4,
+          "anchorPx": [
+            144,
+            307
+          ],
+          "scale": 0.82,
+          "opacity": 0.94
+        },
+        "6": {
+          "sourceCel": 4,
+          "anchorPx": [
+            144,
+            307
+          ],
+          "scale": 0.64,
+          "opacity": 0.88
+        },
+        "7": {
+          "sourceCel": 4,
+          "anchorPx": [
+            144,
+            307
+          ],
+          "scale": 0.46,
+          "opacity": 0.82
+        }
+      },
+      "extractionGuardPx": 0,
+      "cellClipSourcePx": {}
+    }
   }
 ]

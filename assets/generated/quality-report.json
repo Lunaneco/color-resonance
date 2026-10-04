@@ -1,10 +1,10 @@
 {
   "counts": {
     "characters": 18,
-    "effects": 17,
-    "sourceSheets": 35,
-    "pngCels": 316,
-    "gifs": 121
+    "effects": 20,
+    "sourceSheets": 38,
+    "pngCels": 352,
+    "gifs": 127
   },
   "alpha": [
     {
@@ -1309,6 +1309,400 @@
         null,
         null
       ]
+    }
+  },
+  "learnedSet05": {
+    "assetCount": 3,
+    "checks": [
+      {
+        "id": "vine_round_dance",
+        "pngCellSize": [
+          288,
+          384
+        ],
+        "pngCount": 12,
+        "gifFrameCount": 14,
+        "durationMs": 2540,
+        "clearBorderPx": [
+          24,
+          32
+        ],
+        "transparentFirstAndLast": true,
+        "sharedPalette": true,
+        "disposal": 2,
+        "pngAlphaPreserved": true,
+        "singleShotGif": true,
+        "separateLoopPreview": true,
+        "gifVisibleEndMs": 1820,
+        "pngVisibleEndMs": 1820,
+        "gifTransparentTailMs": 720,
+        "finalOpacity": 0.45,
+        "finalScale": 0.06,
+        "opaqueBboxes": [
+          [
+            113,
+            174,
+            174,
+            231
+          ],
+          [
+            97,
+            158,
+            188,
+            244
+          ],
+          [
+            79,
+            149,
+            195,
+            266
+          ],
+          [
+            80,
+            144,
+            213,
+            280
+          ],
+          [
+            85,
+            133,
+            217,
+            271
+          ],
+          [
+            95,
+            146,
+            203,
+            259
+          ],
+          [
+            106,
+            159,
+            190,
+            247
+          ],
+          [
+            117,
+            172,
+            177,
+            235
+          ]
+        ]
+      },
+      {
+        "id": "seven_color_barrier",
+        "pngCellSize": [
+          288,
+          384
+        ],
+        "pngCount": 12,
+        "gifFrameCount": 14,
+        "durationMs": 2540,
+        "clearBorderPx": [
+          24,
+          32
+        ],
+        "transparentFirstAndLast": true,
+        "sharedPalette": true,
+        "disposal": 2,
+        "pngAlphaPreserved": true,
+        "singleShotGif": true,
+        "separateLoopPreview": true,
+        "gifVisibleEndMs": 1820,
+        "pngVisibleEndMs": 1820,
+        "gifTransparentTailMs": 720,
+        "finalOpacity": 0.45,
+        "finalScale": 0.06,
+        "opaqueBboxes": [
+          [
+            106,
+            214,
+            182,
+            309
+          ],
+          [
+            89,
+            167,
+            199,
+            308
+          ],
+          [
+            76,
+            131,
+            212,
+            308
+          ],
+          [
+            64,
+            98,
+            224,
+            308
+          ],
+          [
+            63,
+            99,
+            225,
+            307
+          ],
+          [
+            78,
+            137,
+            210,
+            307
+          ],
+          [
+            92,
+            174,
+            196,
+            307
+          ],
+          [
+            107,
+            212,
+            181,
+            307
+          ]
+        ]
+      },
+      {
+        "id": "palette_resonance",
+        "pngCellSize": [
+          288,
+          384
+        ],
+        "pngCount": 12,
+        "gifFrameCount": 14,
+        "durationMs": 2540,
+        "clearBorderPx": [
+          24,
+          32
+        ],
+        "transparentFirstAndLast": true,
+        "sharedPalette": true,
+        "disposal": 2,
+        "pngAlphaPreserved": true,
+        "singleShotGif": true,
+        "separateLoopPreview": true,
+        "gifVisibleEndMs": 1720,
+        "pngVisibleEndMs": 1820,
+        "gifTransparentTailMs": 820,
+        "finalOpacity": 0.45,
+        "finalScale": 0.06,
+        "opaqueBboxes": [
+          [
+            117,
+            248,
+            187,
+            308
+          ],
+          [
+            108,
+            208,
+            210,
+            309
+          ],
+          [
+            96,
+            161,
+            236,
+            309
+          ],
+          [
+            90,
+            125,
+            247,
+            310
+          ],
+          [
+            84,
+            110,
+            250,
+            309
+          ],
+          [
+            95,
+            146,
+            231,
+            309
+          ],
+          [
+            106,
+            181,
+            212,
+            308
+          ],
+          [
+            117,
+            217,
+            192,
+            308
+          ]
+        ]
+      }
+    ],
+    "gifContourVerification": {
+      "id": "palette_resonance",
+      "radiusSourcePx": 8,
+      "sourceAlphaBytesPreserved": true,
+      "gifAll14AlphaFramesIdenticalToInitial": true,
+      "pngAll3SheetsUnchanged": true,
+      "nearWhiteOpaquePixelsF5Before": 1611,
+      "nearWhiteOpaquePixelsF5After": 1181,
+      "scope": "GIF contour colors only; no geometry/position/timing changes.",
+      "encodedGifColorNote": "Source band only preserves source pixels outside the adoption region; shared palette re-quantization can change interior GIF RGB. Binary transparency leaves hard blue/violet lines and stair-step edges on light backgrounds."
+    },
+    "playbackContract": {
+      "scope": "Read-only VM execution of the actual copied game GameArt.sample function with this manifest; no browser or rendering.",
+      "assertions": 84,
+      "actualArtJsSha256": "955553cdecf0dd598dd469de631557718add3311dec327a01cb8877fe2d164a9",
+      "frameStarts": true,
+      "oneMsBeforeTransitions": true,
+      "singleShotEnd": true,
+      "continuousVisualPlayback": "NOT VERIFIED",
+      "actualGamePlacement": "NOT VERIFIED"
+    }
+  },
+  "learnedTimingVerification": {
+    "effects": [
+      {
+        "id": "water_arrow",
+        "skillId": "gran_wave",
+        "name": "水鏡の矢",
+        "durationMs": 2120,
+        "gifVisibleStartMs": 100,
+        "gifVisibleEndMs": 1400,
+        "gifOpaqueDurationMs": 1300,
+        "gifTransparentTailMs": 720,
+        "pngManifestVisibleEndMs": 1400
+      },
+      {
+        "id": "flower_guard",
+        "skillId": "ivy_bloom",
+        "name": "花守り",
+        "durationMs": 2560,
+        "gifVisibleStartMs": 100,
+        "gifVisibleEndMs": 1840,
+        "gifOpaqueDurationMs": 1740,
+        "gifTransparentTailMs": 720,
+        "pngManifestVisibleEndMs": 1840
+      },
+      {
+        "id": "golden_thrust",
+        "skillId": "spinel_break",
+        "name": "金継ぎの突き",
+        "durationMs": 2190,
+        "gifVisibleStartMs": 100,
+        "gifVisibleEndMs": 1370,
+        "gifOpaqueDurationMs": 1270,
+        "gifTransparentTailMs": 820,
+        "pngManifestVisibleEndMs": 1470
+      },
+      {
+        "id": "young_leaf_bind",
+        "skillId": "ivy_bind",
+        "name": "若葉の縛り",
+        "durationMs": 2560,
+        "gifVisibleStartMs": 100,
+        "gifVisibleEndMs": 1740,
+        "gifOpaqueDurationMs": 1640,
+        "gifTransparentTailMs": 820,
+        "pngManifestVisibleEndMs": 1840
+      },
+      {
+        "id": "prism_bolt",
+        "skillId": "king_prism",
+        "name": "虹彩の光弾",
+        "durationMs": 2120,
+        "gifVisibleStartMs": 100,
+        "gifVisibleEndMs": 1300,
+        "gifOpaqueDurationMs": 1200,
+        "gifTransparentTailMs": 820,
+        "pngManifestVisibleEndMs": 1400
+      },
+      {
+        "id": "tide_mend",
+        "skillId": "gran_mend",
+        "name": "潮の癒し",
+        "durationMs": 2540,
+        "gifVisibleStartMs": 100,
+        "gifVisibleEndMs": 1820,
+        "gifOpaqueDurationMs": 1720,
+        "gifTransparentTailMs": 720,
+        "pngManifestVisibleEndMs": 1820
+      },
+      {
+        "id": "golden_aegis",
+        "skillId": "spinel_guard",
+        "name": "黄金の庇護",
+        "durationMs": 2540,
+        "gifVisibleStartMs": 100,
+        "gifVisibleEndMs": 1820,
+        "gifOpaqueDurationMs": 1720,
+        "gifTransparentTailMs": 720,
+        "pngManifestVisibleEndMs": 1820
+      },
+      {
+        "id": "azure_tide_strike",
+        "skillId": "gran_tide",
+        "name": "蒼海の一太刀",
+        "durationMs": 2540,
+        "gifVisibleStartMs": 100,
+        "gifVisibleEndMs": 1720,
+        "gifOpaqueDurationMs": 1620,
+        "gifTransparentTailMs": 820,
+        "pngManifestVisibleEndMs": 1820
+      },
+      {
+        "id": "dawn_shatter",
+        "skillId": "spinel_sun",
+        "name": "暁の砕光",
+        "durationMs": 2540,
+        "gifVisibleStartMs": 100,
+        "gifVisibleEndMs": 1720,
+        "gifOpaqueDurationMs": 1620,
+        "gifTransparentTailMs": 820,
+        "pngManifestVisibleEndMs": 1820
+      },
+      {
+        "id": "vine_round_dance",
+        "skillId": "ivy_dance",
+        "name": "翠蔦の輪舞",
+        "durationMs": 2540,
+        "gifVisibleStartMs": 100,
+        "gifVisibleEndMs": 1820,
+        "gifOpaqueDurationMs": 1720,
+        "gifTransparentTailMs": 720,
+        "pngManifestVisibleEndMs": 1820
+      },
+      {
+        "id": "seven_color_barrier",
+        "skillId": "king_canvas",
+        "name": "七色の結界",
+        "durationMs": 2540,
+        "gifVisibleStartMs": 100,
+        "gifVisibleEndMs": 1820,
+        "gifOpaqueDurationMs": 1720,
+        "gifTransparentTailMs": 720,
+        "pngManifestVisibleEndMs": 1820
+      },
+      {
+        "id": "palette_resonance",
+        "skillId": "king_resonance",
+        "name": "パレット・レゾナンス",
+        "durationMs": 2540,
+        "gifVisibleStartMs": 100,
+        "gifVisibleEndMs": 1720,
+        "gifOpaqueDurationMs": 1620,
+        "gifTransparentTailMs": 820,
+        "pngManifestVisibleEndMs": 1820
+      }
+    ],
+    "allDecodedGifEndsMatchManifest": true,
+    "goldenThrustTimeCorrection": {
+      "gifVisibleEndMs": 1370,
+      "pngManifestVisibleEndMs": 1470,
+      "gifTransparentTailMs": 820,
+      "gifAndPngMediaUnchanged": true
     }
   }
 }

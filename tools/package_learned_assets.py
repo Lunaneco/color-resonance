@@ -32,6 +32,9 @@ def main():
         files.add(f'source/{rec["reference"]}.png')
         if 'referenceCel' in rec:files.add(rec['referenceCel'])
         if 'editBase' in rec:files.add(rec['editBase'])
+        if 'gifSource' in rec:
+            files.add(rec['gifSource'])
+            files.update(rec['gifSourceEdit'][key] for key in ['base','generatedEdit','mask'])
         if 'sourceEdit' in rec:files.update([rec['sourceEdit']['base'],rec['sourceEdit']['generatedEdit']])
     heading=f'## 習得技 第{int(number)}セット'
     full_guide=(OUT/'README.md').read_text()
