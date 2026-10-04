@@ -3,10 +3,10 @@
   "title": "Color Resonance ゲーム素材",
   "counts": {
     "characters": 18,
-    "effects": 13,
-    "sourceSheets": 31,
-    "pngCels": 268,
-    "gifs": 113
+    "effects": 15,
+    "sourceSheets": 33,
+    "pngCels": 292,
+    "gifs": 117
   },
   "production": {
     "generator": "built-in imagegen",
@@ -4732,6 +4732,314 @@
           "gifRepeatsForPreview": false,
           "gifAlphaThreshold": 96,
           "previewGif": "gifs/prism_bolt/preview.gif",
+          "previewGifLoops": true
+        }
+      }
+    },
+    {
+      "id": "tide_mend",
+      "name": "潮の癒し",
+      "category": "fx",
+      "source": "source/tide_mend.png",
+      "sheet": "sheets/tide_mend.png",
+      "frames": [
+        "frames/tide_mend/000.png",
+        "frames/tide_mend/001.png",
+        "frames/tide_mend/002.png",
+        "frames/tide_mend/003.png",
+        "frames/tide_mend/004.png",
+        "frames/tide_mend/005.png",
+        "frames/tide_mend/006.png",
+        "frames/tide_mend/007.png",
+        "frames/tide_mend/008.png",
+        "frames/tide_mend/009.png",
+        "frames/tide_mend/010.png",
+        "frames/tide_mend/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          288,
+          384
+        ],
+        "order": "row-major"
+      },
+      "scenes": [
+        "gran",
+        "chrome"
+      ],
+      "skillId": "gran_mend",
+      "spirit": "gran",
+      "direction": "front",
+      "anchorPx": [
+        144,
+        192
+      ],
+      "productionSet": "learned-set-03",
+      "animations": {
+        "effect": {
+          "name": "潮の癒し",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            100,
+            140,
+            140,
+            160,
+            160,
+            300,
+            140,
+            140,
+            140,
+            100,
+            100,
+            100,
+            100,
+            720
+          ],
+          "loop": false,
+          "phases": [
+            {
+              "name": "anticipation",
+              "startMs": 100,
+              "endMs": 380
+            },
+            {
+              "name": "release",
+              "startMs": 380,
+              "endMs": 700
+            },
+            {
+              "name": "hold",
+              "startMs": 700,
+              "endMs": 1000
+            },
+            {
+              "name": "decay",
+              "startMs": 1000,
+              "endMs": 1820
+            }
+          ],
+          "visibleEndMs": 1820,
+          "pngVisibleEndMs": 1820,
+          "gifTransparentTailMs": 720,
+          "pngPhases": [
+            {
+              "name": "anticipation",
+              "startMs": 100,
+              "endMs": 380
+            },
+            {
+              "name": "release",
+              "startMs": 380,
+              "endMs": 700
+            },
+            {
+              "name": "hold",
+              "startMs": 700,
+              "endMs": 1000
+            },
+            {
+              "name": "decay",
+              "startMs": 1000,
+              "endMs": 1820
+            }
+          ],
+          "frameStartsMs": [
+            0,
+            100,
+            240,
+            380,
+            540,
+            700,
+            1000,
+            1140,
+            1280,
+            1420,
+            1520,
+            1620,
+            1720,
+            1820
+          ],
+          "gif": "gifs/tide_mend/effect.gif",
+          "size": [
+            288,
+            384
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 2540,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/tide_mend/preview.gif",
+          "previewGifLoops": true
+        }
+      }
+    },
+    {
+      "id": "golden_aegis",
+      "name": "黄金の庇護",
+      "category": "fx",
+      "source": "source/golden_aegis.png",
+      "sheet": "sheets/golden_aegis.png",
+      "frames": [
+        "frames/golden_aegis/000.png",
+        "frames/golden_aegis/001.png",
+        "frames/golden_aegis/002.png",
+        "frames/golden_aegis/003.png",
+        "frames/golden_aegis/004.png",
+        "frames/golden_aegis/005.png",
+        "frames/golden_aegis/006.png",
+        "frames/golden_aegis/007.png",
+        "frames/golden_aegis/008.png",
+        "frames/golden_aegis/009.png",
+        "frames/golden_aegis/010.png",
+        "frames/golden_aegis/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          288,
+          384
+        ],
+        "order": "row-major"
+      },
+      "scenes": [
+        "spinel",
+        "chrome"
+      ],
+      "skillId": "spinel_guard",
+      "spirit": "spinel",
+      "direction": "front",
+      "anchorPx": [
+        144,
+        192
+      ],
+      "productionSet": "learned-set-03",
+      "animations": {
+        "effect": {
+          "name": "黄金の庇護",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            100,
+            140,
+            140,
+            160,
+            160,
+            300,
+            140,
+            140,
+            140,
+            100,
+            100,
+            100,
+            100,
+            720
+          ],
+          "loop": false,
+          "phases": [
+            {
+              "name": "anticipation",
+              "startMs": 100,
+              "endMs": 380
+            },
+            {
+              "name": "release",
+              "startMs": 380,
+              "endMs": 700
+            },
+            {
+              "name": "hold",
+              "startMs": 700,
+              "endMs": 1000
+            },
+            {
+              "name": "decay",
+              "startMs": 1000,
+              "endMs": 1820
+            }
+          ],
+          "visibleEndMs": 1820,
+          "pngVisibleEndMs": 1820,
+          "gifTransparentTailMs": 720,
+          "pngPhases": [
+            {
+              "name": "anticipation",
+              "startMs": 100,
+              "endMs": 380
+            },
+            {
+              "name": "release",
+              "startMs": 380,
+              "endMs": 700
+            },
+            {
+              "name": "hold",
+              "startMs": 700,
+              "endMs": 1000
+            },
+            {
+              "name": "decay",
+              "startMs": 1000,
+              "endMs": 1820
+            }
+          ],
+          "frameStartsMs": [
+            0,
+            100,
+            240,
+            380,
+            540,
+            700,
+            1000,
+            1140,
+            1280,
+            1420,
+            1520,
+            1620,
+            1720,
+            1820
+          ],
+          "gif": "gifs/golden_aegis/effect.gif",
+          "size": [
+            288,
+            384
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 2540,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/golden_aegis/preview.gif",
           "previewGifLoops": true
         }
       }

@@ -1,0 +1,264 @@
+[
+  {
+    "direction": "front",
+    "uniformInsetScale": 0.65,
+    "decayAnchorPx": [
+      144,
+      307
+    ],
+    "fadeOpacities": [
+      0.9,
+      0.75,
+      0.6,
+      0.45
+    ],
+    "decayScales": [
+      0.7,
+      0.42,
+      0.18,
+      0.06
+    ],
+    "fadeDurationsMs": [
+      100,
+      100,
+      100,
+      100
+    ],
+    "durationsMs": [
+      140,
+      140,
+      160,
+      160,
+      300,
+      140,
+      140,
+      140
+    ],
+    "phases": [
+      [
+        "anticipation",
+        0,
+        2
+      ],
+      [
+        "release",
+        2,
+        4
+      ],
+      [
+        "hold",
+        4,
+        5
+      ],
+      [
+        "decay",
+        5,
+        8
+      ]
+    ],
+    "phaseTransforms": {
+      "5": {
+        "sourceCel": 4,
+        "anchorPx": [
+          144,
+          307
+        ],
+        "scale": 0.82,
+        "opacity": 0.94
+      },
+      "6": {
+        "sourceCel": 4,
+        "anchorPx": [
+          144,
+          307
+        ],
+        "scale": 0.64,
+        "opacity": 0.88
+      },
+      "7": {
+        "sourceCel": 4,
+        "anchorPx": [
+          144,
+          307
+        ],
+        "scale": 0.46,
+        "opacity": 0.82
+      }
+    },
+    "releaseMethod": "Held source cel4 contracts as one whole silhouette about the fixed bottom support; original source cels5–7 remain retained.",
+    "id": "tide_mend",
+    "name": "潮の癒し",
+    "skillId": "gran_mend",
+    "spirit": "gran",
+    "reference": "gran_tide",
+    "referenceCel": "frames/gran_tide/003.png",
+    "source": "source/tide_mend.png",
+    "prompt": "Use case: stylized-concept. Create the original Color Resonance learned skill 潮の癒し (gran_mend), a separate 2D front-facing magical healing tide effect for an ALLY. The reference is ONLY the existing game's glossy broad cyan/blue/ivory water shapes and colors; make a gentle healing motif rather than an attacking wave. Generate a true-transparent 1536x1024 PNG, EXACT regular 4-column by 2-row equal-cell sprite sheet; each cell384x512,row-major, no overlap. Design: ONE shallow smooth U-shaped bowl/sweep of cyan water below an EMPTY vertical space where a character can later be placed, with THREE broad simple teardrops rising above the bowl. Only three teardrops, no extra beads, no glitter, no tiny ripples, no medical symbols/text. Water features ONE broad ivory highlight on each main form, blue lower shadow. Same front camera and bottom support at local(192,430) in ALL EIGHT cells, including bottom row. Clear at least60px transparent on left/right,50px top/bottom. Biggest entire design max240px wide290px tall. Source poses:0 tiny shallow cyan crescent at bottom support;1 crescent widens with three small droplets just above it;2 coherent water bowl and three droplets grow together to half height;3 water bowl and the SAME three large droplets reach full healing height around the empty center;4 SAME full design gently holds, 3 broad drops at fixed positions;5 same three-drop design begins shrinking into the bottom support at80% size;6 SAME WHOLE design with all three droplets and bowl at60% size, bottom support unchanged;7 SAME WHOLE three-drop design at40% size, still all three drops, bottom support unchanged. Keep all constituents visible during contraction, do not replace with unrelated single droplets. Every whole shape stays completed inside its own cell, nothing crosses cell borders. Transparency directly outside clean crisp painted silhouettes; no fog, glow cloud or background aura, just attached thin highlights. No wave curl, spray, spiral/rings, floor shadow, character, weapon, frame, number, text, watermark, checkerboard, black/white matte. Smooth clean cel game effect, restrained shiny rounded water, no grain. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」 「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "frameOffsetsSourcePx": [
+      [
+        -8,
+        11
+      ],
+      [
+        -2,
+        11
+      ],
+      [
+        0,
+        11
+      ],
+      [
+        -1,
+        11
+      ],
+      [
+        -14,
+        47
+      ],
+      [
+        -14,
+        60
+      ],
+      [
+        -16,
+        57
+      ],
+      [
+        -14,
+        55
+      ]
+    ],
+    "recommendedPlacement": "Behind an ally: bottom water bowl at the ally's support, three healing drops around the empty center; sprite alpha is preserved."
+  },
+  {
+    "direction": "front",
+    "uniformInsetScale": 0.65,
+    "decayAnchorPx": [
+      144,
+      307
+    ],
+    "fadeOpacities": [
+      0.9,
+      0.75,
+      0.6,
+      0.45
+    ],
+    "decayScales": [
+      0.7,
+      0.42,
+      0.18,
+      0.06
+    ],
+    "fadeDurationsMs": [
+      100,
+      100,
+      100,
+      100
+    ],
+    "durationsMs": [
+      140,
+      140,
+      160,
+      160,
+      300,
+      140,
+      140,
+      140
+    ],
+    "phases": [
+      [
+        "anticipation",
+        0,
+        2
+      ],
+      [
+        "release",
+        2,
+        4
+      ],
+      [
+        "hold",
+        4,
+        5
+      ],
+      [
+        "decay",
+        5,
+        8
+      ]
+    ],
+    "phaseTransforms": {
+      "5": {
+        "sourceCel": 4,
+        "anchorPx": [
+          144,
+          307
+        ],
+        "scale": 0.82,
+        "opacity": 0.94
+      },
+      "6": {
+        "sourceCel": 4,
+        "anchorPx": [
+          144,
+          307
+        ],
+        "scale": 0.64,
+        "opacity": 0.88
+      },
+      "7": {
+        "sourceCel": 4,
+        "anchorPx": [
+          144,
+          307
+        ],
+        "scale": 0.46,
+        "opacity": 0.82
+      }
+    },
+    "releaseMethod": "Held source cel4 contracts as one whole silhouette about the fixed bottom support; original source cels5–7 remain retained.",
+    "id": "golden_aegis",
+    "name": "黄金の庇護",
+    "skillId": "spinel_guard",
+    "spirit": "spinel",
+    "reference": "spinel_shield",
+    "referenceCel": "frames/spinel_shield/003.png",
+    "source": "source/golden_aegis.png",
+    "prompt": "Use case: stylized-concept. Create the original Color Resonance learned skill 黄金の庇護 (spinel_guard), a separate front-facing 2D magical aegis to place BEHIND an ally. Reference1 supplies ONLY the existing game's warm gold/ivory shield facets and ONE simple golden mended-scar motif. Create ONE complete broad golden shield, no satellites, floating gems, ring or scattered rays. Its silhouette has a softly pointed top, two broad shoulders, and rounded lower point; inner face only FOUR broad simple golden facets and ONE broad ivory zigzag seam, matching the reference's repaired golden wound. No dense texture or microcracks. True-transparent PNG1536x1024, EXACT4 columns x2 rows of equal384x512 cells, row-major. Every cel isolated with at least60px empty transparent side gutters and50px top/bottom gutters. Same front camera, bottom shield point at local(192,430) in all eight cels. Largest entire shield max230px wide290px tall. Eight phases:0 a tiny COMPLETE shield at the bottom point, not a floating seed;1 SAME shield grows to25% size;2 SAME shield grows to55%;3 SAME shield grows to90%;4 SAME shield full-size holds, stable bottom point, broad seam brightens;5 SAME WHOLE shield contracts to80%;6 SAME WHOLE shield contracts to60%;7 SAME WHOLE shield contracts to40%, fixed bottom point throughout. No shield pieces vanish or break apart; all facets stay one connected closed silhouette. Transparent directly outside shield contour with only a thin attached ivory rim line. NO fog, colored haze, cast shadow, background aura, halo/cloud, particles, tiny sparkles/grain, scenery, character, weapon, floor, lettering, symbols, text, numbers, grids, borders, watermark, checkerboard, white/black matte. Emphasize smooth clean game cel illustration with large readable forms and warm gold identity. Every shape complete and fully inside its own equal cell, no overlap. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」 「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "frameOffsetsSourcePx": [
+      [
+        -1,
+        20
+      ],
+      [
+        1,
+        28
+      ],
+      [
+        4,
+        30
+      ],
+      [
+        -1,
+        28
+      ],
+      [
+        2,
+        47
+      ],
+      [
+        0,
+        59
+      ],
+      [
+        3,
+        64
+      ],
+      [
+        -1,
+        72
+      ]
+    ],
+    "recommendedPlacement": "Behind an ally so the opaque golden shield does not cover the ally silhouette; bottom point is the stable placement landmark."
+  }
+]

@@ -1,10 +1,10 @@
 {
   "counts": {
     "characters": 18,
-    "effects": 13,
-    "sourceSheets": 31,
-    "pngCels": 268,
-    "gifs": 113
+    "effects": 15,
+    "sourceSheets": 33,
+    "pngCels": 292,
+    "gifs": 117
   },
   "alpha": [
     {
@@ -725,6 +725,220 @@
         48,
         0
       ]
+    }
+  },
+  "learnedSet03": {
+    "assetCount": 2,
+    "checks": [
+      {
+        "id": "tide_mend",
+        "pngCellSize": [
+          288,
+          384
+        ],
+        "pngCount": 12,
+        "gifFrameCount": 14,
+        "durationMs": 2540,
+        "clearBorderPx": [
+          24,
+          32
+        ],
+        "transparentFirstAndLast": true,
+        "sharedPalette": true,
+        "disposal": 2,
+        "pngAlphaPreserved": true,
+        "singleShotGif": true,
+        "separateLoopPreview": true,
+        "gifVisibleEndMs": 1820,
+        "pngVisibleEndMs": 1820,
+        "gifTransparentTailMs": 720,
+        "finalOpacity": 0.45,
+        "finalScale": 0.06,
+        "opaqueBboxes": [
+          [
+            95,
+            282,
+            191,
+            307
+          ],
+          [
+            77,
+            224,
+            209,
+            308
+          ],
+          [
+            67,
+            166,
+            219,
+            308
+          ],
+          [
+            57,
+            125,
+            225,
+            307
+          ],
+          [
+            59,
+            135,
+            223,
+            308
+          ],
+          [
+            74,
+            166,
+            209,
+            308
+          ],
+          [
+            89,
+            197,
+            195,
+            308
+          ],
+          [
+            105,
+            228,
+            180,
+            307
+          ]
+        ]
+      },
+      {
+        "id": "golden_aegis",
+        "pngCellSize": [
+          288,
+          384
+        ],
+        "pngCount": 12,
+        "gifFrameCount": 14,
+        "durationMs": 2540,
+        "clearBorderPx": [
+          24,
+          32
+        ],
+        "transparentFirstAndLast": true,
+        "sharedPalette": true,
+        "disposal": 2,
+        "pngAlphaPreserved": true,
+        "singleShotGif": true,
+        "separateLoopPreview": true,
+        "gifVisibleEndMs": 1820,
+        "pngVisibleEndMs": 1820,
+        "gifTransparentTailMs": 720,
+        "finalOpacity": 0.45,
+        "finalScale": 0.06,
+        "opaqueBboxes": [
+          [
+            130,
+            276,
+            157,
+            308
+          ],
+          [
+            119,
+            248,
+            168,
+            309
+          ],
+          [
+            95,
+            185,
+            193,
+            308
+          ],
+          [
+            67,
+            125,
+            222,
+            308
+          ],
+          [
+            68,
+            127,
+            222,
+            308
+          ],
+          [
+            82,
+            160,
+            208,
+            308
+          ],
+          [
+            95,
+            192,
+            194,
+            307
+          ],
+          [
+            109,
+            224,
+            180,
+            307
+          ]
+        ]
+      }
+    ],
+    "playbackContract": {
+      "scope": "Read-only VM execution of the actual copied game GameArt.sample function with this manifest; no browser or rendering.",
+      "assertions": 56,
+      "actualArtJsSha256": "955553cdecf0dd598dd469de631557718add3311dec327a01cb8877fe2d164a9",
+      "frameStarts": true,
+      "oneMsBeforeTransitions": true,
+      "singleShotEnd": true,
+      "continuousVisualPlayback": "NOT VERIFIED",
+      "actualGamePlacement": "NOT VERIFIED"
+    },
+    "releaseContinuity": {
+      "method": "Held cel4 retains all three drops or all shield facets while the complete effect contracts about fixed bottom support",
+      "anchorPx": [
+        144,
+        307
+      ],
+      "scales": [
+        0.82,
+        0.64,
+        0.46
+      ],
+      "gifOpaqueAreaPxFromHold": {
+        "tide_mend": [
+          10394,
+          6980,
+          4233,
+          2177,
+          1059,
+          373,
+          68,
+          1
+        ],
+        "golden_aegis": [
+          17913,
+          12046,
+          7328,
+          3788,
+          1852,
+          665,
+          121,
+          2
+        ]
+      }
+    },
+    "geometryMeasurement": {
+      "opaqueBboxesAlphaThreshold": 96,
+      "supportBottomRangePx": [
+        307,
+        309
+      ],
+      "scope": "Source-derived major cels0–7. Faint PNG alpha1–3 can extend below the measured visible contour; this is not the full nonzero-alpha extent."
+    },
+    "timeMeasurement": {
+      "visibleStartMs": 100,
+      "visibleEndMs": 1820,
+      "opaqueDurationMs": 1720,
+      "transparentTailMs": 720,
+      "pngTimeAuthority": "Manifest sequence and durations; standalone PNG has no intrinsic time."
     }
   }
 }
