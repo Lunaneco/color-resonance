@@ -59,13 +59,14 @@
 
   <!-- ワールドマップ -->
   <div id="world" class="hidden">
-    <div id="wmMap"><svg id="wmSvg" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet"></svg><div id="wmNodes"></div><div id="wmAria"><img src="assets/img/aria.png" alt=""></div></div>
+    <div id="wmViewport"><div id="wmMap"><svg id="wmSvg" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet"></svg><div id="wmNodes"></div><div id="wmAria"><img src="assets/img/aria.png" alt=""></div></div></div>
     <div id="wmTop">
       <div class="wm-title"><span>World Map</span>ワールドマップ</div>
       <div class="wm-stat"><span>アリア LV<b id="wmLv">1</b></span><span>しずく<b id="wmGold">0</b></span></div>
-      <div class="wm-btns"><button data-w="equip">装備</button><button data-w="party">仲間</button><button data-w="title">タイトル</button></div>
+      <div class="wm-btns"><button data-w="quests">依頼</button><button data-w="equip">装備</button><button data-w="party">仲間・絆</button><button data-w="title">タイトル</button></div>
     </div>
     <div id="wmPanel" class="hidden"></div>
+    <div class="wm-pan-note">地図はスクロールして移動できます</div>
   </div>
 
   <!-- テキスト -->
@@ -111,8 +112,10 @@
 <script src="js/audio.js"></script>
 <script src="js/fx.js"></script>
 <script src="js/renoir.js"></script>
+<script src="js/progression.js"></script>
 <script src="js/board.js"></script>
 <script src="js/story.js"></script>
+<script src="js/quests.js"></script>
 <script src="js/world.js"></script>
 <script src="js/engine.js"></script>
 <script src="js/main.js"></script>

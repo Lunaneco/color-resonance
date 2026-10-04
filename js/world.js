@@ -158,23 +158,35 @@ const World = (() => {
     if (n.chapter) return has(n.chapter);
     return has(n.need);
   }
-  const node = (id) => WORLD_NODES.find(n => n.id === id);
+  const node = (id) => WORLD_NODES.find(n => n.id === id) || questNode(id);
+  function questNode(id) {
+    const q = SIDE_QUESTS[id]; if (!q) return null;
+    const town = WORLD_NODES.find(n => n.id === q.town);
+    return { id, type: 'quest', quest: id, name: q.title, sub: `${town.name}・${q.giver}の依頼`, need: q.need, x: town.x, y: town.y };
+  }
+  const questsAt = town => Object.values(SIDE_QUESTS).filter(q => (!town || q.town === town) && has(q.need));
+  const bondReady = q => !q.bondNeed || (party.spirits[q.bondNeed.spirit]?.bond || 0) >= q.bondNeed.n;
+  const questTier = q => q.lv <= 5 ? '初級' : q.lv <= 12 ? '中級' : q.lv <= 18 ? '上級' : '最上級';
+  const confOf = n => n.board ? BOARDS[n.board] : n.free ? FREE_STAGES[n.free] : n.quest ? SIDE_QUESTS[n.quest] : null;
+  const chosen = conf => Progression.selected(party, conf.id);
+  const diffRec = (conf, key) => stageRec(conf.id)?.difficulties[key] || null;
   function stageRec(id) { return party.stages[id] || null; }
   function storyHere(n) { const s = nextChapter(); return s && n.chapter && n.chapter === s.chapter ? s : null; }
   // 精霊になった仲間（物語の進み具合で決まる）
   function spiritsNow() { const at = { gran: 'act2', ivy: 'act4', spinel: 'act5', king: 'finale' }; return Object.keys(at).filter(id => has(at[id]) || (party.stages[id] && party.stages[id].cleared)); }
-  const replayable = (n, rec) => !!(rec || n.type === 'free' || (n.clearedBy && has(n.clearedBy)));
+  const replayable = (n, rec) => !!(rec || n.type === 'free' || (n.type === 'quest' && bondReady(SIDE_QUESTS[n.quest])) || (n.clearedBy && has(n.clearedBy)));
   function stageConf(n) {
     if (n.board) {
       const c = JSON.parse(JSON.stringify(BOARDS[n.board]));
       if (c.tutorial) { delete c.tutorial; c.intro = { who: 'アリア', text: 'もう一度、ここで。<br><small>ミッションをすべて達成するとSランク</small>' }; }
-      return c;
+      c.difficulty = chosen(c); return c;
     }
-    const f = JSON.parse(JSON.stringify(FREE_STAGES[n.free]));
+    const f = JSON.parse(JSON.stringify(confOf(n)));
     f.kegWords = FREE_WORDS.slice().sort(() => Math.random() - 0.5);
     f.rootWord = '';
     f.spirits = spiritsNow();
-    f.intro = { who: '', text: f.desc + '<br><small>ミッションをすべて達成するとSランク・ユニーク装備</small>' };
+    f.difficulty = chosen(f);
+    f.intro = { who: '', text: f.desc + '<br><small>ミッションをすべて達成するとSランク</small>' };
     return f;
   }
 
@@ -223,12 +235,18 @@ const World = (() => {
     WORLD_NODES.filter(visible).forEach(n => {
       const b = document.createElement('button');
       const story = storyHere(n);
-      const rec = n.board ? stageRec(BOARDS[n.board].id) : n.free ? stageRec(n.free) : null;
-      const locked = (n.type === 'stage' && !replayable(n, rec) && !story) || (n.type === 'story' && !story);
+      const conf = confOf(n), key = conf && chosen(conf);
+      const rec = conf && diffRec(conf, key);
+      const locked = (n.type === 'stage' && !replayable(n, stageRec(conf.id)) && !story) || (n.type === 'story' && !story);
       b.className = `wn t-${n.type}${story ? ' story' : ''}${locked ? ' dim' : ''}${current === n.id ? ' here' : ''}`;
       b.style.left = (n.x / 10) + '%'; b.style.top = (n.y / 6.2) + '%';
+      b.dataset.node = n.id;
+      const qs = n.type === 'town' ? questsAt(n.id) : [];
+      const levels = qs.map(q => Progression.level(q, chosen(q)));
+      const meta = conf ? `LV${Progression.level(conf, key)}・${Progression.difficulties[key].name}` : qs.length ? `依頼${qs.length}件・LV${Math.min(...levels)}〜${Math.max(...levels)}` : '';
+      b.setAttribute('aria-label', n.name + (meta ? '・適正' + meta : ''));
       const icon = n.type === 'town' ? '⌂' : n.type === 'free' ? '◇' : n.type === 'story' ? '✧' : '◆';
-      b.innerHTML = `<i class="wn-dot">${icon}</i><span class="wn-name">${n.name}</span>${rec && rec.best ? `<span class="wn-rank r${rec.best}">${rec.best}</span>` : ''}${story ? '<span class="wn-story">物語</span>' : ''}`;
+      b.innerHTML = `<i class="wn-dot">${icon}</i><span class="wn-name">${n.name}</span>${meta ? `<span class="wn-meta">${meta}</span>` : ''}${rec && rec.best ? `<span class="wn-rank r${rec.best}">${rec.best}</span>` : ''}${story ? '<span class="wn-story">物語</span>' : ''}`;
       b.onclick = (e) => { e.stopPropagation(); go(n.id); };
       nodesEl.appendChild(b);
     });
@@ -237,6 +255,11 @@ const World = (() => {
     const n = node(id) || node('aquamist');
     ariaEl.style.transition = animate ? 'left .7s cubic-bezier(.4,0,.2,1), top .7s cubic-bezier(.4,0,.2,1)' : 'none';
     ariaEl.style.left = (n.x / 10) + '%'; ariaEl.style.top = (n.y / 6.2) + '%';
+    if (innerWidth <= 820) requestAnimationFrame(() => {
+      const view = document.getElementById('wmViewport');
+      view.scrollTo({ left: mapEl.offsetLeft + mapEl.offsetWidth * n.x / 1000 - view.clientWidth / 2,
+        top: mapEl.offsetTop + mapEl.offsetHeight * n.y / 620 - view.clientHeight / 2, behavior: animate ? 'smooth' : 'instant' });
+    });
   }
   function updateTop() {
     document.getElementById('wmLv').textContent = party.aria.lv;
@@ -269,38 +292,61 @@ const World = (() => {
       summonKill: `召喚した精霊で${m.n}体倒す`, enchantKill: `精霊を宿した心剣で${m.n}体倒す`, flashMulti: '透明の一閃で2体を同時に斬る',
       noSpirit: '精霊の力を借りずにクリア', noItem: '道具を使わずにクリア', noDown: '召喚した精霊を倒させない',
       rainbow: `クリア時に${f[0]}の床${m.n}%以上`, dullMax: `${f[1]}を一度も${m.n}%にしない`, bossLast: '核を最後に倒す',
+      spiritUse: `${Progression.spirits[m.spirit]?.name}の力を${m.n}回使う`, skillUse: `${m.spirit ? Progression.spirits[m.spirit].name + 'から' : ''}覚えた技を${m.n}回使う`,
     })[m.type] || '';
   }
   function showPanel(n) {
+    const changed = panel.dataset.node !== n.id;
+    panel.dataset.node = n.id;
     const story = storyHere(n);
-    const conf = n.board ? BOARDS[n.board] : n.free ? FREE_STAGES[n.free] : null;
+    const conf = confOf(n);
     const sid = conf ? conf.id : null;
     const rec = sid ? stageRec(sid) : null;
-    const typeName = { town: '町', stage: '戦場', free: 'フリーステージ', story: '物語' }[n.type];
+    const typeName = { town: '町', stage: '戦場', free: 'フリーステージ', story: '物語', quest: 'サブクエスト' }[n.type];
     let body = `<div class="wp-head"><span class="wp-type t-${n.type}">${typeName}</span><div class="wp-name">${n.name}</div><div class="wp-sub">${n.sub || ''}</div></div>
       <p class="wp-desc">${n.desc || (conf && conf.desc) || ''}</p>`;
     const acts = [];
+    if (conf) {
+      const key = chosen(conf), d = Progression.difficulties[key];
+      body += `<div class="wp-sec">難易度<small>このステージに保存</small></div><div class="wp-difficulty">${Object.entries(Progression.difficulties).map(([id, v]) => {
+        const rank = diffRec(conf, id)?.best;
+        return `<button data-diff="${id}" class="${id === key ? 'on' : ''}" aria-pressed="${id === key}">${v.name}<small>LV${Progression.level(conf, id)}${rank ? '・' + rank : '・未クリア'}</small></button>`;
+      }).join('')}</div><p class="wp-note">${d.desc}。適正LV ${Progression.level(conf, key)}${n.quest ? '・' + questTier(conf) + 'の依頼' : ''}</p>`;
+      if (party.aria.lv < Progression.level(conf, key)) body += '<p class="wp-level-note">アリアのLVより高めの戦場です。装備と精霊の力を整えて挑戦できます。</p>';
+    }
     if (story) {
       const ch = CHAPTERS.find(c => c.key === story.chapter);
       body += `<div class="wp-story"><small>次の物語</small><b>${ch ? ch.act + '　' + ch.title : ''}</b></div>`;
       acts.push(`<button class="wb main" data-a="story">物語を進める</button>`);
     }
     if (conf && replayable(n, rec)) {
-      const lv = conf.recLv || conf.lv;
+      const key = chosen(conf), record = diffRec(conf, key), lv = Progression.level(conf, key);
       const u = EQUIP[conf.unique];
       const got = conf.unique && party.owned.includes(conf.unique);
-      body += `<div class="wp-info"><span>推奨LV <b>${lv}</b></span><span>最高ランク <b class="r${rec && rec.best || 'none'}">${rec && rec.best || '—'}</b></span>${rec ? `<span>クリア <b>${rec.clears || 1}</b>回</span>` : ''}</div>
-        <div class="wp-sec">ミッション<small>すべて達成でSランク</small></div>${missionsHtml(conf, rec)}
+      body += `<div class="wp-info"><span>適正LV <b>${lv}</b></span><span>最高ランク <b class="r${record && record.best || 'none'}">${record && record.best || '—'}</b></span><span>クリア <b>${record?.clears || 0}</b>回</span></div>
+        <div class="wp-sec">ミッション<small>${Progression.difficulties[key].name}の実績</small></div>${missionsHtml(conf, record)}
         ${u ? `<div class="wp-unique ${got ? 'got' : ''}"><small>Sランクの報酬</small><b>${got ? u.name : '？？？'}</b><span>${got ? u.desc : 'ユニーク装備'}</span></div>` : ''}`;
+      if (conf.reward) body += `<p class="wp-note">基本報酬 ${Math.round(conf.reward * Progression.difficulties[key].reward)}しずく＋撃破・ランク報酬</p>`;
+      if (conf.firstItems) body += `<p class="wp-note">${record?.cleared ? '初回報酬は受取済み' : 'この難易度の初回報酬：' + Object.entries(conf.firstItems).map(([id, v]) => `${ITEMS[id].name} ×${v}`).join('・')}<br>道具の所持上限は各9個</p>`;
       if (!story) acts.push(`<button class="wb main" data-a="sortie">出撃</button>`);
       else acts.push(`<button class="wb" data-a="sortie">この戦場だけ戦う</button>`);
+    } else if (n.type === 'quest') {
+      const need = conf.bondNeed;
+      body += `<p class="wp-note">受注条件：${Progression.spirits[need.spirit].name}との絆 ${need.n}（現在 ${party.spirits[need.spirit]?.bond || 0}）。召喚や宿しで絆を育てると挑戦できます。</p>`;
     } else if (n.type === 'stage' && !story) {
       body += '<p class="wp-note">物語が進むと、ここで戦えるようになる。</p>';
     }
     if (n.type === 'town') { acts.push(`<button class="wb main" data-a="shop">店に入る</button>`); }
+    if (n.type === 'town' && questsAt(n.id).length) body += `<div class="wp-sec">町の依頼<small>${questsAt(n.id).length}件</small></div>${questList(n.id)}`;
     acts.push(`<button class="wb" data-a="equip">装備</button>`);
     panel.innerHTML = body + `<div class="wp-acts">${acts.join('')}</div>`;
     panel.classList.remove('hidden');
+    if (changed) panel.scrollTop = 0;
+    bindQuests(panel);
+    panel.querySelectorAll('[data-diff]').forEach(b => b.onclick = e => {
+      e.stopPropagation(); party.stageDifficulty[sid] = b.dataset.diff; Board.saveParty();
+      Audio2.sfx.choose(); drawNodes(); showPanel(n);
+    });
     panel.querySelectorAll('[data-a]').forEach(b => b.onclick = (e) => {
       e.stopPropagation(); Audio2.sfx.choose();
       const a = b.dataset.a;
@@ -317,6 +363,7 @@ const World = (() => {
     if (s.map) Engine.play(s.chapter); else Engine.cont();
   }
   function sortie(n) {
+    if (n.quest && !bondReady(SIDE_QUESTS[n.quest])) return;
     const conf = stageConf(n);
     const th = n.theme || conf.theme || { bg: 'teal', preset: 'dim', fx: 'none', bgm: 'forest' };
     close();
@@ -324,6 +371,22 @@ const World = (() => {
     Engine.setBg(th.bg, th.preset || 'dim'); FX.set(th.fx || 'none'); Audio2.playBgm(th.bgm || 'forest');
     if (!Renoir.state.colors.length) Renoir.state.colors = ['teal', 'green', 'gold', 'violet'].slice(0, Math.max(1, spiritsNow().length));
     Board.start(conf, () => open({ at: n.id }));
+  }
+
+  // ---------- サブクエスト ----------
+  function questList(town) {
+    return `<div class="quest-list">${questsAt(town).map(q => {
+      const key = chosen(q), r = diffRec(q, key), d = Progression.difficulties[key];
+      return `<button class="quest-card" data-quest="${q.id}"><span><b>${q.title}</b><small>${WORLD_NODES.find(n => n.id === q.town).name}・${q.giver}</small></span>
+        <em>${questTier(q)} / ${d.name}・適正LV ${Progression.level(q, key)}</em><small>${!bondReady(q) ? '絆を育てると受注可能' : r?.cleared ? `${d.name}クリア済み・${r.best}ランク` : `${d.name}未クリア`}　基本${Math.round(q.reward * d.reward)}しずく</small></button>`;
+    }).join('')}</div>`;
+  }
+  function bindQuests(root) {
+    root.querySelectorAll('[data-quest]').forEach(b => b.onclick = e => { e.stopPropagation(); Panel.close(); go(b.dataset.quest); });
+  }
+  function openQuests() {
+    Panel.open('町の依頼', `<p class="wp-note">物語が進むと依頼が増えます。各依頼で難易度を選べます。</p>${questList() || '<p>まだ依頼はありません。</p>'}`);
+    bindQuests(Panel.body());
   }
 
   // ---------- 店 ----------
@@ -389,13 +452,21 @@ const World = (() => {
     render();
   }
   function openParty() {
-    const sp = ['gran', 'ivy', 'spinel', 'king'].filter(id => party.spirits[id]);
+    const sp = ['gran', 'ivy', 'spinel', 'king'].filter(id => party.spirits[id] || spiritsNow().includes(id));
     const names = { gran: 'グラン', ivy: 'アイビー', spinel: 'スピネル', king: 'パレット王' };
     const cols = { gran: '#3fb4c9', ivy: '#5fd07a', spinel: '#ffd25e', king: '#b48cff' };
     const uniq = Object.keys(EQUIP).filter(k => EQUIP[k].unique);
     Panel.open('仲間', `<div class="pt">
       <div class="pt-row"><b>アリア</b><span>LV ${party.aria.lv}</span><span class="pt-exp"><i style="width:${party.aria.exp}%"></i></span></div>
-      ${sp.map(id => `<div class="pt-row" style="--c:${cols[id]}"><b>${names[id]}</b><span>LV ${party.spirits[id].lv}</span><span class="pt-exp"><i style="width:${party.spirits[id].exp}%"></i></span></div>`).join('') || '<p>まだ精霊の仲間はいない</p>'}
+      <p class="wp-note">召喚+3、宿す+2、精霊や宿した心剣の命中+1、覚えた技の使用+2。絆8・20・40でアリアが力を覚え、召喚や宿しなしでも使えます。</p>
+      ${sp.map(id => {
+        const r = party.spirits[id] || { lv: party.aria.lv, exp: 0, bond: 0, uses: 0 }, rank = Progression.rank(r.bond), next = Progression.thresholds[rank];
+        const from = Progression.thresholds[rank - 1], percent = next ? (r.bond - from) / (next - from) * 100 : 100;
+        return `<div class="bond-card" style="--c:${cols[id]}"><div class="pt-row"><b>${names[id]}</b><span>LV ${r.lv}</span><span class="pt-exp"><i style="width:${r.exp}%"></i></span></div>
+          <div class="bond-info"><b>絆${rank}</b><span>${r.bond}${next ? ' / ' + next : '・最大ランク'}　使用${r.uses}回</span></div><div class="pt-exp bond-bar"><i style="width:${percent}%"></i></div>
+          <p class="wp-note">精霊：HP +${(rank - 1) * 5}%・攻撃 +${(rank - 1) * 4}%・守り +${(rank - 1) * 2}%<br>宿した心剣・攻撃技の威力 +${(rank - 1) * 3}%</p>
+          ${Progression.skills.filter(s => s.spirit === id).map(s => `<div class="bond-skill ${party.aria.skills.includes(s.id) ? 'known' : ''}"><b>${party.aria.skills.includes(s.id) ? '✓' : '◇'} ${s.name}</b><small>${s.type}・${party.aria.skills.includes(s.id) ? '習得済み / 共鳴' + s.cost : '絆' + s.at + 'で習得（あと' + Math.max(0, s.at - r.bond) + '）'}</small><span>${s.desc}</span></div>`).join('')}</div>`;
+      }).join('') || '<p>まだ精霊の仲間はいない</p>'}
       <div class="sh-sec">ユニーク装備<small>${uniq.filter(k => party.owned.includes(k)).length} / ${uniq.length}</small></div>
       <div class="pt-uq">${uniq.map(k => `<span class="${party.owned.includes(k) ? 'on' : ''}">${party.owned.includes(k) ? EQUIP[k].name : '？？？'}</span>`).join('')}</div></div>`);
   }
@@ -415,6 +486,7 @@ const World = (() => {
     placeAria(current, false);
     el.classList.remove('hidden');
     isOpen = true;
+    panel.dataset.node = '';
     panel.classList.add('hidden');
     const target = arrive || (s && s.map ? CHAPTER_NODE[s.chapter] : null);
     if (target && node(target) && visible(node(target))) setTimeout(() => go(target), 450);
@@ -425,6 +497,7 @@ const World = (() => {
     e.stopPropagation(); Audio2.sfx.choose();
     const w = b.dataset.w;
     if (w === 'equip') openEquip();
+    else if (w === 'quests') openQuests();
     else if (w === 'party') openParty();
     else if (w === 'title') { close(); Main.toTitle(); }
   }));

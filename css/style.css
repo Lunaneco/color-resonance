@@ -589,6 +589,51 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .wb.main{border-color:#cfe0ff;background:linear-gradient(180deg,rgba(190,215,255,.26),rgba(190,215,255,.08));color:#fff;box-shadow:0 0 18px rgba(150,190,255,.25)}
 
 /* 店・装備・仲間 */
+#wmViewport{position:absolute;inset:0;overflow:hidden}
+.wn-meta{font-family:var(--gothic);font-size:9.5px;line-height:1.5;white-space:nowrap;color:#e4dcff;background:rgba(8,12,28,.86);border:1px solid rgba(190,200,235,.2);padding:1px 5px;border-radius:5px}
+.wp-info{flex-wrap:wrap}
+.wp-difficulty{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.wp-difficulty button{display:flex;flex-direction:column;gap:2px;padding:8px 6px;border:1px solid var(--line);border-radius:9px;background:rgba(255,255,255,.03);font-size:12px}
+.wp-difficulty button small{font-size:10px;color:var(--ink-faint)}
+.wp-difficulty button.on{border-color:#ffe08a;background:rgba(255,224,138,.12);color:#fff}
+.wp-difficulty button.on small{color:#ffe9b8}
+.wp-level-note{font-size:11px;line-height:1.6;color:#ffe0a0;margin:6px 0}
+.quest-list{display:grid;gap:8px}
+.quest-card{display:flex;flex-direction:column;gap:5px;width:100%;text-align:left;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:rgba(180,145,255,.06)}
+.quest-card:hover{background:rgba(180,145,255,.16);border-color:#c9b6ff}
+.quest-card span{display:flex;flex-direction:column;gap:3px}
+.quest-card b{font-family:var(--mincho);font-size:14px;color:#fff}
+.quest-card small{font-size:11px;line-height:1.5;color:var(--ink-dim)}
+.quest-card em{font-size:11px;font-style:normal;color:#e3d8ff}
+.bond-card{border:1px solid var(--c);border-radius:12px;padding:10px 12px;margin:12px 0;background:rgba(255,255,255,.025)}
+.bond-info{display:flex;justify-content:space-between;gap:8px;margin:9px 0 6px;font-size:12px;color:var(--c)}
+.bond-bar i{background:var(--c)}
+.bond-skill{display:flex;flex-direction:column;gap:3px;padding:8px 0;border-top:1px solid var(--line);font-size:12px;color:var(--ink-faint)}
+.bond-skill.known b{color:var(--c)}
+.bond-skill small{font-size:10.5px}
+.bond-skill span{font-size:11px;line-height:1.6}
+.cm-skill-label{font-size:10px;line-height:1.4;margin:6px 10px 2px}
+#cmdMenu.learned{width:270px}
+#boardScreen.compact #cmdMenu.sheet.learned{grid-template-columns:minmax(0,1fr)}
+.cm-spn small{display:block;margin-left:0;font-family:var(--gothic);font-size:10px;letter-spacing:0}
+.r-difficulty,.r-bond{font-size:12px;line-height:1.6;margin:6px 0;color:var(--ink-dim)}
+.wm-pan-note{display:none}
+@media(max-width:820px){
+  #wmViewport{top:108px;bottom:48vh;overflow:auto;overscroll-behavior:contain;touch-action:pan-x pan-y}
+  #world #wmMap{position:relative;left:auto;top:auto;transform:none;width:900px;margin:28px 32px}
+  #world .wn-name{font-size:12px}
+  #world .wn-meta{font-size:10px}
+  .wm-pan-note{display:block;position:absolute;top:92px;left:12px;color:var(--ink-faint);font-size:10px;pointer-events:none}
+  .wm-btns{gap:4px}
+  .bond-card .pt-row{grid-template-columns:1fr auto;gap:6px}
+  .bond-card .pt-row .pt-exp{grid-column:1/-1}
+}
+@media(max-width:820px) and (max-height:500px){
+  #wmViewport{top:70px;bottom:0}
+  #world #wmPanel{left:auto;width:min(340px,50vw);max-height:calc(100vh - 90px)}
+  .wm-pan-note{top:55px}
+}
+#toast{max-width:calc(100vw - 24px);white-space:normal;text-align:center}
 .shop,.equip,.pt{text-align:left}
 .sh-gold{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--ink-dim)}
 .sh-gold b{font-family:var(--latin);font-size:26px;color:#fff}

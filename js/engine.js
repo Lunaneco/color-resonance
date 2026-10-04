@@ -12,6 +12,7 @@ const Panel = (() => {
     el.dataset.noclose = opt.noClose ? '1' : '';
     onClose = opt.onClose || null;
     el.classList.remove('hidden');
+    el.querySelector('.pn-body').scrollTop = 0;
   }
   function close() { el.classList.add('hidden'); el.querySelector('.pn-body').innerHTML = ''; const f = onClose; onClose = null; f && f(); }
   return { open, close, isOpen: () => !el.classList.contains('hidden'), body: () => el.querySelector('.pn-body') };

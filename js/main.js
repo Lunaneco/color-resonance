@@ -59,7 +59,8 @@ const Main = (() => {
       <div class="row"><label>音楽</label><input type="range" min="0" max="1" step="0.05" value="${Audio2.vol.bgm}" id="vB"></div>
       <div class="row"><label>効果音</label><input type="range" min="0" max="1" step="0.05" value="${Audio2.vol.sfx}" id="vS"></div>
       <div class="row"><label>文字の速さ</label><div class="seg" id="sp"><button data-v="55">ゆっくり</button><button data-v="32">ふつう</button><button data-v="14">はやい</button><button data-v="0">すぐ</button></div></div>
-      <div class="row"><label>戦いの難しさ</label><div class="seg" id="df"><button data-v="gentle">やさしい（受ける傷が少ない）</button><button data-v="normal">ふつう</button></div></div>
+      <div class="row"><label>基本の難易度</label><div class="seg" id="df">${Object.entries(Progression.difficulties).map(([id, d]) => `<button data-v="${id}">${d.name}</button>`).join('')}</div></div>
+      <p class="wp-note">各ステージでも難易度を選べます。ここでの変更は次の出撃から適用され、戦闘中と再挑戦の難易度は変わりません。</p>
       <p style="margin-top:14px;font-size:12.5px">左クリック／Enter：読み進める　Ctrl長押し：スキップ　ホイール上：ログ</p>
       <button class="btn-main" id="resetSave" style="border-color:#a88;background:none;color:#e9c3c3;letter-spacing:.15em;font-size:13px">記録をすべて消す</button>`);
     const b = Panel.body();
