@@ -1,0 +1,250 @@
+[
+  {
+    "id": "kegare_reinforcement",
+    "name": "核の増援・側方の立ち上がり",
+    "source": "source/kegare_reinforcement.png",
+    "reference": "references/shade-spawn-cel.png",
+    "generatedImage": "exec-26089e6e-1e6b-46f5-a6e1-6f82309ab301.png",
+    "editBase": "source/kegare_reinforcement-base.png",
+    "editBaseGeneratedImage": "exec-7ccd3a69-2261-4e97-8174-8154279c98a3.png",
+    "prompt": "Create ONE original transparent game EFFECT MASTER for a Japanese tactical anime game, ColorResonance. Exactly TWO separated broad upright ribbon-like emergence plumes, one left and one right. Large simple smooth S-curved shapes with broad rounded curves, not tiny smoke curls. Their lower ends sit at the SAME horizontal floor level, with broad clean bases and tapered rounded upper tips. They rise at the sides of an EMPTY central body-sized corridor, so a separately drawn existing enemy can appear between them. Composition: one plume in left third, one in right third, a very wide fully transparent middle gap at least 25 percent of canvas width, bottom tips at same y, generous transparent margins above, below and sides. Two deliberately separate objects only, each ONE smooth unbroken opaque shape with just 2–3 broad clean shading regions. No halo, no mist, no tiny particles, no dots, no detached chips, no frill, no strokes or strings crossing the gap. Do not include a character, creature, body, eyes, face, head, hands, feet, weapon, text, symbols, ritual circle, ground, floor or shadow. Reference is COLOR ONLY. No character imitation or silhouette. These are abstract side emergence traces; their bodies stay fixed while the two source shapes are later scaled from their lower bases to rise over600ms and then contract at those bases. Simple clean painterly anime shading, smooth clean contours and fully opaque interior. Clearly readable at64px. Use the existing shade reference only for muted gray-purple and dark aubergine with a restrained violet rim. A pair of broad low-noise gray-plum smoke ribbons, not fiery, not neon, not a ghost head. No red or blood. Match the restrained actual enemy colors; slightly lighter gray-purple inner surface to read on dark floor. Exactly TWO big side plumes; nothing in central transparent gap. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」\n「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "editPrompt": "Edit the supplied two-plume emergence master. Preserve exactly TWO existing big upright S-curved ribbon shapes and their positions, height, shared floor baseline, and wide empty center corridor. Remove ENTIRE external purple glow and haze and ALL background completely: outside the TWO smooth object contours must be fully alpha0 transparent, including central gap, all edges and bottom. The two objects alone remain. NO halo, no fog, no shadow, no gradient extending outside them. Keep each interior fully opaque; reduce oversaturated bright electric purple to a muted dusty gray-lavender highlight and dark gray-aubergine interior, matching the restrained shade game reference. Keep the large smooth shading regions and simple contours. No added shapes, no tiny particles, no texture, no ears or creature faces. Ensure the lower base is a clean smooth baseline, no isolated dots. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」\n「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "pieces": [
+      {
+        "cropBoxPx": [
+          31,
+          31,
+          650,
+          1004
+        ],
+        "sourceBasePx": [
+          341,
+          984
+        ],
+        "stageBasePx": [
+          82,
+          128
+        ],
+        "sourceCoreHeightPx": 938
+      },
+      {
+        "cropBoxPx": [
+          918,
+          31,
+          1510,
+          1004
+        ],
+        "sourceBasePx": [
+          1226.5,
+          989
+        ],
+        "stageBasePx": [
+          174,
+          128
+        ],
+        "sourceCoreHeightPx": 942
+      }
+    ],
+    "pivotPx": [
+      128,
+      128
+    ],
+    "cellSize": [
+      256,
+      192
+    ],
+    "centralClearWindowPx": [
+      112,
+      24,
+      144,
+      168
+    ],
+    "scaleReferenceTileWidthPx": 80,
+    "peakCoreHeightPx": 82,
+    "trigger": "!cfg.inverted && successful boss reinforcement after units.push(u)",
+    "sourceMeaning": "abstract gray-plum side emergence traces from smoke at newly born enemy; no body or new spawn mechanic",
+    "direction": "front-isometric; fixed foot and side bases",
+    "celWidthEnvelope": [
+      0.7,
+      0.75,
+      0.8,
+      0.85,
+      0.9,
+      1,
+      1,
+      0.9,
+      0.7,
+      0.45,
+      0.22,
+      0.06
+    ],
+    "celHeightEnvelope": [
+      0.1,
+      0.25,
+      0.45,
+      0.65,
+      0.85,
+      1,
+      1,
+      0.9,
+      0.7,
+      0.45,
+      0.22,
+      0.06
+    ],
+    "celPngOpacities": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0.9,
+      0.8,
+      0.7,
+      0.6
+    ],
+    "preRollMs": 40,
+    "celDurationsMs": [
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      100,
+      100,
+      100,
+      100
+    ],
+    "transparentTailMs": 520
+  },
+  {
+    "id": "membrane_emergence",
+    "name": "白い膜・出現の立ち上がり",
+    "source": "source/membrane_emergence.png",
+    "reference": "references/membrane-spawn-cel.png",
+    "generatedImage": "exec-01a1d22e-1bdc-451e-a799-7dd41bce445c.png",
+    "editBase": "source/membrane_emergence-base.png",
+    "editBaseGeneratedImage": "exec-8d7ea793-5d42-481e-a712-88e1a68d46f7.png",
+    "prompt": "Create ONE original transparent game EFFECT MASTER for a Japanese tactical anime game, ColorResonance. Exactly TWO separated broad upright ribbon-like emergence plumes, one left and one right. Large simple smooth S-curved shapes with broad rounded curves, not tiny smoke curls. Their lower ends sit at the SAME horizontal floor level, with broad clean bases and tapered rounded upper tips. They rise at the sides of an EMPTY central body-sized corridor, so a separately drawn existing enemy can appear between them. Composition: one plume in left third, one in right third, a very wide fully transparent middle gap at least 25 percent of canvas width, bottom tips at same y, generous transparent margins above, below and sides. Two deliberately separate objects only, each ONE smooth unbroken opaque shape with just 2–3 broad clean shading regions. No halo, no mist, no tiny particles, no dots, no detached chips, no frill, no strokes or strings crossing the gap. Do not include a character, creature, body, eyes, face, head, hands, feet, weapon, text, symbols, ritual circle, ground, floor or shadow. Reference is COLOR ONLY. No character imitation or silhouette. These are abstract side emergence traces; their bodies stay fixed while the two source shapes are later scaled from their lower bases to rise over600ms and then contract at those bases. Simple clean painterly anime shading, smooth clean contours and fully opaque interior. Clearly readable at64px. Use the existing membrane reference only for cold ivory-white and pale lavender-gray folds. A pair of broad cold white membrane-pressure ribbons, each with one simple lavender fold. No black body or night color removed, no angel, no holy light, no gold glow, no stars, no particles. A hostile imposed white membrane, not purity. Slightly stronger pale lavender edge contrast, smooth opaque ivory interiors, not fuzzy smoke. Exactly TWO big side plumes; nothing in central transparent gap. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」\n「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "editPrompt": "Edit the supplied TWO existing cold white emergence ribbon shapes. Preserve their exact large S silhouette, positions, same lower baseline, wide empty center corridor and the broad ivory/lavender shading. Remove ALL tiny detached white dots, white chips, fuzzy protrusions, speckles and fringe around every contour and in the empty transparent center and exterior. Each of the TWO shapes has ONE perfectly smooth clean continuous silhouette, fully opaque white/lavender inside, fullalpha0 outside, simple clean antialiasing only along the direct contour. Do not add or redraw any object; no glow, no frill, no isolated dots, no transparent haze. Keep white cold ivory, not gold, not gray-black. No body, no faces, no eyes, no ground. Exactly two large objects only. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」\n「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "pieces": [
+      {
+        "cropBoxPx": [
+          33,
+          66,
+          565,
+          1063
+        ],
+        "sourceBasePx": [
+          287.5,
+          1044
+        ],
+        "stageBasePx": [
+          82,
+          128
+        ],
+        "sourceCoreHeightPx": 970
+      },
+      {
+        "cropBoxPx": [
+          880,
+          66,
+          1405,
+          1063
+        ],
+        "sourceBasePx": [
+          1185.5,
+          1042
+        ],
+        "stageBasePx": [
+          174,
+          128
+        ],
+        "sourceCoreHeightPx": 969
+      }
+    ],
+    "pivotPx": [
+      128,
+      128
+    ],
+    "cellSize": [
+      256,
+      192
+    ],
+    "centralClearWindowPx": [
+      112,
+      24,
+      144,
+      168
+    ],
+    "scaleReferenceTileWidthPx": 80,
+    "peakCoreHeightPx": 82,
+    "trigger": "cfg.inverted && enterPhase1 reveals hidden u.kind === 'membrane'; never Chrome",
+    "sourceMeaning": "abstract ivory/lavender side emergence traces when membrane enemies become visible; never remove or recolor Chrome's black",
+    "direction": "front-isometric; fixed foot and side bases",
+    "celWidthEnvelope": [
+      0.7,
+      0.75,
+      0.8,
+      0.85,
+      0.9,
+      1,
+      1,
+      0.9,
+      0.7,
+      0.45,
+      0.22,
+      0.06
+    ],
+    "celHeightEnvelope": [
+      0.1,
+      0.25,
+      0.45,
+      0.65,
+      0.85,
+      1,
+      1,
+      0.9,
+      0.7,
+      0.45,
+      0.22,
+      0.06
+    ],
+    "celPngOpacities": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0.9,
+      0.8,
+      0.7,
+      0.6
+    ],
+    "preRollMs": 40,
+    "celDurationsMs": [
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      100,
+      100,
+      100,
+      100
+    ],
+    "transparentTailMs": 520
+  }
+]

@@ -3671,5 +3671,813 @@
       "continuousVisualPlayback": "NOT VERIFIED",
       "actualGamePlacement": "NOT VERIFIED"
     }
+  },
+  "emergenceSet11": {
+    "assetCount": 2,
+    "checks": [
+      {
+        "id": "kegare_reinforcement",
+        "pngCels": 12,
+        "gifFrames": 14,
+        "durationMs": 1600,
+        "visibleEndMs": 1080,
+        "pngVisibleEndMs": 1080,
+        "transparentTailMs": 520,
+        "loop": false,
+        "firstLastBlank": true,
+        "pivotPx": [
+          128,
+          128
+        ],
+        "fixedSideBasesPx": [
+          [
+            82,
+            128
+          ],
+          [
+            174,
+            128
+          ]
+        ],
+        "centralClearWindowPx": [
+          112,
+          24,
+          144,
+          168
+        ],
+        "centralWindowAlpha": 0,
+        "transparentClearancePx": 24,
+        "sourceMajorPlumes": 2,
+        "additionalParticleSystem": false,
+        "rasterFringe": "small isolated raster pixels may remain; not all necessarily low-alpha AA",
+        "identicalPeakCels": [
+          5,
+          6
+        ],
+        "peakHoldMs": 160,
+        "birthAlphaFadeEndsAtMs": 600,
+        "celCoreBoxesAndBases": [
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                65,
+                120,
+                98,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                158,
+                120,
+                190,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ],
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                64,
+                107,
+                100,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                156,
+                108,
+                192,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ],
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                63,
+                91,
+                100,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                156,
+                91,
+                193,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ],
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                62,
+                75,
+                102,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                154,
+                75,
+                194,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ],
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                60,
+                58,
+                103,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                153,
+                58,
+                195,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ],
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                58,
+                46,
+                106,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                150,
+                46,
+                198,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ],
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                58,
+                46,
+                106,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                150,
+                46,
+                198,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ],
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                60,
+                54,
+                104,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                153,
+                54,
+                195,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ],
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                65,
+                71,
+                99,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                158,
+                71,
+                191,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ],
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                71,
+                91,
+                92,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                164,
+                91,
+                185,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ],
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                77,
+                110,
+                87,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                169,
+                110,
+                179,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ],
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                81,
+                124,
+                83,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                173,
+                124,
+                175,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ]
+        ],
+        "gifEndOpaqueAreas": [
+          3079,
+          1847,
+          776,
+          188,
+          12
+        ],
+        "gifEndRgbMeans": [
+          105.68582873227238,
+          106.2328099621007,
+          105.84922680412372,
+          105.56205673758866,
+          97.47222222222223
+        ],
+        "pngEndMethod": "geometric contraction plus partial alpha",
+        "gifEndMethod": "geometric contraction retaining source colors; no RGB darkening",
+        "continuousVisualPlayback": "NOT VERIFIED",
+        "actualGamePlacement": "NOT VERIFIED"
+      },
+      {
+        "id": "membrane_emergence",
+        "pngCels": 12,
+        "gifFrames": 14,
+        "durationMs": 1600,
+        "visibleEndMs": 1080,
+        "pngVisibleEndMs": 1080,
+        "transparentTailMs": 520,
+        "loop": false,
+        "firstLastBlank": true,
+        "pivotPx": [
+          128,
+          128
+        ],
+        "fixedSideBasesPx": [
+          [
+            82,
+            128
+          ],
+          [
+            174,
+            128
+          ]
+        ],
+        "centralClearWindowPx": [
+          112,
+          24,
+          144,
+          168
+        ],
+        "centralWindowAlpha": 0,
+        "transparentClearancePx": 24,
+        "sourceMajorPlumes": 2,
+        "additionalParticleSystem": false,
+        "rasterFringe": "small isolated raster pixels may remain; not all necessarily low-alpha AA",
+        "identicalPeakCels": [
+          5,
+          6
+        ],
+        "peakHoldMs": 160,
+        "birthAlphaFadeEndsAtMs": 600,
+        "celCoreBoxesAndBases": [
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                70,
+                120,
+                93,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                163,
+                120,
+                186,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ],
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                69,
+                107,
+                95,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                161,
+                108,
+                187,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ],
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                68,
+                91,
+                96,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                160,
+                91,
+                188,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ],
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                67,
+                75,
+                97,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                159,
+                75,
+                189,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ],
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                66,
+                59,
+                98,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                158,
+                58,
+                190,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ],
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                64,
+                47,
+                100,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                156,
+                46,
+                192,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ],
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                64,
+                47,
+                100,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                156,
+                46,
+                192,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ],
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                66,
+                54,
+                98,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                158,
+                54,
+                190,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ],
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                70,
+                71,
+                94,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                162,
+                71,
+                186,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ],
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                74,
+                91,
+                90,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                166,
+                92,
+                182,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ],
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                78,
+                110,
+                86,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                170,
+                111,
+                178,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ],
+          [
+            {
+              "basePx": [
+                82,
+                128
+              ],
+              "coreBoxPx": [
+                81,
+                124,
+                83,
+                128
+              ],
+              "coreBottomPx": 128
+            },
+            {
+              "basePx": [
+                174,
+                128
+              ],
+              "coreBoxPx": [
+                173,
+                123,
+                175,
+                128
+              ],
+              "coreBottomPx": 128
+            }
+          ]
+        ],
+        "gifEndOpaqueAreas": [
+          1817,
+          1098,
+          453,
+          110,
+          9
+        ],
+        "gifEndRgbMeans": [
+          229.03852504127684,
+          229.12841530054644,
+          230.56953642384107,
+          228.85757575757575,
+          226.14814814814815
+        ],
+        "pngEndMethod": "geometric contraction plus partial alpha",
+        "gifEndMethod": "geometric contraction retaining source colors; no RGB darkening",
+        "continuousVisualPlayback": "NOT VERIFIED",
+        "actualGamePlacement": "NOT VERIFIED"
+      }
+    ],
+    "playbackContract": {
+      "assertions": 90,
+      "scope": "Read-only VM of actual copied GameArt.sample; onset/midpoint/preceding-ms of every cel; end and future timestamps remain null. No browser/rendering.",
+      "actualArtJsSha256": "955553cdecf0dd598dd469de631557718add3311dec327a01cb8877fe2d164a9",
+      "continuousVisualPlayback": "NOT VERIFIED",
+      "actualGamePlacement": "NOT VERIFIED"
+    }
   }
 }

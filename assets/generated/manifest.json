@@ -3,10 +3,10 @@
   "title": "Color Resonance ゲーム素材",
   "counts": {
     "characters": 18,
-    "effects": 30,
-    "sourceSheets": 48,
-    "pngCels": 460,
-    "gifs": 143
+    "effects": 32,
+    "sourceSheets": 50,
+    "pngCels": 484,
+    "gifs": 147
   },
   "production": {
     "generator": "built-in imagegen",
@@ -7032,6 +7032,260 @@
               "name": "圧力跡の収縮",
               "startMs": 260,
               "endMs": 700
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "kegare_reinforcement",
+      "name": "核の増援・側方の立ち上がり",
+      "category": "fx",
+      "assetRole": "enemy-emergence",
+      "source": "source/kegare_reinforcement.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "sheet": "sheets/kegare_reinforcement.png",
+      "frames": [
+        "frames/kegare_reinforcement/000.png",
+        "frames/kegare_reinforcement/001.png",
+        "frames/kegare_reinforcement/002.png",
+        "frames/kegare_reinforcement/003.png",
+        "frames/kegare_reinforcement/004.png",
+        "frames/kegare_reinforcement/005.png",
+        "frames/kegare_reinforcement/006.png",
+        "frames/kegare_reinforcement/007.png",
+        "frames/kegare_reinforcement/008.png",
+        "frames/kegare_reinforcement/009.png",
+        "frames/kegare_reinforcement/010.png",
+        "frames/kegare_reinforcement/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          256,
+          192
+        ],
+        "order": "row-major"
+      },
+      "pivotPx": [
+        128,
+        128
+      ],
+      "scaleReferenceTileWidthPx": 80,
+      "direction": "front-isometric; fixed foot and side bases",
+      "triggerCondition": "!cfg.inverted && successful boss reinforcement after units.push(u)",
+      "productionSet": "emergence-set-11",
+      "animations": {
+        "effect": {
+          "name": "核の増援・側方の立ち上がり",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            40,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            100,
+            100,
+            100,
+            100,
+            520
+          ],
+          "frameStartsMs": [
+            0,
+            40,
+            120,
+            200,
+            280,
+            360,
+            440,
+            520,
+            600,
+            680,
+            780,
+            880,
+            980,
+            1080
+          ],
+          "loop": false,
+          "gif": "gifs/kegare_reinforcement/effect.gif",
+          "size": [
+            256,
+            192
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 1600,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/kegare_reinforcement/preview.gif",
+          "visibleEndMs": 1080,
+          "pngVisibleEndMs": 1080,
+          "gifTransparentTailMs": 520,
+          "phases": [
+            {
+              "name": "固定根元から立ち上がり",
+              "startMs": 40,
+              "endMs": 440
+            },
+            {
+              "name": "出現フェードの終端を保持",
+              "startMs": 440,
+              "endMs": 600
+            },
+            {
+              "name": "根元へ収縮して消失",
+              "startMs": 600,
+              "endMs": 1080
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "membrane_emergence",
+      "name": "白い膜・出現の立ち上がり",
+      "category": "fx",
+      "assetRole": "enemy-emergence",
+      "source": "source/membrane_emergence.png",
+      "sourceSize": [
+        1448,
+        1086
+      ],
+      "sheet": "sheets/membrane_emergence.png",
+      "frames": [
+        "frames/membrane_emergence/000.png",
+        "frames/membrane_emergence/001.png",
+        "frames/membrane_emergence/002.png",
+        "frames/membrane_emergence/003.png",
+        "frames/membrane_emergence/004.png",
+        "frames/membrane_emergence/005.png",
+        "frames/membrane_emergence/006.png",
+        "frames/membrane_emergence/007.png",
+        "frames/membrane_emergence/008.png",
+        "frames/membrane_emergence/009.png",
+        "frames/membrane_emergence/010.png",
+        "frames/membrane_emergence/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          256,
+          192
+        ],
+        "order": "row-major"
+      },
+      "pivotPx": [
+        128,
+        128
+      ],
+      "scaleReferenceTileWidthPx": 80,
+      "direction": "front-isometric; fixed foot and side bases",
+      "triggerCondition": "cfg.inverted && enterPhase1 reveals hidden u.kind === 'membrane'; never Chrome",
+      "productionSet": "emergence-set-11",
+      "animations": {
+        "effect": {
+          "name": "白い膜・出現の立ち上がり",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            40,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            100,
+            100,
+            100,
+            100,
+            520
+          ],
+          "frameStartsMs": [
+            0,
+            40,
+            120,
+            200,
+            280,
+            360,
+            440,
+            520,
+            600,
+            680,
+            780,
+            880,
+            980,
+            1080
+          ],
+          "loop": false,
+          "gif": "gifs/membrane_emergence/effect.gif",
+          "size": [
+            256,
+            192
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 1600,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/membrane_emergence/preview.gif",
+          "visibleEndMs": 1080,
+          "pngVisibleEndMs": 1080,
+          "gifTransparentTailMs": 520,
+          "phases": [
+            {
+              "name": "固定根元から立ち上がり",
+              "startMs": 40,
+              "endMs": 440
+            },
+            {
+              "name": "出現フェードの終端を保持",
+              "startMs": 440,
+              "endMs": 600
+            },
+            {
+              "name": "根元へ収縮して消失",
+              "startMs": 600,
+              "endMs": 1080
             }
           ]
         }

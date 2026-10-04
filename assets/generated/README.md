@@ -1,6 +1,6 @@
 # Color Resonance ゲーム素材
 
-ゲームの物語・敵・仲間・技に合わせ、組み込みimagegenで生成した素材ライブラリです。キャラクター18種類、技・状態・環境・装甲・外皮・着弾エフェクト30種類、主原画48枚、透過PNGコマ460枚、動作GIF143本（動作・単発技・継続ループ125本と専用反復プレビュー18本）を収録しています。水面の4×4配置用GIF2本は別枠の確認画像です。
+ゲームの物語・敵・仲間・技に合わせ、組み込みimagegenで生成した素材ライブラリです。キャラクター18種類、技・状態・環境・装甲・外皮・着弾・出現エフェクト32種類、主原画50枚、透過PNGコマ484枚、動作GIF147本（動作・単発技・継続ループ127本と専用反復プレビュー20本）を収録しています。水面の4×4配置用GIF2本は別枠の確認画像です。
 
 [素材一覧を開く](https://lunaneco.github.io/color-resonance/assets/generated/) では名前・技名で検索し、動作を切り替え、明暗背景で透過を確認できます。`index.html` を直接開いても閲覧できます。
 
@@ -39,10 +39,10 @@
 
 | ファイル | 用途 |
 |---|---|
-| source/{id}.png | 採用した画像生成原本、1536×1024、RGBA |
-| sheets/{id}.png | 実装用透過シート。従来素材は1152×768・4列×2行、習得技追加セットは1152×1152・4列×3行 |
-| frames/{id}/{cel}.png | 透過コマ、各288×384。従来素材は000〜007、習得技追加セットは000〜011 |
-| gifs/{id}/{action}.gif | 単体288×384、合成技384×480。習得技のeffect.gifは単発、preview.gifだけ反復 |
+| source/{id}.png | 採用した画像生成原本、RGBA。各寸法はmanifestのsourceSize、修正前原画も保持 |
+| sheets/{id}.png | 実装用透過シート。従来は1152×768・4×2、習得技は1152×1152・4×3。追加セットごとのgridを参照 |
+| frames/{id}/{cel}.png | 透過コマ。従来・習得技は288×384、状態・環境・装甲以降は256×192。正確な寸法はgrid.cellSize |
+| gifs/{id}/{action}.gif | 従来単体288×384、合成技384×480、装甲・外皮・着弾・出現は256×192。保存用effect.gifは単発、preview.gifは反復 |
 | manifest.json | 素材名・参照先・コマ順・保持時間・ループ設定・合成レイヤー |
 | prompts.json | 実際の生成・修正プロンプト、基準絵、採用ファイル、修正理由 |
 | quality-report.json | PNGのアルファ・セル境界・GIF全コマ復号の検証記録 |
@@ -442,4 +442,42 @@ function drawRangedImpact(ctx, asset, sheet, elapsedMs, hitX, hitY, tw, angle) {
 
 ```sh
 python3 tools/build_impact_assets.py
+```
+
+## 敵の出現 第11セット
+
+[核の増援・白い膜の出現2点をZIPでまとめて保存](downloads/emergence-set11.zip)できます。
+
+| 素材ID | 対象 | 単発GIF |
+|---|---|---|
+| kegare_reinforcement | 通常章の核が生む新しい敵 | [effect.gif](gifs/kegare_reinforcement/effect.gif) |
+| membrane_emergence | 終章の第二段で可視になる膜の敵 | [effect.gif](gifs/membrane_emergence/effect.gif) |
+
+実コピー `board.js` の核による3ターンごとの増援生成と、`enterPhase1` で隠れた膜の敵を可視にする処理に合わせました。核の増援は生成が成功して `units.push(u)` した時、かつ `!cfg.inverted` の場合だけ使います。白い膜は `cfg.inverted && u.kind==='membrane'` の隠れた敵を解除し、`bornT` を更新した時だけです。**クロム本体には使いません。** 新しい敵や能力を作る素材ではなく、既存の600ms出現フェードの左右に添える大きな立ち上がり跡です。身体・顔・目・武器・文字はありません。第9の消去、第10の着弾とは用途が異なります。ゲーム本体には未接続です。
+
+各256×192・12PNGセル・4列×3行1024×576シートです。開始透明40ms、セル000〜007各80ms、008〜011各100ms、終了透明520msの14コマGIFで総尺1600ms。PNG/GIFの可視終端は1080msです。保存用 `effect.gif` は一度だけ透明で終了し、一覧用 `preview.gif` だけ反復します。セル005/006は同じピーク形状を440〜600msの160ms保持します。12セル全てが別形状ではありません。
+
+足元pivot(128,128)、基準タイル幅80、左右の根元(82,128)/(174,128)を固定します。原画の2本を、根元から高さ0.10→0.25→0.45→0.65→0.85→1倍・幅0.70→0.75→0.80→0.85→0.90→1倍に立ち上げます。600msの出生フェードが終わった時点から、0.90→0.70→0.45→0.22→0.06倍へ等方収縮します。全12セルのalpha閾値96以上の各輪郭bbox下端は128です（最後の不透明行はy127）。PNGの弱いAAまで全てがこの線で終わるという意味ではありません。
+
+全PNG/GIFの中央矩形(112,24)-(144,168)はalpha0、外枠24pxも完全透明です。原画から描いた側方表現で、実敵の身体を精密に囲う形ではありません。床の後・敵の前のレイヤーへ描き、出生時のセルの足元へ合わせる使い方を想定しています。新しい敵の隣にいる別のユニットとの重なりと実視認性は未確認です。
+
+PNGの最後4セルはalpha0.9→0.8→0.7→0.6も使います。GIFは原画の色を保って輪郭を縮小し、RGB暗化しません。共通255色＋透過色、閾値96、ディザなし、disposal=2です。GIFの終盤5セルの面積は灰紫3079→1847→776→188→12、白1817→1098→453→110→9画素。白の終盤平均RGBは226.15〜230.57を保ちます。元の主要形状は2本、追加粒子システムはありませんが、ラスタ化による小さい分離画素が残る場合があり、粒ゼロや全画素完全不透明とはしません。灰紫原画の最大alphaは254です。タイル幅64pxでピークを静止比較し、開始・末尾は小さな跡になります。明るい床での白のコントラストは弱めです。
+
+```js
+function drawEnemyEmergence(ctx, asset, sheet, elapsedMs, footX, footY, tw) {
+  const cel = GameArt.sample(asset.id, 'effect', elapsedMs);
+  if (!sheet || cel == null) return;
+  const [w, h] = asset.grid.cellSize, scale = tw / 80;
+  ctx.drawImage(sheet, (cel % 4) * w, Math.floor(cel / 4) * h, w, h,
+    footX - 128 * scale, footY - 128 * scale, w * scale, h * scale);
+}
+// 増援生成/膜のhidden解除時に出生セルとbornTを保持する。
+// GameArt.load([id])で読み込み、床の後・ユニットの前に描き1600msで終了。
+// GameArt.drawのbboxフィットではなく、同じ足元・倍率で全コマ描く。
+```
+
+実shade/membrane参照、生成原画・修正前原画、両プロンプト、切り出し・根元・尺度・時間は `emergence-set-11.json` / `prompts.json` とZIPに保存しています。`review/kegare_reinforcement.jpg` / `review/membrane_emergence.jpg` の地面線は確認画像だけにあります。実コピー `GameArt.sample` の開始・中点・直前・終端について90アサートが通過しています。**連続視覚再生・実ゲーム内配置は未確認**です。
+
+```sh
+python3 tools/build_emergence_assets.py
 ```
