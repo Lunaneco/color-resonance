@@ -31,6 +31,8 @@ const Board = (() => {
 
   // ---------- 定数 ----------
   const DIRS = [[-1, 0], [0, 1], [1, 0], [0, -1]];
+  const FACING = [{ arrow: '↗', name: '右上' }, { arrow: '↘', name: '右下' }, { arrow: '↙', name: '左下' }, { arrow: '↖', name: '左上' }];
+  const APPROACH = { front: '正面から', side: '側面から +10%', back: '背後から +25%' };
   const BLOCK = new Set(['sea_deep', 'sea_rough', 'rocks', 'mt_small', 'mt_mid', 'mt_big']);
   const OBST = new Set(['rocks', 'mt_small', 'mt_mid', 'mt_big']);
   // [基礎, LVごとの伸び]
@@ -398,7 +400,11 @@ const Board = (() => {
     drawDecor(false);
     drawArtEffects(now);
     drawParticles();
-    for (const u of units) if (!u.hidden && !u.dead && (!u.bornT || now - u.bornT > 300)) { const p = unitXY(u, now); drawBar(u, p.x, p.y); }
+    for (const u of units) if (!u.hidden && !u.dead && (!u.bornT || now - u.bornT > 300)) {
+      const p = unitXY(u, now);
+      if (u.side === 'enemy') drawFacing(u, p);
+      drawBar(u, p.x, p.y);
+    }
     updateBar();
     // 穢れの気配
     if (Math.random() < 0.3) {
@@ -703,6 +709,38 @@ const Board = (() => {
       g.font = `600 ${Math.max(9, tw * 0.13)}px "Cormorant Garamond", serif`; g.textAlign = 'right'; g.textBaseline = 'middle';
       g.lineWidth = 3; g.strokeStyle = 'rgba(0,0,0,.8)'; g.strokeText('Lv' + u.lv, x - w / 2 - 3, top + h / 2);
       g.fillStyle = u.side === 'ally' ? '#dff3ff' : '#e6d6ff'; g.fillText('Lv' + u.lv, x - w / 2 - 3, top + h / 2);
+    }
+    if (u.side === 'enemy') {
+      const size = Math.max(14, tw * .19), bx = x + w / 2 + 3, by = top + h / 2 - size / 2;
+      g.fillStyle = 'rgba(5,10,25,.95)'; g.fillRect(bx, by, size, size);
+      g.strokeStyle = '#ffd07a'; g.lineWidth = 1; g.strokeRect(bx, by, size, size);
+      g.fillStyle = '#ffd07a'; g.font = `700 ${size - 1}px sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText(FACING[u.dir].arrow, bx + size / 2, by + size / 2);
+    }
+    g.restore();
+  }
+  // 攻撃の正面／背後判定と同じDIRSを床の4方向へ投影する。
+  // 床の後で描く。近くの別キャラクターの体は避け、HP横にも方向を出す。
+  function drawFacing(u, p) {
+    const [dr, dc] = DIRS[u.dir], [sr, sc] = DIRS[(u.dir + 1) % 4];
+    const f = { x: (dc - dr) * tw / 2, y: (dc + dr) * th / 2 };
+    const s = { x: (sc - sr) * tw / 2, y: (sc + sr) * th / 2 };
+    const point = (a, b = 0) => [p.x + f.x * a + s.x * b, p.y + f.y * a + s.y * b];
+    g.save(); g.lineJoin = 'round'; g.lineCap = 'round';
+    for (const other of units) {
+      if (other === u || other.hidden || other.dead) continue;
+      const q = unitXY(other);
+      if (Math.abs(q.x - p.x) > tw * 1.1 || Math.abs(q.y - p.y) > tw * 1.5) continue;
+      g.beginPath(); g.rect(-W, -H, W * 3, H * 3);
+      g.rect(q.x - tw * .26, q.y - tw * other.hgt * .95, tw * .52, tw * other.hgt * .95 + th * .12);
+      g.clip('evenodd');
+    }
+    g.beginPath(); g.moveTo(...point(.88)); g.lineTo(...point(.48, .18)); g.lineTo(...point(.59)); g.lineTo(...point(.48, -.18)); g.closePath();
+    g.strokeStyle = '#08101f'; g.lineWidth = 3; g.stroke(); g.fillStyle = '#ffd07a'; g.fill();
+    for (const a of [-.66, -.82]) {
+      g.beginPath(); g.moveTo(...point(a, -.12)); g.lineTo(...point(a, .12));
+      g.strokeStyle = '#08101f'; g.lineWidth = 4; g.stroke();
+      g.strokeStyle = '#81e7ff'; g.lineWidth = 2; g.stroke();
     }
     g.restore();
   }
@@ -1752,9 +1790,12 @@ const Board = (() => {
     const rng = effRng(u);
     const unknown = u.kind === 'chrome' && stage === 0;
     const neutral = u.side === 'neutral';
+    const facing = u.side === 'enemy' ? FACING[u.dir] : null;
+    const side = facing && sel && !sel.dead && sel.side === 'ally' ? attackSide(cellOf(sel), u) : null;
     unitInfo.className = 'side-' + u.side;
     unitInfo.innerHTML = `${port}<div class="ui-main">
       <div class="ui-top"><span class="ui-name">${u.name}</span>${neutral ? '' : `<span class="ui-lv">LV<b>${u.lv}</b></span>`}</div>
+      ${facing ? `<div class="ui-facing" data-dir="${u.dir}"><b>${facing.arrow}</b><span>正面：${facing.name}</span></div>${side ? `<div class="ui-approach ${side}" data-side="${side}">${APPROACH[side]}</div>` : ''}` : ''}
       ${u.word ? `<div class="ui-word">「${u.word}」</div>` : ''}
       ${neutral ? '<div class="ui-word">——その人の色は、切らない</div>' : `<div class="ui-bar hp"><i style="width:${unknown ? 100 : Math.round(u.hp / u.mhp * 100)}%"></i><span>HP ${unknown ? '？？？' : `${u.hp} / ${u.mhp}`}</span></div>`}
       ${r ? `<div class="ui-bar exp"><i style="width:${r.exp}%"></i><span>EXP ${r.exp} / 100</span></div>` : ''}
@@ -2044,7 +2085,7 @@ const Board = (() => {
       <h4>動かし方</h4>味方に触れると、<b>光る床</b>が歩ける場所。床に触れると移動し、そのあとメニューが開きます。<br>動かずに行動したいときは、本人にもう一度触れるか「その場で行動」。届く敵に直接触れても攻撃できます。<br>右クリック／Esc／「選び直す」：戻る　E：ターン終了　A：攻撃　W：待機
       <div class="tip-tiles"><div><img src="assets/tiles/crys_land_flat.png">虹の床（味方）</div><div><img src="assets/tiles/dark_land_flat.png">くすんだ床（穢れ）</div></div>
       <h4>床の割合と加護</h4>味方が歩いた床・攻撃した床は<b>虹色</b>に、穢れが立つ床は<b>くすみ</b>ます。盤全体の割合が<b>25%・45%・65%</b>を超えるたびに、その側の攻撃・守り・共鳴が強くなります（65%で毎ターン回復）。<br>自分の色の床に立つと攻撃+10%、相手の色の床では守り-10%。
-      <h4>位置どり</h4>高い場所から打つと+15%。敵の<b>背後</b>から+25%（会心も出やすい）、側面から+10%。
+      <h4>位置どり</h4>敵の足元の<b style="color:#ffd07a">橙の矢印が正面</b>、<b style="color:#81e7ff">青の二本線が背後</b>です。HPの横にも正面を向く矢印が表示されます。敵の情報欄では、選んだ味方の現在位置が正面・側面・背後のどれかを確認できます。<br>高い場所から打つと+15%。敵の<b>背後</b>から+25%（会心も出やすい）、側面から+10%。
       <h4>精霊</h4>仲間になった精霊は、<b>共鳴</b>を使って力を貸してくれます。<br>・<b>召喚</b>（共鳴6）：盤に降り立ち、登場の大技のあと3ターン共に戦う。<br>・<b>心剣に宿す</b>（共鳴3）：3ターンのあいだ、アリアの攻撃が精霊の力をまとう。行動を使わず、1ターンに1度。<br>召喚と宿しは同時にはできません。召喚している間は宿せず、宿している間は召喚できません。
       <h4>道具とミッション</h4>町で買った道具は、メニューの「道具」から使えます（行動を使う）。<br>右上のミッションをすべて達成するとSランク。各ステージで最初にSランクを取ると、ユニーク装備が手に入ります。
       <h4>LV</h4>攻撃と撃破で経験値が入り、100たまるとLVが上がります。精霊は、召喚や宿しで育ちます。

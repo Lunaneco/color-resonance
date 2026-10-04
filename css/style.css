@@ -337,6 +337,21 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .ui-lv{font-family:var(--latin);font-size:13px;color:var(--ink-dim);letter-spacing:.1em}
 .ui-lv b{font-size:20px;color:#fff;margin-left:4px}
 .ui-word{font-family:var(--mincho);font-size:12px;color:#c9bcd6;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ui-facing{display:flex;align-items:center;gap:5px;font-size:11px;line-height:1.2;color:#ffd07a}
+.ui-facing b{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;flex:none;border:1px solid #ffd07a;border-radius:4px;background:#080f20;font:700 18px/1 sans-serif}
+.ui-approach{font-size:11px;line-height:1.3;color:#d4dce9}
+.ui-approach.side{color:#ffd07a}
+.ui-approach.back{color:#81e7ff;font-weight:700}
+@media(max-height:600px) and (max-width:600px){
+  #boardScreen.compact #unitInfo.side-enemy .ui-port,#boardScreen.compact #unitInfo.side-enemy .ui-word{display:none}
+  #boardScreen.compact #unitInfo.side-enemy .ui-main{gap:2px}
+  #boardScreen.compact #unitInfo.side-enemy .ui-name{font-size:12px}
+  #boardScreen.compact #unitInfo.side-enemy .ui-lv b{font-size:15px}
+  #boardScreen.compact #unitInfo.side-enemy .ui-facing b{width:16px;height:16px;font-size:15px}
+  #boardScreen.compact #unitInfo.side-enemy .ui-approach{font-size:10px}
+  #boardScreen.compact #unitInfo.side-enemy .ui-st{gap:5px;font-size:10px}
+  #boardScreen.compact #unitInfo.side-enemy .ui-st b{font-size:12px;margin-left:2px}
+}
 .ui-bar{position:relative;height:15px;border-radius:4px;background:rgba(0,0,0,.45);overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
 .ui-bar i{position:absolute;left:0;top:0;bottom:0;transition:width .4s ease}
 .ui-bar.hp i{background:linear-gradient(90deg,#4fc9ff,#9ff0ff)}

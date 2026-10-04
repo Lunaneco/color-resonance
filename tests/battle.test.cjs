@@ -11,7 +11,7 @@ let browser, server, base, context, page, errors;
 // Test-only access to battle state. The deployed JavaScript has no test API.
 const hook = `__test: {
   state() { return {running,phase,turn,busy,over,paused,mode,sp,stage,skyCharges,tw,artEffects:artEffects.map(e=>e.id),sel:sel&&sel.id,spiritUses:stats&&stats.spiritUses,skillUses:stats&&stats.skillUses,difficulty,recommendedLv:cfg&&cfg.recommendedLv,missionProgress:(cfg&&cfg.missions||[]).map(m=>missionState(m,false)),
-    units:units.map(u=>({id:u.id,kind:u.kind,side:u.side,lv:u.lv,atk:u.atk,def:u.def,armor:u.armor,root:u.root,guard:u.guard,r:u.r,c:u.c,hp:u.hp,mhp:u.mhp,moved:u.moved,acted:u.acted,dead:!!u.dead,hidden:!!u.hidden,enchant:u.enchant,until:u.until,
+    units:units.map(u=>({id:u.id,kind:u.kind,side:u.side,dir:u.dir,lv:u.lv,atk:u.atk,def:u.def,armor:u.armor,root:u.root,guard:u.guard,r:u.r,c:u.c,hp:u.hp,mhp:u.mhp,moved:u.moved,acted:u.acted,dead:!!u.dead,hidden:!!u.hidden,enchant:u.enchant,until:u.until,
       ...toScreen(unitXY(u).x,unitXY(u).y),bodyY:toScreen(unitXY(u).x,unitXY(u).y-tw*u.hgt*.5).y})),
     cells:cells.map((c,i)=>({id:i,r:c.r,c:c.c,floor:c.floor,...toScreen(topOf(c).x,topOf(c).y)})),
     ends:moveInfo?[...moveInfo.ends]:[],targets:targets?[...targets]:[],cfg:cfg&&cfg.id}; },
@@ -504,4 +504,53 @@ test('Conversation sprites show every prepared NPC and are cleared on returning 
     assert.equal(await page.locator('.speaker-art').evaluate(e=>getComputedStyle(e).pointerEvents),'none','The portrait must not block dialogue controls');
   }
   await page.evaluate(()=>Main.toTitle());assert.equal(await page.locator('.speaker-art').count(),0);
+});
+
+const facingCases=[{dir:0,dr:-1,dc:0,arrow:'↗',name:'右上'},{dir:1,dr:0,dc:1,arrow:'↘',name:'右下'},{dir:2,dr:1,dc:0,arrow:'↙',name:'左下'},{dir:3,dr:0,dc:-1,arrow:'↖',name:'左上'}];
+async function inspectByHover(){const e=enemy(await state());await page.mouse.move(0,0);await page.mouse.move(e.x,e.bodyY);await page.locator('.ui-facing').waitFor();}
+
+test('Enemy front and rear indicators distinguish all four directions and agree with attack positioning',async()=>{
+  await boot();await fixture();
+  for(const f of facingCases){
+    await page.evaluate(f=>Board.__test.arrange([{kind:'shade',r:4,c:4,dir:f.dir,hp:500,mhp:500},{kind:'aria',r:7,c:7,atk:18}]),f);
+    await inspectByHover();assert.equal(await page.locator('.ui-facing').getAttribute('data-dir'),String(f.dir));
+    assert.match(await page.locator('.ui-facing').textContent(),new RegExp(f.arrow+'.*'+f.name));
+    const s=await state(),e=enemy(s);
+    await page.waitForTimeout(100);
+    const pixel=await page.evaluate(({e,tw,dr,dc})=>{
+      const cv=document.getElementById('boardCanvas'),c=cv.getContext('2d');
+      const fx=(dc-dr)*tw/2,fy=(dc+dr)*tw*.54/2;
+      const get=(x,y)=>{const data=c.getImageData(Math.round(x*devicePixelRatio)-1,Math.round(y*devicePixelRatio)-1,3,3).data;return Array.from({length:9},(_,i)=>[...data.slice(i*4,i*4+4)]);};
+      return {front:get(e.x+fx*.75,e.y+fy*.75),rear:get(e.x-fx*.66,e.y-fy*.66)};
+    },{e,tw:s.tw,...f});
+    assert(pixel.front.some(p=>p[0]>220&&p[1]>180&&p[2]<160),`A visible amber arrow must point to the actual front: ${JSON.stringify(pixel)}`);
+    assert(pixel.rear.some(p=>p[0]<170&&p[1]>200&&p[2]>220),`Visible cyan marks must identify the actual rear: ${JSON.stringify(pixel)}`);
+    await page.evaluate(f=>Board.__test.arrange([{kind:'aria',r:4+f.dr,c:4+f.dc}]),f);await inspectByHover();
+    assert.equal(await page.locator('.ui-approach').getAttribute('data-side'),'front');
+    await page.evaluate(f=>Board.__test.arrange([{kind:'aria',r:4-f.dr,c:4-f.dc}]),f);await inspectByHover();
+    assert.equal(await page.locator('.ui-approach').getAttribute('data-side'),'back');assert.match(await page.locator('.ui-approach').textContent(),/背後から \+25%/);
+    await page.evaluate(f=>Board.__test.arrange([{kind:'aria',r:4+f.dc,c:4-f.dr}]),f);await inspectByHover();
+    assert.equal(await page.locator('.ui-approach').getAttribute('data-side'),'side');assert.match(await page.locator('.ui-approach').textContent(),/側面から \+10%/);
+  }
+});
+
+for(const viewport of [{width:320,height:480},{width:390,height:844},{width:667,height:375}]){
+  test(`Enemy facing can be inspected by touch without attacking at ${viewport.width} × ${viewport.height}`,async()=>{
+    await boot('cove',viewport);await fixture();await page.locator('#cancelSel').tap();
+    const before=await state(),e=enemy(before);await page.touchscreen.tap(e.x,e.bodyY);
+    await page.locator('.ui-facing').waitFor();assert.match(await page.locator('.ui-facing').textContent(),/↙.*左下/);
+    const after=await state();assert.equal(enemy(after).hp,e.hp);assert.equal(after.turn,before.turn);assert(!aria(after).acted);
+    await inViewport('unitInfo');
+    await page.locator('#boardHelp').tap();assert.match(await page.locator('.pn-body').textContent(),/橙の矢印が正面.*青の二本線が背後/s);
+  });
+}
+
+test('Enemy movement and attacks update the facing information for the next player turn',async()=>{
+  await boot();await fixture();await page.evaluate(()=>Board.__test.arrange([{kind:'shade',dir:0,hp:500,mhp:500,atk:1},{kind:'aria',hp:1000,mhp:1000,atk:1}]));
+  await inspectByHover();assert.equal(await page.locator('.ui-facing').getAttribute('data-dir'),'0');
+  assert.equal(await page.locator('.ui-approach').getAttribute('data-side'),'back');
+  await page.locator('#endTurn').click();await page.waitForFunction(()=>Board.__test.state().turn===2&&!Board.__test.state().busy);
+  await inspectByHover();const e=enemy(await state());
+  assert.equal(e.dir,2);assert.equal(await page.locator('.ui-facing').getAttribute('data-dir'),'2');
+  assert.equal(await page.locator('.ui-approach').getAttribute('data-side'),'front');
 });
