@@ -1,0 +1,312 @@
+{
+  "counts": {
+    "characters": 18,
+    "effects": 8,
+    "sourceSheets": 26,
+    "pngCels": 208,
+    "gifs": 103
+  },
+  "alpha": [
+    {
+      "id": "shade",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    },
+    {
+      "id": "thorn",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    },
+    {
+      "id": "lead",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    },
+    {
+      "id": "boss",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    },
+    {
+      "id": "membrane",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    },
+    {
+      "id": "chrome",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    },
+    {
+      "id": "aria",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    },
+    {
+      "id": "gran",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    },
+    {
+      "id": "ivy",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    },
+    {
+      "id": "spinel",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    },
+    {
+      "id": "king",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    },
+    {
+      "id": "lila",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    },
+    {
+      "id": "fisher",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    },
+    {
+      "id": "lumina",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    },
+    {
+      "id": "stone_child",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    },
+    {
+      "id": "kaoru",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    },
+    {
+      "id": "mari",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    },
+    {
+      "id": "renoir",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    },
+    {
+      "id": "night_sky",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    },
+    {
+      "id": "crystal_slash",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        253
+      ]
+    },
+    {
+      "id": "pray_heal",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    },
+    {
+      "id": "gran_tide",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        253
+      ]
+    },
+    {
+      "id": "ivy_vines",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    },
+    {
+      "id": "spinel_shield",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    },
+    {
+      "id": "king_prism",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        253
+      ]
+    },
+    {
+      "id": "chrome_wave",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaRange": [
+        0,
+        254
+      ]
+    }
+  ],
+  "edgeReview": [],
+  "gifChecks": [
+    "full decode",
+    "multiple distinct frames",
+    "transparent pixels",
+    "duration matches sequence",
+    "disposal 2"
+  ],
+  "visualReviewChecklist": [
+    "identity",
+    "pose transitions",
+    "loop boundary",
+    "cropping",
+    "translucent PNG on light/dark backdrops"
+  ]
+}

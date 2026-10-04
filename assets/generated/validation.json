@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-04",
+  "tool": "Playwright Chromium and Pillow 12.3.0",
+  "counts": {"sourceSheets": 26, "pngCels": 208, "gifs": 103, "browserDecodedImages": 363},
+  "pngChecks": ["RGBA transparency", "fixed 4x2 grid", "no strong alpha pixels crossing cell edges"],
+  "gifChecks": ["every frame decoded", "exact frame count", "distinct motion poses", "exact duration", "transparent pixels on every frame", "disposal 2", "transparent final effect pause retained"],
+  "catalogChecks": ["26 cards", "enemy/NPC filters", "character and skill search", "empty search", "motion selection", "GIF download target", "PNG pause", "GIF changes over time", "light/dark backdrop", "no overflow at 320/390/768 pixels", "reduced motion", "no browser errors"],
+  "visualChecks": {
+    "sheets": "Generated source sheets and fixed-grid cel contact sheets inspected for character identity, complete silhouettes and neighboring fragments.",
+    "normalPlayback": "Aria sword strike sampled while playing in Chromium.",
+    "slowPlayback": "Shade attack, Aria sword strike, Chrome wave, Mari greeting and Renoir sky sampled at 3x slower timing over 6 seconds.",
+    "boundaries": "First, anticipation, impact and recovery cels of representative attack, walking, talking, greeting and ultimate motions inspected in review/motion-boundaries.jpg."
+  },
+  "scope": "Asset library and catalogue; existing battle renderer unchanged."
+}
