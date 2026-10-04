@@ -457,12 +457,12 @@ const World = (() => {
     const cols = { gran: '#3fb4c9', ivy: '#5fd07a', spinel: '#ffd25e', king: '#b48cff' };
     const uniq = Object.keys(EQUIP).filter(k => EQUIP[k].unique);
     Panel.open('仲間', `<div class="pt">
-      <div class="pt-row"><b>アリア</b><span>LV ${party.aria.lv}</span><span class="pt-exp"><i style="width:${party.aria.exp}%"></i></span></div>
+      <div class="pt-row"><span class="pt-name">${GameArt.portrait('aria', 'pt-art')}<b>アリア</b></span><span>LV ${party.aria.lv}</span><span class="pt-exp"><i style="width:${party.aria.exp}%"></i></span></div>
       <p class="wp-note">召喚+3、宿す+2、精霊や宿した心剣の命中+1、覚えた技の使用+2。絆8・20・40でアリアが力を覚え、召喚や宿しなしでも使えます。</p>
       ${sp.map(id => {
         const r = party.spirits[id] || { lv: party.aria.lv, exp: 0, bond: 0, uses: 0 }, rank = Progression.rank(r.bond), next = Progression.thresholds[rank];
         const from = Progression.thresholds[rank - 1], percent = next ? (r.bond - from) / (next - from) * 100 : 100;
-        return `<div class="bond-card" style="--c:${cols[id]}"><div class="pt-row"><b>${names[id]}</b><span>LV ${r.lv}</span><span class="pt-exp"><i style="width:${r.exp}%"></i></span></div>
+        return `<div class="bond-card" style="--c:${cols[id]}"><div class="pt-row"><span class="pt-name">${GameArt.portrait(id, 'pt-art')}<b>${names[id]}</b></span><span>LV ${r.lv}</span><span class="pt-exp"><i style="width:${r.exp}%"></i></span></div>
           <div class="bond-info"><b>絆${rank}</b><span>${r.bond}${next ? ' / ' + next : '・最大ランク'}　使用${r.uses}回</span></div><div class="pt-exp bond-bar"><i style="width:${percent}%"></i></div>
           <p class="wp-note">精霊：HP +${(rank - 1) * 5}%・攻撃 +${(rank - 1) * 4}%・守り +${(rank - 1) * 2}%<br>宿した心剣・攻撃技の威力 +${(rank - 1) * 3}%</p>
           ${Progression.skills.filter(s => s.spirit === id).map(s => `<div class="bond-skill ${party.aria.skills.includes(s.id) ? 'known' : ''}"><b>${party.aria.skills.includes(s.id) ? '✓' : '◇'} ${s.name}</b><small>${s.type}・${party.aria.skills.includes(s.id) ? '習得済み / 共鳴' + s.cost : '絆' + s.at + 'で習得（あと' + Math.max(0, s.at - r.bond) + '）'}</small><span>${s.desc}</span></div>`).join('')}</div>`;

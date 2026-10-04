@@ -1,6 +1,7 @@
 // ルノワール：見るたびに形が少しずつ違う、小さな黒
 const Renoir = (() => {
   const state = { colors: [], gulp: 0, sky: 0, mood: 0 };
+  let castT = -Infinity;
   // 旅で残った色
   const HUES = { teal: '#3fb4c9', green: '#7fd67a', gold: '#ffd25e', violet: '#b48cff', yellow: '#ffe28a' };
 
@@ -20,6 +21,20 @@ const Renoir = (() => {
   function draw(c, x, y, r, t, opt = {}) {
     const gulp = state.gulp;
     const R = r * (1 + gulp * 0.18);
+    if (GameArt.available('renoir')) {
+      c.save();
+      c.fillStyle = 'rgba(0,0,0,.3)'; c.beginPath(); c.ellipse(x, y + R * .85, R * .8, R * .15, 0, 0, 6.29); c.fill();
+      const castTime = performance.now() - castT, casting = castTime < (GameArt.animation('renoir', 'sky')?.durationMs || 0);
+      const motion = casting ? 'sky' : gulp > .12 ? 'absorb' : 'idle';
+      GameArt.drawMotion(c, 'renoir', motion, casting ? castTime : gulp > .12 ? (1 - gulp) * 650 + 280 : t * 1000, x, y + R * .75, R * 1.8, R * 2.1);
+      const colors = opt.colors || state.colors, sky = opt.sky ?? state.sky;
+      for (let i = 0; i < colors.length * 2 + Math.floor(sky * 16); i++) {
+        c.globalAlpha = .5 + .4 * Math.sin(t * 2 + i);
+        c.fillStyle = HUES[colors[i % Math.max(1, colors.length)]] || '#e8edff';
+        c.beginPath(); c.arc(x + Math.sin(i * 97.13) * R * .65, y + Math.cos(i * 165.12) * R * .40, Math.max(1, r * .025), 0, 6.29); c.fill();
+      }
+      c.restore(); return;
+    }
     c.save();
     // 影
     c.fillStyle = 'rgba(0,0,0,.35)';
@@ -69,6 +84,7 @@ const Renoir = (() => {
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
+  GameArt.load(['renoir']);
 
-  return { state, draw, HUES, gulp() { state.gulp = 1; } };
+  return { state, draw, HUES, gulp() { state.gulp = 1; }, skyCast() { castT = performance.now(); state.gulp = 1; } };
 })();

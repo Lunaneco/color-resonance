@@ -10,7 +10,7 @@ let browser, server, base, context, page, errors;
 
 // Test-only access to battle state. The deployed JavaScript has no test API.
 const hook = `__test: {
-  state() { return {running,phase,turn,busy,over,paused,mode,sp,stage,skyCharges,tw,sel:sel&&sel.id,spiritUses:stats&&stats.spiritUses,skillUses:stats&&stats.skillUses,difficulty,recommendedLv:cfg&&cfg.recommendedLv,missionProgress:(cfg&&cfg.missions||[]).map(m=>missionState(m,false)),
+  state() { return {running,phase,turn,busy,over,paused,mode,sp,stage,skyCharges,tw,artEffects:artEffects.map(e=>e.id),sel:sel&&sel.id,spiritUses:stats&&stats.spiritUses,skillUses:stats&&stats.skillUses,difficulty,recommendedLv:cfg&&cfg.recommendedLv,missionProgress:(cfg&&cfg.missions||[]).map(m=>missionState(m,false)),
     units:units.map(u=>({id:u.id,kind:u.kind,side:u.side,lv:u.lv,atk:u.atk,def:u.def,armor:u.armor,root:u.root,guard:u.guard,r:u.r,c:u.c,hp:u.hp,mhp:u.mhp,moved:u.moved,acted:u.acted,dead:!!u.dead,hidden:!!u.hidden,enchant:u.enchant,until:u.until,
       ...toScreen(unitXY(u).x,unitXY(u).y),bodyY:toScreen(unitXY(u).x,unitXY(u).y-tw*u.hgt*.5).y})),
     cells:cells.map((c,i)=>({id:i,r:c.r,c:c.c,floor:c.floor,...toScreen(topOf(c).x,topOf(c).y)})),
@@ -47,7 +47,7 @@ after(async () => {
   if (server) await new Promise(resolve => server.close(resolve));
 });
 
-async function boot(id='cove', viewport={width:1440,height:900}, storage={}) {
+async function boot(id='cove', viewport={width:1440,height:900}, storage={}, setup) {
   errors=[];
   context=await browser.newContext({viewport,hasTouch:viewport.width<900});
   await context.addInitScript(values=>{for(const [k,v] of Object.entries(values))localStorage.setItem(k,JSON.stringify(v));},storage);
@@ -59,6 +59,7 @@ async function boot(id='cove', viewport={width:1440,height:900}, storage={}) {
   const marker='    start, enterPhase1, help, stop,';
   assert(source.includes(marker),'Battle test hook must match the public API');
   await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:source.replace(marker,hook+marker)}));
+  if(setup)await setup(page);
   await page.goto(base+'#board='+id,{waitUntil:'networkidle'});
   await page.locator('#gate').click();
   await idle();
@@ -413,12 +414,15 @@ for(const id of skillIds) {
     await fixture('cove',{spStart:12});
     await page.evaluate(()=>Board.__test.arrange([{kind:'aria',atk:40,hp:10},{kind:'shade',hp:500,mhp:500,atk:1,armor:3}]));
     const skill=await page.evaluate(id=>Progression.skills.find(s=>s.id===id),id);
+    assert(await page.evaluate(id=>GameArt.available(GameArt.spiritEffects[id]),skill.spirit),'Learned skills need their art even on a stage without that spirit');
+    await recordArt();
     await openMenu();await page.locator('[data-k=learned]').click();await page.locator(`[data-k=skill][data-a=${id}]`).click();
     // Cancelling a target selection must not pay or grant progress.
     assert.equal((await state()).sp,12);assert.equal(await page.evaluate(id=>Board.party.spirits[id].bond,skill.spirit),40);
     await page.locator('#cancelSel').click();
     await openMenu();await page.locator('[data-k=learned]').click();await page.locator(`[data-k=skill][data-a=${id}]`).click();
     await clickUnit(skill.target==='ally'?aria(await state()):enemy(await state()),true);
+    await drew(await page.evaluate(id=>GameArt.spiritEffects[id],skill.spirit),3);
     await page.waitForFunction(()=>Board.__test.state().skillUses===1&&!Board.__test.state().busy);
     const s=await state(),a=aria(s),e=enemy(s);
     assert.equal(s.sp,12-skill.cost+(skill.power?1:0));assert.equal(s.spiritUses,1);
@@ -433,3 +437,71 @@ for(const id of skillIds) {
     assert(s.cells.some(c=>c.floor==='rainbow'));
   });
 }
+
+// Observe the cels actually sent to game canvases, as well as the resulting gameplay.
+async function recordArt() {
+  await page.evaluate(()=>{
+    window.artCels=[];
+    if(window.artRecording)return;
+    window.artRecording=true;
+    const draw=CanvasRenderingContext2D.prototype.drawImage;
+    CanvasRenderingContext2D.prototype.drawImage=function(im,...args){
+      if(im.src?.includes('/generated/sheets/')&&args.length===8&&(this.canvas.id==='boardCanvas'||this.canvas.dataset.art)){
+        const id=im.src.split('/').pop().replace('.png',''),cel=args[0]/288+args[1]/384*4;
+        const key=`${this.canvas.id||this.canvas.dataset.art}:${id}:${cel}`;
+        if(!window.artCels.includes(key))window.artCels.push(key);
+      }
+      return draw.call(this,im,...args);
+    };
+  });
+}
+const drew=(id,cel,canvas='boardCanvas')=>page.waitForFunction(({id,cel,canvas})=>window.artCels.includes(`${canvas}:${id}:${cel}`),{id,cel,canvas},{timeout:5000});
+
+test('All enemy types use their generated art and load only the current battle’s characters',async()=>{
+  await boot('king');await recordArt();
+  await fixture('king',{enemies:['shade','thorn','lead','boss','membrane','chrome'].map(kind=>({kind,lv:1}))});
+  for(const id of ['aria','shade','thorn','lead','boss','membrane','chrome'])await drew(id,0);
+  assert(!await page.evaluate(()=>GameArt.available('lila')),'Story characters should not delay battle loading');
+  assert(await page.locator('#unitInfo .art-portrait').evaluate(e=>e.complete&&e.naturalWidth>0));
+});
+
+test('Walking, attacking, taking damage and the slash effect play on the game canvas',async()=>{
+  await boot();await fixture();await recordArt();
+  const cell=await legalCell();assert(cell);await page.mouse.click(cell.x,cell.y);
+  await drew('aria',2);await drew('aria',3);await idle();
+  await page.evaluate(()=>Board.__test.arrange([{kind:'aria',r:5,c:4,atk:18,moved:false},{kind:'shade',r:4,c:4,hp:500,mhp:500}]));
+  await attack();await drew('aria',4);await drew('aria',5);await drew('shade',6);await drew('crystal_slash',3);
+  await page.waitForFunction(()=>Board.__test.state().mode==='idle');
+  assert(enemy(await state()).hp<500);
+  await page.waitForTimeout(1800);assert.deepEqual((await state()).artEffects,[],'One-shot effects must finish');
+});
+
+test('Each spirit has an animated enchant cut-in and no effect survives leaving battle',async()=>{
+  await boot('king');await recordArt();
+  for(const id of ['gran','ivy','spinel','king']){
+    await fixture('king',{spStart:12,spirits:['gran','ivy','spinel','king']});await openMenu();await page.locator('[data-k=spirit]').click();await page.locator(`[data-k=enchant][data-a=${id}]`).click();
+    await page.locator('#cutin canvas').waitFor();await drew('aria',7,'aria');
+    const fx=await page.evaluate(id=>GameArt.spiritEffects[id],id);await drew(fx,3,'aria');
+    await idle();assert.equal(aria(await state()).enchant.id,id);
+    await page.evaluate(()=>window.artCels=[]);
+  }
+  await page.evaluate(()=>Board.stop());assert.deepEqual((await state()).artEffects,[]);
+  assert(!await page.locator('#cutin').isVisible());
+});
+
+test('Battle remains playable if a generated sprite sheet cannot load',async()=>{
+  await boot('cove',{width:390,height:844},{},async p=>p.route('**/assets/generated/sheets/aria.png',r=>r.abort()));
+  assert(!await page.evaluate(()=>GameArt.available('aria')));await fixture();await attack();
+  await page.waitForFunction(()=>Board.__test.state().over);assert.equal(enemy(await state()),undefined);
+});
+
+test('Conversation sprites show every prepared NPC and are cleared on returning to the title',async()=>{
+  await boot('king',{width:390,height:844});await page.evaluate(()=>Board.stop());await recordArt();
+  for(const [who,id] of [['リラ','lila'],['老漁師','fisher'],['ルミナ','lumina'],['石の子','stone_child'],['馨','kaoru'],['マリー','mari']]){
+    await page.evaluate(who=>{SCRIPT.artReview=`@bg forest\n${who}「ここで話す」`;Engine.play('artReview');},who);
+    await page.locator(`.speaker-art[data-art=${id}]`).waitFor();await drew(id,4,id);
+    const r=await page.locator('.speaker-art').boundingBox();assert(r.x<390&&r.x+r.width>0&&r.y<600&&r.y+r.height>250);
+    assert.equal(await page.locator('.speaker-art').evaluate(e=>getComputedStyle(e).pointerEvents),'none','The portrait must not block dialogue controls');
+  }
+  await page.evaluate(()=>Main.toTitle());assert.equal(await page.locator('.speaker-art').count(),0);
+});

@@ -132,6 +132,8 @@ const Board = (() => {
   let tw = 80, th = 43, hStep = 18, ox = 0, oy = 0, W = 0, H = 0, dpr = 1;
   const cam = { z: 1, x: 0, y: 0, tz: 1, tx: 0, ty: 0 };
   const fxp = [];
+  const artEffects = [];
+  let cutinCancel = null;
   let t0 = performance.now(), running = false, sess = 0, renderFrame = null;
   let turn = 0, phase = 'player', stage = 1, busy = false, over = false, paused = false;
   let sel = null, mode = 'idle', moveInfo = null, targets = null, targetCmd = null, hover = null, threat = null, menuSub = null, infoU = null;
@@ -394,7 +396,9 @@ const Board = (() => {
       }
     }
     drawDecor(false);
+    drawArtEffects(now);
     drawParticles();
+    for (const u of units) if (!u.hidden && !u.dead && (!u.bornT || now - u.bornT > 300)) { const p = unitXY(u, now); drawBar(u, p.x, p.y); }
     updateBar();
     // 穢れの気配
     if (Math.random() < 0.3) {
@@ -537,11 +541,44 @@ const Board = (() => {
     if (u.guard) { g.strokeStyle = `rgba(255,220,130,${0.5 + 0.3 * Math.sin(t * 3)})`; g.lineWidth = 2; g.beginPath(); g.ellipse(p.x, p.y - tw * 0.45, tw * 0.32, tw * 0.55, 0, 0, 6.29); g.stroke(); }
     if (done) g.globalAlpha = alpha * 0.6;
     const flash = u.flash > now ? (u.flash - now) / 220 : 0;
-    if (u.kind === 'aria') drawAria(u, p.x, p.y, t, flash);
+    if (GameArt.available(u.kind)) drawGenerated(u, p, now, flash);
+    else if (u.kind === 'aria') drawAria(u, p.x, p.y, t, flash);
     else if (SPIRITS[u.kind]) drawSpirit(u, p.x, p.y, t, flash);
     else drawKegare(u, p.x, p.y, t, flash);
     g.restore();
-    if (!u.dead && alpha > 0.5) drawBar(u, p.x, p.y);
+  }
+  function playMotion(u, action, rate = 1, offset = 0) { u.artMotion = { action, rate, offset, t0: performance.now() }; }
+  function drawGenerated(u, p, now, flash) {
+    let action = u.mv ? 'walk' : 'idle', elapsed = now - (u.walkT || u.bornT || 0);
+    const m = u.artMotion;
+    if (m && (now - m.t0) * m.rate + m.offset < (GameArt.animation(u.kind, m.action)?.durationMs || 0)) {
+      action = m.action; elapsed = (now - m.t0) * m.rate + m.offset;
+    }
+    if (u.enchant) {
+      const s = SPIRITS[u.enchant.id], h = tw * u.hgt;
+      const glow = g.createRadialGradient(p.x, p.y - h * .4, 0, p.x, p.y - h * .4, h * .55);
+      glow.addColorStop(0, `rgba(${s.rgb},.35)`); glow.addColorStop(1, `rgba(${s.rgb},0)`);
+      g.fillStyle = glow; g.fillRect(p.x - h, p.y - h, h * 2, h);
+      g.strokeStyle = s.color; g.lineWidth = 2; g.beginPath(); g.ellipse(p.x, p.y, tw * .3, th * .3, 0, now / 500, now / 500 + 4.5); g.stroke();
+    }
+    const flip = u.kind === 'gran' ? u.dir === 0 || u.dir === 1 : u.dir === 2 || u.dir === 3;
+    const height = tw * u.hgt, width = tw * (u.kind === 'gran' ? 1.25 : .98);
+    GameArt.drawMotion(g, u.kind, action, elapsed, p.x, p.y + th * .08, height, width, { flip });
+    if (flash > 0) {
+      g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha *= flash;
+      GameArt.drawMotion(g, u.kind, action, elapsed, p.x, p.y + th * .08, height, width, { flip }); g.restore();
+    }
+    if (u.armor > 0) { g.strokeStyle = 'rgba(200,210,225,.8)'; g.lineWidth = 2; g.beginPath(); g.ellipse(p.x, p.y - tw * .28, tw * .29, th * .3, 0, 0, 6.29); g.stroke(); }
+  }
+  function artEffect(id, cell, size = 2) { if (id) artEffects.push({ id, r: cell.r, c: cell.c, size, t0: performance.now() }); }
+  function drawArtEffects(now) {
+    for (let i = artEffects.length - 1; i >= 0; i--) {
+      const e = artEffects[i], elapsed = now - e.t0;
+      if (elapsed >= (GameArt.animation(e.id, 'effect')?.durationMs || 0)) { artEffects.splice(i, 1); continue; }
+      const p = topOf(cellAt(e.r, e.c));
+      g.save(); g.globalAlpha = .82;
+      GameArt.drawMotion(g, e.id, 'effect', elapsed, p.x, p.y - tw * .45, tw * e.size, tw * e.size * 1.2, { center: true }); g.restore();
+    }
   }
   function drawAria(u, x, y, t, flash) {
     const im = PIC.aria; if (!im || !im.complete) return;
@@ -771,7 +808,8 @@ const Board = (() => {
   }
   async function cutIn(kind, id) {
     const s = SPIRITS[id];
-    const art = kind === 'enchant'
+    const generated = GameArt.available(kind === 'enchant' ? 'aria' : id);
+    const art = generated ? '<canvas class="ci-generated" width="384" height="480" aria-label="技の発動"></canvas>' : kind === 'enchant'
       ? `<img class="ci-sword" src="assets/img/sword.png">`
       : id === 'gran' ? `<img class="ci-gran" src="assets/img/gran.png">`
         : `<div class="ci-orb aura" style="--c:${s.color}"><div class="core"></div><div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div></div>`;
@@ -782,11 +820,14 @@ const Board = (() => {
     cutinEl.className = '';
     void cutinEl.offsetWidth;
     cutinEl.className = 'show ' + kind;
+    cutinCancel?.();
+    cutinCancel = generated ? GameArt.mount(cutinEl.querySelector('canvas'), kind === 'enchant' ? 'aria' : id, kind === 'enchant' ? 'enchant_' + id : 'summon', { rate: 1.3, once: true }) : null;
     Audio2.sfx.summon();
     FX.flash(s.rgb, 0.35);
     await wait(1650);
     cutinEl.className = 'out ' + kind;
     await wait(320);
+    cutinCancel?.(); cutinCancel = null;
     cutinEl.className = '';
   }
 
@@ -825,6 +866,7 @@ const Board = (() => {
     u.dir = Math.abs(dr) >= Math.abs(dc) ? (dr < 0 ? 0 : 2) : (dc > 0 ? 1 : 3);
   }
   async function moveAlong(u, path, paintIt) {
+    u.walkT = performance.now(); u.artMotion = null;
     for (const id of path) {
       if (!running) return;
       const to = cells[id], from = cellAt(u.r, u.c);
@@ -954,6 +996,7 @@ const Board = (() => {
     if (a.side === 'ally' && res.side !== 'front' && !opt.quiet) floatText(pd.x, pd.y - tw * d.hgt - 34, res.side === 'back' ? '背後から！' : '側面から', 'sys');
     if (res.dh > 0 && a.side === 'ally' && !opt.quiet) floatText(pd.x + tw * 0.4, pd.y - tw * d.hgt - 14, '高所', 'sys');
     d.hp = Math.max(0, d.hp - dmg);
+    playMotion(d, 'hurt', 1.5, 260);
     d.flash = performance.now() + 220;
     const pa = unitXY(a), L = Math.hypot(pd.x - pa.x, pd.y - pa.y) || 1;
     d.knock = { t0: performance.now(), dx: (pd.x - pa.x) / L * tw * 0.18, dy: (pd.y - pa.y) / L * tw * 0.1 };
@@ -991,12 +1034,19 @@ const Board = (() => {
     const dx = pd.x - pa.x, dy = pd.y - pa.y, L = Math.hypot(dx, dy) || 1;
     const ranged = dist(cellOf(a), cellOf(d)) > 1;
     const reach = ranged ? tw * 0.18 : Math.min(L * 0.45, tw * 0.45);
+    playMotion(a, a.kind === 'chrome' ? 'wave' : 'attack', 2.5);
     a.lunge = { dx: dx / L * reach, dy: dy / L * reach, t0: performance.now(), dur: 360 };
     Audio2.sfx.sword();
     if (ranged) fxp.push({ k: 'line', x: pa.x, y: pa.y - tw * a.hgt * 0.5, tx: pd.x, ty: pd.y - tw * d.hgt * 0.5, col: opt.col || (a.side === 'ally' ? '200,230,255' : '170,110,220'), life: 0, max: 0.5 });
     await wait(180);
     if (my !== sess) return;
     const r = strike(a, d, opt);
+    if (!r.miss) {
+      if (a.kind === 'chrome') artEffect('chrome_wave', cellOf(d), 2.3);
+      else if (en) artEffect(GameArt.spiritEffects[a.enchant.id], cellOf(d), 1.8);
+      else if (SPIRITS[a.kind]) artEffect(GameArt.spiritEffects[a.kind], cellOf(d), 1.2);
+      else if (a.kind === 'aria') artEffect('crystal_slash', cellOf(d), 1.1);
+    }
     if (r.pass) { await wait(700); unfocus(); return 'phase0'; }
     if (!r.miss && a.side === 'ally') {
       if (SPIRITS[a.kind]) gainBond(a.kind, 1, true);
@@ -1109,9 +1159,11 @@ const Board = (() => {
     await skillBanner('透明の一閃', '#e6f2ff');
     if (my !== sess) return;
     a.lunge = { dx: (end.x - pa.x) * 0.3, dy: (end.y - pa.y) * 0.3, t0: performance.now(), dur: 380 };
+    playMotion(a, 'flash', 2.5);
     Audio2.sfx.sword();
     fxp.push({ k: 'line', x: pa.x, y: pa.y - tw * 0.6, tx: end.x, ty: end.y - tw * 0.4, col: '230,240,255', life: 0, max: 0.6 });
     await wait(200);
+    artEffect('crystal_slash', cell, 2.1);
     line.forEach((c, i) => paint(c, 'rainbow', i * 80));
     const hit = [];
     for (const c of line) { const o = unitAt(c); if (o && foe(a, o)) { const r = strike(a, o, { power: 1.35, sure: true, col: '230,240,255' }); if (r.pass) { await wait(700); unfocus(); return 'phase0'; } hit.push(o); await wait(130); } }
@@ -1126,6 +1178,7 @@ const Board = (() => {
     const p = unitXY(target);
     focus(p.x, p.y - tw * 0.5, 1.12);
     await skillBanner('凪の祈り', '#bfffd6');
+    playMotion(a, 'pray', 2, 500); artEffect('pray_heal', cellOf(target), 1.6);
     Audio2.sfx.heal();
     fxp.push({ k: 'beam', x: p.x, y: p.y, col: '170,255,210', w: 0.5, life: 0, max: 1.1 });
     fxp.push({ k: 'ring', x: p.x, y: p.y, r: tw * 0.2, grow: tw * 1.2, col: '190,255,220', life: 0, max: 1 });
@@ -1144,6 +1197,7 @@ const Board = (() => {
     const s = SPIRITS[skill.spirit], p = topOf(cell);
     face(a, cell); focus(p.x, p.y - tw * 0.5, 1.15);
     await skillBanner(skill.name, s.color);
+    playMotion(a, 'cast', 1.8, 280); artEffect(GameArt.spiritEffects[skill.spirit], cell, 1.6 + Math.min(1, (skill.radius || 0) * .3));
     gainBond(skill.spirit, 2, true); stats.spiritUses++; stats.skillUses++;
     stats.skillBySpirit[skill.spirit] = (stats.skillBySpirit[skill.spirit] || 0) + 1;
     Audio2.sfx.skill();
@@ -1184,7 +1238,8 @@ const Board = (() => {
     const p = topOf(cell);
     focus(p.x, p.y - tw * 0.4, 1.12);
     await skillBanner('小さな夜空', '#cfd8ff');
-    Audio2.sfx.star(3); Renoir.gulp();
+    playMotion(a, 'cast', 1.8, 280); artEffect('night_sky', cell, 2.6);
+    Audio2.sfx.star(3); Renoir.skyCast();
     for (let i = 0; i < 16; i++) fxp.push({ k: 'starburst', x: p.x, y: p.y - tw * 0.3, vx: Math.cos(i * 0.39) * 1.6, vy: Math.sin(i * 0.39) * 0.9, life: 0, max: 1.5 });
     paintArea(cell, 2, 'rainbow', 80);
     const hit = live().filter(o => foe(a, o) && dist(cellOf(o), cell) <= 2);
@@ -1202,6 +1257,7 @@ const Board = (() => {
     const u = makeUnit(id, 'ally', lv, cell, { summon: 3 + GB.summonTurns, until: turn + 3 + GB.summonTurns, acted: true, moved: true, dir: a.dir });
     stats.spiritUses++;
     units.push(u);
+    playMotion(u, 'summon', 1, 500); artEffect(GameArt.spiritEffects[id], cell, 2.5);
     gainBond(id, 3, true);
     const p = topOf(cell);
     focus(p.x, p.y - tw * 0.5, 1.14);
@@ -1243,6 +1299,7 @@ const Board = (() => {
     await cutIn('enchant', id);
     const s = SPIRITS[id];
     a.enchant = { id, turns: 3 + GB.enchantTurns, from: turn };
+    playMotion(a, 'enchant_' + id, 1.8, 500); artEffect(GameArt.spiritEffects[id], cellOf(a), 1.6);
     stats.spiritUses++;
     gainBond(id, 2, true);
     const p = unitXY(a);
@@ -1680,7 +1737,7 @@ const Board = (() => {
     if (!u) { unitInfo.classList.add('hidden'); infoU = null; return; }
     infoU = u;
     const ally = u.side === 'ally', s = SPIRITS[u.kind];
-    const port = u.kind === 'aria' ? `<div class="ui-port"><img src="assets/img/aria.png"></div>`
+    const port = GameArt.available(u.kind) ? `<div class="ui-port generated">${GameArt.portrait(u.kind)}</div>` : u.kind === 'aria' ? `<div class="ui-port"><img src="assets/img/aria.png"></div>`
       : s ? `<div class="ui-port orb" style="--c:${s.color}"></div>`
         : `<div class="ui-port foe ${u.kind}"></div>`;
     const r = ally ? rec(u.kind) : null;
@@ -1718,7 +1775,7 @@ const Board = (() => {
       const b = document.createElement('button');
       b.className = 'skill spirit' + (su || (a && a.enchant && a.enchant.id === id) ? ' armed' : '');
       b.style.setProperty('--sc', s.color);
-      b.innerHTML = `<span class="sk-n">${s.name}</span><span class="sk-d">${state}</span><span class="sk-c">Lv${r.lv}・絆${bondRank(id)}</span>`;
+      b.innerHTML = `${GameArt.available(id) ? GameArt.portrait(id, 'sk-art') : ''}<span class="sk-n">${s.name}</span><span class="sk-d">${state}</span><span class="sk-c">Lv${r.lv}・絆${bondRank(id)}</span>`;
       b.onclick = () => {
         if (busy || phase !== 'player' || over || paused) return;
         const a2 = ariaU(); if (!a2 || a2.acted) return;
@@ -2003,10 +2060,12 @@ const Board = (() => {
     const key = Progression.normalize(conf.difficulty || Progression.selected(party, conf.id));
     baseCfg = { ...conf, difficulty: key }; onDone = done;
     const my = sess;
-    return ready.then(() => { if (my === sess) restart(); });
+    const learnedSpirits = Progression.skills.filter(s => party.aria.skills.includes(s.id)).map(s => s.spirit);
+    return Promise.all([ready, GameArt.loadBattle(conf, learnedSpirits)]).then(() => { if (my === sess) restart(); });
   }
   function restart() {
     sess++;
+    artEffects.length = 0; cutinCancel?.(); cutinCancel = null;
     cancelPending();
     cfg = Progression.prepare(baseCfg, baseCfg.difficulty);
     cfg.onPhase0 = baseCfg.onPhase0;
@@ -2080,6 +2139,7 @@ const Board = (() => {
   })()); }
   function stop() {
     sess++; running = false; over = true;
+    artEffects.length = 0; cutinCancel?.(); cutinCancel = null;
     cancelAnimationFrame(renderFrame); renderFrame = null;
     cancelPending();
     screen.classList.add('hidden'); hideSay(); floatLayer.innerHTML = ''; hideMenu();
@@ -2087,6 +2147,7 @@ const Board = (() => {
   }
   function end(won) {
     sess++;
+    artEffects.length = 0; cutinCancel?.(); cutinCancel = null;
     cancelAnimationFrame(renderFrame); renderFrame = null;
     cancelPending();
     running = false; screen.classList.add('hidden'); hideSay(); floatLayer.innerHTML = ''; hideMenu();

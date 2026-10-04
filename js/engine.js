@@ -38,6 +38,28 @@ const Engine = (() => {
   const tb = $('#textbox'), textEl = $('#text'), speakerEl = $('#speaker'), namePlate = $('#namePlate'), nextMark = $('#nextMark');
   const centerEl = $('#centerText'), choiceBox = $('#choiceBox'), card = $('#chapterCard');
   const aria = $('#charAria'), bigAura = $('#bigAura'), cgLayer = $('#cgLayer');
+  let speakerArt = null, speakerArtId = null;
+  function clearSpeakerArt() {
+    if (speakerArt) { GameArt.unmount(speakerArt); speakerArt.remove(); }
+    speakerArt = null; speakerArtId = null;
+  }
+  function showSpeakerArt(who) {
+    const id = GameArt.speakers[who];
+    if (!id || id === 'aria' || scene.gran && id === 'gran' || scene.mari && id === 'mari' || scene.renoir && id === 'renoir') {
+      if (speakerArt) { speakerArt.classList.add('dim'); GameArt.mount(speakerArt, speakerArtId, 'idle'); }
+      return;
+    }
+    if (!speakerArt) {
+      speakerArt = document.createElement('canvas'); speakerArt.width = 384; speakerArt.height = 640;
+      speakerArt.className = 'speaker-art'; cgLayer.appendChild(speakerArt);
+    }
+    const changed = speakerArtId !== id;
+    speakerArtId = id; speakerArt.classList.remove('dim');
+    speakerArt.classList.toggle('small', !['lila', 'fisher', 'kaoru', 'chrome', 'king'].includes(id));
+    speakerArt.setAttribute('role', 'img'); speakerArt.setAttribute('aria-label', who);
+    GameArt.mount(speakerArt, id, ['lila', 'fisher', 'lumina', 'stone_child', 'kaoru', 'mari'].includes(id) ? 'talk' : 'idle');
+    if (changed) { speakerArt.classList.remove('show'); requestAnimationFrame(() => speakerArt?.classList.add('show')); }
+  }
 
   let lines = [], idx = 0, chapter = null, running = false;
   let waiting = null, typing = false, typeTimer = null;
@@ -63,6 +85,7 @@ const Engine = (() => {
   // ---------- 背景 ----------
   let bgFront = $('#bgA'), bgBack = $('#bgB');
   function setBg(key, preset = 'none') {
+    if (scene.bg !== key) clearSpeakerArt();
     scene.bg = key; scene.preset = preset;
     if (key === 'none') { bgFront.classList.remove('show'); bgBack.classList.remove('show'); return; }
     const url = `assets/bg/${BG[key] || key}.jpg`;
@@ -93,12 +116,12 @@ const Engine = (() => {
     let el = cgLayer.querySelector(`[data-show="${what}"]`);
     if (what === 'gran') {
       scene.gran = opt || 'clear';
-      if (!el) { el = document.createElement('div'); el.dataset.show = 'gran'; el.className = 'cg'; el.innerHTML = '<img src="assets/img/gran.png" style="width:100%">'; Object.assign(el.style, { left: '50%', top: '5%', width: 'min(1150px,82vw)', transform: 'translateX(-50%)', animation: 'swim 16s ease-in-out infinite' }); cgLayer.appendChild(el); requestAnimationFrame(() => el.classList.add('show')); }
-      el.querySelector('img').style.filter = opt === 'dark' ? 'brightness(.28) saturate(.25) contrast(1.2) drop-shadow(0 0 30px rgba(0,0,0,.8))' : opt === 'spirit' ? 'brightness(1.15) saturate(1.3) drop-shadow(0 0 40px rgba(140,210,255,.9))' : 'drop-shadow(0 0 30px rgba(120,200,255,.5))';
-      el.querySelector('img').style.transition = 'filter 3s ease';
+      if (!el) { el = document.createElement('div'); el.dataset.show = 'gran'; el.className = 'cg'; el.innerHTML = '<canvas width="720" height="400" style="width:100%"></canvas>'; Object.assign(el.style, { left: '50%', top: '5%', width: 'min(1050px,82vw)', transform: 'translateX(-50%)', animation: 'swim 16s ease-in-out infinite' }); cgLayer.appendChild(el); GameArt.mount(el.querySelector('canvas'), 'gran', 'idle', { fallback: 'assets/img/gran.png' }); requestAnimationFrame(() => el.classList.add('show')); }
+      el.querySelector('canvas').style.filter = opt === 'dark' ? 'brightness(.28) saturate(.25) contrast(1.2) drop-shadow(0 0 30px rgba(0,0,0,.8))' : opt === 'spirit' ? 'brightness(1.15) saturate(1.3) drop-shadow(0 0 40px rgba(140,210,255,.9))' : 'drop-shadow(0 0 30px rgba(120,200,255,.5))';
+      el.querySelector('canvas').style.transition = 'filter 3s ease';
     } else if (what === 'mari') {
       scene.mari = true;
-      if (!el) { el = document.createElement('div'); el.dataset.show = 'mari'; el.className = 'cg'; el.innerHTML = '<div style="position:absolute;inset:-30%;background:radial-gradient(circle,rgba(255,240,190,.55),transparent 60%);filter:blur(10px)"></div><img src="assets/img/mari.png" style="position:relative;width:100%;filter:drop-shadow(0 0 24px rgba(255,230,150,.7))">'; Object.assign(el.style, { right: '12vw', top: '12vh', width: 'min(440px,34vw)', animation: 'float 6s ease-in-out infinite' }); cgLayer.appendChild(el); requestAnimationFrame(() => el.classList.add('show')); }
+      if (!el) { el = document.createElement('div'); el.dataset.show = 'mari'; el.className = 'cg'; el.innerHTML = '<div style="position:absolute;inset:-30%;background:radial-gradient(circle,rgba(255,240,190,.55),transparent 60%);filter:blur(10px)"></div><canvas width="384" height="480" style="position:relative;width:100%;filter:drop-shadow(0 0 24px rgba(255,230,150,.7))"></canvas>'; Object.assign(el.style, { right: '12vw', top: '12vh', width: 'min(440px,34vw)', animation: 'float 6s ease-in-out infinite' }); cgLayer.appendChild(el); GameArt.mount(el.querySelector('canvas'), 'mari', 'idle', { fallback: 'assets/img/mari.png' }); requestAnimationFrame(() => el.classList.add('show')); }
     } else if (what === 'renoir') {
       scene.renoir = true;
       if (!el) {
@@ -115,7 +138,7 @@ const Engine = (() => {
     if (what === 'aria') { aria.classList.remove('show'); scene.aria = false; return; }
     if (what === 'gran') scene.gran = null; if (what === 'mari') scene.mari = false; if (what === 'renoir') scene.renoir = false;
     const el = cgLayer.querySelector(`[data-show="${what}"]`);
-    if (el) { el.classList.remove('show'); el.removeAttribute('data-show'); setTimeout(() => el.remove(), 1500); }
+    if (el) { el.querySelectorAll('canvas').forEach(cv => GameArt.unmount(cv)); el.classList.remove('show'); el.removeAttribute('data-show'); setTimeout(() => el.remove(), 1500); }
   }
 
   // CG（一時的な演出）
@@ -131,7 +154,7 @@ const Engine = (() => {
       add('<div style="position:absolute;inset:-120%;background:radial-gradient(circle,rgba(255,236,170,.6),transparent 60%);filter:blur(6px)"></div><img src="assets/img/feather.png" style="position:relative;height:100%;filter:drop-shadow(0 0 18px #fff3c0)">', { left: '50%', top: '26vh', height: '26vh', transform: 'translateX(-50%) rotate(-18deg)', animation: 'float 4s ease-in-out infinite' });
     } else if (key === 'transform') {
       const g = cgLayer.querySelector('[data-show="gran"]');
-      if (g) { g.querySelector('img').style.filter = 'brightness(1.2) saturate(1.35) hue-rotate(8deg) drop-shadow(0 0 50px rgba(150,220,255,1))'; }
+      if (g) { g.querySelector('img,canvas').style.filter = 'brightness(1.2) saturate(1.35) hue-rotate(8deg) drop-shadow(0 0 50px rgba(150,220,255,1))'; }
       scene.gran = 'spirit';
       add('', { inset: '0', background: 'radial-gradient(ellipse at 50% 25%,rgba(180,230,255,.45),transparent 55%)', mixBlendMode: 'screen' });
       FX.flash('200,235,255', 0.9); FX.set('sparkle:1.2,motes:0.4');
@@ -196,6 +219,7 @@ const Engine = (() => {
     Renoir.gulp(); Audio2.sfx.star(3); FX.flash('200,220,255', 0.2);
   }
   function skyUp() {
+    Renoir.skyCast();
     const t0 = performance.now();
     const step = (t) => { const k = Math.min(1, (t - t0) / 3500); Renoir.state.sky = k; if (k < 1) requestAnimationFrame(step); };
     requestAnimationFrame(step);
@@ -251,6 +275,7 @@ const Engine = (() => {
 
   async function sayLine(who, text) {
     tb.classList.remove('hidden');
+    if (!inlineMode) showSpeakerArt(who);
     if (who) {
       speakerEl.textContent = who; namePlate.classList.add('show');
       const c = speakerColor(who); const mini = namePlate.querySelector('.aura');
@@ -300,6 +325,7 @@ const Engine = (() => {
 
   // ---------- 盤 ----------
   function board(key) {
+    clearSpeakerArt();
     tb.classList.add('hidden'); hide('aria'); bigAura.classList.remove('show');
     skip = false; updateBtns();
     const conf = BOARDS[key];
@@ -382,6 +408,7 @@ const Engine = (() => {
     run(from);
   }
   function resetStage() {
+    clearSpeakerArt(); cgLayer.querySelectorAll('canvas').forEach(cv => GameArt.unmount(cv));
     token++; waiting = null; typing = false;
     tb.classList.add('hidden'); centerEl.classList.remove('show'); choiceBox.classList.add('hidden');
     cgLayer.innerHTML = ''; aria.classList.remove('show'); bigAura.classList.remove('show');
