@@ -1913,5 +1913,1002 @@
     "sourceRevision": "r3 new broad low-contrast opaque square UV masters",
     "floorTransition480ms": "NOT VERIFIED",
     "appearanceLimit": "subtle periodic repetition remains; intended for calm/flat sea surface"
+  },
+  "armorSet08": {
+    "assetCount": 2,
+    "checks": [
+      {
+        "id": "lead_layer_peel",
+        "pngCels": 12,
+        "gifFrames": 14,
+        "totalDurationMs": 1800,
+        "loop": false,
+        "visibleEndMs": 1160,
+        "pngVisibleEndMs": 1160,
+        "gifTransparentTailMs": 640,
+        "firstAndLastBlank": true,
+        "exteriorPlates": 1,
+        "noTargetBody": true,
+        "groundY": 128,
+        "allOpaqueHullsAboveOrOnGround": true,
+        "allPlatesLandedBeforeFade": true,
+        "contactMeasurements": [
+          {
+            "name": "outer plate",
+            "uniformScale": 0.06585365853658537,
+            "contactTimeMs": 360,
+            "contactCenterX": 83.2,
+            "contactPointX": 98,
+            "contactRotationDeg": -28.4
+          }
+        ],
+        "celPositions": [
+          {
+            "cel": 0,
+            "relativeTimeMs": 0,
+            "opacity": 1,
+            "pieces": [
+              {
+                "name": "outer plate",
+                "x": 74,
+                "y": 66,
+                "opaqueBbox": [
+                  76,
+                  69,
+                  130,
+                  101
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              }
+            ]
+          },
+          {
+            "cel": 1,
+            "relativeTimeMs": 80,
+            "opacity": 1,
+            "pieces": [
+              {
+                "name": "outer plate",
+                "x": 69,
+                "y": 64,
+                "opaqueBbox": [
+                  72,
+                  68,
+                  125,
+                  103
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              }
+            ]
+          },
+          {
+            "cel": 2,
+            "relativeTimeMs": 160,
+            "opacity": 1,
+            "pieces": [
+              {
+                "name": "outer plate",
+                "x": 63,
+                "y": 64,
+                "opaqueBbox": [
+                  67,
+                  70,
+                  119,
+                  107
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              }
+            ]
+          },
+          {
+            "cel": 3,
+            "relativeTimeMs": 240,
+            "opacity": 1,
+            "pieces": [
+              {
+                "name": "outer plate",
+                "x": 58,
+                "y": 67,
+                "opaqueBbox": [
+                  64,
+                  75,
+                  114,
+                  113
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              }
+            ]
+          },
+          {
+            "cel": 4,
+            "relativeTimeMs": 320,
+            "opacity": 1,
+            "pieces": [
+              {
+                "name": "outer plate",
+                "x": 53,
+                "y": 72,
+                "opaqueBbox": [
+                  59,
+                  81,
+                  108,
+                  122
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              }
+            ]
+          },
+          {
+            "cel": 5,
+            "relativeTimeMs": 400,
+            "opacity": 1,
+            "pieces": [
+              {
+                "name": "outer plate",
+                "x": 51,
+                "y": 77,
+                "opaqueBbox": [
+                  57,
+                  86,
+                  105,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 1,
+                "contactPointX": 98
+              }
+            ]
+          },
+          {
+            "cel": 6,
+            "relativeTimeMs": 480,
+            "opacity": 1,
+            "pieces": [
+              {
+                "name": "outer plate",
+                "x": 51,
+                "y": 77,
+                "opaqueBbox": [
+                  57,
+                  86,
+                  105,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 1,
+                "contactPointX": 98
+              }
+            ]
+          },
+          {
+            "cel": 7,
+            "relativeTimeMs": 560,
+            "opacity": 1,
+            "pieces": [
+              {
+                "name": "outer plate",
+                "x": 51,
+                "y": 77,
+                "opaqueBbox": [
+                  57,
+                  86,
+                  105,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 1,
+                "contactPointX": 98
+              }
+            ]
+          },
+          {
+            "cel": 8,
+            "relativeTimeMs": 640,
+            "opacity": 1,
+            "pieces": [
+              {
+                "name": "outer plate",
+                "x": 51,
+                "y": 77,
+                "opaqueBbox": [
+                  57,
+                  86,
+                  105,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 1,
+                "contactPointX": 98
+              }
+            ]
+          },
+          {
+            "cel": 9,
+            "relativeTimeMs": 720,
+            "opacity": 0.85,
+            "pieces": [
+              {
+                "name": "outer plate",
+                "x": 67,
+                "y": 96,
+                "opaqueBbox": [
+                  71,
+                  102,
+                  103,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 0.65,
+                "contactPointX": 98
+              }
+            ]
+          },
+          {
+            "cel": 10,
+            "relativeTimeMs": 840,
+            "opacity": 0.65,
+            "pieces": [
+              {
+                "name": "outer plate",
+                "x": 82,
+                "y": 110,
+                "opaqueBbox": [
+                  84,
+                  113,
+                  101,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 0.35,
+                "contactPointX": 98
+              }
+            ]
+          },
+          {
+            "cel": 11,
+            "relativeTimeMs": 960,
+            "opacity": 0.45,
+            "pieces": [
+              {
+                "name": "outer plate",
+                "x": 92,
+                "y": 122,
+                "opaqueBbox": [
+                  93,
+                  123,
+                  99,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 0.12,
+                "contactPointX": 97.5
+              }
+            ]
+          }
+        ],
+        "transparentClearancePx": 24,
+        "gifLastFourOpaqueRgbMeans": [
+          112.58094296076492,
+          95.99843505477308,
+          75.23931623931624,
+          55
+        ],
+        "gifColorDecayFactors": [
+          1,
+          0.85,
+          0.65,
+          0.45
+        ],
+        "gifPartialAlpha": "not supported; RGB dimming approximates end, PNG keeps actual partial alpha",
+        "postLandingDissipationScales": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.65,
+          0.35,
+          0.12
+        ],
+        "maxContactPointRoundingErrorPx": 0.5,
+        "maximumPngAlphaBelowGroundLine": 3,
+        "groundBoundaryScope": "opaque alpha>=96 hull; faint antialiased fringe may extend below ground",
+        "continuousVisualPlayback": "NOT VERIFIED",
+        "actualGamePlacement": "NOT VERIFIED"
+      },
+      {
+        "id": "lead_shell_break",
+        "pngCels": 12,
+        "gifFrames": 14,
+        "totalDurationMs": 1800,
+        "loop": false,
+        "visibleEndMs": 1160,
+        "pngVisibleEndMs": 1160,
+        "gifTransparentTailMs": 640,
+        "firstAndLastBlank": true,
+        "exteriorPlates": 3,
+        "noTargetBody": true,
+        "groundY": 128,
+        "allOpaqueHullsAboveOrOnGround": true,
+        "allPlatesLandedBeforeFade": true,
+        "contactMeasurements": [
+          {
+            "name": "left plate",
+            "uniformScale": 0.07102803738317758,
+            "contactTimeMs": 434,
+            "contactCenterX": 79.13,
+            "contactPointX": 87,
+            "contactRotationDeg": -35.379999999999995
+          },
+          {
+            "name": "right plate",
+            "uniformScale": 0.09429280397022333,
+            "contactTimeMs": 405,
+            "contactCenterX": 175.275,
+            "contactPointX": 202.5,
+            "contactRotationDeg": 33.35
+          },
+          {
+            "name": "cap",
+            "uniformScale": 0.06382978723404255,
+            "contactTimeMs": 548,
+            "contactCenterX": 138.96,
+            "contactPointX": 136,
+            "contactRotationDeg": 16.44
+          }
+        ],
+        "celPositions": [
+          {
+            "cel": 0,
+            "relativeTimeMs": 0,
+            "opacity": 1,
+            "pieces": [
+              {
+                "name": "left plate",
+                "x": 82,
+                "y": 66,
+                "opaqueBbox": [
+                  82,
+                  69,
+                  123,
+                  106
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              },
+              {
+                "name": "right plate",
+                "x": 131,
+                "y": 58,
+                "opaqueBbox": [
+                  133,
+                  61,
+                  174,
+                  114
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              },
+              {
+                "name": "cap",
+                "x": 116,
+                "y": 52,
+                "opaqueBbox": [
+                  116,
+                  52,
+                  140,
+                  76
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              }
+            ]
+          },
+          {
+            "cel": 1,
+            "relativeTimeMs": 80,
+            "opacity": 1,
+            "pieces": [
+              {
+                "name": "left plate",
+                "x": 76,
+                "y": 64,
+                "opaqueBbox": [
+                  77,
+                  70,
+                  120,
+                  105
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              },
+              {
+                "name": "right plate",
+                "x": 133,
+                "y": 56,
+                "opaqueBbox": [
+                  136,
+                  62,
+                  180,
+                  112
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              },
+              {
+                "name": "cap",
+                "x": 117,
+                "y": 51,
+                "opaqueBbox": [
+                  118,
+                  52,
+                  142,
+                  76
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              }
+            ]
+          },
+          {
+            "cel": 2,
+            "relativeTimeMs": 160,
+            "opacity": 1,
+            "pieces": [
+              {
+                "name": "left plate",
+                "x": 70,
+                "y": 65,
+                "opaqueBbox": [
+                  71,
+                  74,
+                  115,
+                  104
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              },
+              {
+                "name": "right plate",
+                "x": 136,
+                "y": 57,
+                "opaqueBbox": [
+                  140,
+                  66,
+                  186,
+                  112
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              },
+              {
+                "name": "cap",
+                "x": 118,
+                "y": 53,
+                "opaqueBbox": [
+                  119,
+                  54,
+                  143,
+                  78
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              }
+            ]
+          },
+          {
+            "cel": 3,
+            "relativeTimeMs": 240,
+            "opacity": 1,
+            "pieces": [
+              {
+                "name": "left plate",
+                "x": 64,
+                "y": 69,
+                "opaqueBbox": [
+                  65,
+                  80,
+                  112,
+                  107
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              },
+              {
+                "name": "right plate",
+                "x": 138,
+                "y": 61,
+                "opaqueBbox": [
+                  142,
+                  73,
+                  192,
+                  114
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              },
+              {
+                "name": "cap",
+                "x": 119,
+                "y": 57,
+                "opaqueBbox": [
+                  121,
+                  59,
+                  145,
+                  84
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              }
+            ]
+          },
+          {
+            "cel": 4,
+            "relativeTimeMs": 320,
+            "opacity": 1,
+            "pieces": [
+              {
+                "name": "left plate",
+                "x": 58,
+                "y": 75,
+                "opaqueBbox": [
+                  60,
+                  88,
+                  107,
+                  112
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              },
+              {
+                "name": "right plate",
+                "x": 141,
+                "y": 69,
+                "opaqueBbox": [
+                  146,
+                  83,
+                  198,
+                  120
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              },
+              {
+                "name": "cap",
+                "x": 120,
+                "y": 64,
+                "opaqueBbox": [
+                  123,
+                  66,
+                  146,
+                  91
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              }
+            ]
+          },
+          {
+            "cel": 5,
+            "relativeTimeMs": 400,
+            "opacity": 1,
+            "pieces": [
+              {
+                "name": "left plate",
+                "x": 54,
+                "y": 85,
+                "opaqueBbox": [
+                  55,
+                  100,
+                  103,
+                  122
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              },
+              {
+                "name": "right plate",
+                "x": 144,
+                "y": 79,
+                "opaqueBbox": [
+                  148,
+                  95,
+                  204,
+                  127
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              },
+              {
+                "name": "cap",
+                "x": 121,
+                "y": 74,
+                "opaqueBbox": [
+                  125,
+                  77,
+                  148,
+                  102
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              }
+            ]
+          },
+          {
+            "cel": 6,
+            "relativeTimeMs": 480,
+            "opacity": 1,
+            "pieces": [
+              {
+                "name": "left plate",
+                "x": 51,
+                "y": 90,
+                "opaqueBbox": [
+                  53,
+                  105,
+                  102,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 1,
+                "contactPointX": 87
+              },
+              {
+                "name": "right plate",
+                "x": 144,
+                "y": 80,
+                "opaqueBbox": [
+                  148,
+                  96,
+                  204,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 1,
+                "contactPointX": 202.5
+              },
+              {
+                "name": "cap",
+                "x": 123,
+                "y": 87,
+                "opaqueBbox": [
+                  127,
+                  90,
+                  150,
+                  115
+                ],
+                "landed": false,
+                "dissipationScale": 1,
+                "contactPointX": null
+              }
+            ]
+          },
+          {
+            "cel": 7,
+            "relativeTimeMs": 560,
+            "opacity": 1,
+            "pieces": [
+              {
+                "name": "left plate",
+                "x": 51,
+                "y": 90,
+                "opaqueBbox": [
+                  53,
+                  105,
+                  102,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 1,
+                "contactPointX": 87
+              },
+              {
+                "name": "right plate",
+                "x": 144,
+                "y": 80,
+                "opaqueBbox": [
+                  148,
+                  96,
+                  204,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 1,
+                "contactPointX": 202.5
+              },
+              {
+                "name": "cap",
+                "x": 124,
+                "y": 100,
+                "opaqueBbox": [
+                  128,
+                  103,
+                  150,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 1,
+                "contactPointX": 136
+              }
+            ]
+          },
+          {
+            "cel": 8,
+            "relativeTimeMs": 640,
+            "opacity": 1,
+            "pieces": [
+              {
+                "name": "left plate",
+                "x": 51,
+                "y": 90,
+                "opaqueBbox": [
+                  53,
+                  105,
+                  102,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 1,
+                "contactPointX": 87
+              },
+              {
+                "name": "right plate",
+                "x": 144,
+                "y": 80,
+                "opaqueBbox": [
+                  148,
+                  96,
+                  204,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 1,
+                "contactPointX": 202.5
+              },
+              {
+                "name": "cap",
+                "x": 124,
+                "y": 100,
+                "opaqueBbox": [
+                  128,
+                  103,
+                  150,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 1,
+                "contactPointX": 136
+              }
+            ]
+          },
+          {
+            "cel": 9,
+            "relativeTimeMs": 720,
+            "opacity": 0.85,
+            "pieces": [
+              {
+                "name": "left plate",
+                "x": 62,
+                "y": 104,
+                "opaqueBbox": [
+                  63,
+                  114,
+                  95,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 0.65,
+                "contactPointX": 87
+              },
+              {
+                "name": "right plate",
+                "x": 166,
+                "y": 97,
+                "opaqueBbox": [
+                  169,
+                  108,
+                  205,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 0.65,
+                "contactPointX": 202.5
+              },
+              {
+                "name": "cap",
+                "x": 128,
+                "y": 109,
+                "opaqueBbox": [
+                  131,
+                  111,
+                  146,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 0.65,
+                "contactPointX": 136.5
+              }
+            ]
+          },
+          {
+            "cel": 10,
+            "relativeTimeMs": 840,
+            "opacity": 0.65,
+            "pieces": [
+              {
+                "name": "left plate",
+                "x": 78,
+                "y": 115,
+                "opaqueBbox": [
+                  79,
+                  120,
+                  96,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 0.35,
+                "contactPointX": 87.25
+              },
+              {
+                "name": "right plate",
+                "x": 186,
+                "y": 112,
+                "opaqueBbox": [
+                  188,
+                  117,
+                  207,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 0.35,
+                "contactPointX": 203
+              },
+              {
+                "name": "cap",
+                "x": 132,
+                "y": 119,
+                "opaqueBbox": [
+                  133,
+                  120,
+                  141,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 0.35,
+                "contactPointX": 135.5
+              }
+            ]
+          },
+          {
+            "cel": 11,
+            "relativeTimeMs": 960,
+            "opacity": 0.45,
+            "pieces": [
+              {
+                "name": "left plate",
+                "x": 84,
+                "y": 123,
+                "opaqueBbox": [
+                  84,
+                  125,
+                  90,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 0.12,
+                "contactPointX": 87.33333333333333
+              },
+              {
+                "name": "right plate",
+                "x": 197,
+                "y": 122,
+                "opaqueBbox": [
+                  197,
+                  124,
+                  204,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 0.12,
+                "contactPointX": 202.5
+              },
+              {
+                "name": "cap",
+                "x": 135,
+                "y": 124,
+                "opaqueBbox": [
+                  135,
+                  124,
+                  139,
+                  128
+                ],
+                "landed": true,
+                "dissipationScale": 0.12,
+                "contactPointX": 136
+              }
+            ]
+          }
+        ],
+        "transparentClearancePx": 24,
+        "gifLastFourOpaqueRgbMeans": [
+          115.23630672926448,
+          99.3273137697517,
+          77.275956284153,
+          62.578947368421055
+        ],
+        "gifColorDecayFactors": [
+          1,
+          0.85,
+          0.65,
+          0.45
+        ],
+        "gifPartialAlpha": "not supported; RGB dimming approximates end, PNG keeps actual partial alpha",
+        "postLandingDissipationScales": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.65,
+          0.35,
+          0.12
+        ],
+        "maxContactPointRoundingErrorPx": 0.5,
+        "maximumPngAlphaBelowGroundLine": 3,
+        "groundBoundaryScope": "opaque alpha>=96 hull; faint antialiased fringe may extend below ground",
+        "continuousVisualPlayback": "NOT VERIFIED",
+        "actualGamePlacement": "NOT VERIFIED"
+      }
+    ],
+    "playbackContract": {
+      "assertions": 90,
+      "scope": "Read-only VM of actual copied GameArt.sample; onset/midpoint/preceding-ms of every cel; end and future timestamps remain null. No browser/rendering.",
+      "actualArtJsSha256": "955553cdecf0dd598dd469de631557718add3311dec327a01cb8877fe2d164a9",
+      "continuousVisualPlayback": "NOT VERIFIED",
+      "actualGamePlacement": "NOT VERIFIED"
+    },
+    "quantizationLimit": {
+      "finalGifPlateWidthMaxPx": 6,
+      "finalPngPlateWidthIncludingFaintAlphaMaxPx": 7,
+      "finalGifBottomPixelY": 126,
+      "toleratedBottomPixelDifferencePx": 1,
+      "scope": "static independent audit; partial alpha cannot be reproduced by GIF"
+    }
   }
 }

@@ -3,10 +3,10 @@
   "title": "Color Resonance ゲーム素材",
   "counts": {
     "characters": 18,
-    "effects": 24,
-    "sourceSheets": 42,
-    "pngCels": 388,
-    "gifs": 131
+    "effects": 26,
+    "sourceSheets": 44,
+    "pngCels": 412,
+    "gifs": 135
   },
   "production": {
     "generator": "built-in imagegen",
@@ -6268,6 +6268,274 @@
           "durationMs": 2400,
           "gifRepeatsForPreview": false,
           "gifAlphaThreshold": 96
+        }
+      }
+    },
+    {
+      "id": "lead_layer_peel",
+      "name": "鉛の一層剥離",
+      "category": "fx",
+      "assetRole": "armor-event",
+      "source": "source/lead_layer_peel.png",
+      "sourceSize": [
+        1265,
+        1243
+      ],
+      "sheet": "sheets/lead_layer_peel.png",
+      "frames": [
+        "frames/lead_layer_peel/000.png",
+        "frames/lead_layer_peel/001.png",
+        "frames/lead_layer_peel/002.png",
+        "frames/lead_layer_peel/003.png",
+        "frames/lead_layer_peel/004.png",
+        "frames/lead_layer_peel/005.png",
+        "frames/lead_layer_peel/006.png",
+        "frames/lead_layer_peel/007.png",
+        "frames/lead_layer_peel/008.png",
+        "frames/lead_layer_peel/009.png",
+        "frames/lead_layer_peel/010.png",
+        "frames/lead_layer_peel/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          256,
+          192
+        ],
+        "order": "row-major"
+      },
+      "pivotPx": [
+        128,
+        128
+      ],
+      "scaleReferenceTileWidthPx": 80,
+      "groundY": 128,
+      "direction": "front-isometric",
+      "armorTrigger": "oldArmor > 0 && newArmor > 0 && oldArmor > newArmor",
+      "productionSet": "armor-set-08",
+      "scenes": [
+        "spinel",
+        "king"
+      ],
+      "animations": {
+        "effect": {
+          "name": "鉛の一層剥離",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            120,
+            120,
+            120,
+            640
+          ],
+          "frameStartsMs": [
+            0,
+            80,
+            160,
+            240,
+            320,
+            400,
+            480,
+            560,
+            640,
+            720,
+            800,
+            920,
+            1040,
+            1160
+          ],
+          "loop": false,
+          "gif": "gifs/lead_layer_peel/effect.gif",
+          "size": [
+            256,
+            192
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 1800,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/lead_layer_peel/preview.gif",
+          "visibleEndMs": 1160,
+          "pngVisibleEndMs": 1160,
+          "gifTransparentTailMs": 640,
+          "gifEndMethod": "after landing, shrink to fixed contact point at .65/.35/.12 plus RGB dimming and binary-alpha edge loss",
+          "pngEndMethod": "after landing, same fixed-contact shrink with partial alpha fade",
+          "phases": [
+            {
+              "name": "外向き剥離と重力落下",
+              "startMs": 80,
+              "endMs": 720
+            },
+            {
+              "name": "着地保持",
+              "startMs": 720,
+              "endMs": 800
+            },
+            {
+              "name": "着地後の消失縮小",
+              "startMs": 800,
+              "endMs": 1160
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "lead_shell_break",
+      "name": "鉛の最終殻割れ",
+      "category": "fx",
+      "assetRole": "armor-event",
+      "source": "source/lead_shell_break.png",
+      "sourceSize": [
+        1278,
+        1230
+      ],
+      "sheet": "sheets/lead_shell_break.png",
+      "frames": [
+        "frames/lead_shell_break/000.png",
+        "frames/lead_shell_break/001.png",
+        "frames/lead_shell_break/002.png",
+        "frames/lead_shell_break/003.png",
+        "frames/lead_shell_break/004.png",
+        "frames/lead_shell_break/005.png",
+        "frames/lead_shell_break/006.png",
+        "frames/lead_shell_break/007.png",
+        "frames/lead_shell_break/008.png",
+        "frames/lead_shell_break/009.png",
+        "frames/lead_shell_break/010.png",
+        "frames/lead_shell_break/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          256,
+          192
+        ],
+        "order": "row-major"
+      },
+      "pivotPx": [
+        128,
+        128
+      ],
+      "scaleReferenceTileWidthPx": 80,
+      "groundY": 128,
+      "direction": "front-isometric",
+      "armorTrigger": "oldArmor > 0 && newArmor === 0",
+      "productionSet": "armor-set-08",
+      "scenes": [
+        "spinel",
+        "king"
+      ],
+      "animations": {
+        "effect": {
+          "name": "鉛の最終殻割れ",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            120,
+            120,
+            120,
+            640
+          ],
+          "frameStartsMs": [
+            0,
+            80,
+            160,
+            240,
+            320,
+            400,
+            480,
+            560,
+            640,
+            720,
+            800,
+            920,
+            1040,
+            1160
+          ],
+          "loop": false,
+          "gif": "gifs/lead_shell_break/effect.gif",
+          "size": [
+            256,
+            192
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 1800,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/lead_shell_break/preview.gif",
+          "visibleEndMs": 1160,
+          "pngVisibleEndMs": 1160,
+          "gifTransparentTailMs": 640,
+          "gifEndMethod": "after landing, shrink to fixed contact point at .65/.35/.12 plus RGB dimming and binary-alpha edge loss",
+          "pngEndMethod": "after landing, same fixed-contact shrink with partial alpha fade",
+          "phases": [
+            {
+              "name": "外向き剥離と重力落下",
+              "startMs": 80,
+              "endMs": 720
+            },
+            {
+              "name": "着地保持",
+              "startMs": 720,
+              "endMs": 800
+            },
+            {
+              "name": "着地後の消失縮小",
+              "startMs": 800,
+              "endMs": 1160
+            }
+          ]
         }
       }
     }

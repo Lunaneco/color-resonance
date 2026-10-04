@@ -1833,5 +1833,1129 @@
       200,
       200
     ]
+  },
+  {
+    "id": "lead_layer_peel",
+    "name": "鉛の一層剥離",
+    "source": "source/lead_layer_peel.png",
+    "reference": "references/lead-armor-cel.png",
+    "generatedImage": "exec-b3cb68a3-b0e8-484a-9e62-2981450abbf6.png",
+    "prompt": "Create one original standalone game effect editing master on a fully transparent background. Reference is the actual ColorResonance enemy; use ONLY the style and colors of its broad curved slate-gray outer armor plates, not the creature body. Draw ONE single large detached curved outer armor panel, clean convex outer arc and shallow concave inner edge, like a thick crescent-shaped shell plate seen from a slight front/isometric angle. Smooth dark slate-gray outer surface, one broad soft lighter gray highlight, dark simple bevel around the edge, just a tiny restrained muted golden seam near one endpoint. Keep the silhouette simple and solid, no long blade-like points, no cracks branching across it, no fine textures, no tiny debris, no particles, no glowing mist. The detached panel is whole and has intact thickness: it will be translated/rotated for a controlled peeling-off and falling motion. Single object centered with generous completely transparent margins, covers about 45% canvas width and 45%height. Crisp clean anime game shading matching the reference metal. No body, no head, no face, no eyes, no feet, no character, no extra objects, no labels, no tile, no shadow beneath it. Three big color zones at most; clean opaque armor panel with anti-aliased edge. This is about removing an exterior shell, never injuring a person. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」\n「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "trigger": "oldArmor > 0 && newArmor > 0 && oldArmor > newArmor",
+    "pieces": [
+      {
+        "name": "outer plate",
+        "cropBoxPx": [
+          236,
+          354,
+          1072,
+          887
+        ],
+        "targetWidthPx": 54,
+        "startCenterPx": [
+          103,
+          86
+        ],
+        "velocityPxPerSec": [
+          -55,
+          -22
+        ],
+        "rotationDeg": -5,
+        "angularVelocityDegPerSec": -65
+      }
+    ],
+    "cellSize": [
+      256,
+      192
+    ],
+    "pivotPx": [
+      128,
+      128
+    ],
+    "groundY": 128,
+    "scaleReferenceTileWidthPx": 80,
+    "gravityPxPerSec2": 420,
+    "frameStartsRelativeMs": [
+      0,
+      80,
+      160,
+      240,
+      320,
+      400,
+      480,
+      560,
+      640,
+      720,
+      840,
+      960
+    ],
+    "celDurationsMs": [
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      120,
+      120,
+      120
+    ],
+    "celOpacities": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0.85,
+      0.65,
+      0.45
+    ],
+    "preRollMs": 80,
+    "transparentTailMs": 640,
+    "celDissipationScales": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0.65,
+      0.35,
+      0.12
+    ],
+    "sourceSha256": "1efbc7ec72612a0e5f09a99a49d031e1c2ef0495c2ed8bee249090d8107135ab",
+    "animationMethod": "isolated GPT Image plates; fixed scale during outward velocity/gravity; rigid rotation; first-contact ground clamp; stop; shrink only after landing toward fixed contact point, with PNG alpha fade and GIF RGB decay",
+    "contactMeasurements": [
+      {
+        "name": "outer plate",
+        "uniformScale": 0.06585365853658537,
+        "contactTimeMs": 360,
+        "contactCenterX": 83.2,
+        "contactPointX": 98.0,
+        "contactRotationDeg": -28.4
+      }
+    ],
+    "celPositions": [
+      {
+        "cel": 0,
+        "relativeTimeMs": 0,
+        "opacity": 1,
+        "pieces": [
+          {
+            "name": "outer plate",
+            "x": 74,
+            "y": 66,
+            "opaqueBbox": [
+              76,
+              69,
+              130,
+              101
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          }
+        ]
+      },
+      {
+        "cel": 1,
+        "relativeTimeMs": 80,
+        "opacity": 1,
+        "pieces": [
+          {
+            "name": "outer plate",
+            "x": 69,
+            "y": 64,
+            "opaqueBbox": [
+              72,
+              68,
+              125,
+              103
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          }
+        ]
+      },
+      {
+        "cel": 2,
+        "relativeTimeMs": 160,
+        "opacity": 1,
+        "pieces": [
+          {
+            "name": "outer plate",
+            "x": 63,
+            "y": 64,
+            "opaqueBbox": [
+              67,
+              70,
+              119,
+              107
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          }
+        ]
+      },
+      {
+        "cel": 3,
+        "relativeTimeMs": 240,
+        "opacity": 1,
+        "pieces": [
+          {
+            "name": "outer plate",
+            "x": 58,
+            "y": 67,
+            "opaqueBbox": [
+              64,
+              75,
+              114,
+              113
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          }
+        ]
+      },
+      {
+        "cel": 4,
+        "relativeTimeMs": 320,
+        "opacity": 1,
+        "pieces": [
+          {
+            "name": "outer plate",
+            "x": 53,
+            "y": 72,
+            "opaqueBbox": [
+              59,
+              81,
+              108,
+              122
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          }
+        ]
+      },
+      {
+        "cel": 5,
+        "relativeTimeMs": 400,
+        "opacity": 1,
+        "pieces": [
+          {
+            "name": "outer plate",
+            "x": 51,
+            "y": 77,
+            "opaqueBbox": [
+              57,
+              86,
+              105,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 1,
+            "contactPointX": 98.0
+          }
+        ]
+      },
+      {
+        "cel": 6,
+        "relativeTimeMs": 480,
+        "opacity": 1,
+        "pieces": [
+          {
+            "name": "outer plate",
+            "x": 51,
+            "y": 77,
+            "opaqueBbox": [
+              57,
+              86,
+              105,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 1,
+            "contactPointX": 98.0
+          }
+        ]
+      },
+      {
+        "cel": 7,
+        "relativeTimeMs": 560,
+        "opacity": 1,
+        "pieces": [
+          {
+            "name": "outer plate",
+            "x": 51,
+            "y": 77,
+            "opaqueBbox": [
+              57,
+              86,
+              105,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 1,
+            "contactPointX": 98.0
+          }
+        ]
+      },
+      {
+        "cel": 8,
+        "relativeTimeMs": 640,
+        "opacity": 1,
+        "pieces": [
+          {
+            "name": "outer plate",
+            "x": 51,
+            "y": 77,
+            "opaqueBbox": [
+              57,
+              86,
+              105,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 1,
+            "contactPointX": 98.0
+          }
+        ]
+      },
+      {
+        "cel": 9,
+        "relativeTimeMs": 720,
+        "opacity": 0.85,
+        "pieces": [
+          {
+            "name": "outer plate",
+            "x": 67,
+            "y": 96,
+            "opaqueBbox": [
+              71,
+              102,
+              103,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 0.65,
+            "contactPointX": 98.0
+          }
+        ]
+      },
+      {
+        "cel": 10,
+        "relativeTimeMs": 840,
+        "opacity": 0.65,
+        "pieces": [
+          {
+            "name": "outer plate",
+            "x": 82,
+            "y": 110,
+            "opaqueBbox": [
+              84,
+              113,
+              101,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 0.35,
+            "contactPointX": 98.0
+          }
+        ]
+      },
+      {
+        "cel": 11,
+        "relativeTimeMs": 960,
+        "opacity": 0.45,
+        "pieces": [
+          {
+            "name": "outer plate",
+            "x": 92,
+            "y": 122,
+            "opaqueBbox": [
+              93,
+              123,
+              99,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 0.12,
+            "contactPointX": 97.5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "lead_shell_break",
+    "name": "鉛の最終殻割れ",
+    "source": "source/lead_shell_break.png",
+    "reference": "references/lead-armor-cel.png",
+    "generatedImage": "exec-db934626-ca28-40b8-949b-9ba77c0cadbc.png",
+    "prompt": "Create an original transparent game effect editing master containing EXACTLY THREE isolated large shell armor fragments in a simple 2x2 arrangement: TOP LEFT = broad left curved shield/crescent panel; TOP RIGHT = broad right curved shield/crescent panel; BOTTOM LEFT = small thick blunt curved cap panel; BOTTOM RIGHT completely empty transparent. Each fragment entirely within its own quadrant, with very generous transparent gutters, not touching edges or other fragments. Use the reference ColorResonance enemy ONLY for its gray outer shell material/style. All three belong to the same thick smooth slate-gray shell: dark charcoal backs, broad soft gray highlights, short restrained muted golden seam at a few endpoints, clean simple bevels. No pointed shards, no long sharp swords, no branching crack network. Each is an intact large blunt armor plate, solid opaque surface. No creature, no body, no face, no eyes, no feet, no blood, no environment, no floor, no cast shadows, no particles, no fine rubble, no grit, no sparkles, no labels or grid lines. Smooth clean anime tactical-game finish, only a few broad color regions per plate. These three objects will be separately animated peeling away and dropping from an invisible target, preserving its body. Transparent exterior alpha0. Keep shapes readable at 64px. 「髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする」\n「intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。」",
+    "trigger": "oldArmor > 0 && newArmor === 0",
+    "pieces": [
+      {
+        "name": "left plate",
+        "cropBoxPx": [
+          40,
+          40,
+          635,
+          705
+        ],
+        "targetWidthPx": 38,
+        "startCenterPx": [
+          103,
+          88
+        ],
+        "velocityPxPerSec": [
+          -55,
+          -22
+        ],
+        "rotationDeg": -5,
+        "angularVelocityDegPerSec": -70
+      },
+      {
+        "name": "right plate",
+        "cropBoxPx": [
+          780,
+          65,
+          1240,
+          725
+        ],
+        "targetWidthPx": 38,
+        "startCenterPx": [
+          153,
+          88
+        ],
+        "velocityPxPerSec": [
+          55,
+          -22
+        ],
+        "rotationDeg": 5,
+        "angularVelocityDegPerSec": 70
+      },
+      {
+        "name": "cap",
+        "cropBoxPx": [
+          135,
+          750,
+          565,
+          1175
+        ],
+        "targetWidthPx": 24,
+        "startCenterPx": [
+          128,
+          64
+        ],
+        "velocityPxPerSec": [
+          20,
+          -22
+        ],
+        "rotationDeg": 0,
+        "angularVelocityDegPerSec": 30
+      }
+    ],
+    "cellSize": [
+      256,
+      192
+    ],
+    "pivotPx": [
+      128,
+      128
+    ],
+    "groundY": 128,
+    "scaleReferenceTileWidthPx": 80,
+    "gravityPxPerSec2": 420,
+    "frameStartsRelativeMs": [
+      0,
+      80,
+      160,
+      240,
+      320,
+      400,
+      480,
+      560,
+      640,
+      720,
+      840,
+      960
+    ],
+    "celDurationsMs": [
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      120,
+      120,
+      120
+    ],
+    "celOpacities": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0.85,
+      0.65,
+      0.45
+    ],
+    "preRollMs": 80,
+    "transparentTailMs": 640,
+    "celDissipationScales": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0.65,
+      0.35,
+      0.12
+    ],
+    "sourceSha256": "fbcaca48933394f7092e8a4c35e0a5083f38fd1ecf57c877537dea6943226274",
+    "animationMethod": "isolated GPT Image plates; fixed scale during outward velocity/gravity; rigid rotation; first-contact ground clamp; stop; shrink only after landing toward fixed contact point, with PNG alpha fade and GIF RGB decay",
+    "contactMeasurements": [
+      {
+        "name": "left plate",
+        "uniformScale": 0.07102803738317758,
+        "contactTimeMs": 434,
+        "contactCenterX": 79.13,
+        "contactPointX": 87.0,
+        "contactRotationDeg": -35.379999999999995
+      },
+      {
+        "name": "right plate",
+        "uniformScale": 0.09429280397022333,
+        "contactTimeMs": 405,
+        "contactCenterX": 175.275,
+        "contactPointX": 202.5,
+        "contactRotationDeg": 33.35
+      },
+      {
+        "name": "cap",
+        "uniformScale": 0.06382978723404255,
+        "contactTimeMs": 548,
+        "contactCenterX": 138.96,
+        "contactPointX": 136.0,
+        "contactRotationDeg": 16.44
+      }
+    ],
+    "celPositions": [
+      {
+        "cel": 0,
+        "relativeTimeMs": 0,
+        "opacity": 1,
+        "pieces": [
+          {
+            "name": "left plate",
+            "x": 82,
+            "y": 66,
+            "opaqueBbox": [
+              82,
+              69,
+              123,
+              106
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          },
+          {
+            "name": "right plate",
+            "x": 131,
+            "y": 58,
+            "opaqueBbox": [
+              133,
+              61,
+              174,
+              114
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          },
+          {
+            "name": "cap",
+            "x": 116,
+            "y": 52,
+            "opaqueBbox": [
+              116,
+              52,
+              140,
+              76
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          }
+        ]
+      },
+      {
+        "cel": 1,
+        "relativeTimeMs": 80,
+        "opacity": 1,
+        "pieces": [
+          {
+            "name": "left plate",
+            "x": 76,
+            "y": 64,
+            "opaqueBbox": [
+              77,
+              70,
+              120,
+              105
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          },
+          {
+            "name": "right plate",
+            "x": 133,
+            "y": 56,
+            "opaqueBbox": [
+              136,
+              62,
+              180,
+              112
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          },
+          {
+            "name": "cap",
+            "x": 117,
+            "y": 51,
+            "opaqueBbox": [
+              118,
+              52,
+              142,
+              76
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          }
+        ]
+      },
+      {
+        "cel": 2,
+        "relativeTimeMs": 160,
+        "opacity": 1,
+        "pieces": [
+          {
+            "name": "left plate",
+            "x": 70,
+            "y": 65,
+            "opaqueBbox": [
+              71,
+              74,
+              115,
+              104
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          },
+          {
+            "name": "right plate",
+            "x": 136,
+            "y": 57,
+            "opaqueBbox": [
+              140,
+              66,
+              186,
+              112
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          },
+          {
+            "name": "cap",
+            "x": 118,
+            "y": 53,
+            "opaqueBbox": [
+              119,
+              54,
+              143,
+              78
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          }
+        ]
+      },
+      {
+        "cel": 3,
+        "relativeTimeMs": 240,
+        "opacity": 1,
+        "pieces": [
+          {
+            "name": "left plate",
+            "x": 64,
+            "y": 69,
+            "opaqueBbox": [
+              65,
+              80,
+              112,
+              107
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          },
+          {
+            "name": "right plate",
+            "x": 138,
+            "y": 61,
+            "opaqueBbox": [
+              142,
+              73,
+              192,
+              114
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          },
+          {
+            "name": "cap",
+            "x": 119,
+            "y": 57,
+            "opaqueBbox": [
+              121,
+              59,
+              145,
+              84
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          }
+        ]
+      },
+      {
+        "cel": 4,
+        "relativeTimeMs": 320,
+        "opacity": 1,
+        "pieces": [
+          {
+            "name": "left plate",
+            "x": 58,
+            "y": 75,
+            "opaqueBbox": [
+              60,
+              88,
+              107,
+              112
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          },
+          {
+            "name": "right plate",
+            "x": 141,
+            "y": 69,
+            "opaqueBbox": [
+              146,
+              83,
+              198,
+              120
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          },
+          {
+            "name": "cap",
+            "x": 120,
+            "y": 64,
+            "opaqueBbox": [
+              123,
+              66,
+              146,
+              91
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          }
+        ]
+      },
+      {
+        "cel": 5,
+        "relativeTimeMs": 400,
+        "opacity": 1,
+        "pieces": [
+          {
+            "name": "left plate",
+            "x": 54,
+            "y": 85,
+            "opaqueBbox": [
+              55,
+              100,
+              103,
+              122
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          },
+          {
+            "name": "right plate",
+            "x": 144,
+            "y": 79,
+            "opaqueBbox": [
+              148,
+              95,
+              204,
+              127
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          },
+          {
+            "name": "cap",
+            "x": 121,
+            "y": 74,
+            "opaqueBbox": [
+              125,
+              77,
+              148,
+              102
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          }
+        ]
+      },
+      {
+        "cel": 6,
+        "relativeTimeMs": 480,
+        "opacity": 1,
+        "pieces": [
+          {
+            "name": "left plate",
+            "x": 51,
+            "y": 90,
+            "opaqueBbox": [
+              53,
+              105,
+              102,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 1,
+            "contactPointX": 87.0
+          },
+          {
+            "name": "right plate",
+            "x": 144,
+            "y": 80,
+            "opaqueBbox": [
+              148,
+              96,
+              204,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 1,
+            "contactPointX": 202.5
+          },
+          {
+            "name": "cap",
+            "x": 123,
+            "y": 87,
+            "opaqueBbox": [
+              127,
+              90,
+              150,
+              115
+            ],
+            "landed": false,
+            "dissipationScale": 1,
+            "contactPointX": null
+          }
+        ]
+      },
+      {
+        "cel": 7,
+        "relativeTimeMs": 560,
+        "opacity": 1,
+        "pieces": [
+          {
+            "name": "left plate",
+            "x": 51,
+            "y": 90,
+            "opaqueBbox": [
+              53,
+              105,
+              102,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 1,
+            "contactPointX": 87.0
+          },
+          {
+            "name": "right plate",
+            "x": 144,
+            "y": 80,
+            "opaqueBbox": [
+              148,
+              96,
+              204,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 1,
+            "contactPointX": 202.5
+          },
+          {
+            "name": "cap",
+            "x": 124,
+            "y": 100,
+            "opaqueBbox": [
+              128,
+              103,
+              150,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 1,
+            "contactPointX": 136.0
+          }
+        ]
+      },
+      {
+        "cel": 8,
+        "relativeTimeMs": 640,
+        "opacity": 1,
+        "pieces": [
+          {
+            "name": "left plate",
+            "x": 51,
+            "y": 90,
+            "opaqueBbox": [
+              53,
+              105,
+              102,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 1,
+            "contactPointX": 87.0
+          },
+          {
+            "name": "right plate",
+            "x": 144,
+            "y": 80,
+            "opaqueBbox": [
+              148,
+              96,
+              204,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 1,
+            "contactPointX": 202.5
+          },
+          {
+            "name": "cap",
+            "x": 124,
+            "y": 100,
+            "opaqueBbox": [
+              128,
+              103,
+              150,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 1,
+            "contactPointX": 136.0
+          }
+        ]
+      },
+      {
+        "cel": 9,
+        "relativeTimeMs": 720,
+        "opacity": 0.85,
+        "pieces": [
+          {
+            "name": "left plate",
+            "x": 62,
+            "y": 104,
+            "opaqueBbox": [
+              63,
+              114,
+              95,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 0.65,
+            "contactPointX": 87.0
+          },
+          {
+            "name": "right plate",
+            "x": 166,
+            "y": 97,
+            "opaqueBbox": [
+              169,
+              108,
+              205,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 0.65,
+            "contactPointX": 202.5
+          },
+          {
+            "name": "cap",
+            "x": 128,
+            "y": 109,
+            "opaqueBbox": [
+              131,
+              111,
+              146,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 0.65,
+            "contactPointX": 136.5
+          }
+        ]
+      },
+      {
+        "cel": 10,
+        "relativeTimeMs": 840,
+        "opacity": 0.65,
+        "pieces": [
+          {
+            "name": "left plate",
+            "x": 78,
+            "y": 115,
+            "opaqueBbox": [
+              79,
+              120,
+              96,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 0.35,
+            "contactPointX": 87.25
+          },
+          {
+            "name": "right plate",
+            "x": 186,
+            "y": 112,
+            "opaqueBbox": [
+              188,
+              117,
+              207,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 0.35,
+            "contactPointX": 203.0
+          },
+          {
+            "name": "cap",
+            "x": 132,
+            "y": 119,
+            "opaqueBbox": [
+              133,
+              120,
+              141,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 0.35,
+            "contactPointX": 135.5
+          }
+        ]
+      },
+      {
+        "cel": 11,
+        "relativeTimeMs": 960,
+        "opacity": 0.45,
+        "pieces": [
+          {
+            "name": "left plate",
+            "x": 84,
+            "y": 123,
+            "opaqueBbox": [
+              84,
+              125,
+              90,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 0.12,
+            "contactPointX": 87.33333333333333
+          },
+          {
+            "name": "right plate",
+            "x": 197,
+            "y": 122,
+            "opaqueBbox": [
+              197,
+              124,
+              204,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 0.12,
+            "contactPointX": 202.5
+          },
+          {
+            "name": "cap",
+            "x": 135,
+            "y": 124,
+            "opaqueBbox": [
+              135,
+              124,
+              139,
+              128
+            ],
+            "landed": true,
+            "dissipationScale": 0.12,
+            "contactPointX": 136.0
+          }
+        ]
+      }
+    ]
   }
 ]
