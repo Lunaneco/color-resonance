@@ -439,8 +439,8 @@ test('Quest chapter and bond gates prevent early access, and bond skills are vis
   assert.equal(await page.locator('#wmPanel [data-a=sortie]').count(),0);
   await page.locator('[data-w=party]').click();
   assert.equal(await page.locator('.pn-body').evaluate(e=>e.scrollTop),0);
-  assert.equal(await page.locator('.bond-skill').count(),24);
-  assert.equal(await page.locator('.bond-route').count(),8);
+  assert.equal(await page.locator('.bond-skill').count(),12);
+  assert.equal(await page.locator('.bond-route').count(),4);
   assert.match(await page.locator('.pn-body').textContent(),/熟練8で習得/);
   await page.waitForTimeout(350);
   await page.screenshot({path:'/tmp/cr-bond-390.png'});

@@ -43,7 +43,8 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844},{width:32
     assert(bounds.w <= bounds.c + 1); assert(bounds.doc <= bounds.vw + 1);
     for (const button of await page.locator('.sf-spirits button,.sf-routes button').all()) assert((await button.boundingBox()).height >= 44);
     await page.locator('[data-forge-route=summon]').click(); assert(await page.locator('[data-upgrade=gran_spray]').isEnabled());
-    for (const spirit of ['ivy','spinel','king']) { await page.locator(`[data-forge-spirit=${spirit}]`).click(); assert.equal(await page.locator('.sf-lock').count(),3); }
+    assert.deepEqual(await page.locator('[data-forge-spirit]').evaluateAll(es => es.map(e => e.dataset.forgeSpirit)), ['gran']);
+    for (const spirit of ['ivy','spinel','king']) assert.equal(await page.locator(`[data-forge-spirit=${spirit}]`).count(),0);
     await page.locator('.sf-bag summary').click(); assert.equal(await page.locator('.sf-inventory > div').count(),6);
     await page.screenshot({path:`/tmp/cr-forge-${viewport.width}x${viewport.height}.png`});
   });
@@ -93,4 +94,36 @@ test('Playing earns ingredients that can immediately upgrade a learned skill; pr
   await page.locator('[data-home]').click();await page.locator('[data-game=lantern] [data-practice]').click();await page.locator('[data-lamp="1"]').click();assert.deepEqual((await saved()).materials,p.materials);
   await page.locator('.pn-close').click();await page.locator('[data-w=forge]').click();await page.locator('[data-forge-spirit=gran]').click();await page.locator('[data-forge-route=enchant]').click();await page.locator('[data-upgrade=gran_wave]').click();
   p=await saved();assert.equal(p.aria.skillLevels.gran_wave,1);assert.equal(p.materials.m_dust,5);assert.equal(p.materials.m_teal,2);
+});
+
+
+test('Unjoined characters stay absent from the workshop, party and letters even when growth records exist',async()=>{
+  const p=craftParty();p.spirits=Object.fromEntries(['gran','ivy','spinel','king'].map(id=>[id,{lv:8,bond:40,training:{enchant:40,summon:40}}]));p.stages={gran:{cleared:true}};
+  await boot({width:320,height:480},'act1',{cr_party:p});const before=await saved();
+  assert.equal(await page.locator('[data-forge-spirit]').count(),0);assert.equal(await page.locator('[data-forge-card]').count(),0);assert.equal(await page.locator('.sf-art').count(),0);
+  assert.match(await page.locator('.sf-skills').textContent(),/精霊が仲間になると/);
+  await page.locator('.sf-bag summary').click();assert(!/グラン|アイビー|スピネル|パレット王/.test(await page.locator('.sf-workshop').textContent()));
+  await page.locator('.pn-close').click();await page.locator('[data-w=party]').click();assert.equal(await page.locator('.bond-card').count(),0);assert(!/グラン|アイビー|スピネル|パレット王/.test(await page.locator('.pt').textContent()));
+  await page.locator('.pn-close').click();await page.locator('[data-w=journal]').click();await page.locator('[data-journal-tab=letters]').click();assert.equal(await page.locator('.jn-spirit').count(),0);assert.equal(await page.locator('.jn-letter').count(),0);
+  assert.deepEqual(await saved(),before,'Viewing hidden companions must preserve all growth and items');
+});
+
+test('All companion screens reveal only joined spirits and reset a stale workshop selection after importing earlier progress',async()=>{
+  await boot(undefined,'act1',{cr_party:craftParty()});
+  const stages=[['act2',['gran']],['act4',['gran','ivy']],['act5',['gran','ivy','spinel']],['finale',['gran','ivy','spinel','king']],['act2',['gran']]];
+  for(const [chapter,expected] of stages){
+    await page.evaluate(chapter=>{Panel.close();localStorage.setItem('cr_unlocked',JSON.stringify(['prologue','act1',chapter]));localStorage.removeItem('cr_save');World.open();},chapter);
+    await page.locator('[data-w=forge]').click();assert.deepEqual(await page.locator('[data-forge-spirit]').evaluateAll(es=>es.map(e=>e.dataset.forgeSpirit)),expected);
+    await page.locator(`[data-forge-spirit=${expected.at(-1)}]`).click();assert.equal(await page.locator('[data-forge-card]').count(),3);
+    await page.locator('.pn-close').click();await page.locator('[data-w=party]').click();assert.equal(await page.locator('.bond-card').count(),expected.length);assert.equal(await page.locator('.bond-skill').count(),expected.length*6);
+    await page.locator('.pn-close').click();await page.locator('[data-w=journal]').click();await page.locator('[data-journal-tab=letters]').click();assert.equal(await page.locator('.jn-spirit').count(),expected.length);
+  }
+});
+
+test('An acquired story color reveals its spirit before the next chapter, and shop descriptions hide future names',async()=>{
+  await boot(undefined,'act1',{cr_party:{...craftParty(),pos:'grey',gold:300}});
+  await page.evaluate(()=>{Panel.close();localStorage.setItem('cr_save',JSON.stringify({chapter:'act1',idx:1,colors:['teal']}));});
+  await page.locator('[data-w=forge]').click();assert.deepEqual(await page.locator('[data-forge-spirit]').evaluateAll(es=>es.map(e=>e.dataset.forgeSpirit)),['gran']);
+  await page.locator('.pn-close').click();await page.evaluate(()=>{localStorage.setItem('cr_unlocked',JSON.stringify(['prologue','act1','act2']));World.open();});await page.locator('[data-a=shop]').click();
+  const row=page.locator('.sh-row').filter({has:page.locator('[data-id=m_green]')});assert(!/アイビー/.test(await row.textContent()));assert.match(await row.textContent(),/これから覚える技/);
 });

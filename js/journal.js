@@ -33,10 +33,9 @@ const Journal = (() => {
     ],
   };
   const tabs = { journey: '旅の記録', letters: '精霊の便り', memories: '思い出', marks: '旅のしるし' };
-  const joined = { gran: 'act2', ivy: 'act4', spinel: 'act5', king: 'finale' };
-  function achievements(p, unlocked) {
+  function achievements(p, unlocked, colors = []) {
     const stages = Object.values(p.stages), cleared = stages.filter(r => r.cleared).length;
-    const learned = Progression.learned(p).length, friends = Object.keys(joined).filter(id => unlocked.includes(joined[id])).length;
+    const learned = Progression.learned(p).length, friends = Progression.companions(unlocked, colors).length;
     const mini = p.minigames?.records || {}, lights = ['lantern', 'echo'].flatMap(id => Object.values(mini[id] || {})).filter(r => r.clears > 0).length;
     return [
       { title: '最初の澄み', desc: '序章の旅を終える', now: +unlocked.includes('act1'), total: 1 },
@@ -51,16 +50,16 @@ const Journal = (() => {
   }
   function open(tab = 'journey') {
     if (!Object.hasOwn(tabs, tab)) tab = 'journey';
-    const p = Board.party, unlocked = Engine.unlocked(), marks = achievements(p, unlocked);
+    const p = Board.party, unlocked = Engine.unlocked(), colors = Engine.load()?.colors, marks = achievements(p, unlocked, colors), joined = Progression.companions(unlocked, colors);
     let body = '';
     if (tab === 'journey') body = `<div class="jn-timeline">${CHAPTERS.map((ch, i) => {
       const read = unlocked.includes(CHAPTERS[i + 1]?.key || 'done'), current = unlocked.includes(ch.key);
       return `<article class="jn-chapter ${read ? 'read' : ''}"><span class="jn-chapter-no">${String(i + 1).padStart(2, '0')}</span><div><small>${ch.act} ${read ? '・読み終えた物語' : current ? '・旅の途中' : '・これからの物語'}</small><h4>${current ? ch.title : 'まだ開いていないページ'}</h4><p>${read ? notes[i] : current ? 'この章を読み終えると、アリアの旅の記録が残ります。' : '出会いを重ねると、次のページが開きます。'}</p></div></article>`;
     }).join('')}</div>`;
-    if (tab === 'letters') body = `<p class="jn-note">使い続けて育った絆から、精霊の言葉が届きます。絆8・20・40で一通ずつ。</p><div class="jn-letters">${Object.entries(letters).map(([id, pages]) => {
-      const known = unlocked.includes(joined[id]), bond = p.spirits[id]?.bond || 0, spirit = Progression.spirits[id];
-      return `<section class="jn-spirit" style="--jn-color:${known ? spirit.color : '#7e899f'}"><h3>${known ? spirit.name : 'まだ出会っていない精霊'}${known ? `<small>絆 ${bond}</small>` : ''}</h3>${pages.map(l => `<article class="jn-letter ${known && bond >= l.at ? 'opened' : 'locked'}"><small>絆 ${l.at}</small><h4>${known && bond >= l.at ? l.title : '封を開く日まで'}</h4><p>${known && bond >= l.at ? l.text.replaceAll('\n', '<br>') : known ? `あと ${Math.max(0, l.at - bond)} の絆で、便りが届きます。` : '精霊と出会ってから、少しずつ育てる絆。'}</p></article>`).join('')}</section>`;
-    }).join('')}</div>`;
+    if (tab === 'letters') body = `<p class="jn-note">使い続けて育った絆から、精霊の言葉が届きます。絆8・20・40で一通ずつ。</p><div class="jn-letters">${joined.map(id => {
+      const pages = letters[id], bond = p.spirits[id]?.bond || 0, spirit = Progression.spirits[id];
+      return `<section class="jn-spirit" style="--jn-color:${spirit.color}"><h3>${spirit.name}<small>絆 ${bond}</small></h3>${pages.map(l => `<article class="jn-letter ${bond >= l.at ? 'opened' : 'locked'}"><small>絆 ${l.at}</small><h4>${bond >= l.at ? l.title : '封を開く日まで'}</h4><p>${bond >= l.at ? l.text.replaceAll('\n', '<br>') : `あと ${Math.max(0, l.at - bond)} の絆で、便りが届きます。`}</p></article>`).join('')}</section>`;
+    }).join('') || '<p class="jn-note">精霊が仲間になると、ここに便りが届きます。</p>'}</div>`;
     if (tab === 'memories') body = unlocked.includes('act1') ? `<figure class="jn-memory"><img src="assets/cg/lila-wave-v1.png" alt="黒い波に飲まれながら綱を握り、別れを告げるリラ"><figcaption><small>序章・アクアミスト</small><h3>いってらっしゃい。</h3><p>リラの結び目と、最後に聞こえた黄色。戻らないものを戻ったことにせず、アリアはその続きを歩く。</p></figcaption></figure>` : '<div class="jn-locked-memory"><span aria-hidden="true">◇</span><h3>まだ開いていない思い出</h3><p>序章を読み終えると、このページに物語の一枚絵が残ります。</p></div>';
     if (tab === 'marks') body = `<p class="jn-note">遊び方を選んだ足跡。しるしは旅の成果から記録され、報酬の受け取り操作はありません。</p><div class="jn-marks">${marks.map(m => `<article class="jn-mark ${m.now >= m.total ? 'earned' : ''}"><span class="jn-mark-icon" aria-hidden="true">${m.now >= m.total ? '✦' : '◇'}</span><div><h4>${m.title}</h4><p>${m.desc}</p><progress value="${m.now}" max="${m.total}" aria-label="${m.title}"></progress><small>${m.now} / ${m.total}</small></div></article>`).join('')}</div>`;
     Panel.open('旅の手帳', `<div class="jn-book"><div class="jn-heading"><small>ARIA’S JOURNAL</small><h3>置き忘れないための、手帳。</h3><p>読み終えた物語と、育てた絆の続きを。</p><span>${marks.filter(m => m.now >= m.total).length} / ${marks.length} 旅のしるし</span></div><div class="jn-tabs" role="tablist" aria-label="手帳のページ">${Object.entries(tabs).map(([id, label]) => `<button role="tab" id="journal-tab-${id}" data-journal-tab="${id}" aria-selected="${id === tab}" aria-controls="journal-page" tabindex="${id === tab ? 0 : -1}">${label}</button>`).join('')}</div><div id="journal-page" role="tabpanel" aria-labelledby="journal-tab-${tab}">${body}</div></div>`);

@@ -199,7 +199,7 @@ const World = (() => {
   function stageRec(id) { return party.stages[id] || null; }
   function storyHere(n) { const s = nextChapter(); return s && n.chapter && n.chapter === s.chapter ? s : null; }
   // 精霊になった仲間（物語の進み具合で決まる）
-  function spiritsNow() { const at = { gran: 'act2', ivy: 'act4', spinel: 'act5', king: 'finale' }; return Object.keys(at).filter(id => has(at[id]) || (party.stages[id] && party.stages[id].cleared)); }
+  function spiritsNow() { return Progression.companions(unlocked(), Engine.load()?.colors); }
   const replayable = (n, rec) => !!(rec?.cleared || n.type === 'free' || (n.type === 'quest' && bondReady(SIDE_QUESTS[n.quest])) || (n.clearedBy && has(n.clearedBy)));
   function stageConf(n) {
     if (n.board) {
@@ -443,7 +443,7 @@ const World = (() => {
         const cnt = it ? (party.items[id] || 0) : mat ? party.materials[id] : 0, cap = mat ? Progression.MATERIAL_MAX : ITEM_MAX;
         const dis = party.gold < x.price || owned || ((it || mat) && cnt >= cap);
         const tag = mat ? '素材' : it ? '道具' : SLOT_NAME[eq.slot];
-        return `<div class="sh-row"><span class="sh-tag ${eq ? eq.slot : 'item'}">${tag}</span><div class="sh-main"><b>${x.name}</b><small>${x.desc}</small></div>
+        return `<div class="sh-row"><span class="sh-tag ${eq ? eq.slot : 'item'}">${tag}</span><div class="sh-main"><b>${x.name}</b><small>${mat ? Progression.materialDescription(id, spiritsNow()) : x.desc}</small></div>
           <span class="sh-own">${it || mat ? `${cnt}/${cap}` : owned ? (party.equip[eq.slot] === id ? '装備中' : '持っている') : ''}</span>
           <button class="sh-buy" data-id="${id}" ${dis ? 'disabled' : ''}>${x.price}<small>しずく</small></button></div>`;
       };
@@ -502,7 +502,7 @@ const World = (() => {
   }
   function openParty() {
     reload();
-    const sp = ['gran', 'ivy', 'spinel', 'king'].filter(id => party.spirits[id] || spiritsNow().includes(id));
+    const sp = spiritsNow();
     const names = { gran: 'グラン', ivy: 'アイビー', spinel: 'スピネル', king: 'パレット王' };
     const cols = { gran: '#3fb4c9', ivy: '#5fd07a', spinel: '#ffd25e', king: '#b48cff' };
     const uniq = Object.keys(EQUIP).filter(k => EQUIP[k].unique);

@@ -105,3 +105,10 @@ test('Minigame migration bounds rewards and preserves only usable partial sessio
   party.minigames.active.sequence = [99]; P.migrate(party); assert.equal(party.minigames.active, null);
   assert.deepEqual(plain(P.migrate(null).aria), { lv: 1, exp: 0, skills: [], skillLevels: {} });
 });
+
+
+test('Companion visibility follows story joins and held colors instead of unearned growth records',()=>{
+  for(const [chapters,expected] of [[['act1'],[]],[['act2'],['gran']],[['act3'],['gran']],[['act4'],['gran','ivy']],[['act5'],['gran','ivy','spinel']],[['finale'],['gran','ivy','spinel','king']],[['done'],['gran','ivy','spinel','king']]])assert.deepEqual(plain(P.companions(chapters)),expected);
+  assert.deepEqual(plain(P.companions(['act1'],['teal'])),['gran']);assert.deepEqual(plain(P.companions(['act3'],['green'])),['gran','ivy']);assert.deepEqual(plain(P.companions(null,null)),[]);
+  assert.equal(P.materialDescription('m_green',['gran']),'これから覚える技を強化する素材');assert.match(P.materialDescription('m_green',['gran','ivy']),/アイビー/);
+});

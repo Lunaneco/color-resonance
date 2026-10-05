@@ -33,7 +33,7 @@ test('Only completed chapters and met spirits reveal journal prose',async()=>{
   await boot();assert.equal(await page.locator('.jn-chapter.read').count(),2);assert.equal(await page.locator('.jn-chapter').count(),8);
   assert((await page.locator('.jn-chapter').nth(2).textContent()).includes('旅の途中'));assert((await page.locator('.jn-chapter').nth(3).textContent()).includes('まだ開いていないページ'));
   assert(!(await page.locator('.jn-timeline').textContent()).includes('クリスタは、最初から'));
-  await page.locator('[data-journal-tab=letters]').click();assert.equal(await page.locator('.jn-letter.opened').count(),2);assert.equal(await page.locator('.jn-letter').count(),12);
+  await page.locator('[data-journal-tab=letters]').click();assert.equal(await page.locator('.jn-letter.opened').count(),2);assert.equal(await page.locator('.jn-letter').count(),3);assert.equal(await page.locator('.jn-spirit').count(),1);
   assert((await page.locator('.jn-spirit').nth(0).textContent()).includes('あと 20'));assert(!(await page.locator('.jn-letters').textContent()).includes('黄金の庇護'));
 });
 test('Journal pages preserve the current story and return keyboard focus to their entrance',async()=>{

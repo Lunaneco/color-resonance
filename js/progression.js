@@ -18,6 +18,19 @@ const Progression = (() => {
     m_violet: { name: '虹彩の結晶', spirit: 'king', color: '#c4adff', price: 85, desc: 'パレット王の技を強化する素材', source: '城・夜空・終盤の依頼・精霊のこだま・虹の城下町の店' },
     m_core: { name: '澄明の核', color: '#f5e9ff', price: 300, desc: '+3への仕上げに使う希少素材', source: '各戦場・各難易度の初S評価・遊びの初S評価・虹の城下町の店' },
   };
+  // 仲間の顔・名前は物語で加入してから表示する。成長用の記録だけでは加入扱いにしない。
+  const joinedAt = { gran: 'act2', ivy: 'act4', spinel: 'act5', king: 'finale' };
+  const spiritColors = { gran: 'teal', ivy: 'green', spinel: 'gold', king: 'violet' };
+  function companions(unlocked = [], colors = []) {
+    const chapters = ['prologue', 'act1', 'act2', 'act3', 'act4', 'act5', 'finale', 'epilogue', 'done'];
+    const reached = Math.max(-1, ...(Array.isArray(unlocked) ? unlocked : []).map(key => chapters.indexOf(key)));
+    const held = Array.isArray(colors) ? colors : [];
+    return Object.keys(spirits).filter(id => reached >= chapters.indexOf(joinedAt[id]) || held.includes(spiritColors[id]));
+  }
+  function materialDescription(id, joined) {
+    const m = materials[id];
+    return m?.spirit && !joined.includes(m.spirit) ? 'これから覚える技を強化する素材' : m?.desc || '';
+  }
   const MATERIAL_MAX = 999;
   const spiritMaterial = { gran: 'm_teal', ivy: 'm_green', spinel: 'm_gold', king: 'm_violet' };
   const legacyRoutes = { gran_wave: 'enchant', gran_mend: 'summon', gran_tide: 'enchant', ivy_bind: 'enchant', ivy_bloom: 'summon', ivy_dance: 'enchant', spinel_break: 'enchant', spinel_guard: 'summon', spinel_sun: 'summon', king_prism: 'summon', king_canvas: 'summon', king_resonance: 'summon' };
@@ -248,5 +261,5 @@ const Progression = (() => {
     return copy;
   }
   return { difficulties, spirits, routes, skills, thresholds, normalize, selected, level, rank, learned, training, practice, rewards, migrate, prepare,
-    materials, MATERIAL_MAX, skillLevel, skill, enhancement, recipe, upgrade, awardMaterials, battleMaterials, collectBattleMaterials, leisureMaterials };
+    companions, materialDescription, materials, MATERIAL_MAX, skillLevel, skill, enhancement, recipe, upgrade, awardMaterials, battleMaterials, collectBattleMaterials, leisureMaterials };
 })();
