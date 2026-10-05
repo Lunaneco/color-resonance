@@ -2,10 +2,10 @@
   "version": 1,
   "title": "Color Resonance ゲーム素材",
   "counts": {
-    "characters": 18,
+    "characters": 20,
     "effects": 37,
-    "sourceSheets": 55,
-    "pngCels": 544,
+    "sourceSheets": 57,
+    "pngCels": 552,
     "gifs": 157
   },
   "production": {
@@ -7923,6 +7923,238 @@
               "endMs": 1080
             }
           ]
+        }
+      }
+    },
+    {
+      "id": "chrome_human",
+      "name": "クロム（復興編）",
+      "category": "ally",
+      "source": "source/chrome_human.png",
+      "sourceSize": [
+        1246,
+        1263
+      ],
+      "sheet": "sheets/chrome_human.png",
+      "frames": [
+        "frames/chrome_human/000.png",
+        "frames/chrome_human/001.png",
+        "frames/chrome_human/002.png",
+        "frames/chrome_human/003.png"
+      ],
+      "grid": {
+        "columns": 2,
+        "rows": 2,
+        "cellSize": [
+          623,
+          632
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            1600
+          ],
+          "loop": true,
+          "durationMs": 1600
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            0,
+            1
+          ],
+          "durationsMs": [
+            190,
+            190
+          ],
+          "loop": true,
+          "durationMs": 380
+        },
+        "attack": {
+          "name": "斬撃",
+          "sequence": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationsMs": [
+            120,
+            180,
+            200,
+            220
+          ],
+          "loop": false,
+          "durationMs": 720
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            0
+          ],
+          "durationsMs": [
+            160,
+            320
+          ],
+          "loop": false,
+          "durationMs": 480
+        },
+        "purify": {
+          "name": "浄化",
+          "sequence": [
+            0,
+            3,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            350,
+            600,
+            200
+          ],
+          "loop": false,
+          "durationMs": 1300
+        },
+        "pray": {
+          "name": "祈り",
+          "sequence": [
+            0,
+            3,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            350,
+            600,
+            200
+          ],
+          "loop": false,
+          "durationMs": 1300
+        }
+      }
+    },
+    {
+      "id": "achroma",
+      "name": "均彩の管理者アクロマ",
+      "category": "enemy",
+      "source": "source/achroma.png",
+      "sourceSize": [
+        1024,
+        1536
+      ],
+      "sheet": "sheets/achroma.png",
+      "frames": [
+        "frames/achroma/000.png",
+        "frames/achroma/001.png",
+        "frames/achroma/002.png",
+        "frames/achroma/003.png"
+      ],
+      "grid": {
+        "columns": 2,
+        "rows": 2,
+        "cellSize": [
+          512,
+          768
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            1600
+          ],
+          "loop": true,
+          "durationMs": 1600
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            0,
+            1
+          ],
+          "durationsMs": [
+            190,
+            190
+          ],
+          "loop": true,
+          "durationMs": 380
+        },
+        "attack": {
+          "name": "斬撃",
+          "sequence": [
+            0,
+            2,
+            2,
+            0
+          ],
+          "durationsMs": [
+            120,
+            180,
+            200,
+            220
+          ],
+          "loop": false,
+          "durationMs": 720
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            3,
+            0
+          ],
+          "durationsMs": [
+            160,
+            320
+          ],
+          "loop": false,
+          "durationMs": 480
+        },
+        "purify": {
+          "name": "浄化",
+          "sequence": [
+            0,
+            3,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            350,
+            600,
+            200
+          ],
+          "loop": false,
+          "durationMs": 1300
+        },
+        "pray": {
+          "name": "祈り",
+          "sequence": [
+            0,
+            3,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            350,
+            600,
+            200
+          ],
+          "loop": false,
+          "durationMs": 1300
         }
       }
     }

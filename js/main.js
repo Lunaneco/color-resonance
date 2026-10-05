@@ -80,7 +80,7 @@ const Main = (() => {
     title.querySelector('[data-m=world]').disabled = !unlocked.includes('act1');
     title.querySelector('[data-m=world]').classList.toggle('t-primary', complete);
     const chapter = saved && CHAPTERS.find(c => c.key === saved.chapter);
-    summary.textContent = complete ? '物語を読み終えました。地図で依頼・絆・遊びの続きを。' : chapter ? `${chapter.act} · ${chapter.title}${saved.map ? ' ｜ 地図から再開' : ' ｜ 物語の続き'}` : '色を取り戻す物語と、床を染めるタクティクス';
+    summary.textContent = complete && Board.party.postgame.started ? `王国復興 ${Board.party.postgame.progress}/8 · ${Board.party.postgame.finished ? '新しい結末のあとも、地図から旅の続きを。' : '地図の「王国復興」から二人の旅へ。'}` : complete ? '物語を読み終えました。地図の「王国復興」から次の旅へ。' : chapter ? `${chapter.act} · ${chapter.title}${saved.map ? ' ｜ 地図から再開' : ' ｜ 物語の続き'}` : '色を取り戻す物語と、床を染めるタクティクス';
   }
   let entered = false;
   function enter() {
@@ -88,8 +88,8 @@ const Main = (() => {
     Audio2.resume(); gate.classList.add('hide');
     setTimeout(() => gate.remove(), preferences.reduceMotion ? 30 : 1000);
     const ch = location.hash.match(/ch=(\w+)/), bd = location.hash.match(/board=(\w+)/);
-    if (ch && SCRIPT[ch[1]]) { title.style.display = 'none'; Engine.play(ch[1]); }
-    else if (bd && BOARDS[bd[1]]) { title.style.display = 'none'; Engine.setBg('teal', 'dim'); Board.start({ ...BOARDS[bd[1]], resultLabel: 'タイトルへ戻る' }, () => toTitle()); }
+    if (ch && SCRIPT[ch[1]] && (!ch[1].startsWith('restore') || Restoration.canBegin(ch[1]))) { title.style.display = 'none'; Engine.play(ch[1]); }
+    else if (bd && BOARDS[bd[1]] && (!BOARDS[bd[1]].postgame || Restoration.joined())) { title.style.display = 'none'; Engine.setBg('teal', 'dim'); Board.start({ ...BOARDS[bd[1]], resultLabel: 'タイトルへ戻る' }, () => toTitle()); }
     else if (location.hash.includes('world')) { title.style.display = 'none'; World.open(); }
     else {
       toTitle();
@@ -130,7 +130,7 @@ const Main = (() => {
 
   function chapters() {
     const unlocked = Engine.unlocked();
-    Panel.open('章をえらぶ', `<p class="wp-note">読みたい章から振り返れます。仲間の成長と装備は引き継ぎます。</p><div class="chap-list">${CHAPTERS.map(c => `<button class="chap" data-k="${c.key}" ${unlocked.includes(c.key) ? '' : 'disabled'}><div class="c-a">${c.act}</div><div class="c-t">${unlocked.includes(c.key) ? c.title : 'まだ出会っていない物語'}</div></button>`).join('')}</div>`);
+    Panel.open('章をえらぶ', `<p class="wp-note">読みたい章から振り返れます。仲間の成長と装備は引き継ぎます。</p><div class="chap-list">${CHAPTERS.filter(c=>!c.key.startsWith('restore')||unlocked.includes('done')).map(c => {const open=c.key.startsWith('restore')?Restoration.canBegin(c.key):unlocked.includes(c.key);return `<button class="chap" data-k="${c.key}" ${open ? '' : 'disabled'}><div class="c-a">${c.act}</div><div class="c-t">${open ? c.title : 'まだ出会っていない物語'}</div></button>`;}).join('')}</div>`);
     Panel.body().querySelectorAll('.chap').forEach(button => button.onclick = () => { Panel.close(); start(() => Engine.play(button.dataset.k)); });
   }
 

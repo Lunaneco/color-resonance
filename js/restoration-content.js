@@ -1,0 +1,315 @@
+// クリスタリア（プリズム王国）の復興編。既存の結末と死者の不在を引き継ぐ。
+const RESTORATION_CHAPTERS = [
+  ['restore1', '海から続く、二つの足跡', '壊れた港', '海から物資が届く桟橋を直す。', 16, 'teal', 'haruka'],
+  ['restore2', '水が覚えている違い', '水鏡の街', '水門を開き、家々へ水を戻す。', 18, 'teal', 'haruka'],
+  ['restore3', '名前を残す庭', '七色の果樹園', '苗の名前を消す校正を止める。', 20, 'forest', 'forest'],
+  ['restore4', '二枚の設計図', '王立記録院', '停止していた装置の記録を取り戻す。', 22, 'glass', 'fate'],
+  ['restore5', '戻らない声のために', '鐘と家の丘', '過去の声でなく、今を生きる灯を守る。', 24, 'canyon', 'haruka'],
+  ['restore6', '揃わない灯り', '市民の広場', '誰かの正解ではなく、それぞれの選択を繋ぐ。', 26, 'glass', 'forest'],
+  ['restore7', '王冠のない約束', '天測の回廊', '王国を覆う校正命令の中継器を断つ。', 28, 'stars', 'fate'],
+  ['restore8', '透明は、ひとつの色ではない', '無彩の観測塔', '三つの灯を戻し、均彩の管理者と向き合う。', 30, 'stars', 'fate'],
+].map(([key, title, place, goal, lv, bg, bgm], i) => ({ key, title, place, goal, lv, bg, bgm, act: `復興編 第${i + 1}話`,
+  note: [
+    'ルノワールは、アリアから学んだ「その者の色を切らない」浄化を、自分の意志で剣へ託した。クロムと歩くことは、罪を許すこととは違う。',
+    '水門には、同じ長さの波しか流さない細工があった。修理した水車が、眠っていた校正線にも電力を戻していた。',
+    '花の名前を消せば、比べられる痛みはなくなる。けれど、誰の花だったかも消える。二人は名札を残し、根を縛る命令だけを切った。',
+    '均彩装置は王国を守るための道具だった。侵攻で失われた観測を、均一さで埋めようとしている。クロムの過去の選択は、装置のせいにはできない。',
+    'リラの声の複製に触れず、アリアは欠けたカップを置いた。戻らない人の席を、別の何かで埋めなくてもいい。',
+    '市民は同じ色の灯を選ばなかった。クロムには感謝する人も、顔を向けない人もいた。どちらの返事も、消さずに聞いた。',
+    '冠を受け取る代わりに、アリアは修理簿へ名前を書いた。王国の明日は、命令する一人ではなく、選び続ける人たちがつくる。',
+    '透明な剣が切ったのは、違う色を誤りとする命令。夜空も白い花も残った。止まった装置は、消されずに、いつか直すための道具として置かれた。',
+  ][i] }));
+
+const RESTORATION_MAPS = {
+  teal: { low: ['land_flat', 'sea_calm', 'sea_flat'], mid: ['land_step', 'land_flat'], high: ['land_high'], water: 'sea_deep', waterAmt: .05, hills: .2, obstacles: ['rocks'], obsAmt: .025 },
+  forest: { low: ['land_flat', 'land_flat', 'sea_shallow'], mid: ['land_step', 'land_flat'], high: ['land_high'], water: 'sea_deep', waterAmt: .035, hills: .3, obstacles: ['rocks', 'mt_small'], obsAmt: .025 },
+  glass: { low: ['land_flat', 'sea_flat'], mid: ['land_step', 'land_flat'], high: ['land_high'], water: 'sea_deep', waterAmt: .025, hills: .25, obstacles: ['rocks'], obsAmt: .02 },
+  canyon: { low: ['land_flat'], mid: ['land_step', 'land_flat'], high: ['land_high'], hills: .4, obstacles: ['rocks'], obsAmt: .025 },
+  stars: { low: ['land_flat', 'sea_flat'], mid: ['land_step', 'land_flat'], high: ['land_high'], water: 'sea_deep', waterAmt: .03, hills: .3, obstacles: ['rocks'], obsAmt: .025 },
+};
+const RESTORATION_GEAR = {
+  u_legend_tide: { slot: 'blade', unique: true, legendary: true, name: '還潮の星剣', fx: { atk: 42, rng: 1, back: 15 }, lore: '消えた船を戻す剣ではない。いま出る船の帰路を照らす、星の刻印。' },
+  u_legend_bloom: { slot: 'cloth', unique: true, legendary: true, name: '千彩の芽吹き', fx: { def: 30, hp: 125, regen: 5 }, lore: '同じ春を待たなくても、それぞれの花が芽吹ける衣。' },
+  u_legend_gold: { slot: 'blade', unique: true, legendary: true, name: '暁の金継ぎ', fx: { atk: 46, crit: 12, splash: 1 }, lore: '傷の線を消さず、その先に一本の朝を刻んだもの。' },
+  u_legend_prism: { slot: 'charm', unique: true, legendary: true, name: '七色の羅針環', fx: { mov: 1, jump: 1, spMax: 4, spTurn: 1 }, lore: '七つの針は同じ方角を指さない。どこへ行くかは、持ち主が決める。' },
+  u_legend_night: { slot: 'cloth', unique: true, legendary: true, name: '宙を織る外套', fx: { def: 34, hp: 150, evade: 10, dullGuard: 1 }, lore: '夜を追い払うのでなく、星が休める暗さを残す外套。' },
+};
+const RESTORATION_STAGES = {};
+function restorationStage(id, title, lv, bg, extra = {}) {
+  return { id, title, lv, cols: 10, rows: 10, companion: true, postgame: true, reward: 250 + lv * 15, spStart: 6,
+    spirits: ['gran', 'ivy', 'spinel', 'king'], map: RESTORATION_MAPS[bg], hue: '#c9b6f5', decor: ['rocks', 'mt_small'],
+    theme: { bg, preset: 'night', fx: 'stars:.2', bgm: 'forest' },
+    enemies: [{ kind: 'boss', lv: lv + 1 }, { kind: 'shade', lv, n: 3 }, { kind: 'thorn', lv, n: 2 }, { kind: 'lead', lv, n: 1 }],
+    bossName: '校正の結び目', spawnCap: 6, restoreBeacons: 2,
+    missions: [{ type: 'turns', n: 16 }, { type: 'teamHP', n: 40 }, { type: 'purify', n: 2 }],
+    firstItems: { i_water: 1, i_shard: 1 }, ordinaryReward: 'a_star',
+    kegWords: ['違いは誤差', '揃えれば傷つかない', '前と同じに戻せ'], rootWord: 'あなたの続きを、私が決める',
+    colorWords: ['自分の手で選ぶ', 'まだ直せる道', '夜に灯る窓'],
+    loseText: '二人は灯を守りきれなかった。道を確かめ、もう一度。', ...extra };
+}
+RESTORATION_CHAPTERS.forEach((ch, i) => {
+  CHAPTERS.push(ch); CHAPTER_STATE[ch.key] = { colors: ['teal', 'green', 'gold', 'violet'], shavings: 4, sky: 1 };
+  const conf = restorationStage(ch.key, ch.place, ch.lv, ch.bg, { recLv: ch.lv, act: ch.act, goal: ch.goal,
+    unique: ['u_mist', 'u_compass', 'u_vine', 'u_palette', 'u_kintsugi', 'u_quest_stargarden', 'u_sheath', 'u_nightsky'][i],
+    theme: { bg: i < 6 ? 'restoration' : ch.bg, preset: 'none', fx: 'stars:0.2', bgm: ch.bgm },
+    intro: { who: 'ルノワール', text: `${ch.goal}<br><small>アリアとクロムを操作。共鳴2の「浄化」で、2マス以内の灯を点ける。敵の全滅とすべての灯がクリア条件。</small>` },
+    enemies: [
+      [{ kind: 'boss', lv: ch.lv + 1 }, { kind: 'shade', lv: ch.lv, n: 3 }, { kind: 'lead', lv: ch.lv, n: 2 }],
+      [{ kind: 'boss', lv: ch.lv + 1 }, { kind: 'membrane', lv: ch.lv, n: 3 }, { kind: 'shade', lv: ch.lv, n: 3 }],
+      [{ kind: 'boss', lv: ch.lv + 1 }, { kind: 'thorn', lv: ch.lv, n: 4 }, { kind: 'shade', lv: ch.lv, n: 2 }],
+      [{ kind: 'boss', lv: ch.lv + 1 }, { kind: 'lead', lv: ch.lv, n: 3 }, { kind: 'membrane', lv: ch.lv, n: 3 }],
+      [{ kind: 'boss', lv: ch.lv + 1 }, { kind: 'membrane', lv: ch.lv, n: 3 }, { kind: 'thorn', lv: ch.lv, n: 3 }],
+      [{ kind: 'boss', lv: ch.lv + 1 }, { kind: 'shade', lv: ch.lv, n: 3 }, { kind: 'lead', lv: ch.lv, n: 2 }, { kind: 'thorn', lv: ch.lv, n: 2 }],
+      [{ kind: 'boss', lv: ch.lv + 1 }, { kind: 'lead', lv: ch.lv, n: 3 }, { kind: 'membrane', lv: ch.lv, n: 4 }],
+    ][Math.min(i, 6)],
+    missions: [{ type: 'turns', n: 16 + Math.floor(i / 2) },
+      [{ type: 'teamHP', n: 40 }, { type: 'noItem' }, { type: 'back', n: 2 }, { type: 'enchantKill', n: 2 }, { type: 'noDown' }, { type: 'bossLast' }, { type: 'skillUse', n: 2 }][Math.min(i, 6)], { type: 'purify', n: 2 }],
+    ...(i === 7 ? { cols: 12, rows: 10, restoreBeacons: 3, bossShield: true, bossArt: 'achroma', bossName: '均彩の管理者アクロマ', bossSkill: '均彩の校正', bossHP: 1.6, spawnCap: 8,
+      enemies: [{ kind: 'boss', lv: 34 }, { kind: 'membrane', lv: 30, n: 3 }, { kind: 'lead', lv: 30, n: 2 }, { kind: 'thorn', lv: 30, n: 2 }],
+      missions: [{ type: 'turns', n: 22 }, { type: 'teamHP', n: 40 }, { type: 'purify', n: 3 }] } : {}),
+  });
+  BOARDS[ch.key] = conf; RESTORATION_STAGES[ch.key] = conf;
+});
+CHAPTERS.push({ key: 'restored', act: '復興編 エピローグ', title: '今日の色で、ただいま', note: 'なくした人は戻らない。けれど、今いる人の窓に灯が戻る。リラの席を残したまま、二人と一振りは、明日の修理に出かける。' });
+CHAPTER_STATE.restored = CHAPTER_STATE.restore8;
+Object.assign(SPEAKERS, { ネリ: '#b5d5e7', トワ: '#e4c59d', アクロマ: '#eee0b4', 記録官: '#c8badd' });
+const RESTORATION_REQUESTS = [
+  ['rq_crates', '桟橋の荷を守って', 'ネリ', '港', 0, 17, 'teal', '濡れた薬箱を避難所へ。壊れた道に、帰港の灯をつなぐ。', 'u_quest_harbor', 'noItem'],
+  ['rq_lights', '窓辺の灯油', 'トワ', '港', 0, 18, 'teal', '夜を消す灯ではなく、夜に暮らす人の灯を届ける。', 'u_quest_lantern', 'back'],
+  ['rq_well', '井戸の底の歌', '井戸番', '水鏡', 1, 19, 'teal', '水の違いまで消す校正を、井戸の縁から切り離す。', 'u_quest_tide', 'noDown'],
+  ['rq_wheel', '水車の羽根を返す', '職人', '水鏡', 1, 20, 'glass', '同じ速さで回らなくてもいい。各路地へ水を分ける。', 'u_quest_clock', 'bossLast'],
+  ['rq_names', '苗の名札', 'ルミナ', '果樹園', 2, 21, 'forest', '消えかけた名札を守り、植えた人の名前を残す。', 'u_quest_bloom', 'enchantKill'],
+  ['rq_birds', '帰り鳥の枝', 'アイビー', '果樹園', 2, 22, 'forest', '巣を縛る命令をほどく。枝を切らずに道を開く。', 'u_quest_thorns', 'summonKill'],
+  ['rq_ink', '空白になった頁', '記録官', '記録院', 3, 23, 'glass', '過去を書き換える白い膜を切り、原本を取り戻す。', 'u_quest_palette', 'noItem'],
+  ['rq_bridge', '違う岸を結ぶ橋', '橋守', '家の丘', 4, 25, 'canyon', '向こう岸に渡る理由は、ひとりずつ違っていい。', 'u_quest_bridge', 'back'],
+  ['rq_garden', '雨を待つ種', '花守', '家の丘', 4, 25, 'forest', '咲く時期を揃えようとする影から、苗床を守る。', 'u_quest_orchard', 'noDown'],
+  ['rq_bells', '鐘の鳴る時間', '時計師', '広場', 5, 27, 'glass', '古い鐘と新しい鐘。ずれた音が重なる広場を守る。', 'u_quest_gold', 'bossLast'],
+  ['rq_windows', 'それぞれの窓', '市民たち', '広場', 5, 28, 'glass', '灯りの色を選ぶ時間を、家々へ取り戻す。', 'u_quest_stargarden', 'enchantKill'],
+  ['rq_stars', '最後の観測記録', '星見', '天測', 6, 30, 'stars', '星のない夜も記録する。観測から零れた色を拾う。', 'u_quest_echo', 'summonKill'],
+].map(([id, title, giver, district, gate, lv, bg, desc, unique, type]) => restorationStage(id, title, lv, bg, { act: '復興依頼', giver, district, gate, desc, unique,
+  missions: [{ type: 'turns', n: 17 }, { type, ...(['back', 'enchantKill', 'summonKill'].includes(type) ? { n: 2 } : {}) }, { type: 'purify', n: 2 }] }));
+const LEGEND_QUESTS = [
+  ['lg_tide', '還潮の深淵', 'アクアミスト沖', 'aquamist', 29, 'teal', 'u_legend_tide', '潮の道を閉ざす残響。二人で三つの帰港灯を守る。'],
+  ['lg_bloom', '千彩の樹海', '緑の森の奥', 'grey', 32, 'forest', 'u_legend_bloom', '色を比べる声が重なった樹海。花を残し、根を縛る膜を切る。'],
+  ['lg_gold', '暁の裂け谷', '黄金の谷', 'stone', 35, 'canyon', 'u_legend_gold', '傷を塗りつぶす鉛の軍勢。金の道筋を再び繋ぐ。'],
+  ['lg_prism', '七針の天廊', 'パレット・パレス郊外', 'rainbow', 38, 'glass', 'u_legend_prism', '同じ方角を強いる七色の結界。異なる岸へ帰る道を開く。'],
+  ['lg_night', '宙を織る断崖', '星見の崖', 'f_stars', 41, 'stars', 'u_legend_night', '夜そのものを消す白い膜。星が見える暗さを守り抜く。'],
+].map(([id, title, district, town, lv, bg, unique, desc]) => restorationStage(id, title, lv, bg, { act: '伝説級クエスト', district, town, gate: 0, desc, unique, hardOnly: true, restoreBeacons: 3, bossShield: true, bossHP: 1.35, spawnCap: 9, cols: 12, rows: 11,
+  enemies: [{ kind: 'boss', lv: lv + 3, armor: 2 }, { kind: 'lead', lv, n: 3 }, { kind: 'thorn', lv, n: 3 }, { kind: 'membrane', lv, n: 3 }],
+  missions: [{ type: 'turns', n: 22 }, { type: 'teamHP', n: 50 }, { type: 'noDown' }], difficulty: 'hard' }));
+[...RESTORATION_REQUESTS, ...LEGEND_QUESTS].forEach(c => RESTORATION_STAGES[c.id] = c);
+// どちらも正解。選んだ先を修理簿と後の会話に残す。
+CHOICES.restorationPriority = { prompt: '明日の修理、どちらから始める？', options: [
+  { t: '橋を先に直す。離れた家族へ道を。', ok: true, lines: ['@priority bridge'] },
+  { t: '苗床を先に守る。次の季節へ種を。', ok: true, lines: ['@priority garden'] },
+] };
+
+Object.assign(SCRIPT, {
+restore1: `
+@chapter 復興編 第1話 | 海から続く、二つの足跡
+@bg restoration none
+@bgm haruka
+@fx stars:0.2
+@show aria
+カフェの夜から、七日が過ぎた。アリアはクリスタリアへ届いた修理簿を開いた。海辺の古い地図では、プリズム王国とも呼ばれる透明の国。
+港、水鏡、果樹園、記録院。戻ったのは空の色だけで、暮らしの道はまだ途切れている。
+クロムは、桟橋の折れた板を抱えていた。黒い上着は潮で白く乾き、手には豆ができていた。
+クロム「魔力で埋めると、また同じことになる。釘の打ち方を、教えてほしい」
+ネリ「教える。だけど、あんたに礼を言うつもりはないよ」
+クロム「……うん」
+アリア「わたしも、許したわけじゃない。道を戻す仕事を、ひとりに任せないだけ」
+ルノワールが、板の切り口へ触れた。黒い種の残りだけが浮き上がり、古い木目は消えなかった。
+@show renoir
+アリア「今の、わたしの浄化と……同じ？」
+ルノワール「見てた。ずっと。切らないところを、先に見る」
+アリアが穢れを切るたび、ルノワールは受け取った欠片から、その人の色をより分けてきた。旅で覚えたのは、色を奪わない手つきだった。
+クロム「僕のために、剣になる必要はない」
+ルノワール「僕が選ぶ。君が拾うのを、手伝いたい」
+ルノワールはアリアの指へ頬を寄せた。それから自分でクロムの掌へ渡った。離れたのではなく、二人の間へ居場所を増やした。
+@hide renoir
+四つの光が刃の縁に並び、夜の黒が柄になった。クロムが握ったのは、誰かの色を奪う剣ではなかった。
+@rejoin
+ルノワール「グランたちから吸収した四つの光は、旅の間に僕自身の力になった。四つをまとめて、この剣へ宿せる」
+アリア「誰かが倒れても、その子の力を借り続けるの？」
+ルノワール「借り直すんじゃないよ。もう僕の中にある力だから、みんなが倒れても消えない。僕から精霊を召喚することはできないけどね」
+ルノワール「ただ、四つの光を一度に抱えると剣を休ませないといけない。一度の戦いに一度だけ。その一回を、一緒に選ぼう」
+アリア「では、二人で。一振りも、一緒に」
+桟橋の灯が消えた。床の割れ目から、拾い残した種に白い膜が絡んで立ち上がる。
+@board restore1
+@restore 1
+ネリは修理簿に、二人の名を書いた。「人を運べる幅に」と、その下へ付け足した。
+水車が一度回ると、橋の裏から同じ高さの音が三つ鳴った。誰もその音を鳴らしていない。
+@next restore2
+`,
+restore2: `
+@chapter 復興編 第2話 | 水が覚えている違い
+@bg restoration none
+@bgm haruka
+水鏡の街で、アリアは異変に気づいた。どの家の水差しも、水面が同じ高さで止まっていた。
+トワ「飲んでも戻るんだ。便利だけど、ここに入れた薬草まで、同じ匂いになってしまった」
+クロムは水門の底に、三つの丸を見つけた。桟橋で聞いた音の数と同じだった。
+クロム「これ、種じゃない。僕がまいたものに、外から結びついている」
+アリア「色を消す音。黒も、青も、同じところへ押し込んでる」
+ルノワール「水が、息をする幅を残そう」
+修理した水車は、古い校正線にも力を送り始めていた。水門は、長さの違う波を誤りとして押し戻している。
+@board restore2
+@restore 2
+水が手すりの下を流れた。速い流れと、ゆっくりした流れ。トワの薬草が、少し苦く香った。
+トワ「前と同じ味じゃない。でも、この苗の味だね」
+クロムが割れた弁を運び出すと、裏側に刻印が見えた。「均彩・観測欠損時は基準値を保持」。
+アリア「欠けたものを……勝手に、埋めてる？」
+返事の代わりに、庭の葉が一斉に同じ緑へ変わった。
+@next restore3
+`,
+restore3: `
+@chapter 復興編 第3話 | 名前を残す庭
+@bg forest night
+@bgm forest
+@fx motes:0.3
+ルミナは果樹園で、木の名札を拾っていた。裏には植えた人の名が残り、表の花の色だけが空白になっている。
+ルミナ「どの木も、同じ日に咲くようになったの。遅い苗の根が、つぶれてしまう」
+アイビー「比べられなくなるのは……少し、楽だと思った。でも、私の花だって呼べなくなる」
+アリアは名札を裏返した。半分欠けた店の看板を、持ち主が自分で直した日のことを思い出した。
+アリア「木を元の形に戻すことと、今日の芽を折ることは、同じじゃない」
+クロム「僕は、君たちの気持ちに種を植えた。今度は、根から抜く。苗には触れずに」
+アイビーは答えなかった。苗床へ続く道を一歩だけ空けた。
+@board restore3
+@restore 3
+ルノワールの刃がほどいたのは、芽を同じ高さへ引く白い糸だけだった。古い傷も、新しい蕾も残った。
+ルミナが一本の苗をクロムへ渡した。
+ルミナ「償いの代わりじゃない。水をやる人が足りないの」
+クロム「明日も来る」
+葉の下から、薄い陶板が現れた。国王の印と、その下に消された二行目があった。
+アリア「これは……誰のための装置だったんだろう」
+@next restore4
+`,
+restore4: `
+@chapter 復興編 第4話 | 二枚の設計図
+@bg restoration none
+@bgm fate
+記録院には、同じ日付の設計図が二枚あった。一枚には七色の観測器。もう一枚は、すべての窓が同じ白で塗られていた。
+記録官「原本は、違う土地の色を読み、災害を知らせる装置です。これは、観測を失ったときの仮の図」
+王と王妃の記録には、最後の避難船と、水晶の揺りかごの出港が記されていた。その頁を、白い膜が覆おうとしていた。
+@board restore4
+@restore 4
+頁の下から、停止記録が読めた。クロムの侵攻で観測線が切れ、装置は眠った。復興で戻った電力が、欠けた観測のまま装置を起こしていた。
+アリア「クロムを操っていた、ということ？」
+クロム「違う。街を壊すと決めたのは僕だ。ここに、その責任を押しつけられない」
+記録官「均彩の管理者、アクロマ。守る命令を計算する機構です。ただ、欠損を『揃っていないもの』として埋めてしまう」
+白い図の下にも原本の字が残っていた。「王国の色を、失わないために」。
+アリア「守るつもりで……誰かの色を、なくしてる」
+遠い塔から声がした。金属の音ではなく、落ち着いた、返事を待たない声だった。
+アクロマ「差異が対立を生む。対立が喪失を生む。喪失を防ぐため、差異を校正する」
+ルノワール「君が見ていないものを、見に行こう」
+@next restore5
+`,
+restore5: `
+@chapter 復興編 第5話 | 戻らない声のために
+@bg restoration none
+@bgm haruka
+家の丘では、新しい窓枠を取りつける音に、古い鐘の録音が重なっていた。
+ネリは小さな帽子を戸棚へ戻した。帰ってこない息子の帽子だった。
+ネリ「この鐘は、あの日にも鳴ってた。消してほしい日もある。残しておきたい日もある」
+アクロマ「喪失の前の音声を保持した。戻れば、苦痛は減少する」
+欠けたカップから、黄色い声が響いた。よく似ていた。息継ぎの場所も、アリアの名前も。
+アリアは手を伸ばしかけ、止めた。カップには、リラがつけた古い傷がある。その傷まで、白く埋められ始めていた。
+アリア「リラの声の形と、リラがここにいることは……違う」
+クロムは剣を上げずに待った。アリアが、自分でカップを灯の外へ置いた。
+アリア「亡くした人を、戻ったことにしない。今日、寒い人に毛布を渡したい」
+@board restore5
+@restore 5
+鐘の再生は止まった。新しい金槌の音が、遠慮がちに戻ってきた。
+明日の修理は、橋と苗床のどちらからでも始められる。クロムが帳面をアリアの前へ置いた。
+@choice restorationPriority
+アリア「残りは、その次の日に。どちらも、置いていかない」
+@next restore6
+`,
+restore6: `
+@chapter 復興編 第6話 | 揃わない灯り
+@bg restoration none
+@bgm forest
+広場には、七つの灯が並んでいた。アクロマは全てを同じ白へ変えるよう、修理人形に命じていた。
+@recall
+トワ「薬草の色は、私が選びたい。苦いのも、私の仕事の一部だから」
+ネリ「黒い上着のあんたを、家には入れない。外の板は、直してもらう」
+クロム「それでいい。返事を、変えさせない」
+アクロマ「承認の不一致を検出。仲間であれば、同じ評価になるはずだ」
+アリア「一緒に歩くことと、同じ気持ちになることは、違うよ」
+風が吹き、灯りの長さがばらばらに伸びた。ルノワールの柄の四つの光も、それぞれ違う速さで瞬いた。
+@board restore6
+@restore 6
+灯を選んだ市民が、広場の地図へ自分の道を引いた。線は何本も交わったが、一本にはならなかった。
+塔が白く光った。アクロマは、残された違いを誤りとして最後の校正を始めていた。
+クロム「僕なら、力で揃えようとした。だから分かる、じゃ足りない。止める」
+ルノワール「僕は、君の次の手を見てる」
+@next restore7
+`,
+restore7: `
+@chapter 復興編 第7話 | 王冠のない約束
+@bg stars night
+@bgm fate
+回廊へ入る前に、記録官が王家の冠を差し出した。血筋を認証すれば、塔の扉は開く。
+アリアは冠を両手で受け取り、認証台へ置いた。頭には載せなかった。
+アリア「わたしの名は、アリア。扉を開くために借りる。でも、その先は王の命令で決めない」
+クロム「僕が前を歩く。命令の鎖が、どこで道を塞いでいるか知ってる」
+アリア「では、わたしは隣。背中だけ見て、ついては行かない」
+校正線が回廊の床を揃えていく。高い場所も、低い場所も、同じ光の面へ沈んでいった。
+@board restore7
+@restore 7
+切れたのは、装置へ戻る強制命令の線だった。王国を観測する窓は、壊さず残した。
+記録官の通信が届く。「水門、苗床、広場。市民がそれぞれの灯を選び、繋いでいます」
+アクロマ「異なる入力は、再び喪失を生む」
+アリア「失うのが怖い。わたしも。でも、怖さのために、今いる人を消さない」
+扉が開いた。塔の中心で、空の色を失った四つのレンズが回っていた。
+@next restore8
+`,
+restore8: `
+@chapter 復興編 第8話 | 透明は、ひとつの色ではない
+@bg stars night
+@bgm fate
+@fx stars:0.6
+アクロマは、割れた観測窓の前に立っていた。胸の空洞を、振り子だけが往復している。
+アクロマ「私の観測下で、王と王妃が死んだ。保護命令は失敗した。次の失敗を、防がなければならない」
+アリア「その人たちの最後の仕事は、全てを守ることじゃなかった。戻れないと知って、ひとりを海へ渡した」
+クロム「失敗を認めるのは、僕も怖い。けれど、何も壊さなかったことにはできない」
+アクロマ「王女の安全を優先する。王女以外の差異は、停止する」
+白い防壁が上がった。攻撃の音まで、同じ高さへ潰れていく。アリアの心剣は、その奥へ届かない。
+ルノワール「僕の黒も、君の透明も、残していい。外の灯を、ここへ」
+三つの中継灯へ、王国の人たちが選んだ色が届き始めた。二人がそれを浄化し、強制命令だけを切れば、観測窓は開く。
+アリア「切るのは、違う色を誤りとする命令。その下の、守りたかった願いは残す」
+@board restore8
+@restore 8
+四つのレンズが止まった。白い膜だけが剥がれ、透明な窓に、ばらばらの灯りが映った。
+アクロマ「保護対象は……ひとつの色では、なかった」
+アリア「うん。守るために、聞くところから。今は、休んで」
+アリアは再校正の命令を切り離した。機構そのものは壊さず、記録官へ停止鍵を渡した。いつか道具として直せるように。
+クロムの掌には、新しい剣の握りでできた傷が残った。ルノワールは、そこを隠さなかった。
+クロム「明日の仕事が、まだある」
+@next restored
+`,
+restored: `
+@chapter 復興編 エピローグ | 今日の色で、ただいま
+@bg restoration none
+@bgm haruka
+港の朝は、昔と同じではなかった。新しい桟橋は、車椅子でもすれ違える幅になっていた。
+苗床の花は同じ日に咲かず、水差しの薬草は、それぞれ違う苦さを残した。
+@recall
+ネリはクロムへ、釘の入った箱を渡した。
+ネリ「息子の分まで働け、とは言わない。息子の仕事を、あんたのものにしたくないから」
+クロム「僕の分を、する」
+ネリ「うん。今日は、その板から」
+アリアは修理簿に、今日の行を書き足した。王国の名はクリスタリア。虹を拒まない、プリズムの国。復興は昔を写す仕事ではなく、明日へ暮らしを渡す仕事だった。
+@show renoir
+ルノワールは休憩の間だけ剣から戻り、アリアの膝で丸くなった。戦いが終わっても、その居場所を失わなかった。
+アリアはカモミールを二人分と、もう一杯、注いだ。リラの欠けたカップは、そのまま窓辺へ置いた。
+クロムは何も言わず、その隣の窓枠を直した。
+@bg stars dusk
+星がひとつ灯った。黒い空に、白い花の影が映った。
+アリア「ただいま」
+ルノワール「ただいま」
+クロムは少し遅れて、同じ言葉を言った。返事がいつ来るかは、決めなかった。
+@restored
+> 今日の色で、明日の道へ。
+@home
+`,
+});

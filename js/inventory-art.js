@@ -1,6 +1,6 @@
 // 生成した装備・道具・素材。未知のIDは画像URLにせず、既存の文字表示を残す。
 const InventoryArt = (() => {
-  const ids = Object.freeze(["e_glass","e_tide","e_ash","e_amber","e_prism","a_rain","a_wool","a_moss","a_gold","a_star","c_lens","c_bell","c_tea","c_brush","c_feather","u_knot","u_bell","u_vine","u_kintsugi","u_palette","u_nightsky","u_mist","u_fruit","u_compass","u_lens","u_sheath","u_quest_harbor","u_quest_lantern","u_quest_tide","u_quest_clock","u_quest_orchard","u_quest_thorns","u_quest_bloom","u_quest_bridge","u_quest_gold","u_quest_palette","u_quest_stargarden","u_quest_echo","i_tea","i_water","i_shard","i_powder","i_ward","m_dust","m_teal","m_green","m_gold","m_violet","m_core"]);
+  const ids = Object.freeze(["e_glass","e_tide","e_ash","e_amber","e_prism","a_rain","a_wool","a_moss","a_gold","a_star","c_lens","c_bell","c_tea","c_brush","c_feather","u_knot","u_bell","u_vine","u_kintsugi","u_palette","u_nightsky","u_mist","u_fruit","u_compass","u_lens","u_sheath","u_quest_harbor","u_quest_lantern","u_quest_tide","u_quest_clock","u_quest_orchard","u_quest_thorns","u_quest_bloom","u_quest_bridge","u_quest_gold","u_quest_palette","u_quest_stargarden","u_quest_echo","i_tea","i_water","i_shard","i_powder","i_ward","m_dust","m_teal","m_green","m_gold","m_violet","m_core","u_legend_tide","u_legend_bloom","u_legend_gold","u_legend_prism","u_legend_night"]);
   const known = new Set(ids);
   function icon(id, extra = '') {
     if (!known.has(id)) return '';

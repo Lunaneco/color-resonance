@@ -2,7 +2,7 @@
 const SaveData = (() => {
   const progress = ['cr_save', 'cr_unlocked', 'cr_party', 'cr_best'];
   const keys = [...progress, 'cr_diff', 'cr_speed', 'cr_vol', 'cr_settings'];
-  const chapters = ['prologue', 'act1', 'act2', 'act3', 'act4', 'act5', 'finale', 'epilogue', 'done'];
+  const chapters = ['prologue', 'act1', 'act2', 'act3', 'act4', 'act5', 'finale', 'epilogue', 'done', 'restore1', 'restore2', 'restore3', 'restore4', 'restore5', 'restore6', 'restore7', 'restore8', 'restored'];
   const object = v => !!v && typeof v === 'object' && !Array.isArray(v);
   const finite = (n, min, max) => typeof n === 'number' && Number.isFinite(n) && n >= min && n <= max;
   function checkTree(v, depth = 0) {
@@ -28,7 +28,7 @@ const SaveData = (() => {
     out.shavings = finite(v.shavings, 0, 5) ? Math.floor(v.shavings) : 0;
     if (object(v.scene)) {
       const s = v.scene, sc = {};
-      const backgrounds = ['none', 'rain', 'teal', 'forest', 'canyon', 'cave_sky', 'stars', 'glass'];
+      const backgrounds = ['none', 'rain', 'teal', 'forest', 'canyon', 'cave_sky', 'stars', 'glass', 'restoration'];
       if (s.bg && !backgrounds.includes(s.bg)) throw new Error('背景の記録が正しくありません');
       sc.bg = s.bg || null;
       sc.preset = typeof s.preset === 'string' && /^[a-zA-Z0-9]{1,20}$/.test(s.preset) ? s.preset : 'none';

@@ -31,17 +31,17 @@ async function fits(selector){
   assert(b.scroll<=b.width+1,`${selector} must not overflow horizontally: ${JSON.stringify(b)}`);assert(b.doc<=b.vw+1);
 }
 
-test('All 49 catalog assets have distinct, transparent, browser-decodable art in the published gallery',async()=>{
+test('All 54 catalog assets have distinct, transparent, browser-decodable art in the published gallery',async()=>{
   const quality=JSON.parse(await fs.readFile(path.join(root,'assets/inventory/quality.json'),'utf8'));
   await start();await page.goto(base+'#world',{waitUntil:'networkidle'});
   const catalog=await page.evaluate(()=>({ids:[...Object.keys(EQUIP),...Object.keys(ITEMS),...Object.keys(Progression.materials)],art:InventoryArt.ids,unknown:InventoryArt.icon('../unknown')}));
-  assert.equal(catalog.ids.length,49);assert.deepEqual([...catalog.art].sort(),catalog.ids.sort());assert.equal(catalog.unknown,'');
+  assert.equal(catalog.ids.length,54);assert.deepEqual([...catalog.art].sort(),catalog.ids.sort());assert.equal(catalog.unknown,'');
   assert.deepEqual(Object.keys(quality.assets).sort(),catalog.ids);
   const hashes=[];
   for(const [id,entry]of Object.entries(quality.assets)){const body=await fs.readFile(path.join(root,'assets/inventory',entry.file)),hash=crypto.createHash('sha256').update(body).digest('hex');assert.equal(hash,entry.sha256);hashes.push(hash);}
-  assert.equal(new Set(hashes).size,49,'Every item must have its own generated illustration');
+  assert.equal(new Set(hashes).size,54,'Every item must have its own generated illustration');
   await page.goto(base+'assets/inventory/index.html',{waitUntil:'networkidle'});
-  assert.equal(await page.locator('.card').count(),49);assert.deepEqual((await page.locator('.card').evaluateAll(cs=>cs.map(c=>c.dataset.id))).sort(),catalog.ids);
+  assert.equal(await page.locator('.card').count(),54);assert.deepEqual((await page.locator('.card').evaluateAll(cs=>cs.map(c=>c.dataset.id))).sort(),catalog.ids);
   const decoded=await decode('.card img');assert(decoded.every(([w,h])=>w===256&&h===256));
   const alpha=await page.locator('.card img').evaluateAll(imgs=>imgs.map(i=>{const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');x.drawImage(i,0,0);const data=x.getImageData(0,0,256,256).data;let clear=false,opaque=false;for(let n=3;n<data.length;n+=4){clear||=data[n]===0;opaque||=data[n]===255;}return clear&&opaque;}));assert(alpha.every(Boolean));
 });

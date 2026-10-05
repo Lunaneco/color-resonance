@@ -1,5 +1,5 @@
 {
-  "count": 49,
+  "count": 54,
   "size": [
     256,
     256
@@ -984,7 +984,107 @@
       ],
       "bytes": 14630,
       "sha256": "2d8f76af88729a1b11106e57f4822fb131e2ba1f32e9c14d362e835dbc75ed46"
+    },
+    "u_legend_tide": {
+      "file": "u_legend_tide.webp",
+      "source": "art-source/inventory/u_legend_tide.png",
+      "sourceSize": [
+        1269,
+        1240
+      ],
+      "crop": [
+        172,
+        6,
+        1089,
+        1169
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 17480,
+      "sha256": "e8414c8e4b9daebf2d677e6080f1bde31ab8ceb25b26286138f8085dc2e69702"
+    },
+    "u_legend_bloom": {
+      "file": "u_legend_bloom.webp",
+      "source": "art-source/inventory/u_legend_bloom.png",
+      "sourceSize": [
+        1244,
+        1264
+      ],
+      "crop": [
+        29,
+        10,
+        1228,
+        1255
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 17592,
+      "sha256": "3b6ab5464da1652575f3e3e4527689183cfcb775917e25f2539e89062f94636e"
+    },
+    "u_legend_gold": {
+      "file": "u_legend_gold.webp",
+      "source": "art-source/inventory/u_legend_gold.png",
+      "sourceSize": [
+        1241,
+        1268
+      ],
+      "crop": [
+        47,
+        48,
+        1193,
+        1225
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 11888,
+      "sha256": "cc98a714bba61014a8bba9e1905204db160aebf0b270063cc9fb20621854bddc"
+    },
+    "u_legend_prism": {
+      "file": "u_legend_prism.webp",
+      "source": "art-source/inventory/u_legend_prism.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        33,
+        50,
+        1221,
+        1096
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 22094,
+      "sha256": "7b349c772b62aa05ee7aa759af4c03f215efaf80bc5df1c37a417728f8c66829"
+    },
+    "u_legend_night": {
+      "file": "u_legend_night.webp",
+      "source": "art-source/inventory/u_legend_night.png",
+      "sourceSize": [
+        1214,
+        1295
+      ],
+      "crop": [
+        31,
+        88,
+        1189,
+        1214
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 15870,
+      "sha256": "38f22fd14f9f71be40fce87f5b8aa32f5504b578108fdf0c4315f13c7540a3cd"
     }
   },
-  "deliveryBytes": 817202
+  "deliveryBytes": 902126
 }

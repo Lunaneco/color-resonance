@@ -292,5 +292,35 @@
     "generator": "built-in image_gen.imagegen",
     "originalFile": "exec-8d4e0b37-d744-4b82-9df5-f017abf91098.png",
     "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One rare clear ivory crystalline core: a smooth rounded hexagonal jewel surrounding a single soft luminous four-point star, faint pale violet and gold edge refraction. Loose crystal without chains or bezel.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。"
+  },
+  "u_legend_tide": {
+    "source": "u_legend_tide.png",
+    "generator": "built-in image_gen.imagegen",
+    "originalFile": "exec-0ddee3d6-4e7d-4a44-9980-92f86ea3f822.png",
+    "prompt": "Single inventory illustration for a fantasy anime RPG, legendary equipment 'Returning Tide Starblade': a silver sword-shaped heart-blade engraving medallion, sweeping deep teal wave enclosing one clear star at the tip, brass edge, clean smooth enamel, iconic and readable at 64 pixels. One object centred with generous clear padding, true transparent alpha background, no hands, characters, text, pedestal, labels, checkerboard or other items. High quality clean painterly anime game art, restrained soft glow, no tiny sparkling particles.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。"
+  },
+  "u_legend_bloom": {
+    "source": "u_legend_bloom.png",
+    "generator": "built-in image_gen.imagegen",
+    "originalFile": "exec-36a07b93-94ea-449a-ae2d-48a6f812ff83.png",
+    "prompt": "Single legendary equipment inventory illustration for a fantasy anime RPG: 'Thousand-Colour Sprouting', an elegant travel mantle folded around a simple green leaf brooch, warm ivory cloth with a broad lavender inner lining, a few clear pastel petal shapes on the hem, organic emerald curved shoulders. One wearable garment only, no body, no mannequin, no character, no other items. Clean painterly anime fantasy, smooth fabric, readable silhouette at 64px, generous clear padding, true transparent alpha background, no ground, text, frame, pedestal or painted checkerboard.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。"
+  },
+  "u_legend_gold": {
+    "source": "u_legend_gold.png",
+    "generator": "built-in image_gen.imagegen",
+    "originalFile": "exec-77a0f9c2-10e9-4cf7-8962-556a79802732.png",
+    "prompt": "One legendary inventory icon for clean anime fantasy RPG: 'Dawn Kintsugi', a blade engraving made of a broad smooth cracked midnight-slate sword-shaped tablet repaired by one sweeping bright gold line, amber sunrise gem in its guard, the crack deliberately visible and filled with gold, elegant chunky iconic silhouette. One isolated object, centred with generous transparent padding, true transparent alpha, no character, hands, background, checkerboard, text, frame or stand. Restrained painterly game art, readable at 64 pixels, simple smooth surfaces and subtle light.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。"
+  },
+  "u_legend_prism": {
+    "source": "u_legend_prism.png",
+    "generator": "built-in image_gen.imagegen",
+    "originalFile": "exec-ea571a1a-1810-4f42-82d2-06c4e24b43f8.png",
+    "prompt": "Single legendary fantasy anime RPG inventory illustration: 'Seven-Colour Compass Ring', an antique brass circular compass ornament with seven bold differently coloured triangular needles pointing in different directions, violet teal green gold coral indigo ivory accents, one clean clear crystal rim. Iconic chunky readable silhouette, balanced simple construction, smooth enamel and metal, slight warm magical light. One charm, centred with ample transparent padding. True transparent alpha background. No text, numerals, letters, chain crossing outside margins, hands, characters, scene, stand or painted checkerboard.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。"
+  },
+  "u_legend_night": {
+    "source": "u_legend_night.png",
+    "generator": "built-in image_gen.imagegen",
+    "originalFile": "exec-4971f40b-3024-4be2-828a-98fe4d3645aa.png",
+    "prompt": "Single legendary equipment inventory illustration in a clean painterly anime fantasy RPG: 'Mantle that Weaves the Sky', a deep midnight blue travelling cloak with large smooth sweeping folds and a warm ivory inner lining, a silver crescent clasp with one softly shining clear star, a few broad constellation lines on the bottom edge, beautiful dark night preserved. No tiny glitter texture. One empty cloak garment, no person, mannequin, body or other objects. Centred, generous transparent padding, iconic readable at 64 pixels. True transparent alpha background, no scene, ground, labels, text, frame, stand, or painted checkerboard.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。"
   }
 }

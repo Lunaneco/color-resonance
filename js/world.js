@@ -269,7 +269,9 @@ const World = (() => {
       b.dataset.node = n.id;
       const qs = n.type === 'town' ? questsAt(n.id) : [];
       const levels = qs.map(q => Progression.level(q, chosen(q)));
-      const meta = conf ? `LV${Progression.level(conf, key)}・${Progression.difficulties[key].name}` : qs.length ? `依頼${qs.length}件・LV${Math.min(...levels)}〜${Math.max(...levels)}` : '';
+      const legendary = typeof Restoration !== 'undefined' && Restoration.joined() && LEGEND_QUESTS.find(q => q.town === n.id);
+      const baseMeta = conf ? `LV${Progression.level(conf, key)}・${Progression.difficulties[key].name}` : qs.length ? `依頼${qs.length}件・LV${Math.min(...levels)}〜${Math.max(...levels)}` : '';
+      const meta = legendary ? `${baseMeta ? baseMeta + ' / ' : ''}伝説級LV${Progression.level(legendary, 'hard')}` : baseMeta;
       b.setAttribute('aria-label', n.name + (meta ? '・適正' + meta : ''));
       const icon = n.type === 'town' ? '⌂' : n.type === 'free' ? '◇' : n.type === 'story' ? '✧' : '◆';
       b.innerHTML = `<i class="wn-dot">${icon}</i><span class="wn-name">${n.name}</span>${meta ? `<span class="wn-meta">${meta}</span>` : ''}${rec && rec.best ? `<span class="wn-rank r${rec.best}">${rec.best}</span>` : ''}${story ? '<span class="wn-story">物語</span>' : ''}`;
@@ -288,6 +290,7 @@ const World = (() => {
     });
   }
   function updateTop() {
+    el.querySelector('[data-w=restoration]').classList.toggle('hidden', !has('done'));
     document.getElementById('wmLv').textContent = party.aria.lv;
     document.getElementById('wmGold').textContent = party.gold;
   }
@@ -378,6 +381,13 @@ const World = (() => {
       body += `<div class="wp-sec">町の余白<small>戦わずに遊べる</small></div><p class="wp-note">${townNote} 制限時間のないパズルと記憶あそびで、ひと休みできます。</p>`;
     }
     if (n.type === 'town' && questsAt(n.id).length) body += `<div class="wp-sec">町の依頼<small>${questsAt(n.id).length}件</small></div>${questList(n.id)}`;
+    if (Restoration.joined()) {
+      const legend = LEGEND_QUESTS.find(q => q.town === n.id);
+      if (legend) {
+        body += `<div class="wp-sec">王国外の伝説<small>ハード固定 · 適正LV ${Progression.level(legend, 'hard')}</small></div><div class="wp-unique">${InventoryArt.icon(legend.unique)}<b>${legend.title}</b><span>${legend.desc}</span><small>初S評価で ${EQUIP[legend.unique].name}</small></div>`;
+        acts.push(`<button class="wb main" data-a="legend" data-legend="${legend.id}">伝説級へ挑戦</button>`);
+      }
+    }
     acts.push(`<button class="wb" data-a="equip">装備</button>`);
     panel.innerHTML = body + `<div class="wp-acts">${acts.join('')}</div>`;
     panel.classList.remove('hidden');
@@ -396,6 +406,7 @@ const World = (() => {
       else if (a === 'games') Minigames.open(n.id);
       else if (a === 'forge') SkillForge.open();
       else if (a === 'equip') openEquip();
+      else if (a === 'legend') Restoration.stage(b.dataset.legend, 'legends');
     });
   }
 
@@ -519,6 +530,7 @@ const World = (() => {
     Panel.open('仲間', `<div class="pt">
       <header class="au-banner"><small>THE COLOURS THAT WALK WITH YOU</small><h3>ともに育つ、色の絆。</h3><p>精霊との絆と、二つの習得経路を見渡す。</p></header>
       <div class="pt-row"><span class="pt-name">${GameArt.portrait('aria', 'pt-art')}<b>アリア</b></span><span>LV ${party.aria.lv}</span><span class="pt-exp"><i style="width:${party.aria.exp}%"></i></span></div>
+      ${Restoration.joined() ? `<div class="pt-row"><span class="pt-name">${GameArt.portrait('chrome_human', 'pt-art')}<b>クロム</b></span><span>LV ${party.chrome.lv}</span><span class="pt-exp"><i style="width:${party.chrome.exp}%"></i></span></div><p class="wp-note">人間の仲間として復興編・伝説級の戦場に同行。ルノワールの剣で浄化と夜の祈りを使います。召喚の期限はありません。</p>` : ''}
       <details class="pt-guide"><summary>絆と技の育て方 <span aria-hidden="true">＋</span></summary><p class="wp-note">絆は共通で育ち、精霊と技の力が強くなります。技の習得は「エンチャント」「召喚」の熟練度を別々に育て、各8・20・40で3種類ずつ。覚えた技の使用は絆+2で、系統の熟練には入りません。以前覚えた技はそのまま使えます。</p></details>
       <button class="sf-upgrade" id="ptForge">素材でスキルを強化する</button>
       <div class="bond-garden">${sp.map(id => {
@@ -570,6 +582,7 @@ const World = (() => {
     else if (w === 'forge') SkillForge.open();
     else if (w === 'journal') Journal.open();
     else if (w === 'quests') openQuests();
+    else if (w === 'restoration') Restoration.open();
     else if (w === 'party') openParty();
     else if (w === 'title') { close(); Main.toTitle(); }
   }));

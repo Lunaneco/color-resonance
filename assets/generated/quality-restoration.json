@@ -1,0 +1,36 @@
+{
+  "generator": "built-in imagegen",
+  "processing": "fixed grid; transparent pad; encode only",
+  "assets": {
+    "chrome_human": {
+      "sourceSize": [
+        1246,
+        1263
+      ],
+      "cellSize": [
+        623,
+        632
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "sheetSha256": "6a5e7c554ec7de81432801a323e23c581cbf026ff47ba54c46a2195e88c27a99"
+    },
+    "achroma": {
+      "sourceSize": [
+        1024,
+        1536
+      ],
+      "cellSize": [
+        512,
+        768
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "sheetSha256": "14c49fe7777a184954d845812bbbcd79c9fa9f9264275aa5de1e33d455b30752"
+    }
+  }
+}

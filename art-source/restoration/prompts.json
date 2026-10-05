@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "referenceRoles": {
+    "chrome": "Existing character identity",
+    "renoir": "Established night spirit identity; transforms into the sword willingly"
+  },
+  "prompts": [
+    {
+      "id": "chrome_human",
+      "prompt": "Create a production game sprite sheet for Color Resonance. Reference 1 is the exact established character Chrome, a young HUMAN man with short opaque charcoal hair, grey eyes, black travelling coat with restrained blue lining, trousers and boots. Keep face, hair, outfit consistent. Reference 2 is Renoir, the small living night-coloured spirit containing four soft coloured lights; he voluntarily becomes a purification sword for Chrome in the postgame. Make a TRUE TRANSPARENT BACKGROUND, no checkerboard drawn, no scene, no labels. A regular 2 columns x 2 rows grid, four equal cells, exactly ONE full body Chrome per cell, identical scale, feet fixed at 91% of each cell, same facing three-quarter left, ample padding. Cell reading order: 0 quiet ready stance holding sword lowered; 1 walking left with alternate leg lifted and coat moving slightly; 2 clearly attacking with forward sword slash, body leaning; 3 calmly extending the sword to purify, left hand open and a small smooth rainbow halo at blade. The sword has a deep midnight handle shaped as a simple Renoir rounded spirit and a transparent clear blade edged with four softly coloured lights; keep black as beautiful night, not evil. No huge effects obscuring silhouette. Clean painterly anime fantasy game art matching reference, readable small sprites, smooth surfaces, no text.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "generator": "built-in imagegen",
+      "source": "exec-faa2d8ec-c0e6-418e-b343-d56e2f89317d.png",
+      "adopted": true
+    },
+    {
+      "id": "achroma",
+      "prompt": "Production transparent fantasy game sprite sheet, 2 columns x 2 rows equally sized cells, four full-body views of ONE original final antagonist: Achroma, ancient prism kingdom's calibration automaton. A floating tall porcelain-white humanoid clockwork custodian, faceless smooth mask with a single vertical gold aperture, dark violet interior visible through open chest, four large asymmetrical empty colour lenses orbit shoulders like a broken surveying instrument; folded ivory robe shaped as clean broad geometric plates, narrow brass hands and a descending pendulum in place of legs. Emotion restrained and unsettling, not evil black, black and night are treated as beautiful in this game. Anime painterly fantasy style, clear silhouette, full figure every cell fixed same scale and bottom anchor, ample padding. Order: 0 motionless surveying, 1 turning with one hand reaching to a colour lens, 2 sweeping arm to erase a colour with ONE clean ivory arc, 3 mask aperture opened slightly with fractured gold halo, recovering. No labels, text, lines, ground, background or painted checkerboard. Real alpha transparency. Avoid intricate texture.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "generator": "built-in imagegen",
+      "source": "exec-8e15d226-8b88-45fb-9c48-db187e81c60b.png",
+      "adopted": true
+    },
+    {
+      "id": "restoration_background",
+      "prompt": "A wide cinematic 16:9 fantasy anime background plate for the postgame restoration of Color Resonance, no people, no text. Crystalia, the transparent prism kingdom, seen from a low stone bridge over crystal canals at blue dusk: elegant faceted transparent architecture reflecting warm windows and a dark starry sky, a repaired waterwheel on left, a visibly repaired bridge gold joint, saplings in the forecourt, far prism spires still partly ruined. Hopeful lived-in rebuilding rather than pristine ice palace; normal warm stone pavement, grass between stones, transparent structures letting the sky reflect softly. Centre has open unobstructed canal horizon for a UI map overlay. Detailed broad shapes, restrained clean painterly anime lighting, charcoal navy, warm brass, lavender and gentle rainbow highlights, no cold icy slabs, no excessive glitter.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "generator": "built-in imagegen",
+      "source": "exec-ab7d8cfb-2d3e-47f6-897c-7ebcad5af19a.png",
+      "adopted": true
+    },
+    {
+      "id": "u_legend_tide",
+      "prompt": "Single inventory illustration for a fantasy anime RPG, legendary equipment 'Returning Tide Starblade': a silver sword-shaped heart-blade engraving medallion, sweeping deep teal wave enclosing one clear star at the tip, brass edge, clean smooth enamel, iconic and readable at 64 pixels. One object centred with generous clear padding, true transparent alpha background, no hands, characters, text, pedestal, labels, checkerboard or other items. High quality clean painterly anime game art, restrained soft glow, no tiny sparkling particles.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "generator": "built-in imagegen",
+      "source": "exec-0ddee3d6-4e7d-4a44-9980-92f86ea3f822.png",
+      "adopted": true
+    },
+    {
+      "id": "u_legend_bloom",
+      "prompt": "Single legendary equipment inventory illustration for a fantasy anime RPG: 'Thousand-Colour Sprouting', an elegant travel mantle folded around a simple green leaf brooch, warm ivory cloth with a broad lavender inner lining, a few clear pastel petal shapes on the hem, organic emerald curved shoulders. One wearable garment only, no body, no mannequin, no character, no other items. Clean painterly anime fantasy, smooth fabric, readable silhouette at 64px, generous clear padding, true transparent alpha background, no ground, text, frame, pedestal or painted checkerboard.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "generator": "built-in imagegen",
+      "source": "exec-36a07b93-94ea-449a-ae2d-48a6f812ff83.png",
+      "adopted": true
+    },
+    {
+      "id": "u_legend_gold",
+      "prompt": "One legendary inventory icon for clean anime fantasy RPG: 'Dawn Kintsugi', a blade engraving made of a broad smooth cracked midnight-slate sword-shaped tablet repaired by one sweeping bright gold line, amber sunrise gem in its guard, the crack deliberately visible and filled with gold, elegant chunky iconic silhouette. One isolated object, centred with generous transparent padding, true transparent alpha, no character, hands, background, checkerboard, text, frame or stand. Restrained painterly game art, readable at 64 pixels, simple smooth surfaces and subtle light.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "generator": "built-in imagegen",
+      "source": "exec-77a0f9c2-10e9-4cf7-8962-556a79802732.png",
+      "adopted": true
+    },
+    {
+      "id": "u_legend_prism",
+      "prompt": "Single legendary fantasy anime RPG inventory illustration: 'Seven-Colour Compass Ring', an antique brass circular compass ornament with seven bold differently coloured triangular needles pointing in different directions, violet teal green gold coral indigo ivory accents, one clean clear crystal rim. Iconic chunky readable silhouette, balanced simple construction, smooth enamel and metal, slight warm magical light. One charm, centred with ample transparent padding. True transparent alpha background. No text, numerals, letters, chain crossing outside margins, hands, characters, scene, stand or painted checkerboard.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "generator": "built-in imagegen",
+      "source": "exec-ea571a1a-1810-4f42-82d2-06c4e24b43f8.png",
+      "adopted": true
+    },
+    {
+      "id": "u_legend_night",
+      "prompt": "Single legendary equipment inventory illustration in a clean painterly anime fantasy RPG: 'Mantle that Weaves the Sky', a deep midnight blue travelling cloak with large smooth sweeping folds and a warm ivory inner lining, a silver crescent clasp with one softly shining clear star, a few broad constellation lines on the bottom edge, beautiful dark night preserved. No tiny glitter texture. One empty cloak garment, no person, mannequin, body or other objects. Centred, generous transparent padding, iconic readable at 64 pixels. True transparent alpha background, no scene, ground, labels, text, frame, stand, or painted checkerboard.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "generator": "built-in imagegen",
+      "source": "exec-4971f40b-3024-4be2-828a-98fe4d3645aa.png",
+      "adopted": true
+    }
+  ]
+}

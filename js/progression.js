@@ -180,7 +180,7 @@ const Progression = (() => {
     const firstItems = { ...(conf.firstItems || { i_tea: 1 }) };
     if (key === 'gentle') firstItems.i_tea = (firstItems.i_tea || 0) + 1;
     if (key === 'hard') firstItems.i_ward = (firstItems.i_ward || 0) + 1;
-    return { firstItems, sEquipment: key === 'hard' ? conf.unique || null : key === 'normal' ? ordinaryRewards[conf.id] || 'e_glass' : null, sItems: key === 'gentle' ? { i_shard: 1, i_powder: 1 } : {}, unique: key === 'hard' };
+    return { firstItems, sEquipment: key === 'hard' ? conf.unique || null : key === 'normal' ? conf.ordinaryReward || ordinaryRewards[conf.id] || 'e_glass' : null, sItems: key === 'gentle' ? { i_shard: 1, i_powder: 1 } : {}, unique: key === 'hard' };
   }
   function migrate(party) {
     if (!isRecord(party)) party = {};
@@ -188,6 +188,12 @@ const Progression = (() => {
     party.aria.lv = Math.max(1, count(party.aria.lv, 1, 99));
     party.aria.exp = count(party.aria.exp, 0, 99);
     party.gold = count(party.gold, 0, 9999999);
+    const post = isRecord(party.postgame) ? party.postgame : {};
+    party.postgame = { started: post.started === true, progress: post.started === true ? count(post.progress, 0, 8) : 0,
+      finished: post.started === true && count(post.progress, 0, 8) === 8 && post.finished === true,
+      priority: ['bridge', 'garden'].includes(post.priority) ? post.priority : null };
+    const human = isRecord(party.chrome) ? party.chrome : {};
+    party.chrome = { lv: Math.max(1, count(human.lv, party.aria.lv, 99)), exp: count(human.exp, 0, 99) };
     party.spirits = isRecord(party.spirits) ? party.spirits : {};
     party.owned = [...new Set(Array.isArray(party.owned) ? party.owned.filter(id => typeof id === 'string' && /^[a-z][a-z0-9_]{0,63}$/.test(id)) : [])];
     const equipment = isRecord(party.equip) ? party.equip : {};
@@ -262,9 +268,9 @@ const Progression = (() => {
   }
   function prepare(conf, key) {
     const copy = JSON.parse(JSON.stringify(conf));
-    copy.difficulty = normalize(key);
+    copy.difficulty = copy.hardOnly ? 'hard' : normalize(key);
     const d = difficulties[copy.difficulty];
-    copy.recommendedLv = level(conf, key);
+    copy.recommendedLv = level(conf, copy.difficulty);
     copy.enemies = (copy.enemies || []).map(e => ({ ...e, lv: Math.max(1, (e.lv || 1) + d.enemyLevel) }));
     copy.enemyBoost = { hp: d.hp, atk: d.atk };
     return copy;

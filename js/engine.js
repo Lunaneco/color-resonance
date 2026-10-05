@@ -65,7 +65,7 @@ const Engine = (() => {
   }
   function showSpeakerArt(who) {
     if (scene.cgs.includes('lila-wave')) { clearSpeakerArt(); return; }
-    const id = GameArt.speakers[who];
+    const id = who === 'クロム' && chapter?.startsWith('restore') ? 'chrome_human' : GameArt.speakers[who];
     if (!id || id === 'aria' || scene.gran && id === 'gran' || scene.mari && id === 'mari' || scene.renoir && id === 'renoir') {
       if (speakerArt) { speakerArt.classList.add('dim'); GameArt.mount(speakerArt, speakerArtId, 'idle'); }
       return;
@@ -76,7 +76,7 @@ const Engine = (() => {
     }
     const changed = speakerArtId !== id;
     speakerArtId = id; speakerArt.classList.remove('dim');
-    speakerArt.classList.toggle('small', !['lila', 'fisher', 'kaoru', 'chrome', 'king'].includes(id));
+    speakerArt.classList.toggle('small', !['lila', 'fisher', 'kaoru', 'chrome', 'chrome_human', 'achroma', 'king'].includes(id));
     speakerArt.setAttribute('role', 'img'); speakerArt.setAttribute('aria-label', who);
     GameArt.mount(speakerArt, id, ['lila', 'fisher', 'lumina', 'stone_child', 'kaoru', 'mari'].includes(id) ? 'talk' : 'idle');
     if (changed) { speakerArt.classList.remove('show'); requestAnimationFrame(() => speakerArt?.classList.add('show')); }
@@ -442,7 +442,13 @@ const Engine = (() => {
       case 'sfx': Audio2.sfx[a[0]] && Audio2.sfx[a[0]](); break;
       case 'wait': await waitStage(Math.max(0, Math.min(60000, +a[0] || 0))); break;
       case 'next': { const mine = token; unlock(a[0]); await fadeOut(); if (mine === token) toMap(a[0]); return 'stop'; }
-      case 'end': unlock('done'); await credits(); return 'stop';
+      case 'rejoin': Restoration.join(); break;
+      case 'restore': Restoration.complete(Number(a[0])); break;
+      case 'priority': Restoration.priority(a[0]); await sayLine('アリア', Restoration.recall()); break;
+      case 'recall': await sayLine('', Restoration.recall()); break;
+      case 'restored': Restoration.finish(); break;
+      case 'home': toMap('restored'); return 'stop';
+      case 'end': unlock('done'); unlock('restore1'); await credits(); return 'stop';
     }
   }
 
@@ -467,6 +473,10 @@ const Engine = (() => {
   }
   function play(key, from = 0, restore) {
     if (!Object.hasOwn(SCRIPT, key)) return;
+    if (key.startsWith('restore')) {
+      if (!Restoration.canBegin(key)) return;
+      unlock(key);
+    }
     chapter = key; lines = parse(SCRIPT[key]);
     if (typeof World !== 'undefined') World.close();
     $('#title').classList.add('hide'); $('#title').style.display = 'none';
@@ -542,6 +552,7 @@ const Engine = (() => {
     try { localStorage.setItem('cr_save', JSON.stringify({ chapter: next, idx: 0, map: true, at: Date.now() })); } catch (e) {}
     resetStage();
     World.open({ arrive: next });
+    if (next.startsWith('restore')) Restoration.open();
   }
 
   // ---------- 小物 ----------
@@ -553,7 +564,7 @@ const Engine = (() => {
     const mine = token;
     tb.classList.add('hidden'); cgLayer.innerHTML = '';
     const d = document.createElement('div'); d.className = 'cg cgItem credits';
-    d.innerHTML = `<div style="font-size:15px;color:#b9c6de">（了）</div><div class="c1">Color Resonance</div><div>夜空の黒と透明の剣</div><div style="margin-top:30px;font-size:13px;color:#a3b0c7;letter-spacing:.12em;line-height:2">旅の続きを、好きな場所から。<br>地図には12の依頼と、町の小さな遊び。<br>手帳には、育てた絆から届く便りが残ります。</div>`;
+    d.innerHTML = `<div style="font-size:15px;color:#b9c6de">（了）</div><div class="c1">Color Resonance</div><div>夜空の黒と透明の剣</div><div style="margin-top:30px;font-size:13px;color:#a3b0c7;letter-spacing:.12em;line-height:2">旅の続きを、好きな場所から。<br>地図の「王国復興」から、新しい旅へ。<br>クロムと歩く復興編・25の戦闘。<br>町には12の依頼と、小さな遊び。<br>手帳には、育てた絆から届く便りが残ります。</div>`;
     d.style.inset = '0'; cgLayer.appendChild(d); requestAnimationFrame(() => d.classList.add('show'));
     FX.set('stars:1');
     if (!await waitStage(2000) || mine !== token) return;

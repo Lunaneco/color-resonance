@@ -53,9 +53,9 @@ const Journal = (() => {
     if (!Object.hasOwn(tabs, tab)) tab = 'journey';
     const p = Board.party, unlocked = Engine.unlocked(), colors = Engine.load()?.colors, marks = achievements(p, unlocked, colors), joined = Progression.companions(unlocked, colors);
     let body = '';
-    if (tab === 'journey') body = `<div class="jn-timeline">${CHAPTERS.map((ch, i) => {
-      const read = unlocked.includes(CHAPTERS[i + 1]?.key || 'done'), current = unlocked.includes(ch.key);
-      return `<article class="jn-chapter ${read ? 'read' : ''}"><span class="jn-chapter-no">${String(i + 1).padStart(2, '0')}</span><div><small>${ch.act} ${read ? '・読み終えた物語' : current ? '・旅の途中' : '・これからの物語'}</small><h4>${current ? ch.title : 'まだ開いていないページ'}</h4><p>${read ? notes[i] : current ? 'この章を読み終えると、アリアの旅の記録が残ります。' : '出会いを重ねると、次のページが開きます。'}</p></div></article>`;
+    if (tab === 'journey') body = `<div class="jn-timeline">${CHAPTERS.filter(ch => !ch.key.startsWith('restore') || unlocked.includes('done')).map((ch, i) => {
+      const read = ch.key === 'epilogue' ? unlocked.includes('done') : ch.key === 'restored' ? p.postgame.finished : unlocked.includes(CHAPTERS[i + 1]?.key || 'done'), current = unlocked.includes(ch.key);
+      return `<article class="jn-chapter ${read ? 'read' : ''}"><span class="jn-chapter-no">${String(i + 1).padStart(2, '0')}</span><div><small>${ch.act} ${read ? '・読み終えた物語' : current ? '・旅の途中' : '・これからの物語'}</small><h4>${current ? ch.title : 'まだ開いていないページ'}</h4><p>${read ? ch.note || notes[i] : current ? 'この章を読み終えると、アリアの旅の記録が残ります。' : '出会いを重ねると、次のページが開きます。'}</p></div></article>`;
     }).join('')}</div>`;
     if (tab === 'letters') body = `<p class="jn-note">使い続けて育った絆から、精霊の言葉が届きます。絆8・20・40で一通ずつ。</p><div class="jn-letters">${joined.map(id => {
       const pages = letters[id], bond = p.spirits[id]?.bond || 0, spirit = Progression.spirits[id];

@@ -40,6 +40,7 @@ const Board = (() => {
   // [基礎, LVごとの伸び]
   const GROW = {
     aria: { hp: [60, 10], atk: [18, 3.2], def: [8, 2.2], mov: 4, jump: 1, rng: [1, 1], h: 1.3 },
+    chrome_human: { hp: [80, 10], atk: [26, 3.5], def: [12, 2.4], mov: 4, jump: 1, rng: [1, 1], h: 1.3 },
     gran: { hp: [70, 9], atk: [16, 2.8], def: [9, 2], mov: 5, jump: 9, rng: [1, 2], fly: true, h: 1.12 },
     ivy: { hp: [48, 7], atk: [15, 2.8], def: [6, 1.6], mov: 3, jump: 1, rng: [2, 3], h: 0.95 },
     spinel: { hp: [80, 10], atk: [14, 2.4], def: [13, 2.6], mov: 3, jump: 1, rng: [1, 1], h: 0.95 },
@@ -51,7 +52,7 @@ const Board = (() => {
     membrane: { hp: [20, 5], atk: [9, 2.4], def: [3, 1.2], mov: 3, jump: 1, rng: [1, 2], h: 0.82 },
     chrome: { hp: [999, 0], atk: [14, 2.6], def: [99, 0], mov: 2, jump: 2, rng: [1, 2], h: 1.3 },
   };
-  const KIND_NAME = { aria: 'アリア', shade: '穢れの影', thorn: '茨の影', lead: '鉛の殻', boss: '穢れの核', membrane: '白い膜', chrome: 'クロム' };
+  const KIND_NAME = { aria: 'アリア', chrome_human: 'クロム', shade: '穢れの影', thorn: '茨の影', lead: '鉛の殻', boss: '穢れの核', membrane: '白い膜', chrome: 'クロム' };
   const SPIRITS = {
     gran: {
       name: 'グラン', color: '#3fb4c9', rgb: '110,205,240',
@@ -113,7 +114,7 @@ const Board = (() => {
   let GB = gearBonus(null);
   function saveParty() { try { localStorage.setItem(PARTY_KEY, JSON.stringify(party)); } catch (e) {} }
   let party = loadParty();
-  function rec(kind) { if (kind === 'aria') return party.aria; return party.spirits[kind] || (party.spirits[kind] = { lv: party.aria.lv, exp: 0, bond: 0, uses: 0, training: { enchant: 0, summon: 0 } }); }
+  function rec(kind) { if (kind === 'aria') return party.aria; if (kind === 'chrome_human') return party.chrome; return party.spirits[kind] || (party.spirits[kind] = { lv: party.aria.lv, exp: 0, bond: 0, uses: 0, training: { enchant: 0, summon: 0 } }); }
   const bondRank = id => Progression.rank(rec(id).bond);
   function gainBond(id, amount, use = false, route = null) {
     const r = rec(id), before = bondRank(id);
@@ -148,7 +149,7 @@ const Board = (() => {
   let t0 = performance.now(), running = false, sess = 0, renderFrame = null;
   let turn = 0, phase = 'player', stage = 1, busy = false, over = false, paused = false;
   let sel = null, mode = 'idle', moveInfo = null, targets = null, targetCmd = null, hover = null, threat = null, menuSub = null, infoU = null;
-  let sp = 0, skyCharges = 0, enchantUsed = false;
+  let sp = 0, skyCharges = 0, enchantUsed = false, renoirUsed = false;
   let stats = null, difficulty = 'normal', tierA = 0, tierE = 0, ratioA = 0, ratioE = 0, kegIdx = 0, colorIdx = 0, totalFoes = 0;
   let hudReady = false;
 
@@ -441,6 +442,7 @@ const Board = (() => {
     const atkSet = mode === 'selected' && sel ? attackTargets(sel) : null;
     for (const cell of cellsOrder) {
       drawCell(cell, t, now, area, path, atkSet);
+      if (cell.beacon) drawBeacon(cell, t);
       const us = byCell.get(idx(cell.r, cell.c));
       if (us) us.forEach(u => drawUnit(u, t, now));
     }
@@ -465,6 +467,29 @@ const Board = (() => {
     renderFrame = requestAnimationFrame(render);
   }
 
+  function initBeacons(start) {
+    if (!cfg.restoreBeacons) return;
+    // Keep every objective reachable by a walking human, independent of random hills.
+    const reachableCells = new Set([start]), queue = [start];
+    for (let i = 0; i < queue.length; i++) for (const c of nb4(queue[i])) {
+      if (c.walk && Math.abs(c.h - queue[i].h) <= 1 && !reachableCells.has(c)) { reachableCells.add(c); queue.push(c); }
+    }
+    const chosen = [];
+    for (let n = 0; n < cfg.restoreBeacons; n++) {
+      const candidates = [...reachableCells].filter(c => !chosen.includes(c) && dist(c, start) >= 3 && !unitAt(c));
+      candidates.sort((a, b) => Math.min(dist(b, start), ...chosen.map(c => dist(b, c))) - Math.min(dist(a, start), ...chosen.map(c => dist(a, c))));
+      const cell = candidates[0]; if (cell) { cell.beacon = n + 1; cell.beaconOn = false; chosen.push(cell); }
+    }
+    cfg.restoreBeacons = chosen.length;
+  }
+  function drawBeacon(c, t) {
+    const p = topOf(c); g.save();
+    g.strokeStyle = c.beaconOn ? '#adf0cf' : '#ffd696'; g.fillStyle = c.beaconOn ? '#153d32' : '#352642'; g.lineWidth = 2;
+    g.beginPath(); g.moveTo(p.x, p.y - th * .7); g.lineTo(p.x + tw * .14, p.y - th * .15); g.lineTo(p.x, p.y + th * .2); g.lineTo(p.x - tw * .14, p.y - th * .15); g.closePath(); g.fill(); g.stroke();
+    g.fillStyle = c.beaconOn ? '#d6ffea' : '#ffe9bd'; g.font = `bold ${Math.max(10, tw * .2)}px sans-serif`; g.textAlign = 'center'; g.fillText(c.beaconOn ? '✓' : c.beacon, p.x, p.y - th * .12);
+    if (!c.beaconOn) { g.globalAlpha = reducedMotion() ? .4 : .35 + Math.sin(t * 2) * .15; g.beginPath(); g.ellipse(p.x, p.y, tw * .25, th * .23, 0, 0, Math.PI * 2); g.stroke(); }
+    g.restore();
+  }
   function drawCell(c, t, now, area, path, atkSet) {
     const b = base(c.r, c.c), x = b.x;
     const inv = cfg.inverted;
@@ -590,7 +615,7 @@ const Board = (() => {
     if (u.guard) { g.strokeStyle = `rgba(255,220,130,${0.5 + 0.3 * Math.sin(t * 3)})`; g.lineWidth = 2; g.beginPath(); g.ellipse(p.x, p.y - tw * 0.45, tw * 0.32, tw * 0.55, 0, 0, 6.29); g.stroke(); }
     if (done) g.globalAlpha = alpha * 0.6;
     const flash = u.flash > now ? (u.flash - now) / 220 : 0;
-    if (GameArt.available(u.kind)) drawGenerated(u, p, now, flash);
+    if (GameArt.available(u.artId || u.kind)) drawGenerated(u, p, now, flash);
     else if (u.kind === 'aria') drawAria(u, p.x, p.y, t, flash);
     else if (SPIRITS[u.kind]) drawSpirit(u, p.x, p.y, t, flash);
     else drawKegare(u, p.x, p.y, t, flash);
@@ -598,10 +623,14 @@ const Board = (() => {
   }
   function playMotion(u, action, rate = 1, offset = 0) { u.artMotion = { action, rate, offset, t0: performance.now() }; }
   function drawGenerated(u, p, now, flash) {
+    const artId = u.artId || u.kind;
     let action = u.mv ? 'walk' : 'idle', elapsed = now - (u.walkT || u.bornT || 0);
     const m = u.artMotion;
-    if (m && (now - m.t0) * m.rate + m.offset < (GameArt.animation(u.kind, m.action)?.durationMs || 0)) {
+    if (m && (now - m.t0) * m.rate + m.offset < (GameArt.animation(artId, m.action)?.durationMs || 0)) {
       action = m.action; elapsed = (now - m.t0) * m.rate + m.offset;
+    }
+    if (u.resonance) {
+      for (const [i, colour] of ['#65d8ed', '#94e4a7', '#ffdc8d', '#cab0ef'].entries()) { g.strokeStyle = colour; g.lineWidth = 2; g.beginPath(); g.ellipse(p.x, p.y - tw * .05 * i, tw * (.26 + i * .04), th * (.22 + i * .025), 0, (reducedMotion() ? 0 : now / 600) + i * 1.57, (reducedMotion() ? 0 : now / 600) + i * 1.57 + 1.2); g.stroke(); }
     }
     if (u.enchant) {
       const s = SPIRITS[u.enchant.id], h = tw * u.hgt;
@@ -613,10 +642,10 @@ const Board = (() => {
     const dir = viewDir(u.dir);
     const flip = u.kind === 'gran' ? dir === 0 || dir === 1 : dir === 2 || dir === 3;
     const height = tw * u.hgt, width = tw * (u.kind === 'gran' ? 1.25 : .98);
-    GameArt.drawMotion(g, u.kind, action, elapsed, p.x, p.y + th * .08, height, width, { flip });
+    GameArt.drawMotion(g, artId, action, elapsed, p.x, p.y + th * .08, height, width, { flip });
     if (flash > 0) {
       g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha *= flash;
-      GameArt.drawMotion(g, u.kind, action, elapsed, p.x, p.y + th * .08, height, width, { flip }); g.restore();
+      GameArt.drawMotion(g, artId, action, elapsed, p.x, p.y + th * .08, height, width, { flip }); g.restore();
     }
     if (u.armor > 0) { g.strokeStyle = 'rgba(200,210,225,.8)'; g.lineWidth = 2; g.beginPath(); g.ellipse(p.x, p.y - tw * .28, tw * .29, th * .3, 0, 0, 6.29); g.stroke(); }
   }
@@ -973,7 +1002,7 @@ const Board = (() => {
   }
 
   // ---------- 攻撃の計算 ----------
-  const effRng = (u) => u.kind !== 'aria' ? u.rng : [1, (u.enchant && u.enchant.id === 'gran' ? 2 : 1) + GB.rng];
+  const effRng = (u) => u.resonance ? [1, 2] : u.kind !== 'aria' ? u.rng : [1, (u.enchant && u.enchant.id === 'gran' ? 2 : 1) + GB.rng];
   function inRange(u, from, tc) {
     const d = dist(from, tc), rng = effRng(u);
     if (d < rng[0] || d > rng[1]) return false;
@@ -995,9 +1024,9 @@ const Board = (() => {
     const TA = TIER[a.side === 'ally' ? tierA : tierE], TD = TIER[d.side === 'ally' ? tierA : tierE];
     let atk = a.atk * TA.atk * (opt.power || 1);
     if (ownFloor(a, ac)) atk *= 1.1;
-    if (opt.normal && a.enchant && a.enchant.id === 'king') atk *= 1.25;
+    if (opt.normal && (a.resonance || a.enchant && a.enchant.id === 'king')) atk *= 1.25;
     if (opt.normal && a.enchant) atk *= 1 + (bondRank(a.enchant.id) - 1) * 0.03;
-    const pierce = opt.pierce || (opt.normal && a.enchant && a.enchant.id === 'spinel');
+    const pierce = opt.pierce || (opt.normal && (a.resonance || a.enchant && a.enchant.id === 'spinel'));
     let def = pierce ? 0 : d.def * TD.def * (d.guard ? 1.3 : 1) * (oppFloor(d, dc) && !(d.kind === 'aria' && GB.dullGuard) ? 0.9 : 1);
     const dh = ac.h - dc.h;
     let m = dh > 0 ? 1.15 : dh < 0 ? 0.9 : 1;
@@ -1024,7 +1053,7 @@ const Board = (() => {
       const oldLv = r.lv, before = statsOf(kind, oldLv);
       r.lv++;
       const after = statsOf(kind, r.lv);
-      stats.levelUps.push({ name: kind === 'aria' ? 'アリア' : SPIRITS[kind].name, from: oldLv, to: r.lv, hp: after.mhp - before.mhp, atk: after.atk - before.atk, def: after.def - before.def });
+      stats.levelUps.push({ name: KIND_NAME[kind] || SPIRITS[kind].name, from: oldLv, to: r.lv, hp: after.mhp - before.mhp, atk: after.atk - before.atk, def: after.def - before.def });
       if (u && !u.dead) {
         const af = statsFor(kind, r.lv);
         u.lv = r.lv; u.mhp = af.mhp; u.atk = af.atk; u.def = af.def; u.hp = Math.min(u.mhp, u.hp + (after.mhp - before.mhp));
@@ -1074,6 +1103,10 @@ const Board = (() => {
       floatText(pd.x, pd.y - tw * 1.4, '刃は、黒を通り抜けた', 'color', '#e8eeff');
       return { pass: true };
     }
+    if (d.kind === 'boss' && cfg.bossShield && cells.some(c => c.beacon && !c.beaconOn)) {
+      floatText(pd.x, pd.y - tw * 1.3, '防壁：復興の灯をすべて浄化して解除', 'sys');
+      Audio2.sfx.miss(); return { pass: true };
+    }
     const res = calcDamage(a, d, opt);
     const miss = !opt.sure && res.side !== 'back' && Math.random() < 0.05 + (d.kind === 'aria' ? GB.evade / 100 : 0);
     const crit = !miss && !opt.noCrit && Math.random() < (res.side === 'back' ? 0.18 : 0.08) + (a.kind === 'aria' ? GB.crit / 100 : 0);
@@ -1096,7 +1129,7 @@ const Board = (() => {
     if (d.side === 'ally') stats.taken += dmg;
     // 鉛
     if (d.armor > 0) {
-      const brk = (opt.pierce || (opt.normal && a.enchant && a.enchant.id === 'spinel')) ? d.armor : 1;
+      const brk = (opt.pierce || (opt.normal && (a.resonance || a.enchant && a.enchant.id === 'spinel'))) ? d.armor : 1;
       d.armor = Math.max(0, d.armor - brk);
       Audio2.sfx.crack();
       burst(pd.x, pd.y - tw * 0.4, 10, { col: '255,215,120', r: 5 });
@@ -1136,7 +1169,7 @@ const Board = (() => {
       if (a.kind === 'chrome') artEffect('chrome_wave', cellOf(d), 2.3);
       else if (en) artEffect(GameArt.spiritEffects[a.enchant.id], cellOf(d), 1.8);
       else if (SPIRITS[a.kind]) artEffect(GameArt.spiritEffects[a.kind], cellOf(d), 1.2);
-      else if (a.kind === 'aria') artEffect('crystal_slash', cellOf(d), 1.1);
+      else if (a.kind === 'aria' || a.kind === 'chrome_human') artEffect('crystal_slash', cellOf(d), 1.1);
     }
     if (r.pass) { await wait(700); unfocus(); return 'phase0'; }
     if (!r.miss && a.side === 'ally') {
@@ -1144,7 +1177,7 @@ const Board = (() => {
       else if (opt.normal && a.enchant) gainBond(a.enchant.id, 1, true, 'enchant');
     }
     if (r.crit) { focus(pd.x, pd.y - tw * 0.5, 1.32); await wait(110); }
-    if (!r.miss && opt.normal && a.enchant) await enchantEffect(a, d, r.dmg);
+    if (!r.miss && opt.normal && (a.enchant || a.resonance)) await enchantEffect(a, d, r.dmg);
     refreshHud();
     await wait(420);
     if (my !== sess) return;
@@ -1154,8 +1187,8 @@ const Board = (() => {
   }
 
   async function enchantEffect(a, d, dmg) {
-    const id = a.enchant.id, dc = cellOf(d), p = unitXY(d);
-    if (id === 'gran') {
+    const id = a.enchant?.id, all = !!a.resonance, dc = cellOf(d), p = unitXY(d);
+    if (all || id === 'gran') {
       [dc, ...nb4(dc)].forEach((c, i) => paint(c, 'rainbow', i * 60));
       fxp.push({ k: 'ring', x: p.x, y: p.y, r: tw * 0.2, grow: tw * 1.4, col: '120,210,255', life: 0, max: 1, w: 4 });
       if (d.hp > 0) {
@@ -1170,12 +1203,15 @@ const Board = (() => {
           floatText(to.x, to.y - tw, '押し流した', 'sys');
         }
       }
-    } else if (id === 'ivy') {
+    }
+    if (all || id === 'ivy') {
       if (d.hp > 0) { d.root = 1; floatText(p.x, p.y - tw * 1.2, '蔦が、縛った', 'color', '#a8f0b0'); }
       const h = Math.max(1, Math.round(dmg * 0.3)); heal(a, h);
-    } else if (id === 'spinel') {
+    }
+    if (all || id === 'spinel') {
       burst(p.x, p.y - tw * 0.4, 12, { col: '255,220,130' });
-    } else if (id === 'king') {
+    }
+    if (all || id === 'king') {
       paintArea(dc, 1, 'rainbow', 50);
       fxp.push({ k: 'ring', x: p.x, y: p.y, r: tw * 0.3, grow: tw * 1.8, col: '210,180,255', life: 0, max: 1.1, w: 4 });
     }
@@ -1197,7 +1233,7 @@ const Board = (() => {
       stats.kills++;
       stats.gold += 8 + d.lv * 2;
       if (killer && killer.until) stats.summonKills++;
-      if (killer && killer.kind === 'aria' && killer.enchant) stats.enchantKills++;
+      if (killer && (killer.resonance || killer.kind === 'aria' && killer.enchant)) stats.enchantKills++;
       if (d.kind === 'boss' && live().some(u => u.side === 'enemy')) stats.bossEarly = true;
       stats.lastBoss = d.kind === 'boss';
       if (killer && killer.kind === 'aria') { if (GB.killHeal) heal(killer, Math.round(killer.mhp * GB.killHeal / 100)); if (GB.killSp) sp = Math.min(spCap(), sp + GB.killSp); }
@@ -1222,7 +1258,7 @@ const Board = (() => {
       refreshHud();
       await wait(450);
       if (stage === 1 && !live().some(u => u.side === 'enemy')) win();
-    } else if (d.kind === 'aria') {
+    } else if (d.kind === 'aria' || d.kind === 'chrome_human') {
       smoke(p.x, p.y - tw * 0.5, 20, '20,10,30');
       lose();
     } else {
@@ -1266,10 +1302,34 @@ const Board = (() => {
     for (const o of hit) if (o.hp <= 0 && !o.dead) await defeat(o, a);
     unfocus(); await wait(150);
   }
+  function doRenoir(u) { return runTask((async () => {
+    const my = sess; busy = true; hideMenu(); endBtn.disabled = true;
+    renoirUsed = true; sp -= 6;
+    await skillBanner('ルノワール · 四響エンチャント', '#dac1fa');
+    if (my !== sess) return;
+    u.resonance = { turns: 3, from: turn }; playMotion(u, 'purify', 1.5);
+    for (const id of Object.values(GameArt.spiritEffects)) artEffect(id, cellOf(u), 1.5);
+    Audio2.sfx.skill(); await wait(700);
+    if (my !== sess || over) return;
+    busy = false; endBtn.disabled = false; refreshHud(); select(u, true); showMenu(u);
+  })()); }
+  async function purify(a, cell) {
+    const my = sess;
+    await skillBanner(a.kind === 'chrome_human' ? 'ルノワールの浄化' : '透明の浄化', '#dacfff');
+    if (my !== sess) return;
+    playMotion(a, 'purify', 1.5); artEffect('night_sky', cell, 1.8); Audio2.sfx.heal();
+    paintArea(cell, 2, 'rainbow', 60); stats.purify++;
+    if (cell.beacon && !cell.beaconOn) {
+      cell.beaconOn = true; const p = topOf(cell); floatText(p.x, p.y - tw, '復興の灯が、つながった', 'color', '#bfe9d0');
+      if (!cells.some(c => c.beacon && !c.beaconOn) && cfg.bossShield) say('ルノワール', '灯が届いた。防壁が開く、核に届くよ。', 4500);
+    }
+    gainExp(a.kind, 10, a); refreshHud(); await wait(700);
+    if (my === sess && !live().some(u => u.side === 'enemy')) win();
+  }
   async function pray(a, target) {
     const p = unitXY(target);
     focus(p.x, p.y - tw * 0.5, 1.12);
-    await skillBanner('凪の祈り', '#bfffd6');
+    await skillBanner(a.kind === 'chrome_human' ? '夜の祈り' : '凪の祈り', '#bfffd6');
     playMotion(a, 'pray', 2, 500); artEffect('pray_heal', cellOf(target), 1.6);
     Audio2.sfx.heal();
     fxp.push({ k: 'beam', x: p.x, y: p.y, col: '170,255,210', w: 0.5, life: 0, max: 1.1 });
@@ -1420,7 +1480,7 @@ const Board = (() => {
     const s = new Set();
     const add = (c) => { if (c) s.add(idx(c.r, c.c)); };
     if (cmd === 'flash' && sel) { const v = [cell.r - sel.r, cell.c - sel.c]; add(cell); add(cellAt(cell.r + v[0], cell.c + v[1])); }
-    else if (cmd === 'sky') areaCells(cell, 2).forEach(add);
+    else if (cmd === 'sky' || cmd === 'purify') areaCells(cell, 2).forEach(add);
     else if (cmd === 'pray') areaCells(cell, 1).forEach(add);
     else if (cmd.startsWith('item:')) { const it = ITEMS[cmd.slice(5)]; if (it && it.paint) areaCells(cell, it.paint).forEach(add); else add(cell); }
     else if (cmd.startsWith('summon:')) { const id = cmd.slice(7); areaCells(cell, SPIRITS[id].summon.rad).forEach(add); }
@@ -1436,6 +1496,8 @@ const Board = (() => {
     if (turn > 1) {
       for (const u of live().filter(u => u.until)) { u.summon = u.until - turn; if (u.summon < 0) await departSpirit(u); }
       const a = ariaU();
+      const ch = live().find(u => u.kind === 'chrome_human');
+      if (ch?.resonance && turn > ch.resonance.from) { ch.resonance.turns--; if (ch.resonance.turns <= 0) { ch.resonance = null; say('ルノワール', '四つの光が、静かな剣へ戻った。四響はこの戦闘では使用済み。', 4000); } }
       if (a && a.enchant && turn > a.enchant.from) {
         a.enchant.turns--;
         if (a.enchant.turns <= 0) { const p = unitXY(a); floatText(p.x, p.y - tw * 1.5, `${SPIRITS[a.enchant.id].name}が、心剣から離れた`, 'sys'); a.enchant = null; }
@@ -1451,6 +1513,7 @@ const Board = (() => {
     await showBanner('player', 'PLAYER PHASE', `TURN ${turn}　—　${floorNames()[0]}の手番`);
     if (my !== sess || over) return;
     busy = false; mode = 'idle';
+    refreshHud();
     phaseLabel.textContent = '味方を選んでください';
     endBtn.disabled = false;
     const a = ariaU();
@@ -1559,7 +1622,7 @@ const Board = (() => {
   }
 
   // ---------- 選択と命令 ----------
-  const normalAttackLimit = u => stage && u.kind === 'aria' && u.enchant ? 2 : 1;
+  const normalAttackLimit = u => stage && (u.resonance || u.kind === 'aria' && u.enchant) ? 2 : 1;
   const followUpPending = u => u && !u.acted && u.normalAttacks > 0 && u.normalAttacks < normalAttackLimit(u);
   const selectionPrompt = u => followUpPending(u) ? 'あと1回攻撃できます／待機で向きを選んで終了' : u.moved ? '行動を選んでください' : '光る床へ移動／本人に触れて、その場で行動';
   function select(u, quiet) {
@@ -1669,6 +1732,15 @@ const Board = (() => {
     Audio2.sfx.choose();
     if (k === 'attack') enterTarget('attack', attackTargets(u));
     else if (k === 'flash') { const s = new Set(); nb4(cellOf(u)).forEach(c => s.add(idx(c.r, c.c))); enterTarget('flash', s); }
+    else if (k === 'renoir') {
+      if (!cfg.postgame || u.kind !== 'chrome_human' || renoirUsed || sp < 6) return;
+      doRenoir(u);
+    }
+    else if (k === 'purify') {
+      if (!cfg.postgame || !['aria', 'chrome_human'].includes(u.kind) || sp < 2) return;
+      const set = new Set(cells.filter(c => c.walk && dist(c, u) <= 2).map(c => idx(c.r, c.c)));
+      enterTarget('purify', set);
+    }
     else if (k === 'pray') { const s = new Set(); live().filter(o => o.side === 'ally' && dist(o, u) <= 1).forEach(o => s.add(idx(o.r, o.c))); enterTarget('pray', s); }
     else if (k === 'spirit') showMenu(u, 'spirit');
     else if (k === 'learned' && u.kind === 'aria' && stage) { if (!Progression.learned(party, null, learnedRoute).length && Progression.learned(party).length) learnedRoute = Progression.learned(party)[0].route; showMenu(u, 'learned'); }
@@ -1699,6 +1771,10 @@ const Board = (() => {
     if (!u || u.acted || !cmd || (followUpPending(u) && cmd !== 'attack')) return;
     if (cmd === 'attack' && o && foe(u, o) && attackTargets(u).has(idx(cell.r, cell.c))) act(u, () => attack(u, o, { normal: true }), true);
     else if (cmd === 'flash') { sp -= flashCost(); act(u, () => flashStrike(u, cell)); }
+    else if (cmd === 'purify') {
+      if (!cfg.postgame || !['aria', 'chrome_human'].includes(u.kind) || sp < 2 || !cell.walk || dist(cell, u) > 2) return;
+      sp -= 2; act(u, () => purify(u, cell));
+    }
     else if (cmd === 'pray' && o) { sp -= COST_PRAY; act(u, () => pray(u, o)); }
     else if (cmd.startsWith('skill:')) {
       const skill = Progression.learned(party).find(s => s.id === cmd.slice(6));
@@ -1786,6 +1862,7 @@ const Board = (() => {
     cmdMenu.classList.toggle('learned', sub === 'learned');
     cmdMenu.classList.toggle('facing', sub === 'facing');
     cmdMenu.classList.toggle('followup', followUp && sub !== 'facing');
+    cmdMenu.classList.toggle('renoir', u.kind === 'chrome_human');
     menuSub = sub || null;
     const it = [];
     const btn = (k, label, opt = {}) => `<button class="cm-b${opt.art ? ' cm-item' : ''}" data-k="${k}" ${opt.a ? `data-a="${opt.a}"` : ''} ${opt.dis ? 'disabled' : ''} data-d="${opt.d || ''}">${opt.art ? `<span>${InventoryArt.icon(opt.art)}<span>${label}</span>${opt.cost != null ? `<em>${opt.cost}</em>` : ''}</span>` : `${label}${opt.cost != null ? `<em>${opt.cost}</em>` : ''}`}${opt.key ? `<kbd>${opt.key}</kbd>` : ''}</button>`;
@@ -1833,6 +1910,14 @@ const Board = (() => {
       it.push(`<div class="cm-head">${u.name}<small>Lv${u.lv}</small></div>`);
       if (normalAttackLimit(u) === 2) it.push(`<div class="cm-combo" role="status" aria-live="polite"><span>通常攻撃</span><b>残り${2 - u.normalAttacks}回</b><small>${followUp ? (atk ? '同じ敵にも、別の敵にも追撃できます。' : '届く敵がいません。待機で向きを選べます。') : '1ターンに2回。技・道具を選ぶと行動終了。'}</small></div>`);
       it.push(btn('attack', (followUp ? '追撃 · ' : '') + (u.kind === 'aria' ? (u.enchant ? SPIRITS[u.enchant.id].enchant.name : '心剣') : '攻撃'), { dis: !atk, key: 'A', d: atk ? '届く敵を選んで攻撃する。敵に直接触れても攻撃できる' : '届く場所に敵がいない' }));
+      if (cfg.postgame && ['aria', 'chrome_human'].includes(u.kind) && !followUp) it.push(btn('purify', '浄化 · 灯を繋ぐ', { cost: 2, dis: sp < 2, d: '2マス以内の床を選び、周り2マスを虹に。選んだ復興の灯を点ける（行動を使う）' }));
+      if (u.kind === 'chrome_human' && !followUp) {
+        const why = renoirUsed ? '使用済み · 1戦闘に1回' : '1戦闘に1回 · 3ターン';
+        it.push(btn('renoir', '四響エンチャント', { cost: 6, dis: renoirUsed || sp < 6, d: `${why}。精霊から吸収して身につけたルノワール自身の能力。精霊の戦闘不能に影響されない。射程2・攻撃+25%・守りと鉛を貫通・押し流し・拘束・30%吸収・虹床拡張。通常攻撃は毎ターン2回。宿す時は行動を使わない` }));
+        it.push(`<div class="cm-note">ルノワール · ${why}</div>`);
+        it.push(btn('pray', '夜の祈り', { cost: COST_PRAY, dis: sp < COST_PRAY, d: '自分か隣の味方を35%癒す。ルノワールが夜に灯を残す' }));
+        it.push(btn('item', '道具 ▸', { d: '共有の道具を使う（行動を使う）' }));
+      }
       if (u.kind === 'aria' && !followUp) {
         if (stage) it.push(btn('flash', '透明の一閃', { cost: flashCost(), dis: sp < flashCost(), d: '前方2マスを貫く一閃。必中・威力1.35倍、通り道を虹に染める' }));
         it.push(btn('pray', '凪の祈り', { cost: COST_PRAY, dis: sp < COST_PRAY, d: '自分か隣の味方のHPを35%癒し、周りを虹に染める' }));
@@ -1893,6 +1978,7 @@ const Board = (() => {
     const r = ally ? rec(u.kind) : null;
     const st = [];
     if (u.enchant) { const es = SPIRITS[u.enchant.id]; st.push(`<span style="--c:${es.color}">宿：${es.enchant.name}・${u.enchant.turns}</span>`); if (normalAttackLimit(u) === 2) st.push(`<span style="--c:${es.color}">通常攻撃${phase === 'player' ? ` 残り${u.acted ? 0 : 2 - u.normalAttacks}回` : '2回'}</span>`); }
+    if (u.resonance) st.push(`<span style="--c:#d2beff">四響エンチャント · あと${u.resonance.turns}ターン / 通常攻撃 残り${u.acted ? 0 : 2 - u.normalAttacks}回</span>`);
     if (u.until) st.push(`<span style="--c:${s.color}">${u.summon > 0 ? `召喚 あと${u.summon}ターン` : '召喚 このターンまで'}</span>`);
     if (u.root) st.push('<span style="--c:#7fd67a">縛られている</span>');
     if (u.guard) st.push('<span style="--c:#ffd25e">守り</span>');
@@ -1920,12 +2006,22 @@ const Board = (() => {
     if (!list.length) { spiritBox.style.display = 'none'; return; }
     spiritBox.style.display = '';
     const a = ariaU();
+    if (cfg.companion) {
+      const ch = live().find(u => u.kind === 'chrome_human');
+      if (ch) {
+        const b = document.createElement('button'); b.className = 'skill battle-companion';
+        b.innerHTML = `${GameArt.portrait('chrome_human', 'skill-face')}<span>クロム<small>HP ${ch.hp}/${ch.mhp} · ${ch.acted ? '行動済み' : '操作する'}</small></span>`;
+        b.disabled = ch.acted || busy || phase !== 'player' || over;
+        b.onclick = e => { e.stopPropagation(); if (!busy && !paused && !ch.acted && phase === 'player' && !over && mode !== 'facing' && !Panel.isOpen()) { hideSay(); select(ch); } };
+        spiritBox.appendChild(b);
+      }
+    }
     list.forEach(id => {
       const s = SPIRITS[id], r = rec(id), su = live().find(u => u.kind === id);
       const anySum = live().some(u => u.until), en = a && a.enchant;
       const fallen = defeatedSpirits.has(id);
       const state = fallen ? '戦闘不能 · この戦闘中は使用不可' : su ? (su.summon > 0 ? `召喚中・あと${su.summon}ターン` : '召喚中・このターンまで') : (en && en.id === id) ? `通常攻撃2回・あと${en.turns}ターン`
-        : followUpPending(a) ? '追撃か待機を選択' : anySum ? '召喚中は宿せない' : en ? (enchantUsed ? 'このターンは宿し済み' : sp >= COST_ENCHANT ? '宿し替えできる' : '宿し中は召喚できない') : sp >= COST_SUMMON ? '召喚・宿しができる' : sp >= COST_ENCHANT ? '宿せる' : '共鳴を待つ';
+        : followUpPending(a) ? '追撃か待機を選択' : anySum ? '召喚中は宿せない' : en ? (enchantUsed ? 'このターンは宿し済み' : sp >= COST_ENCHANT ? '宿し替えできる' : '宿し中は召喚できない')  : sp >= COST_SUMMON ? '召喚・宿しができる' : sp >= COST_ENCHANT ? '宿せる' : '共鳴を待つ';
       const b = document.createElement('button');
       b.className = 'skill spirit' + (fallen ? ' fallen' : '') + (su || (a && a.enchant && a.enchant.id === id) ? ' armed' : '');
       b.disabled = fallen;
@@ -1963,6 +2059,7 @@ const Board = (() => {
     fb.querySelector('.fb-be').innerHTML = nE ? `<i>${fn[1]}${ROMAN[nE]}</i>敵 ${desc(TIER[nE])}` : '';
     const n = live().filter(u => u.side === 'enemy').length;
     $id('kegareCount').innerHTML = `TURN<b>${turn}</b>　${cfg.inverted ? '白い膜' : '穢れ'}<b>${stage === 0 ? '?' : n}</b>`;
+    if (cfg.restoreBeacons) $id('kegareCount').insertAdjacentHTML('beforeend', `　灯<b>${cells.filter(c => c.beaconOn).length}/${cfg.restoreBeacons}</b>`);
     document.querySelector('#resonance .rs-val').textContent = sp;
     vignette.style.opacity = 0.15 + D * 0.7;
     if (cfg.rainLink) FX.intensity('rain', 0.2 + D * 1.2);
@@ -2017,12 +2114,14 @@ const Board = (() => {
   function missionText(m) {
     const f = floorNames();
     switch (m.type) {
+      case 'purify': return `浄化を${m.n}回使う`;
+      case 'teamHP': return `二人のHPをそれぞれ${m.n}%以上残す`;
       case 'turns': return `${m.n}ターン以内にクリア`;
       case 'hp': return `アリアのHPを${m.n}%以上残す`;
       case 'back': return `背後から${m.n}回攻撃する`;
       case 'crit': return `会心の一撃を${m.n}回出す`;
       case 'summonKill': return `召喚した精霊で${m.n}体倒す`;
-      case 'enchantKill': return `精霊を宿した心剣で${m.n}体倒す`;
+      case 'enchantKill': return cfg.postgame ? `宿した心剣・四響の剣で${m.n}体倒す` : `精霊を宿した心剣で${m.n}体倒す`;
       case 'flashMulti': return '透明の一閃で2体を同時に斬る';
       case 'noSpirit': return '精霊の力を借りずにクリア';
       case 'noItem': return '道具を使わずにクリア';
@@ -2041,6 +2140,8 @@ const Board = (() => {
     const count = (v) => ({ ok: v >= n ? true : fin ? false : null, prog: `${Math.min(v, n)}/${n}` });
     const never = (v) => ({ ok: v ? false : fin ? true : null, prog: '' });
     switch (m.type) {
+      case 'purify': return count(stats.purify || 0);
+      case 'teamHP': { const heroes = units.filter(u => ['aria', 'chrome_human'].includes(u.kind)); const v = Math.min(...heroes.map(u => u.dead ? 0 : Math.round(u.hp / u.mhp * 100))); return { ok: fin ? heroes.length === 2 && v >= n : null, prog: v + '%' }; }
       case 'turns': return { ok: turn > n ? false : fin ? true : null, prog: `${turn}/${n}` };
       case 'hp': { const k = a && !a.dead ? Math.round(a.hp / a.mhp * 100) : 0; return { ok: fin ? k >= n : null, prog: k + '%' }; }
       case 'back': return count(stats.back);
@@ -2073,7 +2174,9 @@ const Board = (() => {
 
   // ---------- 勝敗 ----------
   function win() {
-    if (over) return; over = true;
+    if (over) return;
+    if (cells.some(c => c.beacon && !c.beaconOn)) { say('ルノワール', '穢れは消えた。残った復興の灯に「浄化」を届けよう。', 5000); return; }
+    over = true;
     hideMenu(); deselect();
     stats.rainbowEnd = ratioA;
     Audio2.sfx.win();
@@ -2241,7 +2344,7 @@ const Board = (() => {
   function help() {
     hideSay();
     Panel.open('戦い方', `
-      <h4>目的</h4>盤のどこかにいる<b>穢れの影</b>を、すべて心剣で切り分けてください。アリアが倒れると、やり直しになります。
+      <h4>目的</h4>盤のどこかにいる<b>穢れの影</b>を、すべて心剣で切り分けてください。アリアが倒れると、やり直しになります。復興編はクロムも毎ターン操作でき、二人のどちらかが倒れると再挑戦です。
       <h4>動かし方</h4>味方に触れると、<b>光る床</b>が歩ける場所。床に触れると移動し、そのあとメニューが開きます。<br>動かずに行動したいときは、本人にもう一度触れるか「その場で行動」。届く敵に直接触れても攻撃できます。<br><b>待機は4方向から向きを選んで確定</b>。Esc／戻るで取り消しても行動は消費せず、移動も戻せます。方向キーで選び、Enterで確定できます。<br>右クリック／Esc／「選び直す」：戻る　E：ターン終了　A：攻撃　W：待機の向き選び
       <h4>マップの回転</h4><b>↶／↷</b>ボタンで視点を左右に90度ずつ回転します。キーボードは<b>Q：左、R：右、0：初期の視点</b>。回転は移動や行動を使わず、位置・射程・正面／背後の判定はそのままです。移動や攻撃の演出中は回転できません。
       <div class="tip-tiles"><div><span class="tip-rainbow-floor${cfg.inverted ? ' night' : ''}"><img src="assets/tiles/dark_land_flat.png" alt=""></span>${floorNames()[0]}の床（味方）</div><div><img src="assets/tiles/dark_land_flat.png" alt="">${floorNames()[1]}の床（穢れ）</div></div>
@@ -2252,16 +2355,17 @@ const Board = (() => {
       <h4>道具とミッション</h4>町で買った道具は、メニューの「道具」から使えます（行動を使う）。<br>右上のミッションをすべて達成するとSランク。S評価の報酬は難易度別。<b>ハードはユニーク装備、ふつうは通常装備、やさしいはアイテム</b>です。各難易度で1回ずつ受け取れ、所持済みの通常装備は価格の半分のしずくになります。
       <h4>LV</h4>攻撃と撃破で経験値が入り、100たまるとLVが上がります。精霊は、召喚や宿しで育ちます。
       <h4>精霊との絆・覚えた技</h4>召喚で絆+3、心剣に宿すと+2。召喚した精霊の攻撃や、宿した心剣が命中すると+1、覚えた技を使うと+2。絆は精霊と技の強さを育てます。<b>習得はエンチャントと召喚の熟練を別々に判定</b>し、それぞれ8・20・40で3種ずつ、全24種。宿すとエンチャント熟練+2、宿した通常攻撃の命中で+1。召喚すると召喚熟練+3、精霊の命中で+1。覚えた技の使用は熟練に入りません。<br>習得後は「覚えた技」から、召喚や宿しをせずに使えます。絆が深まるほど精霊のHP・攻撃・守りと、宿した心剣・覚えた技の効果が育ちます。負けても絆と習得は残ります。
-      <h4>難易度・依頼</h4>マップの戦場や依頼でやさしい・ふつう・ハードの3段階の難易度を選べます。適正LV・報酬・ミッション実績は難易度ごとに表示されます。戦闘開始後は再挑戦も同じ難易度です。町の「依頼」でサブクエストを探せます。
+      <h4>ルノワールの四響エンチャント</h4>クロムだけが使う切り札です。共鳴6・1戦闘に1回。3ターン、4精霊のエンチャント効果をまとめて宿し、通常攻撃が毎ターン2回になります。宿す行動は消費しません。吸収して身につけたルノワール自身の能力なので、他の精霊の召喚中・戦闘不能でも使えます。クロム自身に精霊の召喚能力はありません。再挑戦・次の戦闘で使用回数は戻ります。<h4>復興の灯</h4>復興編は敵の全滅と、番号のついた灯をすべて点けることが目的です。アリアとクロムの<b>「浄化」（共鳴2）</b>で2マス以内の灯そのものを選んでください。周り2マスも虹に戻ります。防壁を持つ核は、灯が全部点くまで攻撃が届きません。<h4>難易度・依頼</h4>マップの戦場や依頼でやさしい・ふつう・ハードの3段階の難易度を選べます。適正LV・報酬・ミッション実績は難易度ごとに表示されます。戦闘開始後は再挑戦も同じ難易度です。町の「依頼」でサブクエストを探せます。
       <p style="margin-top:12px;color:#ffd98a">「切るのは穢れだけ。その人の色は、一滴も切らない」</p>`);
   }
 
   // ---------- 開始・終了 ----------
   function start(conf, done) {
+    if (conf.postgame && !Restoration.joined()) { Engine.toast('復興編の物語から旅を始めてください'); World.open(); return Promise.resolve(false); }
     stop();
     if (World.isOpen) World.close();
     party = loadParty();
-    const key = Progression.normalize(conf.difficulty || Progression.selected(party, conf.id));
+    const key = conf.hardOnly ? 'hard' : Progression.normalize(conf.difficulty || Progression.selected(party, conf.id));
     baseCfg = { ...conf, difficulty: key }; onDone = done;
     const my = sess;
     const learnedSpirits = Progression.skills.filter(s => party.aria.skills.includes(s.id)).map(s => s.spirit);
@@ -2275,7 +2379,7 @@ const Board = (() => {
     cfg = Progression.prepare(baseCfg, baseCfg.difficulty);
     cfg.onPhase0 = baseCfg.onPhase0;
     cols = cfg.cols; rows = cfg.rows;
-    viewRotation = 0; defeatedSpirits.clear();
+    viewRotation = 0; defeatedSpirits.clear(); renoirUsed = false;
     $id('boardView').setAttribute('aria-label', '戦闘マップの視点 · 表示角度0度');
     difficulty = cfg.difficulty;
     party = loadParty();
@@ -2288,11 +2392,20 @@ const Board = (() => {
     const plan = genMap();
     initFloors(plan);
     units = [makeUnit('aria', 'ally', party.aria.lv, plan.aria)];
+    if (cfg.companion && Restoration.joined()) {
+      party.chrome.lv = Math.max(party.chrome.lv, cfg.recLv || 1);
+      const free = cells.filter(c => c.walk && !unitAt(c) && Math.abs(c.h - plan.aria.h) <= 1).sort((a, b) => dist(a, plan.aria) - dist(b, plan.aria));
+      if (free[0]) units.push(makeUnit('chrome_human', 'ally', party.chrome.lv, free[0]));
+    }
+    initBeacons(plan.aria);
+    saveParty();
     const words = cfg.kegWords || [];
     kegIdx = 0; colorIdx = 0; totalFoes = 0;
     plan.enemies.forEach(({ spec, cell }) => {
       const u = makeUnit(spec.kind, 'enemy', spec.lv || 1, cell, { hidden: spec.phase === 1 });
       if (spec.armor) u.armor = spec.armor;
+      if (spec.kind === 'boss' && cfg.bossArt) u.artId = cfg.bossArt;
+      if (spec.kind === 'boss' && cfg.bossHP) { u.hp = u.mhp = Math.round(u.mhp * cfg.bossHP); }
       u.word = spec.kind === 'boss' ? (cfg.rootWord || '') : spec.kind === 'chrome' ? '' : (words[kegIdx++ % Math.max(1, words.length)] || '');
       if (spec.kind === 'boss' && cfg.bossName) u.name = cfg.bossName;
       units.push(u);
@@ -2303,7 +2416,7 @@ const Board = (() => {
     turn = 0; phase = 'player'; busy = true; over = false; paused = false;
     sel = null; mode = 'idle'; moveInfo = null; targets = null; targetCmd = null; hover = null; threat = null; menuSub = null; infoU = null;
     sp = Math.min(spCap(), (cfg.spStart != null ? cfg.spStart : 3) + GB.spStart); skyCharges = 0; enchantUsed = false;
-    stats = { kills: 0, taken: 0, down: 0, start: performance.now(), levelUps: [], expA: 0, phase0: 0, back: 0, crit: 0, items: 0, spiritUses: 0, summonKills: 0, enchantKills: 0, flashMulti: 0, dullMax: 0, lastBoss: false, bossEarly: false, gold: 0, bondUses: {}, bondGains: {}, trainingGains: {}, learned: [], skillUses: 0, skillBySpirit: {} };
+    stats = { purify: 0, kills: 0, taken: 0, down: 0, start: performance.now(), levelUps: [], expA: 0, phase0: 0, back: 0, crit: 0, items: 0, spiritUses: 0, summonKills: 0, enchantKills: 0, flashMulti: 0, dullMax: 0, lastBoss: false, bossEarly: false, gold: 0, bondUses: {}, bondGains: {}, trainingGains: {}, learned: [], skillUses: 0, skillBySpirit: {} };
     learnedRoute = 'enchant';
     fxp.length = 0; floatLayer.innerHTML = '';
     cam.z = cam.tz = 1;
