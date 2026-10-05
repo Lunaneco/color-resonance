@@ -6,7 +6,7 @@
 
 現在の版は **1.3.0** です。エンチャント中は通常攻撃が毎ターン2回。エンチャントと召喚の習得経路を分け、難易度別の報酬を見直しました。待機時の4方向選択、町のミニゲーム2種類、旅の手帳、セーブの持ち出し・復元にも対応します。
 
-**画像生成素材:** [キャラクター・動作GIF・技エフェクトの素材一覧](https://lunaneco.github.io/color-resonance/assets/generated/)。18種類のキャラクター、32種類の技・状態・環境・装甲・外皮・着弾・出現エフェクト、147本の動作GIFと透過PNGを収録しています。使い方は [素材README](assets/generated/README.md) を参照してください。
+**画像生成素材:** [キャラクター・動作GIF・技エフェクトの素材一覧](https://lunaneco.github.io/color-resonance/assets/generated/)。18種類のキャラクター、33種類の技・状態・環境・装甲・外皮・着弾・出現・通過エフェクト、149本の動作GIFと透過PNGを収録しています。使い方は [素材README](assets/generated/README.md) を参照してください。
 
 ## 遊び方
 

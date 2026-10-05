@@ -4949,5 +4949,368 @@
         }
       ]
     ]
+  },
+  {
+    "id": "heartblade_pass",
+    "name": "心剣・黒を通り抜ける光",
+    "category": "fx",
+    "source": "source/heartblade_pass.png",
+    "editBase": "source/heartblade_pass-base.png",
+    "references": [
+      "references/heartblade-weapon-reference.png",
+      "references/heartblade-slash-reference.png"
+    ],
+    "referenceRoles": [
+      "Actual heart-sword palette, not a weapon drawing",
+      "Actual crystal-slash palette only, not its impact crescent"
+    ],
+    "prompt": "Use case: illustration-story. Asset type: one ORIGINAL transparent master for a restrained non-hit game VFX, not a sprite sheet.\nInput image 1 is the ACTUAL game's crystal heart sword: use only its pearl-white, very pale cyan and quiet opal colors. Input image 2 is the ACTUAL existing crystal-slash cel: use its clean anime illustrated palette only; do NOT copy its crescent or impact shape.\nCreate exactly ONE slender, smooth, continuous rightward passage streak. It represents a heart sword passing through a person's black color without cutting anything. The streak is a single gently rising diagonal needle/ribbon from lower-left to upper-right, about 10 degrees above horizontal, pointed at both ends, modestly thicker through the middle, no stop or concentrated flare at the midpoint. Broad smooth pearl-white opaque inner core with a very restrained pale cyan/opal rim; avoid numerous bands or facets. No dark outline. It must read clearly when later reduced to about 160 pixels long. At a 1536 x 1024 canvas, the streak is about 940 pixels long and its widest core about 65 pixels thick. Center the whole streak around (768,512) with generous genuine transparent margins. It is a single connected contour: no secondary swoosh, detached spark, dot, shard, star, spatter, dust, wave ripples or particles. No crescents, explosive rays, impact ring, wound, cut body, peeled shell, black residue or debris. No actual sword/weapon, character, face, eye, creature, target, scenery, floor, shadow, text, numbers, grid, border, watermark, white backing plate, black backdrop or painted checkerboard. True transparent alpha everywhere outside this one trace; only minimal smooth antialiasing at the outer contour, no long fuzzy glow cloud. Stable clean illustrated anime game VFX matching the references.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "editPrompt": "Edit this EXACT transparent master for the Color Resonance non-hit heart-sword passage VFX. Keep its existing pearl-white/cyan/opal palette and one connected gently rising diagonal tapered trace, but fix two defects: oversized artwork and a wide foggy bloom. Output the SAME 1536 x 1024 transparent canvas. Uniformly reduce the entire trace to 58% of its current dimensions and place its unchanged center at (768,512). The complete trace must end roughly at x320 and x1216, leaving at least 260px empty margins left and right. REMOVE ALL the surrounding soft cloudy blue glow/halo/haze. The area outside the single sharply defined trace must be truly alpha-zero, with only a minimal 1–3 pixel antialiased contour transition; no fog or separate shadow underneath. Simplify the fine longitudinal accent lines into a single broad smooth opal core with ONE quiet pale-cyan rim, no repeated micro-strands. Keep the slim pointed ends, no new curve, crescent, jagged split, flare, spark, fragment, dot, shard or impact. The trace itself should remain bright, readable and compact rather than being made globally translucent. It is passage without harm: no burst, target, weapon, body, wound, erased enemy, damage flash, scenery, floor, text, grid, labels or backing plate. No painted checkerboard. True transparent background.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "tool": "built-in imagegen",
+    "baseCommit": "52d853df4820d9e206bdd9606784760c2efc1e5c",
+    "trigger": "a.kind === 'aria' && d.kind === 'chrome' && stage === 0 && r.pass === true",
+    "direction": "canonical screen-right; one gently rising trace translates through a fixed target point",
+    "pivotPx": [
+      128,
+      96
+    ],
+    "sourceCropBoxPx": [
+      288,
+      368,
+      1296,
+      688
+    ],
+    "sourceAnchorPx": [
+      805.0,
+      535.0
+    ],
+    "sourceCoreBox96Px": [
+      335,
+      392,
+      1275,
+      678
+    ],
+    "peakCoreWidthPx": 160,
+    "celCenterXPx": [
+      62,
+      73,
+      87,
+      102,
+      117,
+      130,
+      141,
+      151,
+      162,
+      175,
+      187,
+      198
+    ],
+    "celScaleEnvelope": [
+      0.13,
+      0.26,
+      0.45,
+      0.65,
+      0.85,
+      1,
+      0.96,
+      0.8,
+      0.61,
+      0.4,
+      0.22,
+      0.1
+    ],
+    "celPngOpacities": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0.95,
+      0.85,
+      0.7,
+      0.55
+    ],
+    "preRollMs": 20,
+    "celDurationsMs": [
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40
+    ],
+    "transparentTailMs": 200,
+    "generationEditReason": "First master exceeded the intended margin and had an overwide bloom. GPT Image edit reduced the artwork; actual RGBA compositing shows a compact crisp trace. Extremely weak source alpha may remain outside the registered crop.",
+    "integrationCaveat": "Current attack() schedules the normal generated effect before its r.pass return. Future integration must select this dedicated non-hit VFX instead of the normal hit effect; no game code is modified in this material set.",
+    "placement": "At unitXY(target).x, unitXY(target).y - tw * 0.6, fixed canvas with scale tw/80. Visual overlap with Chrome and adjacent units has not been verified.",
+    "continuousVisualPlayback": "NOT VERIFIED",
+    "actualGamePlacement": "NOT VERIFIED",
+    "priorEditMaster": "source/heartblade_pass-edit-r1.png",
+    "contourEditPrompt": "Edit this EXACT original passage streak into a simpler cel-painted GAME VFX master so it survives 1-bit GIF transparency at a small scale. Keep the SAME 1536x1024 transparent canvas, SAME overall size, SAME diagonal direction and SAME central placement. Replace its many thin parallel rim lines and hairline outer tips with ONE solid connected, smoothly filled tapered needle silhouette. The needle ends should be short rounded-tapered tips, not long hairline filaments. Its outer silhouette is ONE continuous contour with no detached fleck or multiple contour strokes. Keep a clean broad pale pearl-white center with a very restrained pale cyan outer edge; any quiet opal tint stays fully INSIDE the single silhouette. NO separate accent line outside the main filled shape, no haze, no bloom, no glints, no shards, no dots, no sparkle, no outline noise, no microtexture. Think of one crisp illustrated white/cyan brush trace with fully opaque core and minimal antialiasing, not a glowing photograph or laser with mist. It represents passing through black without harm: no impact, flare, burst, target, actual weapon, character, body, wound, black erasure, scenery, floor, text, border, grid, number or backing plate. All space outside the single trace is genuinely alpha-zero. Do not draw a checkerboard. Retain compact transparent margins and the actual reference palette. No additional objects.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "contourEditReason": "R1 GIF produced detached 1–2px thin-tip islands. GPT Image simplified the outer silhouette to one filled trace with short rounded-tapered ends.",
+    "revision": "r2",
+    "frameScaleAdjustmentReason": "After simplifying the generated contour, endpoint envelopes .13 and .10 avoid subpixel 1–2px raster islands at the fixed registered positions. No pixel deletion, particle masking or per-cel recentering.",
+    "sourceSha256": "ce629d5ae4e7733fd762c4abc80b03bc575af1a0d4661a7e2d307120dc9e24dd",
+    "animationMethod": "single registered generated trace; uniform scaling plus monotonic rightward translation; no target pixels or particle system",
+    "celRegistrations": [
+      {
+        "cel": 0,
+        "registeredCenterPx": [
+          62,
+          96
+        ],
+        "uniformScale": 0.022127659574468085,
+        "pngOpacity": 1,
+        "alphaBoxPx": [
+          53,
+          93,
+          71,
+          99
+        ],
+        "preOpacityCoreComponents96": [
+          29
+        ]
+      },
+      {
+        "cel": 1,
+        "registeredCenterPx": [
+          73,
+          96
+        ],
+        "uniformScale": 0.04425531914893617,
+        "pngOpacity": 1,
+        "alphaBoxPx": [
+          53,
+          90,
+          93,
+          102
+        ],
+        "preOpacityCoreComponents96": [
+          116
+        ]
+      },
+      {
+        "cel": 2,
+        "registeredCenterPx": [
+          87,
+          96
+        ],
+        "uniformScale": 0.07659574468085106,
+        "pngOpacity": 1,
+        "alphaBoxPx": [
+          51,
+          85,
+          123,
+          107
+        ],
+        "preOpacityCoreComponents96": [
+          352
+        ]
+      },
+      {
+        "cel": 3,
+        "registeredCenterPx": [
+          102,
+          96
+        ],
+        "uniformScale": 0.11063829787234043,
+        "pngOpacity": 1,
+        "alphaBoxPx": [
+          50,
+          80,
+          154,
+          112
+        ],
+        "preOpacityCoreComponents96": [
+          736
+        ]
+      },
+      {
+        "cel": 4,
+        "registeredCenterPx": [
+          117,
+          96
+        ],
+        "uniformScale": 0.14468085106382977,
+        "pngOpacity": 1,
+        "alphaBoxPx": [
+          49,
+          75,
+          185,
+          117
+        ],
+        "preOpacityCoreComponents96": [
+          1256
+        ]
+      },
+      {
+        "cel": 5,
+        "registeredCenterPx": [
+          130,
+          96
+        ],
+        "uniformScale": 0.1702127659574468,
+        "pngOpacity": 1,
+        "alphaBoxPx": [
+          50,
+          71,
+          211,
+          121
+        ],
+        "preOpacityCoreComponents96": [
+          1737
+        ]
+      },
+      {
+        "cel": 6,
+        "registeredCenterPx": [
+          141,
+          96
+        ],
+        "uniformScale": 0.16340425531914893,
+        "pngOpacity": 1,
+        "alphaBoxPx": [
+          64,
+          72,
+          218,
+          120
+        ],
+        "preOpacityCoreComponents96": [
+          1599
+        ]
+      },
+      {
+        "cel": 7,
+        "registeredCenterPx": [
+          151,
+          96
+        ],
+        "uniformScale": 0.13617021276595745,
+        "pngOpacity": 1,
+        "alphaBoxPx": [
+          87,
+          76,
+          215,
+          116
+        ],
+        "preOpacityCoreComponents96": [
+          1112
+        ]
+      },
+      {
+        "cel": 8,
+        "registeredCenterPx": [
+          162,
+          96
+        ],
+        "uniformScale": 0.10382978723404254,
+        "pngOpacity": 0.95,
+        "alphaBoxPx": [
+          113,
+          81,
+          211,
+          111
+        ],
+        "preOpacityCoreComponents96": [
+          648
+        ]
+      },
+      {
+        "cel": 9,
+        "registeredCenterPx": [
+          175,
+          96
+        ],
+        "uniformScale": 0.06808510638297872,
+        "pngOpacity": 0.85,
+        "alphaBoxPx": [
+          143,
+          86,
+          207,
+          106
+        ],
+        "preOpacityCoreComponents96": [
+          280
+        ]
+      },
+      {
+        "cel": 10,
+        "registeredCenterPx": [
+          187,
+          96
+        ],
+        "uniformScale": 0.0374468085106383,
+        "pngOpacity": 0.7,
+        "alphaBoxPx": [
+          171,
+          91,
+          204,
+          101
+        ],
+        "preOpacityCoreComponents96": [
+          81
+        ]
+      },
+      {
+        "cel": 11,
+        "registeredCenterPx": [
+          198,
+          96
+        ],
+        "uniformScale": 0.01702127659574468,
+        "pngOpacity": 0.55,
+        "alphaBoxPx": [
+          192,
+          94,
+          204,
+          98
+        ],
+        "preOpacityCoreComponents96": [
+          16
+        ]
+      }
+    ],
+    "compatibilityCheckedCommit": "d724bacc4ce35ab64b58f5279fc5284dcdd36234",
+    "compatibilityNote": "Current 1.3.0 strike() matches the original checked block; js/art.js, existing assets and workflow are retained. Other feature changes are separate work.",
+    "independentAudit": {
+      "assetRevision": "r2",
+      "verdict": "conditional PASS for asset alone",
+      "confirmedNg": [],
+      "reviewed": [
+        "all cels one trace",
+        "non-hit story fit",
+        "timing",
+        "loop",
+        "margins",
+        "trajectory"
+      ],
+      "notVerified": [
+        "actual visual playback",
+        "actual game placement",
+        "readability of onset/tail on bright floor at tile64"
+      ],
+      "pngGifTailDifferenceRetained": true,
+      "crossEnvironmentRebuild": {
+        "all15MediaPixelsOrGifDecodedMatch": true,
+        "gifByteMatches": 2,
+        "pngPixelMatches": 13,
+        "pngByteMatch": false,
+        "pngByteDifferenceReason": "compression/environment differences",
+        "guaranteeAllEnvironmentMediaShaMatch": false
+      },
+      "sameMacEnvironmentRebuild": {
+        "mediaByteMatches": 15
+      },
+      "source": "parent-coordinated independent AI audit, delegated 2026-10-05"
+    }
   }
 ]

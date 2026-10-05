@@ -4479,5 +4479,351 @@
       "continuousVisualPlayback": "NOT VERIFIED",
       "actualGamePlacement": "NOT VERIFIED"
     }
+  },
+  "passageSet12": {
+    "assetCount": 1,
+    "checks": [
+      {
+        "id": "heartblade_pass",
+        "pngCels": 12,
+        "gifFrames": 14,
+        "durationMs": 700,
+        "visibleEndMs": 500,
+        "pngVisibleEndMs": 500,
+        "loop": false,
+        "firstLastBlank": true,
+        "transparentTailMs": 200,
+        "pivotPx": [
+          128,
+          96
+        ],
+        "transparentClearancePx": 24,
+        "sourceRegistration": "one measured master anchor; no per-cel crop or centering",
+        "geometry": "one generated trace, monotonic rightward translation, uniform scale",
+        "targetBodyOrDamageOrErasureDrawn": false,
+        "additionalParticleSystem": false,
+        "celRegistrations": [
+          {
+            "cel": 0,
+            "registeredCenterPx": [
+              62,
+              96
+            ],
+            "uniformScale": 0.022127659574468085,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              53,
+              93,
+              71,
+              99
+            ],
+            "preOpacityCoreComponents96": [
+              29
+            ]
+          },
+          {
+            "cel": 1,
+            "registeredCenterPx": [
+              73,
+              96
+            ],
+            "uniformScale": 0.04425531914893617,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              53,
+              90,
+              93,
+              102
+            ],
+            "preOpacityCoreComponents96": [
+              116
+            ]
+          },
+          {
+            "cel": 2,
+            "registeredCenterPx": [
+              87,
+              96
+            ],
+            "uniformScale": 0.07659574468085106,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              51,
+              85,
+              123,
+              107
+            ],
+            "preOpacityCoreComponents96": [
+              352
+            ]
+          },
+          {
+            "cel": 3,
+            "registeredCenterPx": [
+              102,
+              96
+            ],
+            "uniformScale": 0.11063829787234043,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              50,
+              80,
+              154,
+              112
+            ],
+            "preOpacityCoreComponents96": [
+              736
+            ]
+          },
+          {
+            "cel": 4,
+            "registeredCenterPx": [
+              117,
+              96
+            ],
+            "uniformScale": 0.14468085106382977,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              49,
+              75,
+              185,
+              117
+            ],
+            "preOpacityCoreComponents96": [
+              1256
+            ]
+          },
+          {
+            "cel": 5,
+            "registeredCenterPx": [
+              130,
+              96
+            ],
+            "uniformScale": 0.1702127659574468,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              50,
+              71,
+              211,
+              121
+            ],
+            "preOpacityCoreComponents96": [
+              1737
+            ]
+          },
+          {
+            "cel": 6,
+            "registeredCenterPx": [
+              141,
+              96
+            ],
+            "uniformScale": 0.16340425531914893,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              64,
+              72,
+              218,
+              120
+            ],
+            "preOpacityCoreComponents96": [
+              1599
+            ]
+          },
+          {
+            "cel": 7,
+            "registeredCenterPx": [
+              151,
+              96
+            ],
+            "uniformScale": 0.13617021276595745,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              87,
+              76,
+              215,
+              116
+            ],
+            "preOpacityCoreComponents96": [
+              1112
+            ]
+          },
+          {
+            "cel": 8,
+            "registeredCenterPx": [
+              162,
+              96
+            ],
+            "uniformScale": 0.10382978723404254,
+            "pngOpacity": 0.95,
+            "alphaBoxPx": [
+              113,
+              81,
+              211,
+              111
+            ],
+            "preOpacityCoreComponents96": [
+              648
+            ]
+          },
+          {
+            "cel": 9,
+            "registeredCenterPx": [
+              175,
+              96
+            ],
+            "uniformScale": 0.06808510638297872,
+            "pngOpacity": 0.85,
+            "alphaBoxPx": [
+              143,
+              86,
+              207,
+              106
+            ],
+            "preOpacityCoreComponents96": [
+              280
+            ]
+          },
+          {
+            "cel": 10,
+            "registeredCenterPx": [
+              187,
+              96
+            ],
+            "uniformScale": 0.0374468085106383,
+            "pngOpacity": 0.7,
+            "alphaBoxPx": [
+              171,
+              91,
+              204,
+              101
+            ],
+            "preOpacityCoreComponents96": [
+              81
+            ]
+          },
+          {
+            "cel": 11,
+            "registeredCenterPx": [
+              198,
+              96
+            ],
+            "uniformScale": 0.01702127659574468,
+            "pngOpacity": 0.55,
+            "alphaBoxPx": [
+              192,
+              94,
+              204,
+              98
+            ],
+            "preOpacityCoreComponents96": [
+              16
+            ]
+          }
+        ],
+        "gifOpaqueAreas": [
+          29,
+          116,
+          352,
+          736,
+          1256,
+          1737,
+          1599,
+          1112,
+          648,
+          280,
+          81,
+          16
+        ],
+        "gifCoreComponentSizes": [
+          [
+            29
+          ],
+          [
+            116
+          ],
+          [
+            352
+          ],
+          [
+            736
+          ],
+          [
+            1256
+          ],
+          [
+            1737
+          ],
+          [
+            1599
+          ],
+          [
+            1112
+          ],
+          [
+            648
+          ],
+          [
+            280
+          ],
+          [
+            81
+          ],
+          [
+            16
+          ]
+        ],
+        "gifVisibleComponents": 1,
+        "componentAdjacency": "8-neighbor; all 12 visible GIF cels",
+        "gifEndRgbMeans": [
+          227.6898148148148,
+          227.5404761904762,
+          229.15637860082305,
+          231.75
+        ],
+        "pngEndMethod": "uniform contraction and partial alpha",
+        "gifEndMethod": "contraction retaining source color; no RGB darkening",
+        "continuousVisualPlayback": "NOT VERIFIED",
+        "actualGamePlacement": "NOT VERIFIED"
+      }
+    ],
+    "playbackContract": {
+      "assertions": 45,
+      "scope": "Read-only VM of actual copied GameArt.sample; onset/midpoint/preceding-ms of every cel; end and future timestamps remain null. No browser/rendering.",
+      "actualArtJsSha256": "955553cdecf0dd598dd469de631557718add3311dec327a01cb8877fe2d164a9",
+      "continuousVisualPlayback": "NOT VERIFIED",
+      "actualGamePlacement": "NOT VERIFIED"
+    },
+    "compatibilityCheckedCommit": "d724bacc4ce35ab64b58f5279fc5284dcdd36234",
+    "independentAudit": {
+      "assetRevision": "r2",
+      "verdict": "conditional PASS for asset alone",
+      "confirmedNg": [],
+      "reviewed": [
+        "all cels one trace",
+        "non-hit story fit",
+        "timing",
+        "loop",
+        "margins",
+        "trajectory"
+      ],
+      "notVerified": [
+        "actual visual playback",
+        "actual game placement",
+        "readability of onset/tail on bright floor at tile64"
+      ],
+      "pngGifTailDifferenceRetained": true,
+      "crossEnvironmentRebuild": {
+        "all15MediaPixelsOrGifDecodedMatch": true,
+        "gifByteMatches": 2,
+        "pngPixelMatches": 13,
+        "pngByteMatch": false,
+        "pngByteDifferenceReason": "compression/environment differences",
+        "guaranteeAllEnvironmentMediaShaMatch": false
+      },
+      "sameMacEnvironmentRebuild": {
+        "mediaByteMatches": 15
+      },
+      "source": "parent-coordinated independent AI audit, delegated 2026-10-05"
+    }
   }
 }

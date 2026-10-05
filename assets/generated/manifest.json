@@ -3,10 +3,10 @@
   "title": "Color Resonance ゲーム素材",
   "counts": {
     "characters": 18,
-    "effects": 32,
-    "sourceSheets": 50,
-    "pngCels": 484,
-    "gifs": 147
+    "effects": 33,
+    "sourceSheets": 51,
+    "pngCels": 496,
+    "gifs": 149
   },
   "production": {
     "generator": "built-in imagegen",
@@ -7286,6 +7286,123 @@
               "name": "根元へ収縮して消失",
               "startMs": 600,
               "endMs": 1080
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "heartblade_pass",
+      "name": "心剣・黒を通り抜ける光",
+      "category": "fx",
+      "assetRole": "non-hit-passage",
+      "source": "source/heartblade_pass.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "sheet": "sheets/heartblade_pass.png",
+      "frames": [
+        "frames/heartblade_pass/000.png",
+        "frames/heartblade_pass/001.png",
+        "frames/heartblade_pass/002.png",
+        "frames/heartblade_pass/003.png",
+        "frames/heartblade_pass/004.png",
+        "frames/heartblade_pass/005.png",
+        "frames/heartblade_pass/006.png",
+        "frames/heartblade_pass/007.png",
+        "frames/heartblade_pass/008.png",
+        "frames/heartblade_pass/009.png",
+        "frames/heartblade_pass/010.png",
+        "frames/heartblade_pass/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          256,
+          192
+        ],
+        "order": "row-major"
+      },
+      "pivotPx": [
+        128,
+        96
+      ],
+      "scaleReferenceTileWidthPx": 80,
+      "direction": "canonical screen-right; one gently rising trace translates through a fixed target point",
+      "triggerCondition": "a.kind === 'aria' && d.kind === 'chrome' && stage === 0 && r.pass === true",
+      "productionSet": "passage-set-12",
+      "animations": {
+        "effect": {
+          "name": "心剣・黒を通り抜ける光",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            20,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            200
+          ],
+          "frameStartsMs": [
+            0,
+            20,
+            60,
+            100,
+            140,
+            180,
+            220,
+            260,
+            300,
+            340,
+            380,
+            420,
+            460,
+            500
+          ],
+          "loop": false,
+          "gif": "gifs/heartblade_pass/effect.gif",
+          "size": [
+            256,
+            192
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 700,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/heartblade_pass/preview.gif",
+          "visibleEndMs": 500,
+          "pngVisibleEndMs": 500,
+          "gifTransparentTailMs": 200,
+          "phases": [
+            {
+              "name": "止まらず右へ通り抜ける",
+              "startMs": 20,
+              "endMs": 500
             }
           ]
         }
