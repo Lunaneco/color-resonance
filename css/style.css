@@ -623,11 +623,15 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 #wmViewport{position:absolute;inset:0;overflow:hidden}
 .wn-meta{font-family:var(--gothic);font-size:9.5px;line-height:1.5;white-space:nowrap;color:#e4dcff;background:rgba(8,12,28,.86);border:1px solid rgba(190,200,235,.2);padding:1px 5px;border-radius:5px}
 .wp-info{flex-wrap:wrap}
-.wp-difficulty{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.wp-difficulty{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .wp-difficulty button{display:flex;flex-direction:column;gap:2px;padding:8px 6px;border:1px solid var(--line);border-radius:9px;background:rgba(255,255,255,.03);font-size:12px}
 .wp-difficulty button small{font-size:10px;color:var(--ink-faint)}
 .wp-difficulty button.on{border-color:#ffe08a;background:rgba(255,224,138,.12);color:#fff}
 .wp-difficulty button.on small{color:#ffe9b8}
+@media(max-width:700px){
+  .wp-difficulty{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .wp-difficulty button:last-child{grid-column:1/-1}
+}
 .wp-level-note{font-size:11px;line-height:1.6;color:#ffe0a0;margin:6px 0}
 .quest-list{display:grid;gap:8px}
 .quest-card{display:flex;flex-direction:column;gap:5px;width:100%;text-align:left;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:rgba(180,145,255,.06)}
@@ -664,7 +668,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   .bond-card .pt-row{grid-template-columns:1fr auto;gap:6px}
   .bond-card .pt-row .pt-exp{grid-column:1/-1}
 }
-@media(max-width:820px) and (max-height:500px){
+@media(max-width:820px) and (max-height:500px) and (orientation:landscape){
   #wmViewport{top:70px;bottom:0}
   #world #wmPanel{left:auto;width:min(340px,50vw);max-height:calc(100vh - 90px)}
   .wm-pan-note{top:55px}

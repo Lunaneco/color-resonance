@@ -42,9 +42,9 @@ const Journal = (() => {
       { title: '最初の澄み', desc: '序章の旅を終える', now: +unlocked.includes('act1'), total: 1 },
       { title: '三つの岸', desc: '異なる戦場を3つクリア', now: Math.min(3, cleared), total: 3 },
       { title: '言葉を残さず', desc: 'いずれかの戦場でSランク', now: +stages.some(r => r.best === 'S' || Object.values(r.difficulties || {}).some(d => d.best === 'S')), total: 1 },
-      { title: '難しい岸へ', desc: '達人の難易度で戦場をクリア', now: +stages.some(r => r.difficulties?.expert?.cleared), total: 1 },
+      { title: '難しい岸へ', desc: 'ハードの難易度で戦場をクリア', now: +stages.some(r => r.difficulties?.hard?.cleared), total: 1 },
       { title: '四つの声', desc: '4精霊と旅をする', now: friends, total: 4 },
-      { title: '響きを継ぐ', desc: '精霊から12種類の技を覚える', now: learned, total: 12 },
+      { title: '響きを継ぐ', desc: '二つの系統から24種類の技を覚える', now: learned, total: 24 },
       { title: '六つの灯り', desc: '2種類の遊びを全3難易度で完成', now: lights, total: 6 },
       { title: 'もう一杯', desc: '物語の最後まで読む', now: +unlocked.includes('done'), total: 1 },
     ];

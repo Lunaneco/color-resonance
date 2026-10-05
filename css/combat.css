@@ -17,6 +17,17 @@
 .cm-combo b{color:#a3efff;font-size:13px}
 .cm-combo small{grid-column:1/-1;font-size:10px;color:#b6c9dd}
 #cmdMenu.followup .cm-b{min-height:44px}
+.cm-route-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:6px 0}
+.cm-route-tabs button{display:flex;flex-direction:column;justify-content:center;gap:3px;min-height:44px;padding:7px 2px;border:1px solid #526680;border-radius:8px;background:#ffffff08;font:12px/1.4 var(--gothic);color:#d6e6f7}
+.cm-route-tabs button small{font-size:10px;color:#a5bbd0}
+.cm-route-tabs button[aria-pressed=true]{border-color:#94dfed;background:#5dc4e022;color:#adf2ff}
+.cm-route-tabs button:focus-visible{outline:2px solid #f4d58e;outline-offset:2px}
+#boardScreen.compact #cmdMenu.sheet .cm-route-tabs{grid-column:1/-1}
+.r-equipment{border-color:#86cee4!important}
+.bond-route{margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:9px;background:#ffffff03}
+.bond-route h4{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px;margin:0 0 6px;color:var(--c);font-size:13px}
+.bond-route h4 small{font:11px/1.5 var(--gothic);color:#bed0e1}
+.bond-route>p{margin:0 0 5px;font-size:10.5px;line-height:1.6;color:#aebfd2}
 .cm-spirit-choice b{color:#fff1d4}
 #boardScreen.compact #cmdMenu.sheet .cm-combo{grid-column:1/-1;margin:0}
 #boardScreen.compact #cmdMenu.sheet.followup{grid-template-columns:repeat(2,minmax(0,1fr))}

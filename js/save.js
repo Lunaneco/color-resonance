@@ -55,7 +55,7 @@ const SaveData = (() => {
       if (typeof raw !== 'string' || raw.length > 220000) throw new Error('保存項目の形式が正しくありません');
       if (key === 'cr_diff') {
         if (!['gentle', 'normal', 'hard', 'expert'].includes(raw)) throw new Error('難易度の記録が正しくありません');
-        safe[key] = raw; continue;
+        safe[key] = Progression.normalize(raw); continue;
       }
       if (key === 'cr_speed') {
         if (!['0', '14', '32', '55'].includes(raw)) throw new Error('文字速度の記録が正しくありません');

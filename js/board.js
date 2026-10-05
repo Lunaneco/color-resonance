@@ -111,15 +111,19 @@ const Board = (() => {
   let GB = gearBonus(null);
   function saveParty() { try { localStorage.setItem(PARTY_KEY, JSON.stringify(party)); } catch (e) {} }
   let party = loadParty();
-  function rec(kind) { if (kind === 'aria') return party.aria; return party.spirits[kind] || (party.spirits[kind] = { lv: party.aria.lv, exp: 0, bond: 0, uses: 0 }); }
+  function rec(kind) { if (kind === 'aria') return party.aria; return party.spirits[kind] || (party.spirits[kind] = { lv: party.aria.lv, exp: 0, bond: 0, uses: 0, training: { enchant: 0, summon: 0 } }); }
   const bondRank = id => Progression.rank(rec(id).bond);
-  function gainBond(id, amount, use = false) {
+  function gainBond(id, amount, use = false, route = null) {
     const r = rec(id), before = bondRank(id);
     r.bond += amount;
     if (use) { r.uses++; stats.bondUses[id] = (stats.bondUses[id] || 0) + 1; }
     stats.bondGains[id] = (stats.bondGains[id] || 0) + amount;
-    const learned = Progression.skills.filter(s => s.spirit === id && r.bond >= s.at && !party.aria.skills.includes(s.id));
-    learned.forEach(s => { party.aria.skills.push(s.id); stats.learned.push(s.id); });
+    const learned = route ? Progression.practice(party, id, route, amount) : [];
+    if (route) {
+      const gains = stats.trainingGains[id] || (stats.trainingGains[id] = { enchant: 0, summon: 0 });
+      gains[route] += amount;
+    }
+    learned.forEach(s => stats.learned.push(s.id));
     if (learned.length) { Engine.toast('アリアが「' + learned.map(s => s.name).join('」「') + '」を覚えた！'); Audio2.sfx.levelup(); }
     if (bondRank(id) > before) {
       const u = live().find(o => o.kind === id);
@@ -1099,8 +1103,8 @@ const Board = (() => {
     }
     if (r.pass) { await wait(700); unfocus(); return 'phase0'; }
     if (!r.miss && a.side === 'ally') {
-      if (SPIRITS[a.kind]) gainBond(a.kind, 1, true);
-      else if (opt.normal && a.enchant) gainBond(a.enchant.id, 1, true);
+      if (SPIRITS[a.kind]) gainBond(a.kind, 1, true, a.until ? 'summon' : null);
+      else if (opt.normal && a.enchant) gainBond(a.enchant.id, 1, true, 'enchant');
     }
     if (r.crit) { focus(pd.x, pd.y - tw * 0.5, 1.32); await wait(110); }
     if (!r.miss && opt.normal && a.enchant) await enchantEffect(a, d, r.dmg);
@@ -1308,7 +1312,7 @@ const Board = (() => {
     stats.spiritUses++;
     units.push(u);
     playMotion(u, 'summon', 1, 500); artEffect(GameArt.spiritEffects[id], cell, 2.5);
-    gainBond(id, 3, true);
+    gainBond(id, 3, true, 'summon');
     const p = topOf(cell);
     focus(p.x, p.y - tw * 0.5, 1.14);
     fxp.push({ k: 'beam', x: p.x, y: p.y, col: s.rgb, w: 0.8, life: 0, max: 1.3 });
@@ -1351,7 +1355,7 @@ const Board = (() => {
     a.enchant = { id, turns: 3 + GB.enchantTurns, from: turn };
     playMotion(a, 'enchant_' + id, 1.8, 500); artEffect(GameArt.spiritEffects[id], cellOf(a), 1.6);
     stats.spiritUses++;
-    gainBond(id, 2, true);
+    gainBond(id, 2, true, 'enchant');
     const p = unitXY(a);
     fxp.push({ k: 'beam', x: p.x, y: p.y, col: s.rgb, w: 0.55, life: 0, max: 1 });
     burst(p.x, p.y - tw * 0.7, 16, { col: s.rgb });
@@ -1629,7 +1633,8 @@ const Board = (() => {
     else if (k === 'flash') { const s = new Set(); nb4(cellOf(u)).forEach(c => s.add(idx(c.r, c.c))); enterTarget('flash', s); }
     else if (k === 'pray') { const s = new Set(); live().filter(o => o.side === 'ally' && dist(o, u) <= 1).forEach(o => s.add(idx(o.r, o.c))); enterTarget('pray', s); }
     else if (k === 'spirit') showMenu(u, 'spirit');
-    else if (k === 'learned' && u.kind === 'aria' && stage) showMenu(u, 'learned');
+    else if (k === 'learned' && u.kind === 'aria' && stage) { if (!Progression.learned(party, null, learnedRoute).length && Progression.learned(party).length) learnedRoute = Progression.learned(party)[0].route; showMenu(u, 'learned'); }
+    else if (k === 'learnedroute' && u.kind === 'aria' && stage && Object.hasOwn(Progression.routes, arg)) { learnedRoute = arg; showMenu(u, 'learned'); }
     else if (k === 'skill') {
       const skill = Progression.learned(party).find(s => s.id === arg);
       if (u.kind !== 'aria' || !stage || !skill || sp < skill.cost) return;
@@ -1731,6 +1736,7 @@ const Board = (() => {
   actHereBtn.addEventListener('click', e => { e.stopPropagation(); if (sel && !busy) { hideSay(); Audio2.sfx.choose(); showMenu(sel); } });
   cancelBtn.addEventListener('click', e => { e.stopPropagation(); if (!sel || busy) return; hideSay(); if (mode === 'selected' && !sel.moved && !menuSub) { deselect(); return; } cancel(); });
   function hideMenu() { cmdMenu.classList.add('hidden'); }
+  let learnedRoute = 'enchant';
   function showMenu(u, sub) {
     if (!u || u.acted) { hideMenu(); return; }
     const followUp = followUpPending(u);
@@ -1769,8 +1775,11 @@ const Board = (() => {
       it.push(btn('back', 'もどる', { d: '' }));
     } else if (sub === 'learned') {
       it.push(`<div class="cm-head">精霊から覚えた技<small>共鳴 ${sp}</small></div>`);
-      Progression.learned(party).forEach(s => {
-        it.push(`<div class="cm-skill-label" style="color:${SPIRITS[s.spirit].color}">${SPIRITS[s.spirit].name}・${s.type}</div>`);
+      it.push(`<div class="cm-route-tabs" role="group" aria-label="習得した系統">${Object.entries(Progression.routes).map(([id, route]) => `<button data-k="learnedroute" data-a="${id}" aria-pressed="${learnedRoute === id}">${route.name}<small>${Progression.learned(party, null, id).length}種</small></button>`).join('')}</div>`);
+      const list = Progression.learned(party, null, learnedRoute);
+      if (!list.length) it.push(`<div class="cm-note">${Progression.routes[learnedRoute].name}の熟練度8・20・40で技を覚えます。「仲間・絆」で進みぐあいを確認できます。</div>`);
+      list.forEach(s => {
+        it.push(`<div class="cm-skill-label" style="color:${SPIRITS[s.spirit].color}">${SPIRITS[s.spirit].name}・${Progression.routes[s.route].name}で習得・${s.type}</div>`);
         it.push(`<button class="cm-b cm-learned" data-k="skill" data-a="${s.id}" data-d="" ${sp < s.cost || !skillTargets(u, s).size ? 'disabled' : ''}><span>${s.name}<em>${s.cost}</em></span><small>${s.desc}</small></button>`);
       });
       it.push(btn('back', 'もどる'));
@@ -1787,7 +1796,7 @@ const Board = (() => {
         if (stage) it.push(btn('flash', '透明の一閃', { cost: flashCost(), dis: sp < flashCost(), d: '前方2マスを貫く一閃。必中・威力1.35倍、通り道を虹に染める' }));
         it.push(btn('pray', '凪の祈り', { cost: COST_PRAY, dis: sp < COST_PRAY, d: '自分か隣の味方のHPを35%癒し、周りを虹に染める' }));
         if (stage && (cfg.spirits || []).length) it.push(btn('spirit', '精霊 ▸', { d: '召喚6：大技＋精霊の別行動／宿す3：通常攻撃が毎ターン2回（どちらか一方だけ）' }));
-        if (stage && Progression.learned(party).length) it.push(btn('learned', '覚えた技 ▸', { d: '精霊との絆で覚えた魔法・スキル・技。召喚や宿しなしでも使える' }));
+        if (stage && Progression.learned(party).length) it.push(btn('learned', '覚えた技 ▸', { d: 'エンチャントと召喚、それぞれの熟練で覚えた技。習得後は宿しや召喚なしでも使える' }));
         const nItems = Object.keys(party.items).filter(k => party.items[k] > 0 && typeof ITEMS !== 'undefined' && ITEMS[k]).length;
         it.push(btn('item', '道具 ▸', { dis: !nItems, d: nItems ? '道具を使う（行動を使う）' : '道具を持っていない' }));
         if (stage && skyCharges > 0) it.push(btn('sky', '小さな夜空', { cost: '×' + skyCharges, d: 'ルノワールの夜空。周り2マスを夜空に変え、白い膜を打つ' }));
@@ -2051,7 +2060,7 @@ const Board = (() => {
     const gold = Math.round((stats.gold + clear) * mult * Progression.difficulties[difficulty].reward);
     party.gold += gold;
     // ステージの記録
-    let unique = null;
+    let unique = null, equipment = null, equipmentGold = 0;
     if (cfg.id) {
       const rc = party.stages[cfg.id] || (party.stages[cfg.id] = { cleared: false, best: null, missions: [], difficulties: {} });
       const dr = rc.difficulties[difficulty] || (rc.difficulties[difficulty] = { cleared: false, best: null, missions: [], clears: 0 });
@@ -2062,19 +2071,30 @@ const Board = (() => {
         record.missions = res.map((v, i) => v || !!record.missions[i]);
         record.clears = (record.clears || 0) + 1;
       }
-      stats.questItems = [];
-      if (first && cfg.firstItems) for (const [id, count] of Object.entries(cfg.firstItems)) {
+      const reward = Progression.rewards(cfg, difficulty);
+      stats.questItems = []; stats.rankItems = [];
+      const awardItems = (items, result) => { for (const [id, count] of Object.entries(items)) {
+        if (!ITEMS[id]) continue;
         const before = party.items[id] || 0;
         party.items[id] = Math.min(9, before + count);
-        stats.questItems.push({ id, count: party.items[id] - before });
+        if (party.items[id] > before) result.push({ id, count: party.items[id] - before });
+      } };
+      if (first) awardItems(reward.firstItems, stats.questItems);
+      if (r === 'S' && !dr.sRewardClaimed) {
+        dr.sRewardClaimed = true;
+        awardItems(reward.sItems, stats.rankItems);
+        const id = reward.sEquipment, gear = typeof EQUIP !== 'undefined' && EQUIP[id];
+        if (gear && (difficulty === 'hard' ? gear.unique : !gear.unique)) {
+          if (!party.owned.includes(id)) { party.owned.push(id); if (gear.unique) unique = id; else equipment = id; }
+          else if (!gear.unique) { equipment = id; equipmentGold = Math.round(gear.price / 2); party.gold += equipmentGold; }
+        }
       }
-      if (r === 'S' && cfg.unique && !party.owned.includes(cfg.unique)) { party.owned.push(cfg.unique); unique = cfg.unique; }
       stats.first = first;
     }
-    stats.result = { r, res, gold, clear, mult, unique };
+    stats.result = { r, res, gold, clear, mult, unique, equipment, equipmentGold };
   }
   function showResult() {
-    const { r, res, gold, unique } = stats.result;
+    const { r, res, gold, unique, equipment, equipmentGold } = stats.result;
     const ms = cfg.missions || [];
     const lv = stats.levelUps.map(l => `<div class="r-lv"><span>${l.name}</span>LV ${l.from} → <b>${l.to}</b><small>HP+${l.hp}　攻+${l.atk}　防+${l.def}</small></div>`).join('');
     const ar = party.aria;
@@ -2086,11 +2106,14 @@ const Board = (() => {
       ${mlist}
       ${(stats.questItems || []).length ? `<p class="r-bond">この難易度の初回報酬：${stats.questItems.map(x => `${ITEMS[x.id].name} +${x.count}`).join('・')}</p>` : ''}
       ${u ? `<div class="r-unique"><small>Sランク達成　ユニーク装備</small><b>${u.name}</b><span>${u.desc}</span></div>` : ''}
+      ${equipment ? `<div class="r-unique r-equipment"><small>ふつうのS評価　通常装備</small><b>${EQUIP[equipment].name}</b><span>${equipmentGold ? `所持済みのため ${equipmentGold}しずくに交換` : EQUIP[equipment].desc}</span></div>` : ''}
+      ${(stats.rankItems || []).length ? `<p class="r-bond">やさしいのS評価報酬：${stats.rankItems.map(x => `${ITEMS[x.id].name} +${x.count}`).join('・')}</p>` : ''}
       <div class="r-stats"><div>${cfg.inverted ? '切り離した膜' : '切り分けた穢れ'}<b>${stats.kills}</b></div><div>ターン<b>${turn}</b></div><div>${floorNames()[0]}の床<b>${Math.round(stats.rainbowEnd * 100)}%</b></div><div>しずく<b>+${gold}</b></div></div>
       <div class="r-exp">アリア　LV <b>${ar.lv}</b>　<span class="r-expbar"><i style="width:${ar.lv >= MAX_LV ? 100 : ar.exp}%"></i></span>　${ar.lv >= MAX_LV ? '成長上限' : `EXP +${stats.expA}`}</div>
       ${lv ? `<div class="r-lvs">${lv}</div>` : ''}
       ${Object.entries(stats.bondGains).map(([id, n]) => `<p class="r-bond" style="color:${SPIRITS[id].color}">${SPIRITS[id].name}との絆 +${n}（絆${bondRank(id)}）</p>`).join('')}
-      ${stats.learned.map(id => { const s = Progression.skills.find(s => s.id === id); return `<div class="r-unique"><small>アリアが覚えた${s.type}</small><b>${s.name}</b><span>${s.desc}</span></div>`; }).join('')}
+      ${Object.entries(stats.trainingGains).map(([id, gains]) => Object.entries(gains).filter(([, n]) => n).map(([route, n]) => `<p class="r-bond" style="color:${SPIRITS[id].color}">${SPIRITS[id].name}・${Progression.routes[route].name}熟練 +${n}（${Progression.training(party, id, route)}）</p>`).join('')).join('')}
+      ${stats.learned.map(id => { const s = Progression.skills.find(s => s.id === id); return `<div class="r-unique"><small>${Progression.routes[s.route].name}の熟練で覚えた${s.type}</small><b>${s.name}</b><span>${s.desc}</span></div>`; }).join('')}
       <div><button class="btn-main" id="resNext">つづける</button></div></div>`, { noClose: true });
     if (u) Audio2.sfx.levelup();
     document.getElementById('resNext').onclick = () => { if (!running) return; Panel.close(); end(true); };
@@ -2160,10 +2183,10 @@ const Board = (() => {
       <h4>床の割合と加護</h4>味方が歩いた床・攻撃した床は<b>虹色</b>に、穢れが立つ床は<b>くすみ</b>ます。盤全体の割合が<b>25%・45%・65%</b>を超えるたびに、その側の攻撃・守り・共鳴が強くなります（65%で毎ターン回復）。<br>自分の色の床に立つと攻撃+10%、相手の色の床では守り-10%。
       <h4>位置どり</h4>敵の足元の<b style="color:#ffd07a">橙の矢印が正面</b>、<b style="color:#81e7ff">青の二本線が背後</b>です。HPの横にも正面を向く矢印が表示されます。敵の情報欄では、選んだ味方の現在位置が正面・側面・背後のどれかを確認できます。<br>高い場所から打つと+15%。敵の<b>背後</b>から+25%（会心も出やすい）、側面から+10%。
       <h4>精霊</h4>仲間になった精霊は、<b>共鳴</b>を使って力を貸してくれます。<br>・<b>召喚</b>（共鳴6）：盤に降り立ち、登場の大技のあと3ターン共に戦う。<br>・<b>心剣に宿す</b>（共鳴3）：3ターンのあいだ、精霊の力をまとった<b>通常攻撃が毎ターン2回</b>に。同じ敵にも別の敵にも追撃でき、空振りも1回に数えます。移動は最初の1回だけで、技・魔法・道具を選ぶと行動は終了します。宿すときは行動を使わず、1ターンに1度。<br>召喚と宿しは同時にはできません。召喚している間は宿せず、宿している間は召喚できません。
-      <h4>道具とミッション</h4>町で買った道具は、メニューの「道具」から使えます（行動を使う）。<br>右上のミッションをすべて達成するとSランク。各ステージで最初にSランクを取ると、ユニーク装備が手に入ります。
+      <h4>道具とミッション</h4>町で買った道具は、メニューの「道具」から使えます（行動を使う）。<br>右上のミッションをすべて達成するとSランク。S評価の報酬は難易度別。<b>ハードはユニーク装備、ふつうは通常装備、やさしいはアイテム</b>です。各難易度で1回ずつ受け取れ、所持済みの通常装備は価格の半分のしずくになります。
       <h4>LV</h4>攻撃と撃破で経験値が入り、100たまるとLVが上がります。精霊は、召喚や宿しで育ちます。
-      <h4>精霊との絆・覚えた技</h4>召喚で絆+3、心剣に宿すと+2。召喚した精霊の攻撃や、宿した心剣が命中すると+1、覚えた技を使うと+2。絆8・20・40で、その精霊からアリアが魔法・スキル・技を覚えます。<br>習得後は「覚えた技」から、召喚や宿しをせずに使えます。絆が深まるほど精霊のHP・攻撃・守りと、宿した心剣・覚えた技の効果が育ちます。負けても絆と習得は残ります。
-      <h4>難易度・依頼</h4>マップの戦場や依頼で4段階の難易度を選べます。適正LV・報酬・ミッション実績は難易度ごとに表示されます。戦闘開始後は再挑戦も同じ難易度です。町の「依頼」でサブクエストを探せます。
+      <h4>精霊との絆・覚えた技</h4>召喚で絆+3、心剣に宿すと+2。召喚した精霊の攻撃や、宿した心剣が命中すると+1、覚えた技を使うと+2。絆は精霊と技の強さを育てます。<b>習得はエンチャントと召喚の熟練を別々に判定</b>し、それぞれ8・20・40で3種ずつ、全24種。宿すとエンチャント熟練+2、宿した通常攻撃の命中で+1。召喚すると召喚熟練+3、精霊の命中で+1。覚えた技の使用は熟練に入りません。<br>習得後は「覚えた技」から、召喚や宿しをせずに使えます。絆が深まるほど精霊のHP・攻撃・守りと、宿した心剣・覚えた技の効果が育ちます。負けても絆と習得は残ります。
+      <h4>難易度・依頼</h4>マップの戦場や依頼でやさしい・ふつう・ハードの3段階の難易度を選べます。適正LV・報酬・ミッション実績は難易度ごとに表示されます。戦闘開始後は再挑戦も同じ難易度です。町の「依頼」でサブクエストを探せます。
       <p style="margin-top:12px;color:#ffd98a">「切るのは穢れだけ。その人の色は、一滴も切らない」</p>`);
   }
 
@@ -2211,7 +2234,8 @@ const Board = (() => {
     turn = 0; phase = 'player'; busy = true; over = false; paused = false;
     sel = null; mode = 'idle'; moveInfo = null; targets = null; targetCmd = null; hover = null; threat = null; menuSub = null; infoU = null;
     sp = Math.min(spCap(), (cfg.spStart != null ? cfg.spStart : 3) + GB.spStart); skyCharges = 0; enchantUsed = false;
-    stats = { kills: 0, taken: 0, down: 0, start: performance.now(), levelUps: [], expA: 0, phase0: 0, back: 0, crit: 0, items: 0, spiritUses: 0, summonKills: 0, enchantKills: 0, flashMulti: 0, dullMax: 0, lastBoss: false, bossEarly: false, gold: 0, bondUses: {}, bondGains: {}, learned: [], skillUses: 0, skillBySpirit: {} };
+    stats = { kills: 0, taken: 0, down: 0, start: performance.now(), levelUps: [], expA: 0, phase0: 0, back: 0, crit: 0, items: 0, spiritUses: 0, summonKills: 0, enchantKills: 0, flashMulti: 0, dullMax: 0, lastBoss: false, bossEarly: false, gold: 0, bondUses: {}, bondGains: {}, trainingGains: {}, learned: [], skillUses: 0, skillBySpirit: {} };
+    learnedRoute = 'enchant';
     fxp.length = 0; floatLayer.innerHTML = '';
     cam.z = cam.tz = 1;
     hideMenu();

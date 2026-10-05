@@ -18,7 +18,7 @@ const EQUIP = {
   c_tea: { slot: 'charm', name: 'カモミールの小袋', price: 500, fx: { regen: 5 } },
   c_brush: { slot: 'charm', name: '絵筆の飾り', price: 700, fx: { paintStep: 1 } },
   c_feather: { slot: 'charm', name: '渡り鳥の羽', price: 800, fx: { summonTurns: 1 } },
-  // ユニーク（各ステージをSランクでクリアすると手に入る）
+  // ユニーク（各戦場・依頼のハードをS評価でクリアすると手に入る）
   u_knot: { slot: 'charm', unique: true, name: 'リラの結び目', fx: { spMax: 4, spTurn: 1 }, lore: '冷えた指でもほどけるように、少し長めに端を残した結び目。' },
   u_bell: { slot: 'blade', unique: true, name: '鐘楼の子守唄', fx: { atk: 14, back: 15 }, lore: '渡り鳥が鐘楼に残していった歌。背中から、そっと届く。' },
   u_vine: { slot: 'charm', unique: true, name: '姉妹の蔦冠', fx: { enchantTurns: 2, regen: 3 }, lore: 'ひと冬かけて編んだドレスの、残った糸で編んだ冠。' },
@@ -30,6 +30,18 @@ const EQUIP = {
   u_compass: { slot: 'charm', unique: true, name: '迷子の羅針盤', fx: { mov: 1, jump: 1 }, lore: '居心地がよすぎて出口を忘れた森で、マリーが落としたもの。' },
   u_lens: { slot: 'charm', unique: true, name: '星見のレンズ', fx: { rng: 1 }, lore: '遠い星まで、すこしだけ近くに見える。' },
   u_sheath: { slot: 'blade', unique: true, name: '透明の鞘', fx: { atk: 34, flashCost: 1 }, lore: '何も壊さない刃のための、何も隠さない鞘。' },
+  u_quest_harbor: { slot: 'charm', unique: true, name: '配達人の結び紐', fx: { atk: 4, def: 3 }, lore: '忘れものを、持ち主の手へ返すための紐。' },
+  u_quest_lantern: { slot: 'charm', unique: true, name: '帰港の灯', fx: { hp: 20, regen: 3 }, lore: '霧の向こうでも、帰る場所を知らせる灯り。' },
+  u_quest_tide: { slot: 'blade', unique: true, name: '潮騒の刻印', fx: { atk: 10, back: 10 }, lore: '波が退く瞬間に合わせて刻んだ、深碧のしるし。' },
+  u_quest_clock: { slot: 'charm', unique: true, name: '再び動く秒針', fx: { flashCost: 1 }, lore: '謝罪の言葉とともに、時を刻みはじめた針。' },
+  u_quest_orchard: { slot: 'cloth', unique: true, name: '果樹園のケープ', fx: { def: 9, hp: 35, killHeal: 5 }, lore: '苦い果実の収穫を手伝った日に贈られたケープ。' },
+  u_quest_thorns: { slot: 'charm', unique: true, name: '帰り鳥の蔦輪', fx: { mov: 1, dullGuard: 1 }, lore: '鳥たちが帰る道を、蔦の輪で結んだもの。' },
+  u_quest_bloom: { slot: 'cloth', unique: true, name: '花守りの衣', fx: { def: 10, hp: 45, regen: 3 }, lore: '芽吹きを守った手に、やさしく寄り添う衣。' },
+  u_quest_bridge: { slot: 'charm', unique: true, name: '渡り橋の留め具', fx: { jump: 1, def: 8, hp: 20 }, lore: '向こう岸へ渡る勇気を、胸元に留める金具。' },
+  u_quest_gold: { slot: 'blade', unique: true, name: '鍛冶師の金線', fx: { atk: 20, crit: 5 }, lore: '傷を隠さず、輝く道筋に変える金の線。' },
+  u_quest_palette: { slot: 'charm', unique: true, name: '色祭りの絵筆', fx: { paintStep: 1, spStart: 2 }, lore: '城下町に戻った七色を、旅の道へ描く絵筆。' },
+  u_quest_stargarden: { slot: 'cloth', unique: true, name: '星庭の羽衣', fx: { def: 20, hp: 70, evade: 5 }, lore: '星と色の響き合いを織り込んだ、庭の羽衣。' },
+  u_quest_echo: { slot: 'blade', unique: true, name: '四響の刻印', fx: { atk: 30, enchantTurns: 1, summonTurns: 1 }, lore: '四つの絆を、ひとつの透明な剣へ刻んだもの。' },
 };
 const SLOT_NAME = { blade: '刻印', cloth: '衣', charm: '飾り' };
 function fxText(fx) {
@@ -334,13 +346,14 @@ const World = (() => {
     }
     if (conf && replayable(n, rec)) {
       const key = chosen(conf), record = diffRec(conf, key), lv = Progression.level(conf, key);
-      const u = EQUIP[conf.unique];
-      const got = conf.unique && party.owned.includes(conf.unique);
+      const rewards = Progression.rewards(conf, key), u = EQUIP[rewards.sEquipment];
+      const got = rewards.sEquipment && party.owned.includes(rewards.sEquipment);
       body += `<div class="wp-info"><span>適正LV <b>${lv}</b></span><span>最高ランク <b class="r${record && record.best || 'none'}">${record && record.best || '—'}</b></span><span>クリア <b>${record?.clears || 0}</b>回</span></div>
         <div class="wp-sec">ミッション<small>${Progression.difficulties[key].name}の実績</small></div>${missionsHtml(conf, record)}
-        ${u ? `<div class="wp-unique ${got ? 'got' : ''}"><small>Sランクの報酬</small><b>${got ? u.name : '？？？'}</b><span>${got ? u.desc : 'ユニーク装備'}</span></div>` : ''}`;
+        ${u ? `<div class="wp-unique ${got ? 'got' : ''}" data-reward-kind="${u.unique ? 'unique' : 'equipment'}"><small>${Progression.difficulties[key].name}のS評価 · ${u.unique ? 'ユニーク装備' : '通常装備'}${record?.sRewardClaimed ? ' · 受取済み' : ''}</small><b>${u.name}${got ? ' · 所持済み' : ''}</b><span>${u.desc}</span>${!u.unique && !record?.sRewardClaimed ? '<small>所持済みなら価格の半分をしずくで受け取れます</small>' : ''}</div>` : ''}
+        ${Object.keys(rewards.sItems).length ? `<div class="wp-unique ${record?.sRewardClaimed ? 'got' : ''}" data-reward-kind="items"><small>やさしいのS評価 · アイテム${record?.sRewardClaimed ? ' · 受取済み' : ''}</small><b>${Object.entries(rewards.sItems).map(([id, n]) => `${ITEMS[id].name} ×${n}`).join('・')}</b></div>` : ''}`;
       if (conf.reward) body += `<p class="wp-note">基本報酬 ${Math.round(conf.reward * Progression.difficulties[key].reward)}しずく＋撃破・ランク報酬</p>`;
-      if (conf.firstItems) body += `<p class="wp-note">${record?.cleared ? '初回報酬は受取済み' : 'この難易度の初回報酬：' + Object.entries(conf.firstItems).map(([id, v]) => `${ITEMS[id].name} ×${v}`).join('・')}<br>道具の所持上限は各9個</p>`;
+      body += `<p class="wp-note">${record?.cleared ? '初回報酬は受取済み' : 'この難易度の初回報酬：' + Object.entries(rewards.firstItems).map(([id, v]) => `${ITEMS[id].name} ×${v}`).join('・')}<br>S評価報酬は各難易度で1回。ユニーク装備はハードのS評価のみ。道具の所持上限は各9個</p>`;
       if (!story) acts.push(`<button class="wb main" data-a="sortie">出撃</button>`);
       else acts.push(`<button class="wb" data-a="sortie">この戦場だけ戦う</button>`);
     } else if (n.type === 'quest') {
@@ -482,14 +495,17 @@ const World = (() => {
     const uniq = Object.keys(EQUIP).filter(k => EQUIP[k].unique);
     Panel.open('仲間', `<div class="pt">
       <div class="pt-row"><span class="pt-name">${GameArt.portrait('aria', 'pt-art')}<b>アリア</b></span><span>LV ${party.aria.lv}</span><span class="pt-exp"><i style="width:${party.aria.exp}%"></i></span></div>
-      <p class="wp-note">召喚+3、宿す+2、精霊や宿した心剣の命中+1、覚えた技の使用+2。絆8・20・40でアリアが力を覚え、召喚や宿しなしでも使えます。</p>
+      <p class="wp-note">絆は共通で育ち、精霊と技の力が強くなります。技の習得は「エンチャント」「召喚」の熟練度を別々に育て、各8・20・40で3種類ずつ。覚えた技の使用は絆+2で、系統の熟練には入りません。以前覚えた技はそのまま使えます。</p>
       ${sp.map(id => {
         const r = party.spirits[id] || { lv: party.aria.lv, exp: 0, bond: 0, uses: 0 }, rank = Progression.rank(r.bond), next = Progression.thresholds[rank];
         const from = Progression.thresholds[rank - 1], percent = next ? (r.bond - from) / (next - from) * 100 : 100;
         return `<div class="bond-card" style="--c:${cols[id]}"><div class="pt-row"><span class="pt-name">${GameArt.portrait(id, 'pt-art')}<b>${names[id]}</b></span><span>LV ${r.lv}</span><span class="pt-exp"><i style="width:${r.exp}%"></i></span></div>
           <div class="bond-info"><b>絆${rank}</b><span>${r.bond}${next ? ' / ' + next : '・最大ランク'}　使用${r.uses}回</span></div><div class="pt-exp bond-bar"><i style="width:${percent}%"></i></div>
           <p class="wp-note">精霊：HP +${(rank - 1) * 5}%・攻撃 +${(rank - 1) * 4}%・守り +${(rank - 1) * 2}%<br>宿した心剣・攻撃技の威力 +${(rank - 1) * 3}%</p>
-          ${Progression.skills.filter(s => s.spirit === id).map(s => `<div class="bond-skill ${party.aria.skills.includes(s.id) ? 'known' : ''}"><b>${party.aria.skills.includes(s.id) ? '✓' : '◇'} ${s.name}</b><small>${s.type}・${party.aria.skills.includes(s.id) ? '習得済み / 共鳴' + s.cost : '絆' + s.at + 'で習得（あと' + Math.max(0, s.at - r.bond) + '）'}</small><span>${s.desc}</span></div>`).join('')}</div>`;
+          ${Object.entries(Progression.routes).map(([route, info]) => {
+            const points = Progression.training(party, id, route), list = Progression.skills.filter(s => s.spirit === id && s.route === route).sort((a, b) => a.at - b.at);
+            return `<section class="bond-route" data-route="${route}"><h4>${info.name}<small>熟練 ${points} · 習得 ${Progression.learned(party, id, route).length}/3</small></h4><p>${info.desc}</p>${list.map(s => `<div class="bond-skill ${party.aria.skills.includes(s.id) ? 'known' : ''}"><b>${party.aria.skills.includes(s.id) ? '✓' : '◇'} ${s.name}</b><small>${s.type}・${party.aria.skills.includes(s.id) ? '習得済み / 共鳴' + s.cost : '熟練' + s.at + 'で習得（あと' + Math.max(0, s.at - points) + '）'}</small><span>${s.desc}</span></div>`).join('')}</section>`;
+          }).join('')}</div>`;
       }).join('') || '<p>まだ精霊の仲間はいない</p>'}
       <div class="sh-sec">ユニーク装備<small>${uniq.filter(k => party.owned.includes(k)).length} / ${uniq.length}</small></div>
       <div class="pt-uq">${uniq.map(k => `<span class="${party.owned.includes(k) ? 'on' : ''}">${party.owned.includes(k) ? EQUIP[k].name : '？？？'}</span>`).join('')}</div></div>`);

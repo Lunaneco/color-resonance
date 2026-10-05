@@ -23,6 +23,19 @@ test('Portable saves preserve items, equipment, spirit bonds, story position and
   assert(saved.aria.skills.includes('gran_mend'));assert.deepEqual(JSON.parse(b.data.get('cr_save')).colors,['teal']);
   assert.equal(JSON.parse(b.data.get('cr_settings')).textSize,'large');
 });
+test('Portable saves preserve separate skill routes and claimed rewards while converting old expert settings to hard',async()=>{
+  const a=await saveContext(),b=await saveContext();const p=party(321);
+  p.spirits.gran.training={enchant:20,summon:7};p.aria.skills=['gran_wave','gran_current'];
+  p.stageDifficulty={cove:'expert'};p.stages.cove.difficulties={expert:{cleared:true,best:'S',clears:2,sRewardClaimed:true,missions:[true,true,true]}};
+  a.data.set('cr_party',JSON.stringify(p));a.data.set('cr_diff','expert');
+  assert.equal(b.api.importText(a.api.exportText()).ok,true);
+  const saved=JSON.parse(b.data.get('cr_party'));
+  assert.deepEqual(saved.spirits.gran.training,{enchant:20,summon:7});
+  assert.deepEqual(saved.aria.skills,['gran_wave','gran_current']);
+  assert(saved.stages.cove.difficulties.hard.sRewardClaimed);assert.equal(saved.stages.cove.difficulties.hard.clears,2);
+  assert.equal(saved.stageDifficulty.cove,'hard');assert.equal(b.data.get('cr_diff'),'hard');
+  assert.equal(b.api.previewText(b.api.exportText()).ok,true);
+});
 test('Invalid and unrelated save files cannot replace the current journey',async()=>{
   const s=await saveContext();s.data.set('cr_party',JSON.stringify(party(50)));
   const before=s.data.get('cr_party');

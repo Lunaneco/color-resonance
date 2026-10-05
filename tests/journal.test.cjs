@@ -8,7 +8,7 @@ test('Journal marks derive from completed play and do not award drops or invent 
   for(const name of ['progression','journal'])vm.runInContext(await fs.readFile(path.join(root,'js/'+name+'.js'),'utf8'),c);
   const result=vm.runInContext(`(()=>{const p=Progression.migrate({aria:{lv:4,exp:0},spirits:{},gold:42});const before=JSON.stringify(p), empty=Journal.achievements(p,['prologue']);
     p.stages={one:{cleared:true,best:'S',difficulties:{expert:{cleared:true}}},two:{cleared:true},three:{cleared:true}};
-    for(const id of Object.keys(Progression.spirits))p.spirits[id]={lv:4,exp:0,bond:40};
+    for(const id of Object.keys(Progression.spirits))p.spirits[id]={lv:4,exp:0,bond:40,training:{enchant:40,summon:40}};
     for(const id of ['lantern','echo'])for(const tier of ['gentle','normal','hard'])p.minigames.records[id][tier]={clears:1};
     Progression.migrate(p);const rich=JSON.stringify(p),complete=Journal.achievements(p,['prologue','act1','act2','act4','act5','finale','done']);
     return {empty,complete,unchanged:rich===JSON.stringify(p),gold:p.gold};})()`,c);

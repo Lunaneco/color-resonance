@@ -17,7 +17,7 @@ const SIDE_QUESTS = (() => {
   return Object.fromEntries(entries.map(q => {
     const ref = BOARDS[q.mapFrom];
     if (q.bondNeed) q.missions = q.missions.map(m => m.type === 'skillUse' ? { ...m, spirit: q.bondNeed.spirit } : m);
-    return [q.id, { cols: q.lv >= 16 ? 11 : 9, rows: q.lv >= 16 ? 11 : 9, spStart: 6, act: 'サブクエスト',
+    return [q.id, { unique: 'u_quest_' + q.id.slice(2), cols: q.lv >= 16 ? 11 : 9, rows: q.lv >= 16 ? 11 : 9, spStart: 6, act: 'サブクエスト',
       map: { ...ref.map, obsAmt: 0.04 }, hue: ref.hue, decor: ref.decor,
       theme: q.town === 'aquamist' ? { bg: 'rain', preset: 'dawn', fx: 'rain:0.15', bgm: 'haruka' }
         : q.town === 'grey' ? { bg: 'forest', preset: 'dusk', fx: 'motes:0.4', bgm: 'forest' }

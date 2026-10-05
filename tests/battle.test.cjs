@@ -390,8 +390,15 @@ test('Final battle reveals membranes after two attacks and protects neutral Chro
 
 const allChapters=['prologue','act1','act2','act3','act4','act5','finale','epilogue','done'];
 const partyWithBond=points=>({aria:{lv:1,exp:0},spirits:Object.fromEntries(['gran','ivy','spinel','king'].map(id=>[id,{lv:1,exp:0,bond:points,uses:0}]))});
+const partyWithTraining=points=>{const p=partyWithBond(points);for(const r of Object.values(p.spirits))r.training={enchant:points,summon:points};return p;};
+async function chooseLearned(id) {
+  const route=await page.evaluate(id=>Progression.skills.find(s=>s.id===id).route,id);
+  await page.locator('[data-k=learned]').click();
+  await page.locator(`[data-k=learnedroute][data-a=${route}]`).click();
+  await page.locator(`[data-k=skill][data-a=${id}]`).click();
+}
 
-for(const viewport of [{width:1440,height:900},{width:390,height:844},{width:667,height:375}]) {
+for(const viewport of [{width:1440,height:900},{width:390,height:844},{width:320,height:480},{width:667,height:375}]) {
   test(`Map shows levels, selectable difficulty and twelve quests at ${viewport.width} × ${viewport.height}`,async()=>{
     await boot('cove',viewport,{cr_unlocked:allChapters,cr_party:partyWithBond(40)});
     await page.evaluate(()=>World.open());
@@ -400,10 +407,18 @@ for(const viewport of [{width:1440,height:900},{width:390,height:844},{width:667
     assert.equal(await page.locator('#panel [data-quest]').count(),12);
     await page.locator('#panel [data-quest=q_tide]').click();
     await page.locator('#wmPanel [data-diff=hard]').waitFor();
+    assert.equal(await page.locator('#wmPanel [data-diff]').count(),3);
+    assert.equal(await page.locator('#wmPanel [data-reward-kind=equipment]').count(),1);
+    await page.locator('#wmPanel [data-diff=gentle]').click();
+    assert.equal(await page.locator('#wmPanel [data-reward-kind=items]').count(),1);
+    assert.equal(await page.locator('#wmPanel [data-reward-kind=unique]').count(),0);
     await page.locator('#wmPanel [data-diff=hard]').click();
+    assert.equal(await page.locator('#wmPanel [data-reward-kind=unique]').count(),1);
+    assert.match(await page.locator('#wmPanel [data-reward-kind=unique]').textContent(),/潮騒の刻印/);
     assert.match(await page.locator('#wmPanel').textContent(),/適正LV 8/);
     assert(await page.locator('#wmPanel [data-diff=hard]').getAttribute('aria-pressed')==='true');
-    await inViewport('wmPanel');
+    const panelBounds=await inViewport('wmPanel');
+    if(viewport.width===320)assert(panelBounds.w>=viewport.width-20,'Small portrait screens need a full-width stage panel to read difficulty and reward labels');
     if(viewport.width===390)await page.screenshot({path:'/tmp/cr-map-390.png'});
     if(viewport.width===1440)await page.screenshot({path:'/tmp/cr-map-desktop.png'});
     await page.locator('#wmPanel [data-a=sortie]').click();await idle();
@@ -424,8 +439,9 @@ test('Quest chapter and bond gates prevent early access, and bond skills are vis
   assert.equal(await page.locator('#wmPanel [data-a=sortie]').count(),0);
   await page.locator('[data-w=party]').click();
   assert.equal(await page.locator('.pn-body').evaluate(e=>e.scrollTop),0);
-  assert.equal(await page.locator('.bond-skill').count(),12);
-  assert.match(await page.locator('.pn-body').textContent(),/絆8で習得/);
+  assert.equal(await page.locator('.bond-skill').count(),24);
+  assert.equal(await page.locator('.bond-route').count(),8);
+  assert.match(await page.locator('.pn-body').textContent(),/熟練8で習得/);
   await page.waitForTimeout(350);
   await page.screenshot({path:'/tmp/cr-bond-390.png'});
 });
@@ -447,6 +463,63 @@ test('Difficulty clears and first quest rewards are separate, while old clears r
   assert(rewards[1]-rewards[0]>rewards[0]);
 });
 
+test('Real victories award easy S items, normal S equipment, and hard S unique gear only once per tier',async()=>{
+  await boot('cove',{width:1440,height:900},{cr_party:partyWithTraining(0)});
+  for(const key of ['gentle','normal','hard']) {
+    for(let attempt=0;attempt<2;attempt++) {
+      await fixture('cove',{id:'q_harbor',unique:'u_quest_harbor',difficulty:key,firstItems:{i_tea:1},missions:[]});
+      await attack();await page.locator('#resNext').waitFor({timeout:12000});
+      const p=await page.evaluate(()=>Board.reloadParty());
+      assert(p.stages.q_harbor.difficulties[key].sRewardClaimed);
+      assert.equal(p.items.i_shard,1);assert.equal(p.items.i_powder,1);
+      assert.deepEqual(p.owned,key==='gentle'?[]:key==='normal'?['e_glass']:['e_glass','u_quest_harbor']);
+      const result=await page.locator('.result').textContent();
+      if(!attempt)assert.match(result,key==='gentle'?/やさしいのS評価報酬/:key==='normal'?/通常装備/:/ユニーク装備/);
+      else assert.equal(await page.locator('.r-unique').count(),0,'A repeat S clear cannot award another rank reward');
+      await page.locator('#resNext').click();
+    }
+  }
+});
+
+test('Hard A grants no unique gear, a later hard S grants it, and another quest has its own unique reward',async()=>{
+  await boot('cove');
+  await fixture('cove',{id:'q_harbor',unique:'u_quest_harbor',difficulty:'hard',missions:[{type:'noItem'},{type:'hp',n:60},{type:'back',n:99}]});
+  await attack();await page.locator('#resNext').waitFor({timeout:12000});
+  assert.equal(await page.locator('.r-rank').textContent(),'A');
+  assert(!await page.evaluate(()=>Board.party.owned.includes('u_quest_harbor')));
+  assert(!await page.evaluate(()=>Board.party.stages.q_harbor.difficulties.hard.sRewardClaimed));
+  await page.locator('#resNext').click();
+  for(const id of ['q_harbor','q_lantern']) {
+    await fixture('cove',{id,unique:'u_quest_'+id.slice(2),difficulty:'hard',missions:[]});
+    await attack();await page.locator('#resNext').waitFor({timeout:12000});
+    assert.equal(await page.locator('.r-rank').textContent(),'S');
+    assert(await page.evaluate(id=>Board.party.owned.includes('u_quest_'+id.slice(2)),id));
+    await page.locator('#resNext').click();
+  }
+  assert.equal(await page.evaluate(()=>Board.party.owned.filter(id=>id.startsWith('u_quest_')).length),2);
+});
+
+test('An owned normal S reward converts to half its shop price once and every stage reward names valid equipment',async()=>{
+  const p=partyWithTraining(0);p.owned=['e_glass'];
+  await boot('cove',{width:1440,height:900},{cr_party:p});
+  assert(await page.evaluate(()=>[...Object.values(BOARDS),...Object.values(FREE_STAGES),...Object.values(SIDE_QUESTS)].every(c=>{
+    const n=Progression.rewards(c,'normal').sEquipment,h=Progression.rewards(c,'hard').sEquipment;
+    return EQUIP[n]&&!EQUIP[n].unique&&EQUIP[h]?.unique;
+  })));
+  for(let attempt=0;attempt<2;attempt++) {
+    const before=await page.evaluate(()=>Board.party.gold);
+    await fixture('cove',{id:'q_harbor',unique:'u_quest_harbor',difficulty:'normal',missions:[]});
+    await attack();await page.locator('#resNext').waitFor({timeout:12000});
+    const clearGold=Number(await page.locator('.r-stats div').last().locator('b').textContent());
+    const after=await page.evaluate(()=>Board.party.gold);
+    assert.equal(after-before,clearGold+(attempt?0:60));
+    if(!attempt)assert.match(await page.locator('.r-equipment').textContent(),/60しずくに交換/);
+    else assert.equal(await page.locator('.r-equipment').count(),0);
+    assert.deepEqual(await page.evaluate(()=>Board.party.owned),['e_glass']);
+    await page.locator('#resNext').click();
+  }
+});
+
 test('Hard enemies are stronger without raising Aria’s level, and retry keeps the chosen difficulty',async()=>{
   await boot();
   const start=key=>page.evaluate(key=>Board.start({...BOARDS.cove,difficulty:key,tutorial:null,intro:null,enemies:[{kind:'shade',lv:4}]}),key);
@@ -459,8 +532,8 @@ test('Hard enemies are stronger without raising Aria’s level, and retry keeps 
   assert.equal((await state()).difficulty,'hard');assert.equal(enemy(await state()).lv,hard.lv);
 });
 
-test('Committed spirit use grows only that spirit’s bond, unlocks a permanent skill, and improves its strength',async()=>{
-  const p=partyWithBond(0);p.spirits.gran.bond=6;
+test('Committed enchanting trains only that route, unlocks a permanent skill, and improves shared bond strength',async()=>{
+  const p=partyWithTraining(0);p.spirits.gran.bond=6;p.spirits.gran.training.enchant=6;
   await boot('king',{width:1440,height:900},{cr_party:p});
   await fixture('king',{spStart:12});await page.evaluate(()=>Board.__test.arrange([{kind:'aria',atk:25,hp:1000,mhp:1000},{kind:'shade',hp:500,mhp:500,atk:1}]));
   const before=await page.evaluate(()=>Board.statsFor('gran',10));
@@ -469,25 +542,46 @@ test('Committed spirit use grows only that spirit’s bond, unlocks a permanent 
   await page.locator('[data-k=spirit]').click();await page.locator('[data-k=enchant][data-a=gran]').click();await idle();
   assert.equal(await page.evaluate(()=>Board.party.spirits.gran.bond),8);
   assert(await page.evaluate(()=>Board.party.aria.skills.includes('gran_wave')));
+  assert(!await page.evaluate(()=>Board.party.aria.skills.includes('gran_spray')));
+  assert.deepEqual(await page.evaluate(()=>Board.party.spirits.gran.training),{enchant:8,summon:0});
   const after=await page.evaluate(()=>Board.statsFor('gran',10));assert(after.atk>before.atk&&after.mhp>before.mhp);
   await page.locator('[data-k=attack]').click();await clickUnit(enemy(await state()),true);
   await page.waitForFunction(()=>Board.party.spirits.gran.bond===9);
   const saved=await page.evaluate(()=>JSON.parse(localStorage.cr_party));
   assert.equal(saved.spirits.gran.uses,2);assert.equal(saved.spirits.ivy.bond,0);
+  assert.deepEqual(saved.spirits.gran.training,{enchant:9,summon:0});
   await page.evaluate(()=>Board.stop());await fixture('cove',{spStart:6});await openMenu();
   assert(await page.locator('[data-k=learned]').isVisible());
 });
 
-test('An interrupted spirit cut-in grants no bond or learned skill',async()=>{
-  const p=partyWithBond(0);p.spirits.gran.bond=6;
+test('An interrupted spirit cut-in grants no bond, route training or learned skill',async()=>{
+  const p=partyWithTraining(0);p.spirits.gran.bond=6;p.spirits.gran.training.enchant=6;
   await boot('king',{width:1440,height:900},{cr_party:p});
   await openMenu();await page.locator('[data-k=spirit]').click();await page.locator('[data-k=enchant][data-a=gran]').click();
   await page.evaluate(()=>Board.stop());await fixture('cove');await page.waitForTimeout(1800);
   assert.equal(await page.evaluate(()=>Board.party.spirits.gran.bond),6);
+  assert.deepEqual(await page.evaluate(()=>Board.party.spirits.gran.training),{enchant:6,summon:0});
   assert(!await page.evaluate(()=>Board.party.aria.skills.includes('gran_wave')));
 });
 
-const skillIds=['gran_wave','gran_mend','gran_tide','ivy_bind','ivy_bloom','ivy_dance','spinel_break','spinel_guard','spinel_sun','king_prism','king_canvas','king_resonance'];
+test('Summoning and a summoned attack train only the summon route and unlock its distinct skill',async()=>{
+  const p=partyWithTraining(0);p.spirits.gran.training.summon=5;
+  await boot('king',{width:1440,height:900},{cr_party:p});await fixture('king',{spStart:12});
+  await page.evaluate(()=>Board.__test.arrange([{kind:'aria',hp:1000,mhp:1000},{kind:'shade',r:0,c:0,hp:1000,mhp:1000,atk:1,root:10}]));
+  await openMenu();await page.locator('[data-k=spirit]').click();await page.locator('[data-k=summon][data-a=gran]').click();
+  const cell=await legalCell('targets');assert(cell);await page.mouse.click(cell.x,cell.y);
+  await page.waitForFunction(()=>Board.__test.state().turn===2&&!Board.__test.state().busy,{},{timeout:25000});
+  assert.deepEqual(await page.evaluate(()=>Board.party.spirits.gran.training),{enchant:0,summon:8});
+  assert(await page.evaluate(()=>Board.party.aria.skills.includes('gran_spray')));
+  assert(!await page.evaluate(()=>Board.party.aria.skills.includes('gran_wave')));
+  const spirit=(await state()).units.find(u=>u.kind==='gran');assert(spirit);
+  await page.evaluate(id=>{const u=Board.__test.state().units.find(u=>u.id===id);Board.__test.arrange([{kind:'shade',r:u.r-1,c:u.c,dir:2},{id,moved:true}]);},spirit.id);
+  await clickUnit((await state()).units.find(u=>u.id===spirit.id),true);await page.locator('[data-k=attack]').click();await clickUnit(enemy(await state()),true);await idle();
+  assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.cr_party).spirits.gran.training),{enchant:0,summon:9});
+  assert.equal(await page.evaluate(()=>Board.party.spirits.ivy.training.summon),0);
+});
+
+const skillIds=['gran_wave','gran_mend','gran_tide','ivy_bind','ivy_bloom','ivy_dance','spinel_break','spinel_guard','spinel_sun','king_prism','king_canvas','king_resonance','gran_current','gran_spray','gran_ocean','ivy_renew','ivy_grove','ivy_sanctuary','spinel_polish','spinel_verdict','spinel_spark','king_edge','king_mantle','king_spectrum'];
 test('Ivy’s learned bind prevents movement for two enemy turns, then expires',async()=>{
   await boot('cove',{width:1440,height:900},{cr_party:partyWithBond(40)});
   await fixture('cove',{spStart:12});
@@ -512,8 +606,8 @@ test('A quest requiring Ivy’s learned skills does not count another spirit’s
   assert.equal(progress[0].ok,null);assert.equal(progress[0].prog,'0/1');assert.equal(progress[1].ok,true);
 });
 
-test('All twelve learned skills and the back button can be reached on a small touchscreen',async()=>{
-  await boot('cove',{width:320,height:480},{cr_party:partyWithBond(40)});
+test('All twenty-four learned skills, route tabs and the back button can be reached on a small touchscreen',async()=>{
+  await boot('cove',{width:320,height:480},{cr_party:partyWithTraining(40)});
   await fixture('cove',{spStart:12});await openMenu();await page.locator('[data-k=learned]').click();
   assert.equal(await page.locator('[data-k=skill]').count(),12);
   await inViewport('cmdMenu');
@@ -521,6 +615,8 @@ test('All twelve learned skills and the back button can be reached on a small to
   assert(widths.button>=widths.menu-24,'Each learned skill must have a readable full-width row');
   await page.waitForTimeout(200);
   await page.screenshot({path:'/tmp/cr-skills-320.png'});
+  await page.locator('[data-k=learnedroute][data-a=summon]').tap();
+  assert.equal(await page.locator('[data-k=skill]').count(),12);
   await page.locator('[data-k=skill][data-a=king_resonance]').scrollIntoViewIfNeeded();
   assert(await page.locator('[data-k=skill][data-a=king_resonance]').isVisible());
   await page.locator('[data-k=skill][data-a=king_resonance]').hover();
@@ -531,23 +627,24 @@ test('All twelve learned skills and the back button can be reached on a small to
 
 for(const id of skillIds) {
   test(`Aria can use ${id} without summoning, applying its effect and paying once`,async()=>{
-    await boot('cove',{width:1440,height:900},{cr_party:partyWithBond(40)});
+    await boot('cove',{width:1440,height:900},{cr_party:partyWithTraining(40)});
     await fixture('cove',{spStart:12});
     await page.evaluate(()=>Board.__test.arrange([{kind:'aria',atk:40,hp:10},{kind:'shade',hp:500,mhp:500,atk:1,armor:3}]));
     const skill=await page.evaluate(id=>Progression.skills.find(s=>s.id===id),id);
     assert(await page.evaluate(id=>GameArt.available(GameArt.spiritEffects[id]),skill.spirit),'Learned skills need their art even on a stage without that spirit');
     await recordArt();
-    await openMenu();await page.locator('[data-k=learned]').click();await page.locator(`[data-k=skill][data-a=${id}]`).click();
+    await openMenu();await chooseLearned(id);
     // Cancelling a target selection must not pay or grant progress.
     assert.equal((await state()).sp,12);assert.equal(await page.evaluate(id=>Board.party.spirits[id].bond,skill.spirit),40);
     await page.locator('#cancelSel').click();
-    await openMenu();await page.locator('[data-k=learned]').click();await page.locator(`[data-k=skill][data-a=${id}]`).click();
+    await openMenu();await chooseLearned(id);
     await clickUnit(skill.target==='ally'?aria(await state()):enemy(await state()),true);
     await drew(await page.evaluate(id=>GameArt.spiritEffects[id],skill.spirit),3);
     await page.waitForFunction(()=>Board.__test.state().skillUses===1&&!Board.__test.state().busy);
     const s=await state(),a=aria(s),e=enemy(s);
     assert.equal(s.sp,12-skill.cost+(skill.power?1:0));assert.equal(s.spiritUses,1);
     assert.equal(await page.evaluate(id=>Board.party.spirits[id].bond,skill.spirit),42);
+    assert.deepEqual(await page.evaluate(id=>Board.party.spirits[id].training,skill.spirit),{enchant:40,summon:40},'Using a learned skill cannot train either acquisition route');
     assert.equal(a.enchant,null);assert.equal(s.units.filter(u=>u.side==='ally').length,1);
     if(skill.heal)assert(a.hp>10);
     if(skill.power)assert(e.hp<500);
