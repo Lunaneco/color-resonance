@@ -22,6 +22,7 @@ const Board = (() => {
   const IMG = {}; let META = null;
   const PIC = {};
   const RAINBOW_FLOOR_ALPHA = 0.45;
+  const FLOOR_AURAS = {};
   const ready = Promise.all([
     fetch('assets/tiles/meta.json').then(r => r.json()).then(m => {
       META = m;
@@ -369,6 +370,29 @@ const Board = (() => {
     g.globalAlpha = 1;
   }
 
+  function floorAura(x, y, amount, night = false) {
+    if (amount <= 0) return;
+    const key = night ? 'night' : 'rainbow';
+    let im = FLOOR_AURAS[key];
+    if (!im) {
+      im = document.createElement('canvas'); im.width = 256; im.height = 139;
+      const ctx = im.getContext('2d'), w = im.width, h = im.height;
+      ctx.beginPath(); ctx.moveTo(w / 2, h * .01); ctx.lineTo(w * .99, h / 2);
+      ctx.lineTo(w / 2, h * .99); ctx.lineTo(w * .01, h / 2); ctx.closePath();
+      const color = night ? ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w * .6) : ctx.createLinearGradient(0, 0, w, h);
+      const colors = night ? [[0, '#465ac8'], [1, '#141e5a']] : [[0, '#7fd7dd'], [.22, '#b6a6ec'], [.44, '#ecaac9'], [.65, '#f3d89b'], [.84, '#c3e3a3'], [1, '#9ce0c8']];
+      colors.forEach(([at, c]) => color.addColorStop(at, c)); ctx.fillStyle = color; ctx.fill();
+      if (!night) {
+        const edge = ctx.createLinearGradient(0, h / 2, w, h / 2);
+        edge.addColorStop(0, '#cab8f4'); edge.addColorStop(.5, '#f6ddb1'); edge.addColorStop(1, '#b2e2cf');
+        ctx.strokeStyle = edge; ctx.lineWidth = 2.5; ctx.stroke();
+      }
+      FLOOR_AURAS[key] = im;
+    }
+    g.save(); g.globalCompositeOperation = 'screen'; g.globalAlpha = RAINBOW_FLOOR_ALPHA * amount;
+    g.drawImage(im, x - tw / 2, y - th / 2, tw, th); g.restore();
+  }
+
   function render(now) {
     if (!running) return;
     const t = (now - t0) / 1000;
@@ -466,20 +490,8 @@ const Board = (() => {
         g.save(); diamond(x, y, tw * 0.98, th * 0.98); g.fillStyle = 'rgba(10,16,34,.12)'; g.fill(); g.restore();
       }
       if (wRain > 0) {
-        g.save(); diamond(x, y, tw * 0.98, th * 0.98);
-        const aura = g.createLinearGradient(x - tw / 2, y - th / 2, x + tw / 2, y + th / 2);
-        aura.addColorStop(0, '#7fd7dd'); aura.addColorStop(.22, '#b6a6ec');
-        aura.addColorStop(.44, '#ecaac9'); aura.addColorStop(.65, '#f3d89b');
-        aura.addColorStop(.84, '#c3e3a3'); aura.addColorStop(1, '#9ce0c8');
-        g.globalCompositeOperation = 'screen'; g.globalAlpha = RAINBOW_FLOOR_ALPHA * wRain;
-        g.fillStyle = aura; g.fill(); g.restore();
-        // 薄い虹の縁と柔らかな反射。通常の床の凹凸や波を残す。
-        g.save(); diamond(x, y, tw * 0.97, th * 0.97);
-        const edge = g.createLinearGradient(x - tw / 2, y, x + tw / 2, y);
-        edge.addColorStop(0, `rgba(202,184,244,${0.38 * wRain})`);
-        edge.addColorStop(.5, `rgba(246,221,177,${0.5 * wRain})`);
-        edge.addColorStop(1, `rgba(178,226,207,${0.38 * wRain})`);
-        g.strokeStyle = edge; g.lineWidth = Math.max(0.7, tw / 100); g.stroke(); g.restore();
+        // 虹の光は再利用し、毎フレーム・全マスでグラデーションを作り直さない。
+        floorAura(x, y, wRain);
         const sw = (t * 0.55 + (c.c + c.r) * 0.13) % 3.2;
         if (sw < 1) { g.save(); diamond(x, y, tw, th); g.clip(); const gx = x - tw + sw * tw * 2; const gr = g.createLinearGradient(gx - 30, y, gx + 30, y); gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(.5, `rgba(255,241,215,${0.09 * wRain})`); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(x - tw, y - th, tw * 2, th * 2); g.restore(); }
       }
@@ -487,7 +499,7 @@ const Board = (() => {
       // 終章：味方の床は夜空、敵の床は白い膜
       g.save(); diamond(x, y, tw * 0.99, th * 0.99);
       g.fillStyle = `rgba(2,3,9,${0.5 - wRain * 0.38})`; g.fill();
-      if (wRain > 0) { const gr = g.createRadialGradient(x, y, 0, x, y, tw * 0.6); gr.addColorStop(0, 'rgb(70,90,200)'); gr.addColorStop(1, 'rgb(20,30,90)'); g.globalCompositeOperation = 'screen'; g.globalAlpha = RAINBOW_FLOOR_ALPHA * wRain; g.fillStyle = gr; g.fill(); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; }
+      floorAura(x, y, wRain, true);
       if (wDull > 0) { const gr = g.createLinearGradient(x - tw / 2, y - th / 2, x + tw / 2, y + th / 2); gr.addColorStop(0, `rgba(250,250,255,${0.78 * wDull})`); gr.addColorStop(1, `rgba(210,220,238,${0.6 * wDull})`); g.fillStyle = gr; g.fill(); }
       g.restore();
       if (wRain > 0) drawStars(c, x, y, t, wRain);

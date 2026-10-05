@@ -18,7 +18,7 @@ const hook = `__floorTest: {
     const effects = [], imageNames = [];
     const fill = g.fill, image = g.drawImage;
     g.fill = function(...args) { if(this.globalCompositeOperation==='screen')effects.push(this.globalAlpha);return fill.apply(this,args); };
-    g.drawImage = function(im,...args) { imageNames.push(im.src||'canvas');return image.call(this,im,...args); };
+    g.drawImage = function(im,...args) { if(im instanceof HTMLImageElement)imageNames.push(im.src);if(this.globalCompositeOperation==='screen')effects.push(this.globalAlpha);return image.call(this,im,...args); };
     try { drawCell(c,2,now,null,null,null); } finally { delete g.fill; delete g.drawImage; }
     // The body beneath the top face includes overlapping stacked sprites.
     const pixels = g.getImageData(Math.round(p.x-tw*.25),Math.round(p.y+th*.6),Math.round(tw*.5),Math.round(th*.55+height*hStep)).data;
