@@ -4825,5 +4825,359 @@
       },
       "source": "parent-coordinated independent AI audit, delegated 2026-10-05"
     }
+  },
+  "departureSet13": {
+    "assetCount": 1,
+    "checks": [
+      {
+        "id": "spirit_departure",
+        "pngCels": 12,
+        "uniquePngCels": 11,
+        "gifFrames": 14,
+        "durationMs": 1400,
+        "visibleEndMs": 1000,
+        "pngVisibleEndMs": 1000,
+        "loop": false,
+        "firstLastBlank": true,
+        "transparentTailMs": 400,
+        "pivotPx": [
+          128,
+          128
+        ],
+        "transparentClearancePx": 24,
+        "sourceRegistration": "one measured master anchor; no per-cel crop or centering",
+        "geometry": "one hollow master appears at 72% scale, grows then contracts at fixed foot point; final GIF cel is a tiny open U, not a closed loop",
+        "onsetNote": {
+          "firstVisibleAtMs": 40,
+          "firstGifWidthPx": 106,
+          "peakCoreWidthPx": 148,
+          "initialScale": 0.72,
+          "note": "The ring appears at 72% peak scale then grows and contracts. It is not a smooth emergence from zero size."
+        },
+        "lateRasterTopology": {
+          "cel": 11,
+          "intervalMs": [
+            920,
+            1000
+          ],
+          "gifBoxSizePx": [
+            14,
+            4
+          ],
+          "gifOpaquePixels": 27,
+          "upperEdgeGapPx": 3,
+          "shape": "tiny open U",
+          "connectedComponents8Neighbor": 1,
+          "closedLoop": false,
+          "note": "Accepted as pre-disappearance raster contraction; do not describe every GIF cel as a closed ring."
+        },
+        "peakHold": {
+          "cels": [
+            3,
+            4
+          ],
+          "startMs": 280,
+          "endMs": 440
+        },
+        "pivotAlphaZeroAllPngAndGifCels": true,
+        "bodyOrDamageOrErasureDrawn": false,
+        "additionalParticleSystem": false,
+        "celRegistrations": [
+          {
+            "cel": 0,
+            "registeredCenterPx": [
+              128,
+              128
+            ],
+            "uniformScale": 0.08084977238239757,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              72,
+              109,
+              184,
+              147
+            ],
+            "pivotAlpha": 0
+          },
+          {
+            "cel": 1,
+            "registeredCenterPx": [
+              128,
+              128
+            ],
+            "uniformScale": 0.0943247344461305,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              63,
+              106,
+              193,
+              150
+            ],
+            "pivotAlpha": 0
+          },
+          {
+            "cel": 2,
+            "registeredCenterPx": [
+              128,
+              128
+            ],
+            "uniformScale": 0.10330804248861912,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              57,
+              104,
+              199,
+              152
+            ],
+            "pivotAlpha": 0
+          },
+          {
+            "cel": 3,
+            "registeredCenterPx": [
+              128,
+              128
+            ],
+            "uniformScale": 0.11229135053110774,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              51,
+              103,
+              205,
+              154
+            ],
+            "pivotAlpha": 0
+          },
+          {
+            "cel": 4,
+            "registeredCenterPx": [
+              128,
+              128
+            ],
+            "uniformScale": 0.11229135053110774,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              51,
+              103,
+              205,
+              154
+            ],
+            "pivotAlpha": 0
+          },
+          {
+            "cel": 5,
+            "registeredCenterPx": [
+              128,
+              128
+            ],
+            "uniformScale": 0.10555386949924127,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              56,
+              104,
+              200,
+              152
+            ],
+            "pivotAlpha": 0
+          },
+          {
+            "cel": 6,
+            "registeredCenterPx": [
+              128,
+              128
+            ],
+            "uniformScale": 0.0943247344461305,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              63,
+              106,
+              193,
+              150
+            ],
+            "pivotAlpha": 0
+          },
+          {
+            "cel": 7,
+            "registeredCenterPx": [
+              128,
+              128
+            ],
+            "uniformScale": 0.07860394537177541,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              74,
+              109,
+              182,
+              147
+            ],
+            "pivotAlpha": 0
+          },
+          {
+            "cel": 8,
+            "registeredCenterPx": [
+              128,
+              128
+            ],
+            "uniformScale": 0.060637329286798186,
+            "pngOpacity": 0.9,
+            "alphaBoxPx": [
+              85,
+              113,
+              171,
+              143
+            ],
+            "pivotAlpha": 0
+          },
+          {
+            "cel": 9,
+            "registeredCenterPx": [
+              128,
+              128
+            ],
+            "uniformScale": 0.040424886191198786,
+            "pngOpacity": 0.8,
+            "alphaBoxPx": [
+              99,
+              117,
+              157,
+              139
+            ],
+            "pivotAlpha": 0
+          },
+          {
+            "cel": 10,
+            "registeredCenterPx": [
+              128,
+              128
+            ],
+            "uniformScale": 0.024704097116843703,
+            "pngOpacity": 0.7,
+            "alphaBoxPx": [
+              109,
+              120,
+              147,
+              136
+            ],
+            "pivotAlpha": 0
+          },
+          {
+            "cel": 11,
+            "registeredCenterPx": [
+              128,
+              128
+            ],
+            "uniformScale": 0.011229135053110774,
+            "pngOpacity": 0.6,
+            "alphaBoxPx": [
+              118,
+              123,
+              138,
+              133
+            ],
+            "pivotAlpha": 0
+          }
+        ],
+        "gifOpaqueAreas": [
+          1211,
+          1630,
+          1963,
+          2303,
+          2303,
+          2038,
+          1630,
+          1144,
+          671,
+          308,
+          122,
+          27
+        ],
+        "gifCoreComponentSizes": [
+          [
+            1211
+          ],
+          [
+            1630
+          ],
+          [
+            1963
+          ],
+          [
+            2303
+          ],
+          [
+            2303
+          ],
+          [
+            2038
+          ],
+          [
+            1630
+          ],
+          [
+            1144
+          ],
+          [
+            671
+          ],
+          [
+            308
+          ],
+          [
+            122
+          ],
+          [
+            27
+          ]
+        ],
+        "gifVisibleComponents": 1,
+        "componentAdjacency": "8-neighbor; all 12 visible GIF cels",
+        "gifEndRgbMeans": [
+          228.52260307998012,
+          229.72835497835496,
+          230.2841530054645,
+          231.49382716049382
+        ],
+        "pngEndMethod": "uniform contraction and partial alpha",
+        "gifEndMethod": "contraction retaining source color; no RGB darkening",
+        "continuousVisualPlayback": "NOT VERIFIED",
+        "actualGamePlacement": "NOT VERIFIED"
+      }
+    ],
+    "sourceCropAlphaNote": {
+      "sourceAlphaExtrema": [
+        0,
+        254
+      ],
+      "outsideFixedCropAlphaMax": 1,
+      "outsideFixedCropNonzeroPixels": 493,
+      "outsideFixedCropAlphaWeight": 493,
+      "allCore96InsideFixedCrop": true,
+      "note": "Generated master is retained unchanged. Fixed registration crop omits ultrafaint outlying alpha; no per-cel threshold cleanup or noise pixel deletion is applied. Final frames have fully alpha-zero 24px padding."
+    },
+    "independentAudit": {
+      "verdict": "major numerical, shape consistency, contraction and retained white color PASS; tiny tail and bright-floor visibility reserved",
+      "confirmedNg": [],
+      "allGifCelsClosedLoops": false,
+      "gifFinalCelOpenUAccepted": true,
+      "onsetFromZeroSize": false,
+      "crossEnvironmentPngRebuild": {
+        "pixelMatches": 12,
+        "encodedByteMatch": false,
+        "note": "Independent reconstruction preserved all 12 PNG cel pixels; PNG byte differences are encoding/environment dependent."
+      },
+      "sameMacMediaByteMatches": 15,
+      "notVerified": [
+        "actual continuous visual playback",
+        "actual game placement",
+        "readability of bright-floor tile64 tail"
+      ],
+      "source": "parent-coordinated independent AI audit, delegated 2026-10-05"
+    },
+    "playbackContract": {
+      "assertions": 45,
+      "scope": "Read-only VM of actual copied GameArt.sample; onset/midpoint/preceding-ms of every cel; end and future timestamps remain null. No browser/rendering.",
+      "actualArtJsSha256": "955553cdecf0dd598dd469de631557718add3311dec327a01cb8877fe2d164a9",
+      "continuousVisualPlayback": "NOT VERIFIED",
+      "actualGamePlacement": "NOT VERIFIED"
+    }
   }
 }

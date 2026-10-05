@@ -3,10 +3,10 @@
   "title": "Color Resonance ゲーム素材",
   "counts": {
     "characters": 18,
-    "effects": 33,
-    "sourceSheets": 51,
-    "pngCels": 496,
-    "gifs": 149
+    "effects": 34,
+    "sourceSheets": 52,
+    "pngCels": 508,
+    "gifs": 151
   },
   "production": {
     "generator": "built-in imagegen",
@@ -7403,6 +7403,133 @@
               "name": "止まらず右へ通り抜ける",
               "startMs": 20,
               "endMs": 500
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "spirit_departure",
+      "name": "精霊の帰還・閉じる足元の環",
+      "category": "fx",
+      "assetRole": "summoned-spirit-expiry-return",
+      "source": "source/spirit_departure.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "sheet": "sheets/spirit_departure.png",
+      "frames": [
+        "frames/spirit_departure/000.png",
+        "frames/spirit_departure/001.png",
+        "frames/spirit_departure/002.png",
+        "frames/spirit_departure/003.png",
+        "frames/spirit_departure/004.png",
+        "frames/spirit_departure/005.png",
+        "frames/spirit_departure/006.png",
+        "frames/spirit_departure/007.png",
+        "frames/spirit_departure/008.png",
+        "frames/spirit_departure/009.png",
+        "frames/spirit_departure/010.png",
+        "frames/spirit_departure/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          256,
+          192
+        ],
+        "order": "row-major"
+      },
+      "pivotPx": [
+        128,
+        128
+      ],
+      "scaleReferenceTileWidthPx": 80,
+      "direction": "ground-plane oval; fixed foot pivot; no travel",
+      "triggerCondition": "departSpirit(u) for live summoned spirit Boolean(u.until) && u.summon < 0; capture unitXY(u) foot point before u.dead=true",
+      "productionSet": "departure-set-13",
+      "animations": {
+        "effect": {
+          "name": "精霊の帰還・閉じる足元の環",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            40,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            400
+          ],
+          "frameStartsMs": [
+            0,
+            40,
+            120,
+            200,
+            280,
+            360,
+            440,
+            520,
+            600,
+            680,
+            760,
+            840,
+            920,
+            1000
+          ],
+          "loop": false,
+          "gif": "gifs/spirit_departure/effect.gif",
+          "size": [
+            256,
+            192
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 1400,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/spirit_departure/preview.gif",
+          "visibleEndMs": 1000,
+          "pngVisibleEndMs": 1000,
+          "gifTransparentTailMs": 400,
+          "phases": [
+            {
+              "name": "環が現れ広がる",
+              "startMs": 40,
+              "endMs": 280
+            },
+            {
+              "name": "ピーク保持",
+              "startMs": 280,
+              "endMs": 440
+            },
+            {
+              "name": "足元に閉じる",
+              "startMs": 440,
+              "endMs": 1000
             }
           ]
         }

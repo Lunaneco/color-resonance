@@ -5312,5 +5312,361 @@
       },
       "source": "parent-coordinated independent AI audit, delegated 2026-10-05"
     }
+  },
+  {
+    "id": "spirit_departure",
+    "name": "精霊の帰還・閉じる足元の環",
+    "category": "fx",
+    "source": "source/spirit_departure.png",
+    "references": [
+      "references/spirit-departure-guard-reference.png",
+      "references/heartblade-weapon-reference.png"
+    ],
+    "sourceGenerator": "GPT Image image_gen",
+    "revision": "r1",
+    "prompt": "Use case: illustration-story. Create one ORIGINAL transparent master for a calm summoned-spirit departure cue in the actual Color Resonance game. Input 1 is the game's actual guard ring cel: use only its clean illustrated game rendering and oval footprint idea, NOT its gold guard identity or diamond ornaments. Input 2 is the actual heart sword: use its quiet pearl/cyan/opal palette only, not the weapon geometry or faceted decoration.\nOutput one 1536 x 1024 canvas with exactly ONE simple HOLLOW oval ring lying in the game's ground plane, seen from a gentle 3/4 top-down angle. Its ellipse is roughly 940 pixels wide and 280 pixels high, centered near (768,620), with at least 250 pixels clear margin around it. The ring is one continuous solid smoothly filled band about 50 pixels thick, broad enough to remain connected when later resized to 150 pixels wide. Keep its entire inner oval genuinely transparent. Pearl-white broad core, soft opal warmth and a modest medium pale-blue/lavender outer edge so the outline can read on a bright floor. Only 2–3 broad smooth color areas, no fine parallel trim lines. Crisp illustrated cel shading, minimal antialiasing, no bloom cloud or soft fog outside the actual contour. This ring will close quietly as a temporary friendly spirit returns to Aria, not as an enemy dies. No impact, flare, damage, fracture, violent suction, black erasure or torn membrane. No body, character, face, hand, weapon, creature or target. No pillars, vertical plumes, beam, second concentric ring, floating diamond, star, shard, spark, particle, runic glyph, sigil, text, letters, numbers, floor painting, platform, shadow plate, gradient backdrop, grid, border, checkerboard or watermark. Background and all padding alpha-zero. Only the one hollow continuous band is visible.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "sourceSize": [
+      1536,
+      1024
+    ],
+    "sourceCropBoxPx": [
+      64,
+      336,
+      1472,
+      816
+    ],
+    "sourceAnchorPx": [
+      768,
+      576
+    ],
+    "sourceCoreBox96Px": [
+      109,
+      372,
+      1427,
+      780
+    ],
+    "peakCoreWidthPx": 148,
+    "supersampleFactor": 4,
+    "pivotPx": [
+      128,
+      128
+    ],
+    "celScaleEnvelope": [
+      0.72,
+      0.84,
+      0.92,
+      1,
+      1,
+      0.94,
+      0.84,
+      0.7,
+      0.54,
+      0.36,
+      0.22,
+      0.1
+    ],
+    "celPngOpacities": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0.9,
+      0.8,
+      0.7,
+      0.6
+    ],
+    "preRollMs": 40,
+    "celDurationsMs": [
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80
+    ],
+    "transparentTailMs": 400,
+    "direction": "ground-plane oval; fixed foot pivot; no travel",
+    "trigger": "departSpirit(u) for live summoned spirit Boolean(u.until) && u.summon < 0; capture unitXY(u) foot point before u.dead=true",
+    "actors": [
+      "gran",
+      "ivy",
+      "spinel",
+      "king"
+    ],
+    "drawLayer": "ground after floor, before unit body",
+    "palette": "one shared neutral pearl/cyan/opal ring, not four color-matched variants",
+    "integrationNote": "Existing departSpirit adds a generic colored beam and starts a 900ms body fade. Use this ring as the replacement departure cue; never change the fade, summon timer or body pixels. Not connected to game code.",
+    "notFor": [
+      "damage defeat",
+      "enemy death",
+      "enemy birth",
+      "gran_tide arrival attack",
+      "enchantment expiry",
+      "persistent guard or root status"
+    ],
+    "compatibilityCheckedCommit": "deba7fd7bb6dac230b1ae03f4978b0f4fa593c8a",
+    "continuousVisualPlayback": "NOT VERIFIED",
+    "actualGamePlacement": "NOT VERIFIED",
+    "sourceCropAlphaNote": {
+      "sourceAlphaExtrema": [
+        0,
+        254
+      ],
+      "outsideFixedCropAlphaMax": 1,
+      "outsideFixedCropNonzeroPixels": 493,
+      "outsideFixedCropAlphaWeight": 493,
+      "allCore96InsideFixedCrop": true,
+      "note": "Generated master is retained unchanged. Fixed registration crop omits ultrafaint outlying alpha; no per-cel threshold cleanup or noise pixel deletion is applied. Final frames have fully alpha-zero 24px padding."
+    },
+    "onsetNote": {
+      "firstVisibleAtMs": 40,
+      "firstGifWidthPx": 106,
+      "peakCoreWidthPx": 148,
+      "initialScale": 0.72,
+      "note": "The ring appears at 72% peak scale then grows and contracts. It is not a smooth emergence from zero size."
+    },
+    "lateRasterTopology": {
+      "cel": 11,
+      "intervalMs": [
+        920,
+        1000
+      ],
+      "gifBoxSizePx": [
+        14,
+        4
+      ],
+      "gifOpaquePixels": 27,
+      "upperEdgeGapPx": 3,
+      "shape": "tiny open U",
+      "connectedComponents8Neighbor": 1,
+      "closedLoop": false,
+      "note": "Accepted as pre-disappearance raster contraction; do not describe every GIF cel as a closed ring."
+    },
+    "independentAudit": {
+      "verdict": "major numerical, shape consistency, contraction and retained white color PASS; tiny tail and bright-floor visibility reserved",
+      "confirmedNg": [],
+      "allGifCelsClosedLoops": false,
+      "gifFinalCelOpenUAccepted": true,
+      "onsetFromZeroSize": false,
+      "crossEnvironmentPngRebuild": {
+        "pixelMatches": 12,
+        "encodedByteMatch": false,
+        "note": "Independent reconstruction preserved all 12 PNG cel pixels; PNG byte differences are encoding/environment dependent."
+      },
+      "sameMacMediaByteMatches": 15,
+      "notVerified": [
+        "actual continuous visual playback",
+        "actual game placement",
+        "readability of bright-floor tile64 tail"
+      ],
+      "source": "parent-coordinated independent AI audit, delegated 2026-10-05"
+    },
+    "compatibilityNote": "Published on game 1.4.0. departSpirit() and js/art.js are byte-identical to the audited 1.3.0 baseline. Other work adds material rewards and +3 upgrades; this material commit preserves those features and does not alter gameplay.",
+    "sourceSha256": "e8213a578533ec8287ac785d83cef611ffbfc43fbc3c97499e14f740b6edc4ed",
+    "animationMethod": "one registered hollow master; ring appears at 72% scale then grows and contracts at fixed foot pivot; final GIF raster becomes a tiny open U; 4x affine sampling then Lanczos reduction; no body pixels or particle system",
+    "celRegistrations": [
+      {
+        "cel": 0,
+        "registeredCenterPx": [
+          128,
+          128
+        ],
+        "uniformScale": 0.08084977238239757,
+        "pngOpacity": 1,
+        "alphaBoxPx": [
+          72,
+          109,
+          184,
+          147
+        ],
+        "pivotAlpha": 0
+      },
+      {
+        "cel": 1,
+        "registeredCenterPx": [
+          128,
+          128
+        ],
+        "uniformScale": 0.0943247344461305,
+        "pngOpacity": 1,
+        "alphaBoxPx": [
+          63,
+          106,
+          193,
+          150
+        ],
+        "pivotAlpha": 0
+      },
+      {
+        "cel": 2,
+        "registeredCenterPx": [
+          128,
+          128
+        ],
+        "uniformScale": 0.10330804248861912,
+        "pngOpacity": 1,
+        "alphaBoxPx": [
+          57,
+          104,
+          199,
+          152
+        ],
+        "pivotAlpha": 0
+      },
+      {
+        "cel": 3,
+        "registeredCenterPx": [
+          128,
+          128
+        ],
+        "uniformScale": 0.11229135053110774,
+        "pngOpacity": 1,
+        "alphaBoxPx": [
+          51,
+          103,
+          205,
+          154
+        ],
+        "pivotAlpha": 0
+      },
+      {
+        "cel": 4,
+        "registeredCenterPx": [
+          128,
+          128
+        ],
+        "uniformScale": 0.11229135053110774,
+        "pngOpacity": 1,
+        "alphaBoxPx": [
+          51,
+          103,
+          205,
+          154
+        ],
+        "pivotAlpha": 0
+      },
+      {
+        "cel": 5,
+        "registeredCenterPx": [
+          128,
+          128
+        ],
+        "uniformScale": 0.10555386949924127,
+        "pngOpacity": 1,
+        "alphaBoxPx": [
+          56,
+          104,
+          200,
+          152
+        ],
+        "pivotAlpha": 0
+      },
+      {
+        "cel": 6,
+        "registeredCenterPx": [
+          128,
+          128
+        ],
+        "uniformScale": 0.0943247344461305,
+        "pngOpacity": 1,
+        "alphaBoxPx": [
+          63,
+          106,
+          193,
+          150
+        ],
+        "pivotAlpha": 0
+      },
+      {
+        "cel": 7,
+        "registeredCenterPx": [
+          128,
+          128
+        ],
+        "uniformScale": 0.07860394537177541,
+        "pngOpacity": 1,
+        "alphaBoxPx": [
+          74,
+          109,
+          182,
+          147
+        ],
+        "pivotAlpha": 0
+      },
+      {
+        "cel": 8,
+        "registeredCenterPx": [
+          128,
+          128
+        ],
+        "uniformScale": 0.060637329286798186,
+        "pngOpacity": 0.9,
+        "alphaBoxPx": [
+          85,
+          113,
+          171,
+          143
+        ],
+        "pivotAlpha": 0
+      },
+      {
+        "cel": 9,
+        "registeredCenterPx": [
+          128,
+          128
+        ],
+        "uniformScale": 0.040424886191198786,
+        "pngOpacity": 0.8,
+        "alphaBoxPx": [
+          99,
+          117,
+          157,
+          139
+        ],
+        "pivotAlpha": 0
+      },
+      {
+        "cel": 10,
+        "registeredCenterPx": [
+          128,
+          128
+        ],
+        "uniformScale": 0.024704097116843703,
+        "pngOpacity": 0.7,
+        "alphaBoxPx": [
+          109,
+          120,
+          147,
+          136
+        ],
+        "pivotAlpha": 0
+      },
+      {
+        "cel": 11,
+        "registeredCenterPx": [
+          128,
+          128
+        ],
+        "uniformScale": 0.011229135053110774,
+        "pngOpacity": 0.6,
+        "alphaBoxPx": [
+          118,
+          123,
+          138,
+          133
+        ],
+        "pivotAlpha": 0
+      }
+    ]
   }
 ]
