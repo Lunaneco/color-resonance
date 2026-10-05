@@ -1,0 +1,74 @@
+const {test,before,after}=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs/promises'),path=require('node:path'),http=require('node:http'),vm=require('node:vm');
+const {chromium,webkit}=require('playwright');
+const root=path.resolve(__dirname,'..');
+async function content(){const c=vm.createContext({localStorage:{getItem:()=>null}});for(const f of ['progression','story','quests','restoration-content','guardian-content','guardian-combat'])vm.runInContext(await fs.readFile(path.join(root,'js',f+'.js'),'utf8'),c);vm.runInContext((await fs.readFile(path.join(root,'js/world.js'),'utf8')).split('const World =')[0],c);vm.runInContext(await fs.readFile(path.join(root,'js/fury.js'),'utf8'),c);return c;}
+test('Vard uses the original fruit boss reward, three charge phases and two battles before joining',async()=>{
+ const c=await content(),v=JSON.parse(vm.runInContext(`JSON.stringify({p:GUARDIANS.find(p=>p.id==='vard'),path:BOARDS.gp_vard,b:BOARDS.f_fruit,story:SCRIPT.fury,skills:Progression.skills.filter(s=>s.spirit==='vard')})`,c));
+ assert.equal(v.p.art,'vard');assert.equal(v.b.unique,'u_fruit');assert.equal(v.b.guardian,'vard');assert.equal(v.path.enemies.some(e=>e.kind==='boss'),false);
+ assert(v.story.indexOf('@board gp_vard')<v.story.indexOf('@board f_fruit'));assert(v.story.indexOf('@board f_fruit')<v.story.indexOf('@vardbond'));assert(v.story.includes('まだ、マリーが旅をしていた頃'));assert(v.story.includes('@furynews'));assert(v.story.includes('潮の友'));
+ assert.deepEqual(v.b.missions.map(m=>m.type),['turns','hp','back']);assert(!v.b.missions.some(m=>m.type==='crit'||m.type==='dullMax'));
+ for(const route of ['enchant','summon'])assert.deepEqual(v.skills.filter(s=>s.route===route).map(s=>s.at),[8,20,40]);
+ vm.runInContext(`globalThis.result={modes:[0,1,2].map(i=>GuardianCombat.mode(GUARDIANS.find(p=>p.id==='vard'),i)),plans:[0,1,2].map(i=>GuardianCombat.plan(GUARDIANS.find(p=>p.id==='vard'),i,{r:3,c:3},[{r:7,c:4}],Array.from({length:100},(_,n)=>({r:Math.floor(n/10),c:n%10,walk:true})),1)),before:Progression.companions(['done','fury']),after:Progression.companions(['act3','vardbond']),reward:Progression.rewards(BOARDS.f_fruit,'hard')}`,c);
+ const r=JSON.parse(vm.runInContext('JSON.stringify(result)',c));assert(r.modes[2].power>r.modes[0].power);assert.equal(new Set(r.plans.map(p=>JSON.stringify(p))).size,3);assert(!r.before.includes('vard'));assert(r.after.includes('vard'));assert(r.reward.unique);
+ const manifest=JSON.parse(await fs.readFile(path.join(root,'assets/generated/manifest.json'),'utf8')),quality=JSON.parse(await fs.readFile(path.join(root,'assets/generated/quality-vard.json'),'utf8'));assert.deepEqual(quality.alphaRange,[0,255]);const a=manifest.assets.find(a=>a.id==='vard');await fs.access(path.join(root,'assets/generated',a.sheet));assert(manifest.assets.find(a=>a.id==='aria').animations.enchant_vard);
+});
+test('Fury rises with missing HP, falls with healing, and is independent from Spinel protection',async()=>{
+ const c=await content();const r=JSON.parse(vm.runInContext(`JSON.stringify([100,50,1,0,150].map(h=>Progression.furyPower(h,100)))`,c));assert.deepEqual(r,[1.15,1.3499999999999999,1.5459999999999998,1.5499999999999998,1.15]);
+ const s=JSON.parse(vm.runInContext(`JSON.stringify(Progression.skills.find(s=>s.id==='spinel_guard'))`,c));assert.equal(s.guard,3);assert.equal(s.heal,.25);assert(!s.power);
+});
+let server,base,browsers;
+const hook=`__furyQA:{
+ ready:()=>running&&!busy&&!paused&&!over,
+ state:()=>({cfg:cfg.id,spirits:cfg.spirits,over,turn,history:guardianHistory,sp,units:units.map(u=>({id:u.id,kind:u.kind,side:u.side,hp:u.hp,mhp:u.mhp,phase:u.guardianPhase,atk:u.atk,enchant:u.enchant,dead:u.dead})),fallen:[...defeatedSpirits]}),
+ finish(){units.filter(u=>u.side==='enemy').forEach(u=>u.dead=true);stats.back=3;cells.forEach(c=>paint(c,'rainbow'));win();},
+ fall(){return runTask(defeat(ariaU()));},
+ phase(h){const e=units.find(u=>u.guardian);e.hp=Math.ceil(e.mhp*h);guardianTransition(e);refreshHud();},
+ fixture(){Object.assign(ariaU(),{r:5,c:4,hp:100,mhp:100,atk:100,def:10,dir:0});const e=units.find(u=>u.side==='enemy');Object.assign(e,{r:4,c:4,hp:10000,mhp:10000,def:0,dir:2});cells.forEach(c=>paint(c,'neutral'));sp=12;refreshHud();select(ariaU(),true);},
+ enchanted(h){ariaU().hp=h;refreshHud();showInfo(ariaU());return {damage:calcDamage(ariaU(),units.find(u=>u.side==='enemy'),{normal:true},null,false).dmg,power:furyBonus(ariaU()),limit:normalAttackLimit(ariaU())};},
+ summon(){return runTask(summon(ariaU(),'vard',cells.find(c=>c.walk&&!unitAt(c)&&dist(c,ariaU())<=2)));},
+ summoned(h){const u=units.find(u=>u.kind==='vard'&&!u.dead);u.hp=h==null?u.mhp:h;return {damage:calcDamage(u,units.find(u=>u.side==='enemy'),{normal:true},null,false).dmg,power:furyBonus(u),max:u.mhp};},
+ killSpirit(){return runTask(defeat(units.find(u=>u.kind==='vard'&&!u.dead)));},
+}, `;
+before(async()=>{
+ server=http.createServer(async(req,res)=>{try{const u=new URL(req.url,'http://local'),file=path.resolve(root,'.'+decodeURIComponent(u.pathname==='/'?'/index.html':u.pathname));if(!file.startsWith(root+path.sep)||file.includes(path.sep+'.'))throw Error();const data=await fs.readFile(file);res.writeHead(200,{'Content-Type':({'.html':'text/html','.js':'application/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.mp3':'audio/mpeg'})[path.extname(file)]||'application/octet-stream'});res.end(data);}catch{res.writeHead(404);res.end();}});await new Promise(r=>server.listen(0,'127.0.0.1',r));base=`http://127.0.0.1:${server.address().port}/`;browsers={chromium:await chromium.launch(),webkit:await webkit.launch()};
+});
+after(async()=>{for(const b of Object.values(browsers||{}))await b.close();if(server)await new Promise(r=>server.close(r));});
+const checkpoint={chapter:'act4',idx:0,map:true,at:12345};
+async function session(engine,run,{joined=false,unlocked=['prologue','act1','act2','act3','act4'],oldClear=false}={}){
+ const ctx=await browsers[engine].newContext({viewport:{width:390,height:844},hasTouch:true}),page=await ctx.newPage(),errors=[];page.setDefaultTimeout(15000);page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.url().startsWith(base)&&r.status()>=400)errors.push(r.status()+' '+r.url());});
+ await ctx.addInitScript(({unlocked,joined,oldClear,checkpoint})=>{if(localStorage.cr_fury_seed)return;localStorage.cr_fury_seed='1';localStorage.cr_unlocked=JSON.stringify([...unlocked,...(joined?['vardbond']:[])]);localStorage.cr_settings=JSON.stringify({reduceMotion:true,textSize:'normal'});localStorage.cr_speed='0';localStorage.cr_save=JSON.stringify(checkpoint);localStorage.cr_party=JSON.stringify({aria:{lv:16,exp:0},gold:400,pos:'f_fruit',spirits:{vard:{lv:16,bond:80,training:{enchant:40,summon:40}}},stages:oldClear?{f_fruit:{cleared:true,best:'S',clears:3}}:{}});},{unlocked,joined,oldClear,checkpoint});
+ const source=await fs.readFile(path.join(root,'js/board.js'),'utf8');await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:source.replace('    start, enterPhase1, help, stop,',hook+'    start, enterPhase1, help, stop,')}));await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({contentType:'text/css',body:''}));
+ try{await page.goto(base+'#world',{waitUntil:'networkidle'});await page.locator('#gate').click();await page.locator('#world').waitFor({state:'visible'});if(await page.evaluate(()=>Fury.available())){await page.evaluate(()=>World.open({at:'f_fruit'}));await page.locator('[data-a=fury]').waitFor();}try{await run(page);}catch(e){e.message+='; runtime errors: '+JSON.stringify(errors);await page.screenshot({path:'/tmp/cr-vard-failure-'+engine+'.png'});throw e;}assert.deepEqual(errors,[]);}finally{await ctx.close();}
+}
+async function advance(page,predicate){for(let i=0;i<240;i++){if(await page.evaluate(predicate))return;if(await page.locator('#chapterCard:not(.hidden):not(.out)').count())await page.locator('#chapterCard').click();else if(await page.locator('#textbox:not(.hidden),#centerText.show').count()){await page.evaluate(()=>document.activeElement?.blur());await page.keyboard.press('Enter');}await page.waitForTimeout(60);}assert.fail('Story did not advance: '+JSON.stringify(await page.evaluate(()=>({text:document.getElementById('text').textContent,save:Engine.load(),world:World.isOpen,board:Board.running,errors:document.getElementById('hintText').textContent}))));}
+const ready=page=>page.waitForFunction(()=>Board.__furyQA.ready(),null,{timeout:20000});
+async function win(page){await page.evaluate(()=>Board.__furyQA.finish());await page.locator('#resNext').waitFor();await page.locator('#resNext').click();}
+for(const engine of ['chromium','webkit']){
+ test(`${engine}: old fruit clears do not recruit Vard; two story battles and reload preserve the main checkpoint`,async()=>{
+  await session(engine,async page=>{
+   assert(!await page.evaluate(()=>Fury.joined()));await page.evaluate(()=>SkillForge.open());assert.equal(await page.locator('[data-forge-spirit=vard]').count(),0);await page.evaluate(()=>Panel.close());assert.equal(await page.locator('[data-a=furychat]').count(),0);await page.evaluate(()=>World.open({at:'f_fruit'}));await page.locator('[data-a=fury]').click();await advance(page,()=>Board.running&&Board.__furyQA.state().cfg==='gp_vard');await ready(page);assert(!(await page.evaluate(()=>Board.__furyQA.state().spirits)).includes('vard'));await win(page);
+   await advance(page,()=>Board.running&&Board.__furyQA.state().cfg==='f_fruit');await ready(page);assert(await page.evaluate(()=>GameArt.available('vard')));assert(!await page.evaluate(()=>Fury.joined()));const bookmark=await page.evaluate(()=>Engine.load().returnStory);assert.equal(bookmark.chapter,'act4');assert(bookmark.map);
+   const portable=await page.evaluate(()=>SaveData.exportText());assert(await page.evaluate(t=>SaveData.importText(t).ok,portable));await page.reload({waitUntil:'networkidle'});await page.locator('#gate').click();await page.evaluate(()=>{World.close();Engine.cont();});await ready(page);assert.equal(await page.evaluate(()=>Board.__furyQA.state().cfg),'f_fruit');await page.evaluate(()=>Board.__furyQA.fall());await page.locator('#resRetry').waitFor();assert(!await page.evaluate(()=>Fury.joined()));await page.locator('#resRetry').click();await ready(page);
+   await page.evaluate(()=>Board.__furyQA.phase(.66));assert.equal(await page.evaluate(()=>Board.__furyQA.state().units.find(u=>u.side==='enemy'&&u.phase!=null).phase),1);await page.locator('#hintText').click();await page.evaluate(()=>Board.__furyQA.phase(.33));await page.locator('#hintText').click();assert.equal(await page.evaluate(()=>Board.__furyQA.state().history.length),3);
+   await page.screenshot({path:`/tmp/cr-vard-${engine}-boss.png`});await win(page);await advance(page,()=>World.isOpen&&Fury.joined());const after=await page.evaluate(()=>Engine.load());assert.equal(after.chapter,'act4');assert(after.map);assert.equal(after.at,12345);assert(!after.returnStory);
+   assert(await page.evaluate(()=>Progression.companions(Engine.unlocked()).includes('vard')));await page.locator('[data-a=furychat]').waitFor();assert.equal(await page.locator('[data-a=furychat]').count(),1);assert.equal(await page.evaluate(()=>Board.party.stages.f_fruit.clears),4);
+   await page.evaluate(()=>SkillForge.open());assert.equal(await page.locator('[data-forge-spirit=vard]').count(),1);await page.locator('[data-forge-spirit=vard]').click();assert.equal(await page.locator('.sf-node').count(),3);await page.locator('[data-forge-route=summon]').click();assert.equal(await page.locator('.sf-node').count(),3);await page.screenshot({path:`/tmp/cr-vard-${engine}-forge.png`});
+   const saved=await page.evaluate(()=>SaveData.exportText());assert(await page.evaluate(t=>SaveData.importText(t).ok,saved));assert(await page.evaluate(()=>Fury.joined()));
+  },{oldClear:true});
+ });
+ test(`${engine}: actual enchant and summon damage turn wounds into power, keep two attacks and lock a fallen spirit`,async()=>{
+  await session(engine,async page=>{
+   await page.evaluate(()=>{World.close();Board.start({...BOARDS.cove,intro:null,tutorial:null,beats:[],spirits:['gran'],spStart:12,map:{low:['land_flat'],mid:['land_flat'],high:['land_flat'],hills:0,obsAmt:0,waterAmt:0},enemies:[{kind:'shade',lv:1}]});});await ready(page);await page.evaluate(()=>Board.__furyQA.fixture());await page.locator('#actHere').click();await page.locator('[data-k=spirit]').click();await page.locator('[data-k=enchant][data-a=vard]').click();await ready(page);
+   const full=await page.evaluate(()=>Board.__furyQA.enchanted(100)),hurt=await page.evaluate(()=>Board.__furyQA.enchanted(25)),healed=await page.evaluate(()=>Board.__furyQA.enchanted(100));assert(hurt.damage>full.damage);assert.deepEqual(healed,full);assert.equal(full.limit,2);assert.match(await page.locator('.ui-fury').textContent(),/攻撃\+15%/);assert.equal(await page.evaluate(()=>Board.__furyQA.state().sp),9);
+   await page.evaluate(()=>{Board.stop();Board.start({...BOARDS.cove,intro:null,tutorial:null,beats:[],spStart:12,spirits:[],enemies:[{kind:'shade',lv:1}],map:{low:['land_flat'],mid:['land_flat'],high:['land_flat'],hills:0,obsAmt:0,waterAmt:0}});});await ready(page);await page.evaluate(()=>Board.__furyQA.fixture());await page.evaluate(()=>Board.__furyQA.summon());await ready(page);const a=await page.evaluate(()=>Board.__furyQA.summoned()),b=await page.evaluate(()=>Board.__furyQA.summoned(1));assert(b.damage>a.damage);assert(b.power>a.power);await page.evaluate(()=>Board.__furyQA.killSpirit());await ready(page);assert((await page.evaluate(()=>Board.__furyQA.state().fallen)).includes('vard'));await page.locator('#actHere').click();await page.locator('[data-k=spirit]').click();assert(await page.locator('[data-k=enchant][data-a=vard]').isDisabled());assert(await page.locator('[data-k=summon][data-a=vard]').isDisabled());
+  },{joined:true});
+ });
+ test(`${engine}: companion conversations respect recruitment, Spinel protection and the postgame friendship`,async()=>{
+  await session(engine,async page=>{
+   assert.equal(await page.evaluate(()=>Fury.chat('spinel')),'');assert.match(await page.evaluate(()=>Fury.chat('gran')),/潮の友/);assert.match(await page.evaluate(()=>Fury.chat('ivy')),/休めるだけ/);const result=await page.evaluate(()=>{localStorage.cr_unlocked=JSON.stringify([...Engine.unlocked(),'act5','finale','done']);return {spinel:Fury.chat('spinel'),king:Fury.chat('king'),end:Fury.chat('ending')};});assert.match(result.spinel,/光を沿わせる/);assert.match(result.king,/今度は聞こう/);assert.match(result.end,/復興/);
+   await page.locator('[data-a=furychat]').click();await advance(page,()=>World.isOpen&&Engine.load().chapter==='act4');assert(await page.evaluate(()=>Fury.joined()));assert.equal(await page.evaluate(()=>Engine.load().at),12345);
+  },{joined:true});
+ });
+}

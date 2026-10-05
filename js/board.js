@@ -48,6 +48,8 @@ const Board = (() => {
     ivy: { hp: [48, 7], atk: [15, 2.8], def: [6, 1.6], mov: 3, jump: 1, rng: [2, 3], h: 0.95 },
     spinel: { hp: [80, 10], atk: [14, 2.4], def: [13, 2.6], mov: 3, jump: 1, rng: [1, 1], h: 0.95 },
     king: { hp: [60, 8], atk: [18, 3.1], def: [8, 2], mov: 4, jump: 2, rng: [1, 3], h: 1.05 },
+    mari: { hp:[44,7],atk:[13,2.5],def:[5,1.5],mov:4,jump:9,rng:[2,3],fly:true,h:.85 },
+    vard: { hp: [80, 9], atk: [22, 3.2], def: [7, 1.6], mov: 3, jump: 1, rng: [1, 1], h: 1.05 },
     shade: { hp: [20, 5], atk: [9, 2.4], def: [3, 1.2], mov: 3, jump: 1, rng: [1, 1], h: 0.78 },
     thorn: { hp: [16, 4.5], atk: [9, 2.3], def: [2, 1.1], mov: 2, jump: 1, rng: [2, 3], h: 0.82 },
     lead: { hp: [22, 5], atk: [9, 2.3], def: [5, 1.8], mov: 2, jump: 1, rng: [1, 1], armor: 2, h: 0.82 },
@@ -78,6 +80,15 @@ const Board = (() => {
       enchant: { name: '虹彩の刃', desc: '攻撃+25%。当てた周り3×3を虹に染める' },
     },
   };
+  SPIRITS.vard = { name: 'ヴァルド', color: '#f57965', rgb: '245,121,101',
+    summon: { name: '憤怒の顕現', rad: 2, desc: '周り2マスへ咆哮。自身の攻撃+15〜55%、失ったHPが多いほど強い。3ターン同行' },
+    enchant: { name: '紅角の刃', desc: '攻撃+15〜55%。失ったHPが多いほど怒りが攻撃力へ変わる。回復で上昇分も戻る' } };
+  SPIRITS.mari = { name:'マリー',color:'#ffe08a',rgb:'255,224,138',
+    summon:{name:'帰り道の羽音',rad:2,desc:'全味方に2ターン追い風（移動+1）。周り2マスを虹に戻す。3ターン同行'},
+    enchant:{name:'渡りの羽',desc:'移動+1。命中した周り1マスを虹に戻す。追い風とは重複しない'} };
+  const effMov=u=>u.mov+(u.windTurns>0||u.kind==='aria'&&u.enchant?.id==='mari'?1:0);
+  const furyBonus = u => u.side === 'ally' && (u.kind === 'vard' || u.kind === 'aria' && u.enchant?.id === 'vard') ? Progression.furyPower(u.hp,u.mhp) : 1;
+  const learnedForBattle=(id,route)=>Progression.learned(party,id,route).filter(s=>!['vard','mari'].includes(s.spirit)||cfg?.spirits?.includes(s.spirit));
   // 床の加護（割合 25% / 45% / 65%）
   const TIER = [
     { atk: 1, def: 1, sp: 0, regen: 0 },
@@ -662,7 +673,7 @@ const Board = (() => {
     }
     const dir = viewDir(u.dir);
     const flip = artId === 'gran' ? dir === 0 || dir === 1 : dir === 2 || dir === 3;
-    const height = tw * u.hgt, width = tw * (artId === 'gran' ? (u.guardian?1.6:1.25) : .98);
+    const height = tw * u.hgt, width = tw * (artId === 'gran' ? (u.guardian?1.6:1.25) : artId==='vard'?1.3:.98);
     g.save();
     const bob = u.guardian && !reducedMotion() ? Math.sin(now/680+u.id)*tw*.025 : 0;
     const artOptions={flip,...(u.guardian?{tone:u.guardianPhase}:{})};
@@ -986,7 +997,7 @@ const Board = (() => {
   function reachable(u) {
     const start = idx(u.r, u.c);
     const d = new Map([[start, 0]]), prev = new Map(), q = [start];
-    const mov = u.root ? 0 : u.mov;
+    const mov = u.root ? 0 : effMov(u);
     while (q.length) {
       const i = q.shift(), di = d.get(i); if (di >= mov) continue;
       const c = cells[i];
@@ -1053,7 +1064,7 @@ const Board = (() => {
   function calcDamage(a, d, opt = {}, from = null, rnd = true) {
     const ac = from || cellOf(a), dc = cellOf(d);
     const TA = TIER[a.side === 'ally' ? tierA : tierE], TD = TIER[d.side === 'ally' ? tierA : tierE];
-    let atk = a.atk * TA.atk * (opt.power || 1);
+    let atk = a.atk * TA.atk * (opt.power || 1) * furyBonus(a);
     if (ownFloor(a, ac)) atk *= 1.1;
     if (opt.normal && (a.resonance || a.enchant && a.enchant.id === 'king')) atk *= 1.25;
     if (opt.normal && a.enchant) atk *= 1 + (bondRank(a.enchant.id) - 1) * 0.03;
@@ -1244,6 +1255,7 @@ const Board = (() => {
     if (all || id === 'spinel') {
       burst(p.x, p.y - tw * 0.4, 12, { col: '255,220,130' });
     }
+    if (id === 'mari') paintArea(cellOf(d),1,'rainbow',60);
     if (all || id === 'king') {
       paintArea(dc, 1, 'rainbow', 50);
       fxp.push({ k: 'ring', x: p.x, y: p.y, r: tw * 0.3, grow: tw * 1.8, col: '210,180,255', life: 0, max: 1.1, w: 4 });
@@ -1399,6 +1411,7 @@ const Board = (() => {
     let damage = 0;
     for (const o of targets) {
       if (skill.heal) heal(o, Math.round(o.mhp * Math.min(0.8, skill.heal * (1 + (bondRank(skill.spirit) - 1) * 0.04))));
+      if (skill.wind){o.windTurns=Math.max(o.windTurns||0,skill.wind);o.windFrom=turn;}
       if (skill.guard) o.guard = Math.max(o.guard, skill.guard);
       if (skill.power) {
         const r = strike(a, o, { power: skill.power * (1 + (bondRank(skill.spirit) - 1) * 0.03), pierce: skill.pierce, sure: true, col: s.rgb, quiet: true });
@@ -1460,7 +1473,14 @@ const Board = (() => {
     await skillBanner(s.summon.name, s.color);
     paintArea(cell, s.summon.rad === 3 && id === 'ivy' ? 1 : s.summon.rad, 'rainbow', 70);
     const foes = live().filter(o => o.side === 'enemy');
-    if (id === 'gran') {
+    if(id==='mari'){
+      live().filter(o=>o.side==='ally').forEach(o=>{o.windTurns=Math.max(o.windTurns||0,2);o.windFrom=turn;});
+      floatText(p.x,p.y-tw*1.4,'帰り道に、追い風が吹いた','color','#ffe08a');await wait(400);
+    } else if (id === 'vard') {
+      const hit = foes.filter(o => dist(cellOf(o), cell) <= 2);
+      for (const o of hit) { strike(u, o, { power: 1.05, sure: true, noCrit: true, col: s.rgb, quiet: true }); await wait(90); }
+      await wait(400); for (const o of hit) if (o.hp <= 0) await defeat(o, u);
+    } else if (id === 'gran') {
       Audio2.sfx.wave();
       const hit = foes.filter(o => dist(cellOf(o), cell) <= 2);
       for (const o of hit) { strike(u, o, { power: 1.2, sure: true, col: s.rgb, quiet: true }); await wait(110); }
@@ -1541,7 +1561,7 @@ const Board = (() => {
         a.enchant.turns--;
         if (a.enchant.turns <= 0) { const p = unitXY(a); floatText(p.x, p.y - tw * 1.5, `${SPIRITS[a.enchant.id].name}が、心剣から離れた`, 'sys'); a.enchant = null; }
       }
-      live().filter(u => u.side === 'ally').forEach(u => { if (u.guard) u.guard--; });
+      live().filter(u => u.side === 'ally').forEach(u => { if (u.guard) u.guard--;if(u.windTurns&&turn>u.windFrom)u.windTurns--; });
       const T = TIER[tierA];
       sp = Math.min(spCap(), sp + 1 + T.sp + GB.spTurn);
       const ar = ariaU(); if (ar && GB.regen && ar.hp < ar.mhp) heal(ar, Math.round(ar.mhp * GB.regen / 100));
@@ -1693,8 +1713,9 @@ const Board = (() => {
     const hit = live().filter(u=>u.side==='ally'&&ids.has(idx(u.r,u.c)));
     await skillBanner(p.skills[intent.phase],p.colour);
     danger.forEach((c,i)=>paint(c,'dull',i*12));
-    const q=unitXY(e); artEffect(GameArt.spiritEffects[p.material==='m_teal'?'gran':p.material==='m_green'?'ivy':p.material==='m_gold'?'spinel':'king'],cellOf(e),2.4);
-    fxp.push({k:'ring',x:q.x,y:q.y,r:tw*.3,grow:tw*2,col:'210,155,200',life:0,max:1});
+    if(p.id==='vard')playMotion(e,'attack');
+    const q=unitXY(e); artEffect(GameArt.spiritEffects[p.id==='vard'?'vard':p.material==='m_teal'?'gran':p.material==='m_green'?'ivy':p.material==='m_gold'?'spinel':'king'],cellOf(e),2.4);
+    fxp.push({k:'ring',x:q.x,y:q.y,r:tw*.3,grow:tw*2,col:p.id==='vard'?'245,121,101':'210,155,200',life:0,max:1});
     for (const u of hit) {
       const damage=Math.max(1,Math.round(Math.min(u.mhp*(.08+intent.phase*.02),e.atk*.7)*(difficulty==='gentle'?.6:1)*(u.guard?.65:1)));
       u.hp=Math.max(0,u.hp-damage);stats.taken+=damage; const t=unitXY(u);popNum(t.x,t.y-tw*u.hgt,damage,'hurt');playMotion(u,'hurt');
@@ -1839,10 +1860,10 @@ const Board = (() => {
     }
     else if (k === 'pray') { const s = new Set(); live().filter(o => o.side === 'ally' && dist(o, u) <= 1).forEach(o => s.add(idx(o.r, o.c))); enterTarget('pray', s); }
     else if (k === 'spirit') showMenu(u, 'spirit');
-    else if (k === 'learned' && u.kind === 'aria' && stage) { if (!Progression.learned(party, null, learnedRoute).length && Progression.learned(party).length) learnedRoute = Progression.learned(party)[0].route; showMenu(u, 'learned'); }
+    else if (k === 'learned' && u.kind === 'aria' && stage) { if (!learnedForBattle(null, learnedRoute).length && learnedForBattle().length) learnedRoute = learnedForBattle()[0].route; showMenu(u, 'learned'); }
     else if (k === 'learnedroute' && u.kind === 'aria' && stage && Object.hasOwn(Progression.routes, arg)) { learnedRoute = arg; showMenu(u, 'learned'); }
     else if (k === 'skill') {
-      const skill = Progression.learned(party).find(s => s.id === arg);
+      const skill = learnedForBattle().find(s => s.id === arg);
       if (u.kind !== 'aria' || !stage || !skill || sp < skill.cost) return;
       enterTarget('skill:' + arg, skillTargets(u, skill));
     }
@@ -1873,7 +1894,7 @@ const Board = (() => {
     }
     else if (cmd === 'pray' && o) { sp -= COST_PRAY; act(u, () => pray(u, o)); }
     else if (cmd.startsWith('skill:')) {
-      const skill = Progression.learned(party).find(s => s.id === cmd.slice(6));
+      const skill = learnedForBattle().find(s => s.id === cmd.slice(6));
       if (!skill || sp < skill.cost || !skillTargets(u, skill).has(idx(cell.r, cell.c))) return;
       sp -= skill.cost; act(u, () => spiritSkill(u, skill, cell));
     }
@@ -1989,8 +2010,8 @@ const Board = (() => {
       it.push(btn('back', 'もどる', { d: '' }));
     } else if (sub === 'learned') {
       it.push(`<div class="cm-head">精霊から覚えた技<small>共鳴 ${sp}</small></div>`);
-      it.push(`<div class="cm-route-tabs" role="group" aria-label="習得した系統">${Object.entries(Progression.routes).map(([id, route]) => `<button data-k="learnedroute" data-a="${id}" aria-pressed="${learnedRoute === id}">${route.name}<small>${Progression.learned(party, null, id).length}種</small></button>`).join('')}</div>`);
-      const list = Progression.learned(party, null, learnedRoute);
+      it.push(`<div class="cm-route-tabs" role="group" aria-label="習得した系統">${Object.entries(Progression.routes).map(([id, route]) => `<button data-k="learnedroute" data-a="${id}" aria-pressed="${learnedRoute === id}">${route.name}<small>${learnedForBattle(null, id).length}種</small></button>`).join('')}</div>`);
+      const list = learnedForBattle(null, learnedRoute);
       if (!list.length) it.push(`<div class="cm-note">${Progression.routes[learnedRoute].name}の熟練度8・20・40で技を覚えます。「仲間・絆」で進みぐあいを確認できます。</div>`);
       list.forEach(s => {
         it.push(`<div class="cm-skill-label" style="color:${SPIRITS[s.spirit].color}">${SPIRITS[s.spirit].name}・${Progression.routes[s.route].name}で習得・${s.type}</div>`);
@@ -2018,7 +2039,7 @@ const Board = (() => {
         if (stage) it.push(btn('flash', '透明の一閃', { cost: flashCost(), dis: sp < flashCost(), d: '前方2マスを貫く一閃。必中・威力1.35倍、通り道を虹に染める' }));
         it.push(btn('pray', '凪の祈り', { cost: COST_PRAY, dis: sp < COST_PRAY, d: '自分か隣の味方のHPを35%癒し、周りを虹に染める' }));
         if (stage && (cfg.spirits || []).length) it.push(btn('spirit', '精霊 ▸', { d: '召喚6：大技＋精霊の別行動／宿す3：通常攻撃が毎ターン2回（どちらか一方だけ）' }));
-        if (stage && Progression.learned(party).length) it.push(btn('learned', '覚えた技 ▸', { d: 'エンチャントと召喚、それぞれの熟練で覚えた技。習得後は宿しや召喚なしでも使える' }));
+        if (stage && learnedForBattle().length) it.push(btn('learned', '覚えた技 ▸', { d: 'エンチャントと召喚、それぞれの熟練で覚えた技。習得後は宿しや召喚なしでも使える' }));
         const nItems = Object.keys(party.items).filter(k => party.items[k] > 0 && typeof ITEMS !== 'undefined' && ITEMS[k]).length;
         it.push(btn('item', '道具 ▸', { dis: !nItems, d: nItems ? '道具を使う（行動を使う）' : '道具を持っていない' }));
         if (stage && skyCharges > 0) it.push(btn('sky', '小さな夜空', { cost: '×' + skyCharges, d: 'ルノワールの夜空。周り2マスを夜空に変え、白い膜を打つ' }));
@@ -2093,7 +2114,9 @@ const Board = (() => {
       ${u.word ? `<div class="ui-word">「${u.word}」</div>` : ''}
       ${neutral ? '<div class="ui-word">——その人の色は、切らない</div>' : `<div class="ui-bar hp"><i style="width:${unknown ? 100 : Math.round(u.hp / u.mhp * 100)}%"></i><span>${u.guardian?'穢れHP':'HP'} ${unknown ? '？？？' : `${u.hp} / ${u.mhp}`}</span></div>`}
       ${r ? `<div class="ui-bar exp"><i style="width:${r.lv >= MAX_LV ? 100 : r.exp}%"></i><span>${r.lv >= MAX_LV ? 'EXP MAX · 成長上限' : `EXP ${r.exp} / 100`}</span></div>` : ''}
-      ${neutral ? '' : `<div class="ui-st"><span>攻<b>${u.atk}</b></span><span>防<b>${unknown ? '?' : u.def}</b></span><span>移<b>${u.mov}</b></span><span>射<b>${rng[0] === rng[1] ? rng[0] : rng[0] + '-' + rng[1]}</b></span></div>`}
+      ${neutral ? '' : `<div class="ui-st"><span>攻<b>${u.atk}</b></span><span>防<b>${unknown ? '?' : u.def}</b></span><span>移<b>${effMov(u)}</b></span><span>射<b>${rng[0] === rng[1] ? rng[0] : rng[0] + '-' + rng[1]}</b></span></div>`}
+      ${u.windTurns>0?`<div class="ui-word">追い風 · 移動+1 · 残り${u.windTurns}ターン</div>`:''}
+      ${furyBonus(u)>1?`<div class="ui-fury">憤怒 · 攻撃+${Math.round((furyBonus(u)-1)*100)}%<small>失ったHPを攻撃力へ変える</small></div>`:''}
       <div class="ui-tags">${ft}${st.join('')}</div></div>`;
   }
   function renderSpirits() {
@@ -2473,6 +2496,8 @@ const Board = (() => {
     stop();
     if (World.isOpen) World.close();
     party = loadParty();
+    const joined = Progression.companions(Engine.unlocked(),Engine.load()?.colors), extra=['vard','mari'].filter(id=>joined.includes(id));
+    conf = { ...conf, spirits:[...new Set([...(conf.spirits||[]).filter(id=>!['vard','mari'].includes(id)||joined.includes(id)),...extra])] };
     const key = conf.hardOnly ? 'hard' : Progression.normalize(conf.difficulty || Progression.selected(party, conf.id));
     baseCfg = { ...conf, difficulty: key }; onDone = done;
     const my = sess;

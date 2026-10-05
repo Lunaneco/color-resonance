@@ -2,6 +2,8 @@ const GuardianJourney = (() => {
   function available(conf) {
     const chapter=conf.chapterGate||GuardianCombat.profile(conf.guardianRoute)?.chapter;
     if (!chapter) return false;
+    if (chapter === 'mari_return') return typeof MariReturn !== 'undefined' && MariReturn.available();
+    if (chapter === 'fury') return typeof Fury !== 'undefined' && Fury.available();
     if (chapter.startsWith('restore')) return Restoration.joined() && Board.party.postgame.progress>=Number(chapter.slice(7))-1;
     return Engine.unlocked().includes(chapter);
   }

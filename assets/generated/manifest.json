@@ -1615,6 +1615,154 @@
           "durationMs": 2140,
           "gifRepeatsForPreview": true,
           "gifAlphaThreshold": 96
+        },
+        "enchant_vard": {
+          "name": "紅角の刃",
+          "loop": false,
+          "layers": {
+            "actor": "aria",
+            "effect": "crystal_slash"
+          },
+          "layerSequence": [
+            {
+              "actorCel": 0,
+              "effectCel": null
+            },
+            {
+              "actorCel": 4,
+              "effectCel": null
+            },
+            {
+              "actorCel": 7,
+              "effectCel": 0
+            },
+            {
+              "actorCel": 7,
+              "effectCel": 1
+            },
+            {
+              "actorCel": 7,
+              "effectCel": 2
+            },
+            {
+              "actorCel": 7,
+              "effectCel": 3
+            },
+            {
+              "actorCel": 7,
+              "effectCel": 4
+            },
+            {
+              "actorCel": 7,
+              "effectCel": 5
+            },
+            {
+              "actorCel": 7,
+              "effectCel": 6
+            },
+            {
+              "actorCel": 7,
+              "effectCel": 7
+            },
+            {
+              "actorCel": 0,
+              "effectCel": null
+            }
+          ],
+          "durationsMs": [
+            280,
+            220,
+            100,
+            100,
+            100,
+            90,
+            160,
+            140,
+            140,
+            160,
+            650
+          ],
+          "size": [
+            384,
+            480
+          ],
+          "durationMs": 2140,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "enchant_mari": {
+          "name": "渡りの羽",
+          "loop": false,
+          "layers": {
+            "actor": "aria",
+            "effect": "pray_heal"
+          },
+          "layerSequence": [
+            {
+              "actorCel": 0,
+              "effectCel": null
+            },
+            {
+              "actorCel": 4,
+              "effectCel": null
+            },
+            {
+              "actorCel": 7,
+              "effectCel": 0
+            },
+            {
+              "actorCel": 7,
+              "effectCel": 1
+            },
+            {
+              "actorCel": 7,
+              "effectCel": 2
+            },
+            {
+              "actorCel": 7,
+              "effectCel": 3
+            },
+            {
+              "actorCel": 7,
+              "effectCel": 4
+            },
+            {
+              "actorCel": 7,
+              "effectCel": 5
+            },
+            {
+              "actorCel": 7,
+              "effectCel": 6
+            },
+            {
+              "actorCel": 7,
+              "effectCel": 7
+            },
+            {
+              "actorCel": 0,
+              "effectCel": null
+            }
+          ],
+          "durationsMs": [
+            280,
+            220,
+            100,
+            100,
+            100,
+            90,
+            160,
+            140,
+            140,
+            160,
+            650
+          ],
+          "size": [
+            384,
+            480
+          ],
+          "durationMs": 2140,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
         }
       }
     },
@@ -3313,6 +3461,83 @@
           ],
           "gifFrameCount": 4,
           "durationMs": 1530,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "attack": {
+          "name": "風切りの羽",
+          "sequence": [
+            0,
+            6,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            350,
+            300,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/mari/greet.gif",
+          "size": [
+            288,
+            384
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 1530,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "summon": {
+          "name": "帰り道の羽音",
+          "sequence": [
+            0,
+            6,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            350,
+            300,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/mari/greet.gif",
+          "size": [
+            288,
+            384
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 1530,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            4,
+            5,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            220,
+            140,
+            180,
+            140,
+            700
+          ],
+          "loop": false,
+          "gif": "gifs/mari/talk.gif",
+          "size": [
+            288,
+            384
+          ],
+          "gifFrameCount": 5,
+          "durationMs": 1380,
           "gifRepeatsForPreview": true,
           "gifAlphaThreshold": 96
         }
@@ -8797,6 +9022,82 @@
         },
         "hurt": {
           "name": "被弾",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "vard",
+      "name": "紅角のヴァルド",
+      "category": "spirit",
+      "source": "source/vard.png",
+      "sheet": "sheets/vard.png",
+      "frames": [
+        "frames/vard/000.png"
+      ],
+      "grid": {
+        "columns": 1,
+        "rows": 1,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            700
+          ],
+          "durationMs": 700,
+          "loop": true
+        },
+        "attack": {
+          "name": "紅角の突進",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            600
+          ],
+          "durationMs": 600,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            450
+          ],
+          "durationMs": 450,
+          "loop": false
+        },
+        "summon": {
+          "name": "憤怒の顕現",
           "sequence": [
             0
           ],

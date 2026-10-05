@@ -8,6 +8,7 @@ const Progression = (() => {
   const spirits = {
     gran: { name: 'グラン', color: '#3fb4c9' }, ivy: { name: 'アイビー', color: '#5fd07a' },
     spinel: { name: 'スピネル', color: '#ffd25e' }, king: { name: 'パレット王', color: '#b48cff' },
+    vard: { name: 'ヴァルド', color: '#f57965' }, mari: { name: 'マリー', color: '#ffe08a' },
   };
   const routes = { enchant: { name: 'エンチャント', desc: '心剣に宿すと+2、宿した通常攻撃の命中で+1' }, summon: { name: '召喚', desc: '精霊を召喚すると+3、召喚した精霊の命中で+1' } };
   const materials = {
@@ -19,20 +20,25 @@ const Progression = (() => {
     m_core: { name: '澄明の核', color: '#f5e9ff', price: 300, desc: '+3への仕上げに使う希少素材', source: '各戦場・各難易度の初S評価・遊びの初S評価・虹の城下町の店' },
   };
   // 仲間の顔・名前は物語で加入してから表示する。成長用の記録だけでは加入扱いにしない。
-  const joinedAt = { gran: 'act2', ivy: 'act4', spinel: 'act5', king: 'finale' };
+  const joinedAt = { gran: 'act2', ivy: 'act4', spinel: 'act5', king: 'finale', vard: 'vardbond', mari:'maribond' };
   const spiritColors = { gran: 'teal', ivy: 'green', spinel: 'gold', king: 'violet' };
   function companions(unlocked = [], colors = []) {
     const chapters = ['prologue', 'act1', 'act2', 'act3', 'act4', 'act5', 'finale', 'epilogue', 'done'];
     const reached = Math.max(-1, ...(Array.isArray(unlocked) ? unlocked : []).map(key => chapters.indexOf(key)));
     const held = Array.isArray(colors) ? colors : [];
-    return Object.keys(spirits).filter(id => reached >= chapters.indexOf(joinedAt[id]) || held.includes(spiritColors[id]));
+    return Object.keys(spirits).filter(id => {
+      const chapter = chapters.indexOf(joinedAt[id]);
+      return chapter >= 0 ? reached >= chapter || held.includes(spiritColors[id]) : Array.isArray(unlocked) && unlocked.includes(joinedAt[id]);
+    });
   }
   function materialDescription(id, joined) {
     const m = materials[id];
+    if (id === 'm_violet' && joined.includes('mari')) return '七色の光や羽の技を磨く強化素材';
+    if (id === 'm_gold' && joined.includes('vard')) return '硬い角や刃を磨く金色の強化素材';
     return m?.spirit && !joined.includes(m.spirit) ? 'これから覚える技を強化する素材' : m?.desc || '';
   }
   const MATERIAL_MAX = 999;
-  const spiritMaterial = { gran: 'm_teal', ivy: 'm_green', spinel: 'm_gold', king: 'm_violet' };
+  const spiritMaterial = { gran: 'm_teal', ivy: 'm_green', spinel: 'm_gold', king: 'm_violet', vard: 'm_gold', mari:'m_violet' };
   const legacyRoutes = { gran_wave: 'enchant', gran_mend: 'summon', gran_tide: 'enchant', ivy_bind: 'enchant', ivy_bloom: 'summon', ivy_dance: 'enchant', spinel_break: 'enchant', spinel_guard: 'summon', spinel_sun: 'summon', king_prism: 'summon', king_canvas: 'summon', king_resonance: 'summon' };
   const skills = [
     { id: 'gran_wave', spirit: 'gran', at: 8, name: '水鏡の矢', type: '魔法', cost: 3, target: 'enemy', range: 3, power: 1.2, paint: 1, desc: '3マス先の敵へ必中の水矢。周り1マスを虹にする' },
@@ -60,7 +66,21 @@ const Progression = (() => {
     { id: 'king_edge', spirit: 'king', route: 'enchant', at: 8, name: '七彩の刃', type: '技', cost: 3, target: 'enemy', range: 1, power: 1.45, paint: 1, desc: '隣の敵1体へ威力1.45倍の必中斬撃。周り1マスを七色に染める' },
     { id: 'king_mantle', spirit: 'king', route: 'enchant', at: 20, name: '虹の纏い', type: 'スキル', cost: 4, target: 'ally', range: 0, heal: 0.3, guard: 2, paint: 1, desc: 'アリア自身を30%回復し、2ターン守る。心剣の周り1マスを虹にする' },
     { id: 'king_spectrum', spirit: 'king', route: 'enchant', at: 40, name: '虹彩の極剣', type: '技', cost: 7, target: 'enemy', range: 2, power: 2.2, paint: 2, desc: '2マス先の敵1体へ威力2.2倍の必中斬撃。周り2マスを虹にする' },
+    { id: 'vard_horn', spirit: 'vard', route: 'enchant', at: 8, name: '紅角の一閃', type: '技', cost: 3, target: 'enemy', range: 2, power: 1.35, paint: 0, desc: '2マス先へ威力1.35倍の必中斬撃。宿した憤怒の攻撃上昇も乗る' },
+    { id: 'vard_focus', spirit: 'vard', route: 'enchant', at: 20, name: '怒りの照準', type: '魔法', cost: 4, target: 'enemy', range: 3, power: 1.6, pierce: true, paint: 1, desc: '3マス先の敵だけへ怒りを絞り、守りを貫く。威力1.6倍' },
+    { id: 'vard_edge', spirit: 'vard', route: 'enchant', at: 40, name: '憤怒の心剣', type: '技', cost: 6, target: 'enemy', range: 2, power: 2.1, paint: 1, desc: '2マス先の敵へ威力2.1倍の必中斬撃。傷を負った紅角の刃ほど強くなる' },
+    { id: 'vard_roar', spirit: 'vard', route: 'summon', at: 8, name: '猛牛の咆哮', type: '魔法', cost: 3, target: 'area', range: 3, radius: 1, power: 1.0, paint: 1, desc: '周り1マスの敵を必中の咆哮で打ち、床を虹に戻す' },
+    { id: 'vard_rush', spirit: 'vard', route: 'summon', at: 20, name: '赤丘の地響き', type: '技', cost: 5, target: 'area', range: 3, radius: 1, power: 1.4, paint: 1, desc: '3マス先の周り1マスへ威力1.4倍の地響きを放つ' },
+    { id: 'vard_dawn', spirit: 'vard', route: 'summon', at: 40, name: '紅角の夜明け', type: '技', cost: 7, target: 'area', range: 4, radius: 2, power: 1.55, paint: 2, desc: '周り2マスへ威力1.55倍の咆哮。果樹園の朝の色を呼び戻す' },
+    { id:'mari_feather',spirit:'mari',route:'enchant',at:8,name:'風切りの羽',type:'技',cost:3,target:'enemy',range:2,power:1.1,paint:1,desc:'2マス先へ必中の風の刃。周り1マスを虹に戻す' },
+    { id:'mari_step',spirit:'mari',route:'enchant',at:20,name:'追い風の歩み',type:'スキル',cost:3,target:'ally',range:0,heal:.2,wind:2,paint:1,desc:'自分を20%回復。2ターン追い風で移動+1。宿した羽との重複はしない' },
+    { id:'mari_edge',spirit:'mari',route:'enchant',at:40,name:'渡りの光剣',type:'技',cost:6,target:'enemy',range:3,power:1.8,paint:2,desc:'3マス先の敵へ威力1.8倍の斬撃。周り2マスを帰り道の色にする' },
+    { id:'mari_breeze',spirit:'mari',route:'summon',at:8,name:'帰り道の風',type:'スキル',cost:3,target:'ally',range:3,heal:.2,wind:2,paint:1,desc:'味方1人を20%回復。2ターン追い風で移動+1' },
+    { id:'mari_ring',spirit:'mari',route:'summon',at:20,name:'羽音の輪',type:'魔法',cost:4,target:'area',range:3,radius:1,power:.9,paint:2,desc:'周り1マスの敵を風で打ち、周り2マスを虹に戻す' },
+    { id:'mari_song',spirit:'mari',route:'summon',at:40,name:'朝風の歌',type:'スキル',cost:6,target:'ally',range:3,radius:2,heal:.35,wind:3,paint:2,desc:'味方と周り2マスを35%回復。3ターン追い風で移動+1' },
   ]);
+  // 傷を負うほど憤怒を力へ変える。自傷は不要、回復すれば上昇分も戻る。
+  const furyPower = (hp, max) => 1.15 + .4 * (1 - Math.max(0, Math.min(1, Number(hp) / Math.max(1, Number(max)) || 0)));
   const thresholds = [0, 8, 20, 40, 70];
   const normalize = key => key === 'expert' ? 'hard' : Object.hasOwn(difficulties, key) ? key : 'normal';
   const isRecord = value => !!value && typeof value === 'object' && !Array.isArray(value);
@@ -83,10 +103,12 @@ const Progression = (() => {
     if (base.power) out.power = Math.round(base.power * (1 + upgrade * 0.12) * 1000) / 1000;
     if (base.heal) out.heal = Math.min(0.75, Math.round((base.heal + upgrade * 0.05) * 100) / 100);
     if (base.drain) out.drain = Math.min(0.4, Math.round((base.drain + upgrade * 0.05) * 100) / 100);
+    if (base.wind) out.wind = base.wind + (upgrade >= 2 ? 1 : 0);
     if (base.guard) out.guard = base.guard + (upgrade >= 2 ? 1 : 0);
     if (base.root) out.root = Math.min(3, base.root + (upgrade >= 3 ? 1 : 0));
     if (base.heal) out.desc = out.desc.replace(`${Math.round(base.heal * 100)}%回復`, `${Math.round(out.heal * 100)}%回復`);
     if (base.guard) out.desc = out.desc.replace(`${base.guard}ターン守`, `${out.guard}ターン守`);
+    if (base.wind) out.desc = out.desc.replace(`${base.wind}ターン追い風`, `${out.wind}ターン追い風`);
     if (base.root) out.desc = out.desc.replace(`${base.root}ターン移動`, `${out.root}ターン移動`);
     if (base.drain) out.desc = out.desc.replace(`${Math.round(base.drain * 100)}%`, `${Math.round(out.drain * 100)}%`);
     if (base.power) out.desc = out.desc.replace(/威力[\d.]+倍/g, `威力${out.power}倍`);
@@ -99,6 +121,7 @@ const Progression = (() => {
     if (base.heal) parts.push(`回復${Math.round(Math.min(.75, base.heal + level * .05) * 100)}%`);
     if (base.drain) parts.push(`吸収${Math.round(Math.min(.4, base.drain + level * .05) * 100)}%`);
     if (base.guard) parts.push(`守り${base.guard + (level >= 2 ? 1 : 0)}ターン`);
+    if (base.wind) parts.push(`追い風${base.wind + (level >= 2 ? 1 : 0)}ターン`);
     if (base.root) parts.push(`束縛${Math.min(3, base.root + (level >= 3 ? 1 : 0))}ターン`);
     return parts.join('・');
   }
@@ -299,6 +322,6 @@ const Progression = (() => {
     copy.enemyBoost = { hp: d.hp, atk: d.atk };
     return copy;
   }
-  return { difficulties, spirits, routes, skills, thresholds, normalize, selected, level, rank, learned, training, practice, rewards, isBossStage, ordinaryEquipment, reconcileRewards, migrate, prepare,
+  return { furyPower, difficulties, spirits, routes, skills, thresholds, normalize, selected, level, rank, learned, training, practice, rewards, isBossStage, ordinaryEquipment, reconcileRewards, migrate, prepare,
     companions, materialDescription, materials, MATERIAL_MAX, skillLevel, skill, enhancement, recipe, upgrade, awardMaterials, battleMaterials, collectBattleMaterials, leisureMaterials, leisureHardBonus };
 })();

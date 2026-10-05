@@ -1,6 +1,6 @@
 {
   "name": "color-resonance",
-  "version": "1.12.4",
+  "version": "1.13.0",
   "private": true,
   "scripts": {
     "test": "node --test --test-concurrency=1 tests/*.test.cjs"

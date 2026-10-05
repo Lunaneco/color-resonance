@@ -27,6 +27,7 @@ const Restoration = (() => {
   function canBegin(key) {
     if (!cleared()) return false;
     const i = RESTORATION_CHAPTERS.findIndex(ch => ch.key === key);
+    if((i>3||key==='restored')&&!MariReturn.joined())return false;
     return i >= 0 ? i <= record().progress : key === 'restored' && record().progress === 8;
   }
   function begin(key) {
@@ -38,12 +39,13 @@ const Restoration = (() => {
     if (!cleared()) return;
     if (!['journey', 'requests', 'legends'].includes(tab)) tab = 'journey';
     const p = Board.party, rec = record(), count = rec.progress;
-    let body;
+    let body, storyDiffKey;
     if (tab === 'journey') {
-      const s = Engine.load(), resume = s && s.chapter.startsWith('restore') && !s.map;
-      body = `<div class="re-next"><div><small>${rec.finished ? '復興の結末を読み終えた旅' : '次の物語'}</small><h3>${resume ? '物語のつづきへ' : count < 8 ? RESTORATION_CHAPTERS[count].title : '今日の色で、ただいま'}</h3><p>${count < 8 ? RESTORATION_CHAPTERS[count].goal : '暮らしの復興は続く。残った依頼や伝説の旅へ。'}</p></div><button class="btn-main" data-re-story="${resume ? 'resume' : count < 8 ? RESTORATION_CHAPTERS[count].key : 'restored'}">${resume ? 'つづきから読む' : rec.finished ? '結末を振り返る' : '物語へ'}</button></div>
-      ${count < 8 ? `<div class="re-difficulties" role="group" aria-label="次の物語の戦闘難易度">${Object.entries(Progression.difficulties).map(([key, d]) => `<button data-re-story-diff="${key}" aria-pressed="${Progression.selected(p, RESTORATION_CHAPTERS[count].key) === key}"><b>${d.name}</b><span>適正LV ${Progression.level(RESTORATION_STAGES[RESTORATION_CHAPTERS[count].key], key)}</span></button>`).join('')}</div>` : ''}
-      <div class="re-map" aria-label="プリズム王国の復興地図">${RESTORATION_CHAPTERS.map((ch, i) => `<button class="re-place ${i < count ? 'restored' : i === count ? 'next' : 'locked'}" ${i < count ? 'data-re-stage' : 'data-re-story'}="${ch.key}" ${i > count ? 'disabled' : ''}><i>${i < count ? '✦' : i === count ? '◇' : '·'}</i><small>${String(i + 1).padStart(2, '0')} ${i < count ? '復興済み · 再出撃' : i === count ? '次の旅' : '道を開くと解放'}</small><b>${i <= count ? ch.place : 'まだ開いていない土地'}</b><span>${i <= count ? `適正LV ${ch.lv}〜${ch.lv + 3}` : '物語とともに解放'}</span></button>`).join('')}</div>
+      const s = Engine.load(), needsMari=count>=3&&!MariReturn.joined(), resume = !needsMari&&s&&s.chapter.startsWith('restore')&&!s.map;
+      storyDiffKey=needsMari?'restore4':RESTORATION_CHAPTERS[count]?.key;
+      body = `<div class="re-next"><div><small>${rec.finished ? '復興の結末を読み終えた旅' : '次の物語'}</small><h3>${resume ? '物語のつづきへ' : needsMari ? RESTORATION_CHAPTERS[3].title : count < 8 ? RESTORATION_CHAPTERS[count].title : '今日の色で、ただいま'}</h3><p>${needsMari ? 'マリーの帰還は復興本編の第4話。羽音へ道を開き、共に原本の窓を取り戻す。' : count < 8 ? RESTORATION_CHAPTERS[count].goal : '暮らしの復興は続く。残った依頼や伝説の旅へ。'}</p></div><button class="btn-main" data-re-story="${needsMari ? 'restore4' : resume ? 'resume' : count < 8 ? RESTORATION_CHAPTERS[count].key : 'restored'}">${needsMari ? 'マリーの声へ' : resume ? 'つづきから読む' : rec.finished ? '結末を振り返る' : '物語へ'}</button></div>
+      ${storyDiffKey ? `<div class="re-difficulties" role="group" aria-label="次の物語の戦闘難易度">${Object.entries(Progression.difficulties).map(([key, d]) => `<button data-re-story-diff="${key}" aria-pressed="${Progression.selected(p, storyDiffKey) === key}"><b>${d.name}</b><span>適正LV ${Progression.level(RESTORATION_STAGES[storyDiffKey], key)}</span></button>`).join('')}</div>` : ''}
+      <div class="re-map" aria-label="クリスタリアの復興地図">${RESTORATION_CHAPTERS.map((ch, i) => `<button class="re-place ${i < count ? 'restored' : i === count ? 'next' : 'locked'}" ${i < count ? 'data-re-stage' : 'data-re-story'}="${ch.key}" ${i > count ? 'disabled' : ''}><i>${i < count ? '✦' : i === count ? '◇' : '·'}</i><small>${String(i + 1).padStart(2, '0')} ${i < count ? '復興済み · 再出撃' : i === count ? '次の旅' : '道を開くと解放'}</small><b>${i <= count ? ch.place : 'まだ開いていない土地'}</b><span>${i <= count ? `適正LV ${ch.lv}〜${ch.lv + 3}` : '物語とともに解放'}</span></button>`).join('')}</div>
       ${joined() ? `<div class="re-duo"><div>${GameArt.portrait('aria')}<span><b>アリア · LV ${p.aria.lv}</b><small>心剣・精霊・浄化</small></span></div><div>${GameArt.portrait('chrome_human')}<span><b>クロム · LV ${p.chrome.lv}</b><small>人間の仲間 · ルノワールの浄化剣</small></span></div></div><p class="re-note">二人は毎ターン別々に移動・行動。どちらかが倒れると再挑戦。ルノワールは休憩中に元の姿へ戻れます。</p>` : '<p class="re-note">復興編の最初の物語で、人間に戻ったクロムが仲間になります。</p>'}`;
     } else {
       const list = tab === 'requests' ? RESTORATION_REQUESTS : LEGEND_QUESTS;
@@ -52,15 +54,18 @@ const Restoration = (() => {
         return `<button class="re-contract ${c.hardOnly ? 'legend' : ''}" data-re-stage="${c.id}" ${ready ? '' : 'disabled'}>${c.hardOnly ? InventoryArt.icon(c.unique) : '<i aria-hidden="true">✧</i>'}<span><small>${c.district} ${c.giver ? '· ' + c.giver : ''}</small><b>${ready ? c.title : '道を開くと届く依頼'}</b><em>${ready ? `${c.hardOnly ? '伝説級 / ' : ''}${Progression.difficulties[d].name} · 適正LV ${Progression.level(c, d)}` : !joined() ? '復興編でクロムが加入後に解放' : `復興編 第${c.gate + 1}話クリアで解放`}</em><small>${result?.best ? `${result.best}評価 · ${result.sRewardClaimed ? 'S報酬受取済み' : 'S報酬未獲得'}` : ready ? '未クリア' : ''}</small></span><strong>${result?.best || '→'}</strong></button>`;
       }).join('')}</div>`;
     }
-    Panel.open('プリズム王国の復興', `<div class="re-book"><header class="re-hero"><small>AFTER THE NIGHT · CRYSTALIA</small><h2>今日の色で、明日の道へ。</h2><p>アリアとクロム、ルノワールの剣が辿る復興の旅。</p><div class="re-progress"><span>王国の復興 ${Math.round(count / 8 * 100)}%</span><progress value="${count}" max="8" aria-label="王国の復興"></progress><small>本編 ${count}/8戦 · 復興依頼12戦 · 伝説5戦</small></div></header><nav class="re-tabs" aria-label="復興のページ">${Object.entries({ journey: '復興の地図', requests: '復興依頼', legends: '王国外の伝説' }).map(([id, label]) => `<button data-re-tab="${id}" aria-pressed="${tab === id}">${label}</button>`).join('')}</nav>${body}</div>`);
+    Panel.open('クリスタリアの復興', `<div class="re-book"><header class="re-hero"><small>AFTER THE NIGHT · CRYSTALIA</small><h2>今日の色で、明日の道へ。</h2><p>アリアとクロム、ルノワールの剣が辿る復興の旅。</p><div class="re-progress"><span>王国の復興 ${Math.round(count / 8 * 100)}%</span><progress value="${count}" max="8" aria-label="王国の復興"></progress><small>本編 ${count}/8話 · マリー救出2戦 · 復興依頼12戦 · 伝説5戦</small></div></header><nav class="re-tabs" aria-label="復興のページ">${Object.entries({ journey: '復興の地図', requests: '復興依頼', legends: '王国外の伝説' }).map(([id, label]) => `<button data-re-tab="${id}" aria-pressed="${tab === id}">${label}</button>`).join('')}</nav>${body}</div>`);
     const root = Panel.body();
     if(joined()&&tab==='journey'){
       const b=document.createElement('button');b.className='gj-recall';b.textContent='この章の通常戦・精霊ボス戦';b.onclick=()=>GuardianJourney.open(RESTORATION_CHAPTERS[Math.min(count,7)].key);root.querySelector('.re-book').append(b);
     }
+    if(tab==='journey'&&MariReturn.joined()){
+      const event=document.createElement('section');event.className='re-next';event.innerHTML=`<div><small>マリーと精霊たち · 旅の交流</small><h3>${MariReturn.joined()?'ただいまの、その先':'帰らない羽音'}</h3><p>${MariReturn.joined()?'精霊になったマリーと、仲間たちの旅は続く。':'地下に残る羽音を探す通常戦とボス戦。声の主へ帰る道をつなぐ。'}</p></div><button class="btn-main" id="mariStory">${MariReturn.joined()?'仲間の語らい':'羽音を探す'}</button>`;root.querySelector('.re-book').append(event);event.querySelector('#mariStory').onclick=()=>MariReturn.start(MariReturn.joined());
+    }
     root.querySelectorAll('[data-re-tab]').forEach(b => b.onclick = () => open(b.dataset.reTab));
     root.querySelectorAll('[data-re-story]').forEach(b => b.onclick = () => { if (b.dataset.reStory === 'resume') { Panel.close(); Engine.cont(); } else begin(b.dataset.reStory); });
     root.querySelectorAll('[data-re-stage]').forEach(b => b.onclick = () => stage(b.dataset.reStage, tab));
-    root.querySelectorAll('[data-re-story-diff]').forEach(b => b.onclick = () => { p.stageDifficulty[RESTORATION_CHAPTERS[count].key] = b.dataset.reStoryDiff; save(); open(); });
+    root.querySelectorAll('[data-re-story-diff]').forEach(b => b.onclick = () => { p.stageDifficulty[storyDiffKey] = b.dataset.reStoryDiff; save(); open(); });
   }
   function stage(id, back = 'journey') {
     const c = RESTORATION_STAGES[id];

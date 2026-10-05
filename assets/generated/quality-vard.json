@@ -1,0 +1,17 @@
+{
+  "tool": "builtin image_gen.imagegen",
+  "sourceSize": [
+    1312,
+    1199
+  ],
+  "productionSize": [
+    512,
+    512
+  ],
+  "alphaRange": [
+    0,
+    255
+  ],
+  "sourceSHA256": "dcbf2e29adfa3a8707ed1a119229b04c6c54a47a95c8c3915d821edf463c9ce6",
+  "processing": "Uniform downscale and transparent centering only; alpha preserved; native Canvas motion, no invented cel variants."
+}

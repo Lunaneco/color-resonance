@@ -42,7 +42,7 @@ test('Twelve quests have chapter gates, distinct objectives, repeatable difficul
     assert(Object.keys(q.firstItems).length);
     for (const difficulty of Object.keys(P.difficulties)) assert(P.prepare(q, difficulty).recommendedLv >= 1);
   }
-  assert.equal(P.skills.length, 24);
+  assert.equal(P.skills.length, 36);
   for (const spirit of Object.keys(P.spirits)) {
     for (const route of Object.keys(P.routes)) assert.deepEqual(plain(P.skills.filter(s => s.spirit === spirit && s.route === route).map(s => s.at).sort((a,b)=>a-b)), [8, 20, 40]);
   }

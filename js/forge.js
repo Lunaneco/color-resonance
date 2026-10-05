@@ -1,7 +1,7 @@
 // 星の樹の枝は習得経路。四つの灯りは習得から+3までの実際の成長。
 const SkillForge = (() => {
   let spirit = 'gran', route = 'enchant', selected = null, bagOpen = false, bloomSequence = 0;
-  const sigils = { gran: '◈', ivy: '❧', spinel: '✧', king: '✦' };
+  const sigils = { gran: '◈', ivy: '❧', spinel: '✧', king: '✦', vard: '♉', mari: '❦' };
   const coordinates = [[32, 22], [68, 44], [32, 66]];
   function materialRows(party, cost) {
     return Object.entries(cost).map(([id, need]) => {

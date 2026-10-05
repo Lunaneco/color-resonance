@@ -2,9 +2,9 @@
 const GameArt = (() => {
   const ROOT = 'assets/generated/';
   const assets = new Map(), cache = new Map(), mounts = new WeakMap();
-  const spiritEffects = { gran: 'gran_tide', ivy: 'ivy_vines', spinel: 'spinel_shield', king: 'king_prism' };
-  const speakers = { アリア: 'aria', リラ: 'lila', 老漁師: 'fisher', ルミナ: 'lumina', 石の子: 'stone_child', 馨: 'kaoru', マリー: 'mari', グラン: 'gran', アイビー: 'ivy', スピネル: 'spinel', パレット王: 'king', クロム: 'chrome', ルノワール: 'renoir', アクロマ: 'achroma' };
-  const ready = fetch(ROOT + 'manifest.json?v=20261006-guardians3', { signal: AbortSignal.timeout(8000) })
+  const spiritEffects = { gran: 'gran_tide', ivy: 'ivy_vines', spinel: 'spinel_shield', king: 'king_prism', vard: 'crystal_slash', mari:'pray_heal' };
+  const speakers = { アリア: 'aria', リラ: 'lila', 老漁師: 'fisher', ルミナ: 'lumina', 石の子: 'stone_child', 馨: 'kaoru', マリー: 'mari', グラン: 'gran', アイビー: 'ivy', スピネル: 'spinel', パレット王: 'king', クロム: 'chrome', ルノワール: 'renoir', アクロマ: 'achroma', ヴァルド: 'vard', 紅角のヴァルド: 'vard' };
+  const ready = fetch(ROOT + 'manifest.json?v=20261006-mari-vard1', { signal: AbortSignal.timeout(8000) })
     .then(r => { if (!r.ok) throw new Error('art manifest'); return r.json(); })
     .then(m => m.assets.forEach(a => assets.set(a.id, a))).catch(() => {});
 

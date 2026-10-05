@@ -135,7 +135,8 @@ async function advanceUntil(page,predicate){
 test('The actual eight story battles advance restoration, keep the chosen repair and return from the new ending',async()=>{
   await session('chromium',{width:390,height:844},async page=>{
     for(let n=1;n<=8;n++){
-      await page.evaluate(n=>{Panel.close();const key='restore'+n;const lines=SCRIPT[key].split('\n').map(l=>l.trim()).filter(Boolean);Engine.play(key,lines.indexOf('@board '+key));},n);
+      await page.evaluate(n=>{Panel.close();const key='restore'+n;const lines=SCRIPT[key].split('\n').map(l=>l.trim()).filter(Boolean);Engine.play(key,lines.indexOf('@board '+(n===4?'gp_cocoon':key)));},n);
+      if(n===4){for(const id of ['gp_cocoon','mr_cocoon']){await ready(page);assert.equal((await state(page)).cfg.id,id);await page.evaluate(()=>Board.__restQA.finish());await page.locator('#resNext').waitFor();await page.locator('#resNext').click();await advanceUntil(page,()=>Board.running);}assert(await page.evaluate(()=>MariReturn.joined()));}
       await ready(page);assert.equal((await state(page)).units.filter(u=>u.side==='ally').length,2);await page.evaluate(()=>Board.__restQA.finish());await page.locator('#resNext').waitFor({timeout:15000});await page.locator('#resNext').click();
       await advanceUntil(page,()=>World.isOpen&&document.querySelector('.re-book'));
       assert.equal(await page.evaluate(()=>Board.party.postgame.progress),n);assert(await page.evaluate(n=>Engine.unlocked().includes(n<8?'restore'+(n+1):'restored'),n));

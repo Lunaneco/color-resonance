@@ -13,6 +13,8 @@ const GuardianCombat = (() => {
     const dr=Math.sign(hr-br)||1,dc=Math.sign(hc-bc);
     const maxR=Math.max(...cells.map(c=>c.r)),maxC=Math.max(...cells.map(c=>c.c));
     const pattern={
+      cocoon:c=>ring(c)===index+2 || index===2&&radius(c)<=1,
+      charge:c=>Math.abs(hr-br)>=Math.abs(hc-bc) ? (c.c===bc || index===1&&c.c===bc+Math.sign(hc-bc||1) || index===2&&c.r===hr) : (c.r===br || index===1&&c.r===br+Math.sign(hr-br||1) || index===2&&c.c===hc),
       tide:c=>c.r===hr||(index>0&&c.r===hr+(turn%2?1:-1)),
       clock:c=>ring(c)<=3+index&&(c.r+c.c+turn)%(index===2?3:2)===0,
       vines:c=>radius(c)===gap,
@@ -30,7 +32,7 @@ const GuardianCombat = (() => {
     }[profile.pattern];
     return cells.filter(c=>c.walk&&pattern(c)).map(c=>({r:c.r,c:c.c}));
   }
-  function mode(profile,index) { return {mov:index?2:1,rng:[1,index+1],power:[.75,.7,.6][index],armor:profile.effect==='armor'?(profile.id==='spinel'?[3,2,0]:[2,1,0])[index]:0}; }
+  function mode(profile,index) { return {mov:index?2:1,rng:[1,index+1],power:(profile.id==='vard'?[.65,.8,.9]:[.75,.7,.6])[index],armor:profile.effect==='armor'?(profile.id==='spinel'?[3,2,0]:[2,1,0])[index]:0}; }
   const profile=id=>GUARDIANS.find(p=>p.id===id);
   return {phaseNames,phase,damage,plan,mode,profile};
 })();

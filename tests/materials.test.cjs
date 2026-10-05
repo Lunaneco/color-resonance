@@ -28,7 +28,7 @@ test('Insufficient ingredients do not partially spend materials or advance an up
   }
 });
 
-test('All 24 skills gain real effects without changing resonance, target, range or area', () => {
+test('All 36 skills gain real effects without changing resonance, target, range or area', () => {
   const p = party();
   for (const base of P.skills) {
     const zero = P.skill(p, base.id); for (const key of Object.keys(base)) assert.equal(zero[key], base[key]);

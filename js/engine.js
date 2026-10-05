@@ -39,6 +39,7 @@ const Panel = (() => {
 })();
 
 const Engine = (() => {
+  const SIDE_STORIES=['fury','fury_reunion','mari_reunion'];
   const BG = { rain: 'rain', cave_sky: 'cave_sky', canyon: 'canyon', teal: 'teal', forest: 'forest', stars: 'stars', glass: 'glass' };
   const PRESET = {
     none: 'none', dim: 'brightness(.72)', night: 'brightness(.55) saturate(.85) hue-rotate(-8deg)', storm: 'brightness(.32) saturate(.45) contrast(1.15)',
@@ -82,7 +83,7 @@ const Engine = (() => {
     if (changed) { speakerArt.classList.remove('show'); requestAnimationFrame(() => speakerArt?.classList.add('show')); }
   }
 
-  let lines = [], idx = 0, chapter = null, running = false;
+  let lines = [], idx = 0, chapter = null, running = false, excursionReturn = null;
   let waiting = null, typing = false, typeTimer = null;
   let auto = false, skip = false, inlineMode = false;
   const log = [];
@@ -442,7 +443,17 @@ const Engine = (() => {
       case 'shake': if (document.documentElement.dataset.motion !== 'reduced') { stageShake?.cancel(); stageShake = document.getElementById('app').animate([{ transform: 'translate(0,0)' }, { transform: 'translate(-10px,6px)' }, { transform: 'translate(9px,-6px)' }, { transform: 'translate(-5px,3px)' }, { transform: 'translate(0,0)' }], { duration: 500 }); } break;
       case 'sfx': Audio2.sfx[a[0]] && Audio2.sfx[a[0]](); break;
       case 'wait': await waitStage(Math.max(0, Math.min(60000, +a[0] || 0))); break;
-      case 'next': { const mine = token; unlock(a[0]); await fadeOut(); if (mine === token) toMap(a[0]); return 'stop'; }
+      case 'furynews': {const mine=token;for(const line of parse(Fury.chat('mari_news'))){if(mine!==token)return 'stop';await runLine(line);}break;}
+      case 'furychat': { const mine=token;for(const line of parse(Fury.chat(a[0]))){if(mine!==token)return 'stop';await runLine(line);}break;}
+      case 'marichat': {const mine=token;for(const line of parse(MariReturn.chat(a[0]))){if(mine!==token)return 'stop';await runLine(line);}break;}
+      case 'maribond': if(chapter==='restore4'){unlock('maribond');Board.saveParty();toast('マリーが精霊として仲間になった');} break;
+      case 'vardbond': if(chapter==='fury'){unlock('vardbond');Board.saveParty();toast('紅角のヴァルドが仲間になった');} break;
+      case 'sideend': {
+        if((!SIDE_STORIES.includes(chapter)&&chapter!=='restore4')||!excursionReturn) break;
+        const bookmark=excursionReturn,mariStory=chapter.startsWith('mari_')||chapter==='restore4';resetStage();excursionReturn=null;
+        localStorage.setItem('cr_save',JSON.stringify(bookmark));World.open(mariStory?{}:{at:'f_fruit'});if(mariStory)Restoration.open();return 'stop';
+      }
+      case 'next': { if(chapter==='restore4'&&excursionReturn)return command('sideend','');const mine = token; unlock(a[0]); await fadeOut(); if (mine === token) toMap(a[0]); return 'stop'; }
       case 'rejoin': Restoration.join(); break;
       case 'restore': Restoration.complete(Number(a[0])); break;
       case 'priority': Restoration.priority(a[0]); await sayLine('アリア', Restoration.recall()); break;
@@ -474,18 +485,26 @@ const Engine = (() => {
   }
   function play(key, from = 0, restore) {
     if (!Object.hasOwn(SCRIPT, key)) return;
+    if(SIDE_STORIES.includes(key)){
+      if(key.startsWith('fury')?(!Fury.available()||key==='fury_reunion'&&!Fury.joined()):(!MariReturn.available()||key==='mari_reunion'&&!MariReturn.joined()))return;
+      const bookmark=restore?.returnStory || load()?.returnStory || load() || {chapter:'act3',idx:0,map:true};
+      restore={...bookmark,...restore,returnStory:bookmark};unlock(key);
+    }
     if (key.startsWith('restore')) {
       if (!Restoration.canBegin(key)) return;
       unlock(key);
     }
+    if(key==='restore4'&&!MariReturn.joined()&&Board.party.postgame.progress>=4){const bookmark=restore?.returnStory||load()?.returnStory||load();if(bookmark)restore={...restore,returnStory:bookmark};}
     chapter = key; lines = parse(SCRIPT[key]);
+    if(key==='restore4'&&!MariReturn.joined()){const bond=lines.findIndex(l=>l.t==='cmd'&&l.name==='maribond');if(from>bond)from=lines.findIndex(l=>l.text?.startsWith('クリスタリアの苗床に芽が戻った朝'));}
     if (typeof World !== 'undefined') World.close();
     $('#title').classList.add('hide'); $('#title').style.display = 'none';
     resetStage();
-    const st = CHAPTER_STATE[key] || { colors: [], shavings: 0 };
+    excursionReturn=SIDE_STORIES.includes(key)||key==='restore4'?restore?.returnStory||null:null;
+    const st = CHAPTER_STATE[excursionReturn?.chapter || key] || { colors: [], shavings: 0 };
     Renoir.state.colors = (restore && restore.colors) || st.colors.slice();
     Renoir.state.sky = restore ? (restore.sky || 0) : (st.sky || 0);
-    prog.shavings = restore ? restore.shavings : st.shavings;
+    prog.shavings = restore?.shavings ?? st.shavings;
     if (restore && restore.tints) Object.assign(tints, restore.tints);
     if (restore && restore.scene) applyScene(restore.scene);
     updatePouch();
@@ -544,14 +563,15 @@ const Engine = (() => {
   }
   function save() {
     try {
-      localStorage.setItem('cr_save', JSON.stringify({ chapter, idx, cursor: cursorAt(idx), scriptVersion: 3, scene, colors: Renoir.state.colors, sky: Renoir.state.sky, shavings: prog.shavings, tints, at: Date.now() }));
+      localStorage.setItem('cr_save', JSON.stringify({ chapter, idx, cursor: cursorAt(idx), scriptVersion: 3, scene, colors: Renoir.state.colors, sky: Renoir.state.sky, shavings: prog.shavings, tints, ...(excursionReturn?{returnStory:excursionReturn}:{}), at: Date.now() }));
     } catch (e) {}
   }
   function load() { try { const value = SaveData.story(JSON.parse(localStorage.getItem('cr_save') || 'null')); return Object.hasOwn(SCRIPT, value.chapter) ? value : null; } catch (e) { return null; } }
-  function unlocked() { try { const value = JSON.parse(localStorage.getItem('cr_unlocked') || '["prologue"]'); return Array.isArray(value) ? [...new Set(['prologue', ...value.filter(k => k === 'done' || Object.hasOwn(SCRIPT, k))])] : ['prologue']; } catch (e) { return ['prologue']; } }
+  function unlocked() { try { const value = JSON.parse(localStorage.getItem('cr_unlocked') || '["prologue"]'); return Array.isArray(value) ? [...new Set(['prologue', ...value.filter(k => k === 'done' || k === 'vardbond' || k === 'maribond' || Object.hasOwn(SCRIPT, k))])] : ['prologue']; } catch (e) { return ['prologue']; } }
   function unlock(k) { try { const u = unlocked(); if (!u.includes(k)) u.push(k); localStorage.setItem('cr_unlocked', JSON.stringify(u)); } catch (e) {} }
   function cont() {
-    const s = load(); if (!s) return false; if (s.map) { World.open(); return true; }
+    const s = load(); if (!s) return false;
+    if(s.chapter.startsWith('restore')&&!Restoration.canBegin(s.chapter)&&Board.party.postgame.progress>=3&&!MariReturn.joined()){play('restore4');return true;} if (s.map) { World.open(); return true; }
     const from = resumeIndex(s);
     if (s.chapter === 'prologue' && from >= 107 && from <= 109) { s.scene = s.scene || defaultScene(); s.scene.cgs = ['lila-wave']; }
     play(s.chapter, from, s); return true;

@@ -393,6 +393,11 @@ const World = (() => {
       body += `<div class="wp-sec">町の余白<small>戦わずに遊べる</small></div><p class="wp-note">${townNote} 制限時間のないパズルと記憶あそびで、ひと休みできます。</p>`;
     }
     if (n.type === 'town' && questsAt(n.id).length) body += `<div class="wp-sec">町の依頼<small>${questsAt(n.id).length}件</small></div>${questList(n.id)}`;
+    if(n.id==='f_fruit' && Fury.available()){
+      body+=`<div class="wp-sec">紅角の精霊<small>憤怒を攻撃力へ</small></div><p class="wp-note">影を払う通常戦と、汚染された猛牛のボス戦。物語の結末でヴァルドが仲間になります。</p>`;
+      if(Fury.joined())acts.push('<button class="wb" data-a="furychat">精霊たちの語らい</button>');
+      acts.push(`<button class="wb main" data-a="fury">${Fury.joined()?'紅角の物語を振り返る':'紅角のヴァルドに会う'}</button>`);
+    }
     const guardianRoute=GUARDIANS.find(p=>!p.chapter.startsWith('restore')&&p.town===n.id&&GuardianJourney.available(GUARDIAN_STAGES['gp_'+p.id]));
     if(guardianRoute){body+=`<div class="wp-sec">章の戦場<small>通常戦と精霊ボス戦</small></div><p class="wp-note">${guardianRoute.name} · 適正LV ${guardianRoute.lv}〜${guardianRoute.lv+3}。${guardianRoute.counter}</p>`;acts.push(`<button class="wb" data-a="guardians" data-chapter="${guardianRoute.chapter}">この章の戦場を選ぶ</button>`);}
     if (Restoration.joined()) {
@@ -416,6 +421,8 @@ const World = (() => {
       e.stopPropagation(); Audio2.sfx.choose();
       const a = b.dataset.a;
       if (a === 'dismiss') dismissPanel();
+      else if (a === 'furychat') Fury.start(true);
+      else if (a === 'fury') Fury.start();
       else if (a === 'story') playStory(story);
       else if (a === 'sortie') sortie(n);
       else if (a === 'shop') openShop(n);
@@ -541,8 +548,8 @@ const World = (() => {
   function openParty() {
     reload();
     const sp = spiritsNow();
-    const names = { gran: 'グラン', ivy: 'アイビー', spinel: 'スピネル', king: 'パレット王' };
-    const cols = { gran: '#3fb4c9', ivy: '#5fd07a', spinel: '#ffd25e', king: '#b48cff' };
+    const names = { gran: 'グラン', ivy: 'アイビー', spinel: 'スピネル', king: 'パレット王', vard:'ヴァルド', mari:'マリー' };
+    const cols = { gran: '#3fb4c9', ivy: '#5fd07a', spinel: '#ffd25e', king: '#b48cff', vard:'#f57965', mari:'#ffe08a' };
     const uniq = Object.keys(EQUIP).filter(k => EQUIP[k].unique);
     Panel.open('仲間', `<div class="pt">
       <header class="au-banner"><small>THE COLOURS THAT WALK WITH YOU</small><h3>ともに育つ、色の絆。</h3><p>精霊との絆と、二つの習得経路を見渡す。</p></header>
