@@ -7,17 +7,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Shippori+Mincho+B1:wght@400;600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261005-result-map1">
-<link rel="stylesheet" href="css/combat.css?v=20261005-result-map1">
-<link rel="stylesheet" href="css/minigames.css?v=20261005-result-map1">
-<link rel="stylesheet" href="css/story-cg.css?v=20261005-result-map1">
-<link rel="stylesheet" href="css/forge.css?v=20261005-result-map1">
-<link rel="stylesheet" href="css/journal.css?v=20261005-result-map1">
-<link rel="stylesheet" href="css/ui-theme.css?v=20261005-result-map1">
-<link rel="stylesheet" href="css/play-adventures.css?v=20261005-result-map1">
-<link rel="stylesheet" href="css/minigame-art.css?v=20261005-result-map1">
-<link rel="stylesheet" href="css/inventory-art.css?v=20261005-result-map1">
-<link rel="stylesheet" href="css/minigame-motion.css?v=20261005-result-map1">
+<link rel="stylesheet" href="css/style.css?v=20261005-rotate1">
+<link rel="stylesheet" href="css/combat.css?v=20261005-rotate1">
+<link rel="stylesheet" href="css/minigames.css?v=20261005-rotate1">
+<link rel="stylesheet" href="css/story-cg.css?v=20261005-rotate1">
+<link rel="stylesheet" href="css/forge.css?v=20261005-rotate1">
+<link rel="stylesheet" href="css/journal.css?v=20261005-rotate1">
+<link rel="stylesheet" href="css/ui-theme.css?v=20261005-rotate1">
+<link rel="stylesheet" href="css/play-adventures.css?v=20261005-rotate1">
+<link rel="stylesheet" href="css/minigame-art.css?v=20261005-rotate1">
+<link rel="stylesheet" href="css/inventory-art.css?v=20261005-rotate1">
+<link rel="stylesheet" href="css/minigame-motion.css?v=20261005-rotate1">
 </head>
 <body>
 <div id="app">
@@ -57,7 +57,7 @@
     <div id="skills"></div>
     <div id="unitInfo" class="hidden"></div>
     <div id="cmdMenu" class="hidden"></div>
-    <div id="cmdBar"><span id="phaseLabel"></span><button id="actHere" class="cb-b hidden">その場で行動</button><button id="cancelSel" class="cb-b hidden">選び直す</button><button id="endTurn">ターン終了<kbd>E</kbd></button></div>
+    <div id="cmdBar"><span id="phaseLabel"></span><button id="actHere" class="cb-b hidden">その場で行動</button><button id="cancelSel" class="cb-b hidden">選び直す</button><button id="endTurn">ターン終了<kbd>E</kbd></button><div id="boardView" role="group" aria-label="戦闘マップの視点"><button id="rotateLeft" type="button" aria-label="マップを左に90度回転" title="左に回転（Q）">↶</button><button id="rotateRight" type="button" aria-label="マップを右に90度回転" title="右に回転（R）">↷</button></div></div>
     <div id="hint"><div id="hintText"></div><button id="hintClose" type="button" aria-label="説明を閉じる">×</button></div>
     <div id="floatLayer"></div>
     <div id="phaseBanner"></div>
@@ -119,23 +119,23 @@
   <div id="panel" class="hidden"><div class="pn-box"><div class="pn-head"><span class="pn-title"></span><button class="pn-close">×</button></div><div class="pn-body"></div><div class="pn-footer hidden"></div></div></div>
 </div>
 
-<script src="js/save.js?v=20261005-result-map1"></script>
-<script src="js/audio.js?v=20261005-result-map1"></script>
-<script src="js/fx.js?v=20261005-result-map1"></script>
-<script src="js/art.js?v=20261005-result-map1"></script>
-<script src="js/inventory-art.js?v=20261005-result-map1"></script>
-<script src="js/renoir.js?v=20261005-result-map1"></script>
-<script src="js/play-core.js?v=20261005-result-map1"></script>
-<script src="js/progression.js?v=20261005-result-map1"></script>
-<script src="js/board.js?v=20261005-result-map1"></script>
-<script src="js/story.js?v=20261005-result-map1"></script>
-<script src="js/quests.js?v=20261005-result-map1"></script>
-<script src="js/minigame-motion.js?v=20261005-result-map1"></script>
-<script src="js/minigames.js?v=20261005-result-map1"></script>
-<script src="js/world.js?v=20261005-result-map1"></script>
-<script src="js/forge.js?v=20261005-result-map1"></script>
-<script src="js/journal.js?v=20261005-result-map1"></script>
-<script src="js/engine.js?v=20261005-result-map1"></script>
-<script src="js/main.js?v=20261005-result-map1"></script>
+<script src="js/save.js?v=20261005-rotate1"></script>
+<script src="js/audio.js?v=20261005-rotate1"></script>
+<script src="js/fx.js?v=20261005-rotate1"></script>
+<script src="js/art.js?v=20261005-rotate1"></script>
+<script src="js/inventory-art.js?v=20261005-rotate1"></script>
+<script src="js/renoir.js?v=20261005-rotate1"></script>
+<script src="js/play-core.js?v=20261005-rotate1"></script>
+<script src="js/progression.js?v=20261005-rotate1"></script>
+<script src="js/board.js?v=20261005-rotate1"></script>
+<script src="js/story.js?v=20261005-rotate1"></script>
+<script src="js/quests.js?v=20261005-rotate1"></script>
+<script src="js/minigame-motion.js?v=20261005-rotate1"></script>
+<script src="js/minigames.js?v=20261005-rotate1"></script>
+<script src="js/world.js?v=20261005-rotate1"></script>
+<script src="js/forge.js?v=20261005-rotate1"></script>
+<script src="js/journal.js?v=20261005-rotate1"></script>
+<script src="js/engine.js?v=20261005-rotate1"></script>
+<script src="js/main.js?v=20261005-rotate1"></script>
 </body>
 </html>

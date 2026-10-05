@@ -136,7 +136,9 @@ const Board = (() => {
 
   // ---------- 状態 ----------
   let cfg = null, baseCfg = null, onDone = null;
-  let cells = [], cellsFront = [], cols = 0, rows = 0, units = [], uid = 1;
+  let cells = [], cellsFront = [], cellsOrder = [], cols = 0, rows = 0, units = [], uid = 1;
+  let viewRotation = 0;
+  const defeatedSpirits = new Set();
   let tw = 80, th = 43, hStep = 18, ox = 0, oy = 0, W = 0, H = 0, dpr = 1;
   const cam = { z: 1, x: 0, y: 0, tz: 1, tx: 0, ty: 0 };
   const fxp = [];
@@ -310,10 +312,26 @@ const Board = (() => {
     const span = (cols + rows) / 2;
     tw = Math.min(availW / span, availH / (span * 0.54 + 1.05), 116);
     th = tw * 0.54; hStep = th * 0.44;
-    ox = W / 2 + (rows - cols) * tw / 4;
+    ox = W / 2 + (viewRotation % 2 ? cols - rows : rows - cols) * tw / 4;
     oy = top + (availH - span * th) / 2 + th / 2 + tw * 0.62;
   }
-  const base = (r, c) => ({ x: ox + (c - r) * tw / 2, y: oy + (c + r) * th / 2 });
+  function viewCell(r, c) {
+    if (viewRotation === 1) return { r: c, c: rows - 1 - r };
+    if (viewRotation === 2) return { r: rows - 1 - r, c: cols - 1 - c };
+    if (viewRotation === 3) return { r: cols - 1 - c, c: r };
+    return { r, c };
+  }
+  const viewDir = dir => (dir + viewRotation) % 4;
+  const worldDir = dir => (dir - viewRotation + 4) % 4;
+  const facingOf = dir => FACING[viewDir(dir)];
+  const viewDepth = cell => { const p = viewCell(cell.r, cell.c); return p.r + p.c; };
+  function orderCells() {
+    cellsOrder = cells.slice().sort((a, b) => viewDepth(a) - viewDepth(b) || viewCell(a.r, a.c).c - viewCell(b.r, b.c).c);
+    cellsFront = cellsOrder.slice().reverse();
+    decor.sort((a, b) => viewDepth(a) - viewDepth(b));
+    decor.forEach(d => { d.back = viewDepth(d) < (cols + rows - 2) / 2; });
+  }
+  const base = (r, c) => { const p = viewCell(r, c); return { x: ox + (p.c - p.r) * tw / 2, y: oy + (p.c + p.r) * th / 2 }; };
   function topOf(cell) { const b = base(cell.r, cell.c); return { x: b.x, y: b.y - cell.h * hStep }; }
   const toScreen = (x, y) => ({ x: (x - cam.x) * cam.z + cam.x, y: (y - cam.y) * cam.z + cam.y });
   const toWorld = (x, y) => ({ x: (x - cam.x) / cam.z + cam.x, y: (y - cam.y) / cam.z + cam.y });
@@ -345,7 +363,7 @@ const Board = (() => {
     }
     const tid = tile ? idx(tile.r, tile.c) : -1;
     let hitUnit = null;
-    const us = live().sort((a, b) => (b.r + b.c) - (a.r + a.c));
+    const us = live().sort((a, b) => viewDepth(b) - viewDepth(a));
     for (const u of us) {
       const p = unitXY(u), hw = tw * 0.22, top = p.y - tw * u.hgt * 0.9;
       if (mx > p.x - hw && mx < p.x + hw && my > top && my < p.y + th * 0.2) { hitUnit = u; break; }
@@ -403,7 +421,7 @@ const Board = (() => {
     g.setTransform(dpr * cam.z, 0, 0, dpr * cam.z, dpr * cam.x * (1 - cam.z), dpr * cam.y * (1 - cam.z));
     const inv = cfg.inverted;
     // 足元の影
-    const bc = { x: ox, y: oy + (cols + rows - 2) * th / 4 };
+    const bc = base((rows - 1) / 2, (cols - 1) / 2);
     const sh = g.createRadialGradient(bc.x, bc.y + th, 10, bc.x, bc.y + th, (cols + rows) * tw * 0.42);
     // 背景は #bgLayer にある章ごとの風景。影を薄くし、虹の光を柔らかく見せる。
     sh.addColorStop(0, inv ? 'rgba(0,0,10,.24)' : 'rgba(5,10,30,.18)'); sh.addColorStop(1, 'rgba(0,0,0,0)');
@@ -421,14 +439,10 @@ const Board = (() => {
     const area = mode === 'target' && hover ? areaOf(targetCmd, hover) : null;
     const path = mode === 'selected' && sel && moveInfo && hover && moveInfo.ends.has(idx(hover.r, hover.c)) ? new Set(pathTo(moveInfo, idx(hover.r, hover.c))) : null;
     const atkSet = mode === 'selected' && sel ? attackTargets(sel) : null;
-    for (let s = 0; s < cols + rows - 1; s++) {
-      for (let c = 0; c < cols; c++) {
-        const r = s - c; if (r < 0 || r >= rows) continue;
-        const cell = cells[idx(r, c)];
-        drawCell(cell, t, now, area, path, atkSet);
-        const us = byCell.get(idx(r, c));
-        if (us) us.forEach(u => drawUnit(u, t, now));
-      }
+    for (const cell of cellsOrder) {
+      drawCell(cell, t, now, area, path, atkSet);
+      const us = byCell.get(idx(cell.r, cell.c));
+      if (us) us.forEach(u => drawUnit(u, t, now));
     }
     drawDecor(false);
     drawArtEffects(now);
@@ -546,7 +560,7 @@ const Board = (() => {
   function drawDecor(back) {
     decor.forEach(d => {
       if (d.back !== back) return;
-      const x = ox + (d.c - d.r) * tw / 2, y = oy + (d.c + d.r) * th / 2;
+      const { x, y } = base(d.r, d.c);
       if (cfg.inverted) { sprite('dark_' + d.name, x, y, 0.7, d.s); return; }
       sprite('dark_' + d.name, x, y, 0.85 * (1 - ratioA), d.s);
       sprite('crys_' + d.name, x, y, 0.85 * ratioA, d.s);
@@ -596,7 +610,8 @@ const Board = (() => {
       g.fillStyle = glow; g.fillRect(p.x - h, p.y - h, h * 2, h);
       g.strokeStyle = s.color; g.lineWidth = 2; g.beginPath(); g.ellipse(p.x, p.y, tw * .3, th * .3, 0, now / 500, now / 500 + 4.5); g.stroke();
     }
-    const flip = u.kind === 'gran' ? u.dir === 0 || u.dir === 1 : u.dir === 2 || u.dir === 3;
+    const dir = viewDir(u.dir);
+    const flip = u.kind === 'gran' ? dir === 0 || dir === 1 : dir === 2 || dir === 3;
     const height = tw * u.hgt, width = tw * (u.kind === 'gran' ? 1.25 : .98);
     GameArt.drawMotion(g, u.kind, action, elapsed, p.x, p.y + th * .08, height, width, { flip });
     if (flash > 0) {
@@ -745,14 +760,14 @@ const Board = (() => {
       g.fillStyle = 'rgba(5,10,25,.95)'; g.fillRect(bx, by, size, size);
       g.strokeStyle = color; g.lineWidth = 1; g.strokeRect(bx, by, size, size);
       g.fillStyle = color; g.font = `700 ${size - 1}px sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
-      g.fillText(FACING[u.dir].arrow, bx + size / 2, by + size / 2);
+      g.fillText(facingOf(u.dir).arrow, bx + size / 2, by + size / 2);
     }
     g.restore();
   }
   // 攻撃の正面／背後判定と同じDIRSを床の4方向へ投影する。
   // 床の後で描く。近くの別キャラクターの体は避け、HP横にも方向を出す。
   function drawFacing(u, p) {
-    const [dr, dc] = DIRS[u.dir], [sr, sc] = DIRS[(u.dir + 1) % 4];
+    const dir = viewDir(u.dir), [dr, dc] = DIRS[dir], [sr, sc] = DIRS[(dir + 1) % 4];
     const f = { x: (dc - dr) * tw / 2, y: (dc + dr) * th / 2 };
     const s = { x: (sc - sr) * tw / 2, y: (sc + sr) * th / 2 };
     const point = (a, b = 0) => [p.x + f.x * a + s.x * b, p.y + f.y * a + s.y * b];
@@ -944,7 +959,7 @@ const Board = (() => {
       const to = cells[id], from = cellAt(u.r, u.c);
       face(u, to);
       const a = topOf(from), b = topOf(to);
-      u.dk = (to.r + to.c >= from.r + from.c) ? id : idx(from.r, from.c);
+      u.dk = viewDepth(to) >= viewDepth(from) ? id : idx(from.r, from.c);
       const hop = u.fly ? th * 0.2 : to.h !== from.h ? th * 0.55 : th * 0.12;
       Audio2.sfx.step();
       await tween(u.fly ? 110 : 135, k => { u.mv = { x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k - Math.sin(Math.PI * k) * hop }; });
@@ -1149,7 +1164,7 @@ const Board = (() => {
         const n = cellAt(d.r + v[0], d.c + v[1]);
         if (n && n.walk && !unitAt(n) && Math.abs(n.h - dc.h) <= 1) {
           const from = topOf(dc), to = topOf(n);
-          d.dk = n.r + n.c >= dc.r + dc.c ? idx(n.r, n.c) : idx(dc.r, dc.c);
+          d.dk = viewDepth(n) >= viewDepth(dc) ? idx(n.r, n.c) : idx(dc.r, dc.c);
           await tween(180, k => { d.mv = { x: from.x + (to.x - from.x) * k, y: from.y + (to.y - from.y) * k }; });
           d.r = n.r; d.c = n.c; d.mv = null; d.dk = null;
           floatText(to.x, to.y - tw, '押し流した', 'sys');
@@ -1212,7 +1227,8 @@ const Board = (() => {
       lose();
     } else {
       stats.down++;
-      floatText(p.x, p.y - tw, `${d.name}は、アリアの胸の中へ還った`, 'color', SPIRITS[d.kind] ? SPIRITS[d.kind].color : '#fff');
+      if (d.until && SPIRITS[d.kind]) defeatedSpirits.add(d.kind);
+      floatText(p.x, p.y - tw, `${d.name}は、アリアの胸の中へ還った${defeatedSpirits.has(d.kind) ? '（この戦闘中は使えない）' : ''}`, 'color', SPIRITS[d.kind] ? SPIRITS[d.kind].color : '#fff');
       fxp.push({ k: 'beam', x: p.x, y: p.y, col: SPIRITS[d.kind] ? SPIRITS[d.kind].rgb : '255,255,255', w: 0.4, life: 0, max: 1 });
       refreshHud();
       await wait(300);
@@ -1671,8 +1687,8 @@ const Board = (() => {
       enterTarget('item:' + arg, s);
     }
     else if (k === 'back') { if (mode === 'facing') closeFacing(); else showMenu(u); }
-    else if (k === 'summon') { if (u.kind !== 'aria' || !stage || !(cfg.spirits || []).includes(arg) || sp < COST_SUMMON || u.enchant || live().some(x => x.until)) return; enterTarget('summon:' + arg, summonCells(u)); }
-    else if (k === 'enchant') { if (u.kind !== 'aria' || !stage || !(cfg.spirits || []).includes(arg) || enchantUsed || sp < COST_ENCHANT || u.enchant?.id === arg || live().some(x => x.until)) return; doEnchant(u, arg); }
+    else if (k === 'summon') { if (u.kind !== 'aria' || !stage || !(cfg.spirits || []).includes(arg) || defeatedSpirits.has(arg) || sp < COST_SUMMON || u.enchant || live().some(x => x.until)) return; enterTarget('summon:' + arg, summonCells(u)); }
+    else if (k === 'enchant') { if (u.kind !== 'aria' || !stage || !(cfg.spirits || []).includes(arg) || defeatedSpirits.has(arg) || enchantUsed || sp < COST_ENCHANT || u.enchant?.id === arg || live().some(x => x.until)) return; doEnchant(u, arg); }
     else if (k === 'sky') { const s = new Set(); cells.forEach(c => { if (c.walk && dist(c, u) <= 4) s.add(idx(c.r, c.c)); }); enterTarget('sky', s); }
     else if (k === 'wait') openFacing(u);
     else if (k === 'facewait') finishWait(u, Number(arg));
@@ -1689,7 +1705,7 @@ const Board = (() => {
       if (!skill || sp < skill.cost || !skillTargets(u, skill).has(idx(cell.r, cell.c))) return;
       sp -= skill.cost; act(u, () => spiritSkill(u, skill, cell));
     }
-    else if (cmd.startsWith('summon:')) { sp -= COST_SUMMON; act(u, () => summon(u, cmd.slice(7), cell)); }
+    else if (cmd.startsWith('summon:')) { const id = cmd.slice(7); if (defeatedSpirits.has(id) || sp < COST_SUMMON) return; sp -= COST_SUMMON; act(u, () => summon(u, id, cell)); }
     else if (cmd === 'sky') { skyCharges--; act(u, () => nightSky(u, cell)); }
     else if (cmd.startsWith('item:')) {
       const id = cmd.slice(5);
@@ -1748,6 +1764,8 @@ const Board = (() => {
   const actHereBtn = $id('actHere'), cancelBtn = $id('cancelSel');
   let barState = '';
   function updateBar() {
+    const canRotate = running && !busy && !over && !paused && !Panel.isOpen();
+    $id('rotateLeft').disabled = $id('rotateRight').disabled = !canRotate;
     const st = phase === 'player' && !busy && !over && !paused && sel ? (mode === 'facing' ? 'f' : mode === 'target' ? 't' : followUpPending(sel) ? 'a' : sel.moved ? 'm' : 's') : '';
     if (st === barState) return;
     barState = st;
@@ -1774,7 +1792,7 @@ const Board = (() => {
     if (sub === 'facing') {
       it.push(`<div class="cm-head">向きを選んで待機<small>${u.name}</small></div>`);
       it.push('<p class="cm-facing-help">選んだ方向が正面になります。背後からの攻撃に気をつけて。</p>');
-      it.push(`<div class="cm-facing-grid" role="group" aria-label="待機する向き">${[3, 0, 2, 1].map(dir => `<button class="cm-face${u.dir === dir ? ' current' : ''}" data-k="facewait" data-a="${dir}" aria-label="${FACING[dir].name}を向いて待機" ${u.dir === dir ? 'aria-current="true"' : ''}><b aria-hidden="true">${FACING[dir].arrow}</b><span>${FACING[dir].name}</span><small>${u.dir === dir ? '現在の向き' : 'この向きで待機'}</small></button>`).join('')}</div>`);
+      it.push(`<div class="cm-facing-grid" role="group" aria-label="待機する向き">${[3, 0, 2, 1].map(screenDir => { const dir = worldDir(screenDir); return `<button class="cm-face${u.dir === dir ? ' current' : ''}" data-k="facewait" data-a="${dir}" aria-label="${FACING[screenDir].name}を向いて待機" ${u.dir === dir ? 'aria-current="true"' : ''}><b aria-hidden="true">${FACING[screenDir].arrow}</b><span>${FACING[screenDir].name}</span><small>${u.dir === dir ? '現在の向き' : 'この向きで待機'}</small></button>`; }).join('')}</div>`);
       it.push(btn('back', '戻る', { d: '向きと行動を確定せず戻る', key: 'Esc' }));
       it.push('<p class="cm-facing-keys">方向キー＋Enter · 1↗ 2↘ 3↙ 4↖</p>');
     } else if (sub === 'spirit') {
@@ -1786,11 +1804,12 @@ const Board = (() => {
       else if (enchanted) it.push(`<div class="cm-note">${SPIRITS[enchanted.id].name}が心剣に宿っている間は、召喚できない</div>`);
       (cfg.spirits || []).forEach(id => {
         const s = SPIRITS[id];
-        const canSum = !summoned && !enchanted && sp >= COST_SUMMON && summonCells(u).size > 0;
-        const canEn = !summoned && !enchantUsed && sp >= COST_ENCHANT && !(enchanted && enchanted.id === id);
-        const why = (k) => k === 'summon' ? (summoned ? '（いまは召喚中）' : enchanted ? '（宿している間は召喚できない）' : sp < COST_SUMMON ? '（共鳴が足りない）' : '')
+        const fallen = defeatedSpirits.has(id);
+        const canSum = !fallen && !summoned && !enchanted && sp >= COST_SUMMON && summonCells(u).size > 0;
+        const canEn = !fallen && !summoned && !enchantUsed && sp >= COST_ENCHANT && !(enchanted && enchanted.id === id);
+        const why = (k) => fallen ? '（戦闘不能：この戦闘中は使えない）' : k === 'summon' ? (summoned ? '（いまは召喚中）' : enchanted ? '（宿している間は召喚できない）' : sp < COST_SUMMON ? '（共鳴が足りない）' : '')
           : (summoned ? '（召喚している間は宿せない）' : enchantUsed ? '（このターンはもう宿した）' : sp < COST_ENCHANT ? '（共鳴が足りない）' : '');
-        it.push(`<div class="cm-sp" style="--sc:${s.color}"><div class="cm-spn">${s.name}<small>Lv${rec(id).lv}・絆${bondRank(id)}</small></div>
+        it.push(`<div class="cm-sp${fallen ? ' fallen' : ''}" style="--sc:${s.color}"><div class="cm-spn">${s.name}<small>${fallen ? '戦闘不能 · この戦闘中は使用不可' : `Lv${rec(id).lv}・絆${bondRank(id)}`}</small></div>
           <button class="cm-s" data-k="summon" data-a="${id}" ${canSum ? '' : 'disabled'} data-d="【召喚】${s.summon.name}：${s.summon.desc}。${3 + GB.summonTurns}ターン共に戦う（行動を使う）${why('summon')}">召喚<em>${COST_SUMMON}</em></button>
           <button class="cm-s" data-k="enchant" data-a="${id}" ${canEn ? '' : 'disabled'} data-d="【心剣に宿す】${s.enchant.name}：${s.enchant.desc}。${3 + GB.enchantTurns}ターン、通常攻撃が毎ターン2回（移動は1回・技や道具は1回）。宿す行動は消費なし・1ターンに1度${why('enchant')}">宿す<em>${COST_ENCHANT}</em></button></div>`);
       });
@@ -1883,12 +1902,12 @@ const Board = (() => {
     const rng = effRng(u);
     const unknown = u.kind === 'chrome' && stage === 0;
     const neutral = u.side === 'neutral';
-    const facing = neutral ? null : FACING[u.dir];
+    const facing = neutral ? null : facingOf(u.dir);
     const side = u.side === 'enemy' && sel && !sel.dead && sel.side === 'ally' ? attackSide(cellOf(sel), u) : null;
     unitInfo.className = 'side-' + u.side;
     unitInfo.innerHTML = `${port}<div class="ui-main">
       <div class="ui-top"><span class="ui-name">${u.name}</span>${neutral ? '' : `<span class="ui-lv">LV<b>${u.lv}</b></span>`}</div>
-      ${facing ? `<div class="ui-facing" data-dir="${u.dir}"><b>${facing.arrow}</b><span>正面：${facing.name}</span></div>${side ? `<div class="ui-approach ${side}" data-side="${side}">${APPROACH[side]}</div>` : ''}` : ''}
+      ${facing ? `<div class="ui-facing" data-dir="${u.dir}" data-view-dir="${viewDir(u.dir)}"><b>${facing.arrow}</b><span>正面：${facing.name}</span></div>${side ? `<div class="ui-approach ${side}" data-side="${side}">${APPROACH[side]}</div>` : ''}` : ''}
       ${u.word ? `<div class="ui-word">「${u.word}」</div>` : ''}
       ${neutral ? '<div class="ui-word">——その人の色は、切らない</div>' : `<div class="ui-bar hp"><i style="width:${unknown ? 100 : Math.round(u.hp / u.mhp * 100)}%"></i><span>HP ${unknown ? '？？？' : `${u.hp} / ${u.mhp}`}</span></div>`}
       ${r ? `<div class="ui-bar exp"><i style="width:${r.lv >= MAX_LV ? 100 : r.exp}%"></i><span>${r.lv >= MAX_LV ? 'EXP MAX · 成長上限' : `EXP ${r.exp} / 100`}</span></div>` : ''}
@@ -1904,10 +1923,13 @@ const Board = (() => {
     list.forEach(id => {
       const s = SPIRITS[id], r = rec(id), su = live().find(u => u.kind === id);
       const anySum = live().some(u => u.until), en = a && a.enchant;
-      const state = su ? (su.summon > 0 ? `召喚中・あと${su.summon}ターン` : '召喚中・このターンまで') : (en && en.id === id) ? `通常攻撃2回・あと${en.turns}ターン`
+      const fallen = defeatedSpirits.has(id);
+      const state = fallen ? '戦闘不能 · この戦闘中は使用不可' : su ? (su.summon > 0 ? `召喚中・あと${su.summon}ターン` : '召喚中・このターンまで') : (en && en.id === id) ? `通常攻撃2回・あと${en.turns}ターン`
         : followUpPending(a) ? '追撃か待機を選択' : anySum ? '召喚中は宿せない' : en ? (enchantUsed ? 'このターンは宿し済み' : sp >= COST_ENCHANT ? '宿し替えできる' : '宿し中は召喚できない') : sp >= COST_SUMMON ? '召喚・宿しができる' : sp >= COST_ENCHANT ? '宿せる' : '共鳴を待つ';
       const b = document.createElement('button');
-      b.className = 'skill spirit' + (su || (a && a.enchant && a.enchant.id === id) ? ' armed' : '');
+      b.className = 'skill spirit' + (fallen ? ' fallen' : '') + (su || (a && a.enchant && a.enchant.id === id) ? ' armed' : '');
+      b.disabled = fallen;
+      b.setAttribute('aria-label', `${s.name} · ${state}`);
       b.style.setProperty('--sc', s.color);
       b.innerHTML = `${GameArt.available(id) ? GameArt.portrait(id, 'sk-art') : ''}<span class="sk-n">${s.name}</span><span class="sk-d">${state}</span><span class="sk-c">Lv${r.lv}・絆${bondRank(id)}</span>`;
       b.onclick = () => {
@@ -2177,6 +2199,7 @@ const Board = (() => {
   cv.addEventListener('touchend', e => { onClick(touchCell); e.preventDefault(); }, { passive: false });
   addEventListener('keydown', e => {
     if (!running || Panel.isOpen() || paused || e.ctrlKey || e.altKey || e.metaKey || e.target.closest?.('input,textarea,select,[contenteditable="true"]')) return;
+    if (['q', 'r', '0'].includes(e.key.toLowerCase())) { e.preventDefault(); if (!e.repeat) rotateView(e.key === '0' ? -viewRotation : e.key.toLowerCase() === 'q' ? -1 : 1); return; }
     if (mode === 'facing') {
       if (e.key === 'Escape') { e.preventDefault(); cancel(); return; }
       const buttons = [...cmdMenu.querySelectorAll('[data-k="facewait"]')];
@@ -2185,7 +2208,7 @@ const Board = (() => {
         : e.key === 'ArrowRight' ? (i < 0 ? 1 : i % 2 ? i - 1 : i + 1)
           : e.key === 'ArrowUp' || e.key === 'ArrowDown' ? (i < 0 ? 0 : (i + 2) % 4) : -1;
       if (next >= 0) { e.preventDefault(); buttons[next]?.focus({ preventScroll: true }); return; }
-      if (/^[1-4]$/.test(e.key) && !e.repeat) { e.preventDefault(); command('facewait', String(Number(e.key) - 1)); }
+      if (/^[1-4]$/.test(e.key) && !e.repeat) { e.preventDefault(); command('facewait', String(worldDir(Number(e.key) - 1))); }
       return;
     }
     if (e.key === 'Escape') cancel();
@@ -2197,16 +2220,35 @@ const Board = (() => {
   endBtn.addEventListener('click', e => { e.stopPropagation(); Audio2.sfx.choose(); endPlayerPhase(); });
   $id('boardHelp').onclick = () => help();
   $id('boardMenu').onclick = () => Main.gameMenu();
+  $id('rotateLeft').onclick = () => rotateView(-1);
+  $id('rotateRight').onclick = () => rotateView(1);
+  function rotateView(step) {
+    if (!running || busy || over || paused || Panel.isOpen()) return;
+    const next = (viewRotation + step + 4) % 4;
+    if (next === viewRotation) return;
+    const active = document.activeElement;
+    const focused = active.closest?.('#cmdMenu') ? { k: active.dataset.k, a: active.dataset.a } : null;
+    viewRotation = next; orderCells(); layout();
+    cam.z = cam.tz = 1; cam.x = cam.tx = cam.y = cam.ty = 0;
+    hover = null; touchCell = null; fxp.length = 0; floatLayer.innerHTML = '';
+    units.forEach(u => { u.lunge = u.knock = null; });
+    $id('boardView').setAttribute('aria-label', `戦闘マップの視点 · 表示角度${viewRotation * 90}度`);
+    refreshHud();
+    if (focused) [...cmdMenu.querySelectorAll('button')].find(b => b.dataset.k === focused.k && b.dataset.a === focused.a)?.focus({ preventScroll: true });
+    Audio2.sfx.choose();
+  }
 
   function help() {
     hideSay();
     Panel.open('戦い方', `
       <h4>目的</h4>盤のどこかにいる<b>穢れの影</b>を、すべて心剣で切り分けてください。アリアが倒れると、やり直しになります。
       <h4>動かし方</h4>味方に触れると、<b>光る床</b>が歩ける場所。床に触れると移動し、そのあとメニューが開きます。<br>動かずに行動したいときは、本人にもう一度触れるか「その場で行動」。届く敵に直接触れても攻撃できます。<br><b>待機は4方向から向きを選んで確定</b>。Esc／戻るで取り消しても行動は消費せず、移動も戻せます。方向キーで選び、Enterで確定できます。<br>右クリック／Esc／「選び直す」：戻る　E：ターン終了　A：攻撃　W：待機の向き選び
+      <h4>マップの回転</h4><b>↶／↷</b>ボタンで視点を左右に90度ずつ回転します。キーボードは<b>Q：左、R：右、0：初期の視点</b>。回転は移動や行動を使わず、位置・射程・正面／背後の判定はそのままです。移動や攻撃の演出中は回転できません。
       <div class="tip-tiles"><div><span class="tip-rainbow-floor${cfg.inverted ? ' night' : ''}"><img src="assets/tiles/dark_land_flat.png" alt=""></span>${floorNames()[0]}の床（味方）</div><div><img src="assets/tiles/dark_land_flat.png" alt="">${floorNames()[1]}の床（穢れ）</div></div>
       <h4>床の割合と加護</h4>味方が歩いた床・攻撃した床は<b>虹色</b>に、穢れが立つ床は<b>くすみ</b>ます。盤全体の割合が<b>25%・45%・65%</b>を超えるたびに、その側の攻撃・守り・共鳴が強くなります（65%で毎ターン回復）。<br>自分の色の床に立つと攻撃+10%、相手の色の床では守り-10%。
       <h4>位置どり</h4>敵の足元の<b style="color:#ffd07a">橙の矢印が正面</b>、<b style="color:#81e7ff">青の二本線が背後</b>です。HPの横にも正面を向く矢印が表示されます。敵の情報欄では、選んだ味方の現在位置が正面・側面・背後のどれかを確認できます。<br>高い場所から打つと+15%。敵の<b>背後</b>から+25%（会心も出やすい）、側面から+10%。
       <h4>精霊</h4>仲間になった精霊は、<b>共鳴</b>を使って力を貸してくれます。<br>・<b>召喚</b>（共鳴6）：盤に降り立ち、登場の大技のあと3ターン共に戦う。<br>・<b>心剣に宿す</b>（共鳴3）：3ターンのあいだ、精霊の力をまとった<b>通常攻撃が毎ターン2回</b>に。同じ敵にも別の敵にも追撃でき、空振りも1回に数えます。移動は最初の1回だけで、技・魔法・道具を選ぶと行動は終了します。宿すときは行動を使わず、1ターンに1度。<br>召喚と宿しは同時にはできません。召喚している間は宿せず、宿している間は召喚できません。
+      <p><b>召喚した精霊が倒されたら、その戦闘中は再召喚も心剣に宿すこともできません。</b>他の精霊は使えます。召喚の期限で帰還した精霊は再び使え、再挑戦・次の戦闘では戦闘不能の制限を解除します。</p>
       <h4>道具とミッション</h4>町で買った道具は、メニューの「道具」から使えます（行動を使う）。<br>右上のミッションをすべて達成するとSランク。S評価の報酬は難易度別。<b>ハードはユニーク装備、ふつうは通常装備、やさしいはアイテム</b>です。各難易度で1回ずつ受け取れ、所持済みの通常装備は価格の半分のしずくになります。
       <h4>LV</h4>攻撃と撃破で経験値が入り、100たまるとLVが上がります。精霊は、召喚や宿しで育ちます。
       <h4>精霊との絆・覚えた技</h4>召喚で絆+3、心剣に宿すと+2。召喚した精霊の攻撃や、宿した心剣が命中すると+1、覚えた技を使うと+2。絆は精霊と技の強さを育てます。<b>習得はエンチャントと召喚の熟練を別々に判定</b>し、それぞれ8・20・40で3種ずつ、全24種。宿すとエンチャント熟練+2、宿した通常攻撃の命中で+1。召喚すると召喚熟練+3、精霊の命中で+1。覚えた技の使用は熟練に入りません。<br>習得後は「覚えた技」から、召喚や宿しをせずに使えます。絆が深まるほど精霊のHP・攻撃・守りと、宿した心剣・覚えた技の効果が育ちます。負けても絆と習得は残ります。
@@ -2233,6 +2275,8 @@ const Board = (() => {
     cfg = Progression.prepare(baseCfg, baseCfg.difficulty);
     cfg.onPhase0 = baseCfg.onPhase0;
     cols = cfg.cols; rows = cfg.rows;
+    viewRotation = 0; defeatedSpirits.clear();
+    $id('boardView').setAttribute('aria-label', '戦闘マップの視点 · 表示角度0度');
     difficulty = cfg.difficulty;
     party = loadParty();
     GB = gearBonus(party.equip);
@@ -2243,7 +2287,6 @@ const Board = (() => {
     uid = 1;
     const plan = genMap();
     initFloors(plan);
-    cellsFront = cells.slice().sort((a, b) => (b.r + b.c) - (a.r + a.c));
     units = [makeUnit('aria', 'ally', party.aria.lv, plan.aria)];
     const words = cfg.kegWords || [];
     kegIdx = 0; colorIdx = 0; totalFoes = 0;
@@ -2256,6 +2299,7 @@ const Board = (() => {
       if (!u.hidden && spec.kind !== 'chrome') totalFoes++;
     });
     makeDecor();
+    orderCells();
     turn = 0; phase = 'player'; busy = true; over = false; paused = false;
     sel = null; mode = 'idle'; moveInfo = null; targets = null; targetCmd = null; hover = null; threat = null; menuSub = null; infoU = null;
     sp = Math.min(spCap(), (cfg.spStart != null ? cfg.spStart : 3) + GB.spStart); skyCharges = 0; enchantUsed = false;

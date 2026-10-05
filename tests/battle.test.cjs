@@ -888,7 +888,7 @@ test('Rapid item targeting consumes one item and a two-turn guard expires after 
 });
 
 test('A three-turn summoned spirit remains playable for exactly three following player turns',async()=>{
-  await boot('king');await fixture('king',{spStart:6});
+  await boot('king');await fixture('king',{spStart:12});
   await page.evaluate(()=>Board.__test.arrange([{kind:'aria',r:7,c:7,atk:1,hp:1000,mhp:1000},{kind:'shade',r:0,c:0,root:12,hp:1000,mhp:1000,atk:1}]));
   await openMenu();await page.locator('[data-k=spirit]').click();await page.locator('[data-k=summon][data-a=gran]').click();
   const cell=await legalCell('targets');assert(cell);await page.mouse.click(cell.x,cell.y);
@@ -899,6 +899,9 @@ test('A three-turn summoned spirit remains playable for exactly three following 
   }
   await page.waitForFunction(()=>Board.__test.state().turn===5&&!Board.__test.state().busy,{},{timeout:25000});
   assert(!(await state()).units.some(u=>u.kind==='gran'&&!u.dead));
+  await openMenu();await page.locator('[data-k=spirit]').click();
+  for(const route of ['summon','enchant'])assert(!await page.locator(`[data-k=${route}][data-a=gran]`).isDisabled(),'Expiry must allow both summon and enchant again');
+  assert.equal(await page.locator('.cm-sp.fallen').count(),0);
 });
 
 test('Reduced motion keeps attack damage while suppressing battle zoom and screen shake',async()=>{
