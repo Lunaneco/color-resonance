@@ -428,7 +428,7 @@ const World = (() => {
     root.querySelectorAll('[data-quest]').forEach(b => b.onclick = e => { e.stopPropagation(); Panel.close(); go(b.dataset.quest); });
   }
   function openQuests() {
-    Panel.open('町の依頼', `<p class="wp-note">物語が進むと依頼が増えます。各依頼で難易度を選べます。</p>${questList() || '<p>まだ依頼はありません。</p>'}`);
+    Panel.open('町の依頼', `<div class="quest-board"><header class="au-banner"><small>LETTERS ALONG THE JOURNEY</small><h3>色を待つ、誰かの願い。</h3><p>旅の先で届く、小さな依頼。各戦場で難易度を選べます。</p></header>${questList() || '<p>まだ依頼はありません。</p>'}</div>`);
     bindQuests(Panel.body());
   }
 
@@ -447,7 +447,7 @@ const World = (() => {
           <span class="sh-own">${it || mat ? `${cnt}/${cap}` : owned ? (party.equip[eq.slot] === id ? '装備中' : '持っている') : ''}</span>
           <button class="sh-buy" data-id="${id}" ${dis ? 'disabled' : ''}>${x.price}<small>しずく</small></button></div>`;
       };
-      Panel.open(`${n.name}の店`, `<div class="shop"><div class="sh-gold">しずく <b>${party.gold}</b><small>戦いで手に入る「色のしずく」で買いものができます</small></div>
+      Panel.open(`${n.name}の店`, `<div class="shop"><header class="au-banner"><small>THE TRAVELLER'S MARKET</small><h3>旅を支える、小さな市。</h3><p>道具を揃え、色を磨き、次の町へ。</p></header><div class="sh-gold"><span aria-hidden="true">◈</span> しずく <b>${party.gold}</b><small>色のしずくで買いものができます</small></div>
         <div class="sh-sec">道具</div>${list.filter(id => ITEMS[id]).map(row).join('')}
         <div class="sh-sec">装備</div>${list.filter(id => EQUIP[id]).map(row).join('')}
         ${list.some(id => Progression.materials[id]) ? `<div class="sh-sec">強化素材<small>習得済みの技を磨く・各${Progression.MATERIAL_MAX}個まで</small></div>${list.filter(id => Progression.materials[id]).map(row).join('')}<button class="sf-upgrade" id="shForge">スキル強化へ</button>` : ''}
@@ -476,27 +476,37 @@ const World = (() => {
 
   // ---------- 装備 ----------
   function openEquip() {
-    const render = () => {
+    const render = (focusId) => {
+      const oldBody = Panel.body(), scroll = oldBody.querySelector('.equip') ? oldBody.scrollTop : 0;
       reload();
       const lv = party.aria.lv, gb = Board.gearBonus(party.equip), st = Board.statsFor('aria', lv, gb);
+      const comparison = (s, id) => {
+        if (party.equip[s] === id) return '<span class="eq-delta worn">✦ 装備中</span>';
+        const bonus = Board.gearBonus({ ...party.equip, [s]: id }), stats = Board.statsFor('aria', lv, bonus);
+        const changes = [['HP', stats.mhp - st.mhp], ['攻撃', stats.atk - st.atk], ['守り', stats.def - st.def], ['移動', bonus.mov - gb.mov]].filter(([, n]) => n);
+        return `<span class="eq-delta" aria-label="現在の装備からの変化">${changes.map(([name, n]) => `<span class="${n > 0 ? 'up' : 'down'}">${name} ${n > 0 ? '+' : '−'}${Math.abs(n)}</span>`).join('') || '<span>能力値は同じ · 特殊効果を変更</span>'}</span>`;
+      };
       const slot = (s) => {
         const mine = party.owned.filter(id => EQUIP[id] && EQUIP[id].slot === s);
         const cur = party.equip[s];
         return `<div class="eq-slot"><div class="eq-sh">${SLOT_NAME[s]}<span>${cur ? EQUIP[cur].name : 'なし'}</span></div>
-          <div class="eq-list">${mine.length ? mine.map(id => `<button class="eq-it ${cur === id ? 'on' : ''} ${EQUIP[id].unique ? 'uq' : ''}" data-s="${s}" data-id="${id}"><b>${EQUIP[id].name}</b><small>${EQUIP[id].desc}</small>${EQUIP[id].lore ? `<em>${EQUIP[id].lore}</em>` : ''}</button>`).join('') : '<p class="eq-none">まだ持っていない</p>'}
+          <div class="eq-list">${mine.length ? mine.map(id => `<button class="eq-it ${cur === id ? 'on' : ''} ${EQUIP[id].unique ? 'uq' : ''}" aria-pressed="${cur === id}" data-s="${s}" data-id="${id}"><b>${EQUIP[id].name}</b><small>${EQUIP[id].desc}</small>${comparison(s, id)}${EQUIP[id].lore ? `<em>${EQUIP[id].lore}</em>` : ''}</button>`).join('') : '<p class="eq-none">まだ持っていない</p>'}
           ${cur ? `<button class="eq-off" data-s="${s}">はずす</button>` : ''}</div></div>`;
       };
       const sp = Object.keys(gb).filter(k => gb[k] && !['atk', 'def', 'hp'].includes(k)).reduce((o, k) => (o[k] = gb[k], o), {});
       Panel.open('装備', `<div class="equip">
-        <div class="eq-stat"><img src="assets/img/aria.png"><div><div class="eq-name">アリア<span>LV ${lv}</span></div>
+        <header class="au-banner"><small>THE HEARTSWORD ATELIER</small><h3>心剣と、旅の装い。</h3><p>装備を選んで身につける。能力の変化を比べながら。</p></header>
+        <div class="eq-stat"><img src="assets/img/aria.png" alt="アリア"><div><div class="eq-name">アリア<span>LV ${lv}</span></div>
           <div class="eq-nums"><span>HP<b>${st.mhp}</b></span><span>攻撃<b>${st.atk}</b></span><span>守り<b>${st.def}</b></span><span>移動<b>${4 + gb.mov}</b></span></div>
           <div class="eq-sp">${fxText(sp) || '特別な力はまだない'}</div></div></div>
         ${['blade', 'cloth', 'charm'].map(slot).join('')}
         <div class="eq-items"><div class="sh-sec">道具<small>戦いの中で「道具」から使う</small></div>${Object.keys(party.items).filter(k => party.items[k] > 0).map(k => `<div><b>${ITEMS[k].name}</b> ×${party.items[k]}<small>${ITEMS[k].desc}</small></div>`).join('') || '<p class="eq-none">持っていない</p>'}</div>
       </div>`);
       const b = Panel.body();
-      b.querySelectorAll('.eq-it').forEach(x => x.onclick = () => { party.equip[x.dataset.s] = x.dataset.id; Board.saveParty(); Audio2.sfx.choose(); render(); });
-      b.querySelectorAll('.eq-off').forEach(x => x.onclick = () => { party.equip[x.dataset.s] = null; Board.saveParty(); Audio2.sfx.page(); render(); });
+      b.scrollTop = scroll;
+      if (focusId) b.querySelector(`.eq-it[data-id="${focusId}"]`)?.focus({ preventScroll: true });
+      b.querySelectorAll('.eq-it').forEach(x => x.onclick = () => { party.equip[x.dataset.s] = x.dataset.id; Board.saveParty(); Audio2.sfx.choose(); render(x.dataset.id); });
+      b.querySelectorAll('.eq-off').forEach(x => x.onclick = () => { const old = party.equip[x.dataset.s]; party.equip[x.dataset.s] = null; Board.saveParty(); Audio2.sfx.page(); render(old); });
     };
     render();
   }
@@ -507,10 +517,11 @@ const World = (() => {
     const cols = { gran: '#3fb4c9', ivy: '#5fd07a', spinel: '#ffd25e', king: '#b48cff' };
     const uniq = Object.keys(EQUIP).filter(k => EQUIP[k].unique);
     Panel.open('仲間', `<div class="pt">
+      <header class="au-banner"><small>THE COLOURS THAT WALK WITH YOU</small><h3>ともに育つ、色の絆。</h3><p>精霊との絆と、二つの習得経路を見渡す。</p></header>
       <div class="pt-row"><span class="pt-name">${GameArt.portrait('aria', 'pt-art')}<b>アリア</b></span><span>LV ${party.aria.lv}</span><span class="pt-exp"><i style="width:${party.aria.exp}%"></i></span></div>
-      <p class="wp-note">絆は共通で育ち、精霊と技の力が強くなります。技の習得は「エンチャント」「召喚」の熟練度を別々に育て、各8・20・40で3種類ずつ。覚えた技の使用は絆+2で、系統の熟練には入りません。以前覚えた技はそのまま使えます。</p>
+      <details class="pt-guide"><summary>絆と技の育て方 <span aria-hidden="true">＋</span></summary><p class="wp-note">絆は共通で育ち、精霊と技の力が強くなります。技の習得は「エンチャント」「召喚」の熟練度を別々に育て、各8・20・40で3種類ずつ。覚えた技の使用は絆+2で、系統の熟練には入りません。以前覚えた技はそのまま使えます。</p></details>
       <button class="sf-upgrade" id="ptForge">素材でスキルを強化する</button>
-      ${sp.map(id => {
+      <div class="bond-garden">${sp.map(id => {
         const r = party.spirits[id] || { lv: party.aria.lv, exp: 0, bond: 0, uses: 0 }, rank = Progression.rank(r.bond), next = Progression.thresholds[rank];
         const from = Progression.thresholds[rank - 1], percent = next ? (r.bond - from) / (next - from) * 100 : 100;
         return `<div class="bond-card" style="--c:${cols[id]}"><div class="pt-row"><span class="pt-name">${GameArt.portrait(id, 'pt-art')}<b>${names[id]}</b></span><span>LV ${r.lv}</span><span class="pt-exp"><i style="width:${r.exp}%"></i></span></div>
@@ -518,12 +529,13 @@ const World = (() => {
           <p class="wp-note">精霊：HP +${(rank - 1) * 5}%・攻撃 +${(rank - 1) * 4}%・守り +${(rank - 1) * 2}%<br>宿した心剣・攻撃技の威力 +${(rank - 1) * 3}%</p>
           ${Object.entries(Progression.routes).map(([route, info]) => {
             const points = Progression.training(party, id, route), list = Progression.skills.filter(s => s.spirit === id && s.route === route).sort((a, b) => a.at - b.at).map(s => Progression.skill(party, s.id));
-            return `<section class="bond-route" data-route="${route}"><h4>${info.name}<small>熟練 ${points} · 習得 ${Progression.learned(party, id, route).length}/3</small></h4><p>${info.desc}</p>${list.map(s => `<div class="bond-skill ${party.aria.skills.includes(s.id) ? 'known' : ''}"><b>${party.aria.skills.includes(s.id) ? '✓' : '◇'} ${s.name}</b><small>${s.type}・${party.aria.skills.includes(s.id) ? '習得済み / 共鳴' + s.cost : '熟練' + s.at + 'で習得（あと' + Math.max(0, s.at - points) + '）'}</small><span>${s.desc}</span></div>`).join('')}</section>`;
+            return `<details class="bond-route" data-route="${route}"><summary>${info.name}<small>熟練 ${points} · 習得 ${Progression.learned(party, id, route).length}/3</small><i aria-hidden="true">⌄</i></summary><p>${info.desc}</p><div class="bond-milestones">${[8,20,40].map(at => `<span class="${points >= at ? 'lit' : ''}">◇ ${at}</span>`).join('')}</div>${list.map(s => `<div class="bond-skill ${party.aria.skills.includes(s.id) ? 'known' : ''}"><b>${party.aria.skills.includes(s.id) ? '✓' : '◇'} ${s.name}</b><small>${s.type}・${party.aria.skills.includes(s.id) ? '習得済み / 共鳴' + s.cost : '熟練' + s.at + 'で習得（あと' + Math.max(0, s.at - points) + '）'}</small><span>${s.desc}</span></div>`).join('')}<button class="bond-forge" data-party-forge="${id}" data-forge-path="${route}">この枝を星の樹で磨く <span aria-hidden="true">↗</span></button></details>`;
           }).join('')}</div>`;
-      }).join('') || '<p>まだ精霊の仲間はいない</p>'}
+      }).join('') || '<p class="pt-empty">まだ精霊の仲間はいない</p>'}</div>
       <div class="sh-sec">ユニーク装備<small>${uniq.filter(k => party.owned.includes(k)).length} / ${uniq.length}</small></div>
       <div class="pt-uq">${uniq.map(k => `<span class="${party.owned.includes(k) ? 'on' : ''}">${party.owned.includes(k) ? EQUIP[k].name : '？？？'}</span>`).join('')}</div></div>`);
     Panel.body().querySelector('#ptForge').onclick = () => SkillForge.open();
+    Panel.body().querySelectorAll('[data-party-forge]').forEach(b => b.onclick = () => SkillForge.open({ spirit: b.dataset.partyForge, route: b.dataset.forgePath }));
   }
 
   // ---------- 開閉 ----------

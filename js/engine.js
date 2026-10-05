@@ -6,7 +6,7 @@ const Panel = (() => {
   const box = el.querySelector('.pn-box'), title = el.querySelector('.pn-title');
   title.id = 'panelTitle'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-labelledby', 'panelTitle'); box.tabIndex = -1;
   el.querySelector('.pn-close').setAttribute('aria-label', '閉じる');
-  const focusable = () => [...box.querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled),a[href],[tabindex="0"]')].filter(e => e.tabIndex >= 0 && e.getClientRects().length);
+  const focusable = () => [...box.querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled),summary,a[href],[tabindex="0"]')].filter(e => e.tabIndex >= 0 && e.getClientRects().length);
   el.querySelector('.pn-close').onclick = () => close();
   el.addEventListener('mousedown', e => { if (e.target === el && !el.dataset.noclose) close(); });
   function open(title, html, opt = {}) {

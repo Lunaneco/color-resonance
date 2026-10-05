@@ -32,12 +32,58 @@ async function boot(viewport = { width: 1100, height: 850 }, chapter = 'act2', s
 const saved = () => page.evaluate(() => JSON.parse(localStorage.getItem('cr_party')));
 const craftParty = () => ({ aria: { lv: 8, exp: 0, skills: ['gran_wave', 'gran_spray'] }, spirits: { gran: { bond: 40, training: { enchant: 8, summon: 8 } } }, materials: { m_dust: 40, m_teal: 24, m_core: 2 } });
 
+test('Tree navigation selects skills by keyboard without spending, and upgrade lights the correct branch once', async () => {
+  await boot(undefined, 'act2', {cr_party:craftParty()});
+  const before = await saved();
+  await page.locator('[data-forge-skill=gran_wave]').focus();await page.keyboard.press('ArrowDown');
+  assert.equal(await page.locator('[data-forge-skill=gran_current]').getAttribute('aria-pressed'),'true');
+  assert(await page.locator('.sf-lock').isVisible());assert.equal(await page.locator('[data-upgrade]').count(),0);
+  assert.deepEqual(await saved(),before,'Selecting a dormant star does not consume materials');
+  await page.keyboard.press('ArrowUp');assert.equal(await page.locator('[data-forge-skill=gran_wave]').getAttribute('aria-pressed'),'true');
+  await page.locator('.sf-bag summary').click();await page.locator('[data-upgrade=gran_wave]').click();
+  assert.equal(await page.locator('[data-forge-skill=gran_wave] .sf-node-lights .lit').count(),2);
+  assert.equal(await page.locator('.sf-growth .lit').count(),2);assert(await page.locator('.sf-bag').evaluate(e=>e.open));
+  await page.waitForFunction(()=>document.querySelector('.sf-bloom')?.naturalWidth===192);
+  assert.match(await page.locator('.sf-success').textContent(),/水鏡の矢 \+1/);
+  assert.equal((await saved()).materials.m_dust,37);
+  await page.waitForFunction(()=>!document.querySelector('.sf-bloom'));
+  await page.locator('[data-upgrade=gran_wave]').click();
+  assert.match(await page.locator('.sf-bloom').getAttribute('src'),/bloom=2/);
+});
+
+test('Reduced motion omits the animated bloom while preserving the upgrade and success feedback', async () => {
+  await boot({width:320,height:480}, 'act2', {cr_party:craftParty(),cr_settings:{reduceMotion:true,textSize:'large'}});
+  await page.locator('[data-upgrade=gran_wave]').click();
+  assert.equal(await page.locator('.sf-bloom').count(),0);assert.equal((await saved()).aria.skillLevels.gran_wave,1);
+  assert(await page.locator('.sf-success').isVisible());assert.equal(await page.locator('.sf-success').evaluate(e=>e.getAnimations().length),0);
+  const bounds=await page.locator('.sf-workshop').evaluate(e=>[e.scrollWidth,e.clientWidth]);assert(bounds[0]<=bounds[1]+1);
+  await page.locator('.sf-guide summary').focus();await page.keyboard.press('Tab');
+  assert.equal(await page.evaluate(()=>document.activeElement.className),'pn-close','Details participate in the modal focus trap');
+  await page.keyboard.press('Escape');assert.equal(await page.locator('.sf-workshop').count(),0);
+});
+
+test('Companion branches link to their own tree, and equipment previews compare actual saved stats', async () => {
+  await boot(undefined,'act2',{cr_party:{...craftParty(),owned:['e_glass','e_tide','a_rain','a_wool'],equip:{blade:'e_glass',cloth:'a_wool'}}});
+  await page.locator('.pn-close').click();await page.locator('[data-w=party]').click();
+  await page.locator('.bond-route[data-route=summon] summary').click();await page.locator('[data-party-forge=gran][data-forge-path=summon]').click();
+  assert.equal(await page.locator('[data-forge-route=summon]').getAttribute('aria-pressed'),'true');assert(await page.locator('[data-upgrade=gran_spray]').isEnabled());
+  await page.locator('.pn-close').click();await page.locator('[data-w=equip]').click();
+  assert.match(await page.locator('.eq-it[data-id=e_tide] .eq-delta').textContent(),/攻撃 \+4/);
+  assert.match(await page.locator('.eq-it[data-id=a_rain] .eq-delta').textContent(),/HP −15.*守り −4/);
+  await page.locator('.eq-it[data-id=e_tide]').click();assert.equal((await saved()).equip.blade,'e_tide');
+  assert.match(await page.locator('.eq-it[data-id=e_glass] .eq-delta').textContent(),/攻撃 −4/);
+  assert.equal(await page.locator('.eq-it[data-id=e_tide]').getAttribute('aria-pressed'),'true');
+  await page.locator('.eq-off[data-s=blade]').click();assert.equal((await saved()).equip.blade,null);
+  assert.match(await page.locator('.eq-it[data-id=e_tide] .eq-delta').textContent(),/攻撃 \+8/);
+});
+
 for (const viewport of [{width:1440,height:900},{width:390,height:844},{width:320,height:480},{width:667,height:375}]) {
   test(`The skill workshop fits ${viewport.width} × ${viewport.height} and explains locked skills and recipes`, async () => {
     await boot(viewport, 'act2', { cr_party: craftParty() });
     await page.locator('.sf-workshop').waitFor();
     await page.evaluate(async () => { await Promise.all(document.querySelector('#panel').getAnimations({subtree:true}).map(a => a.finished.catch(() => {}))); });
-    assert.equal(await page.locator('[data-forge-card]').count(), 3);
+    assert.equal(await page.locator('[data-forge-skill]').count(), 3);
+    await page.locator('[data-forge-skill=gran_current]').click();
     assert(await page.locator('[data-forge-card=gran_current] .sf-lock').isVisible());
     const bounds = await page.locator('.sf-workshop').evaluate(e => ({w:e.scrollWidth,c:e.clientWidth,doc:document.documentElement.scrollWidth,vw:innerWidth}));
     assert(bounds.w <= bounds.c + 1); assert(bounds.doc <= bounds.vw + 1);
@@ -101,7 +147,7 @@ test('Unjoined characters stay absent from the workshop, party and letters even 
   const p=craftParty();p.spirits=Object.fromEntries(['gran','ivy','spinel','king'].map(id=>[id,{lv:8,bond:40,training:{enchant:40,summon:40}}]));p.stages={gran:{cleared:true}};
   await boot({width:320,height:480},'act1',{cr_party:p});const before=await saved();
   assert.equal(await page.locator('[data-forge-spirit]').count(),0);assert.equal(await page.locator('[data-forge-card]').count(),0);assert.equal(await page.locator('.sf-art').count(),0);
-  assert.match(await page.locator('.sf-skills').textContent(),/精霊が仲間になると/);
+  assert.match(await page.locator('.sf-empty').textContent(),/精霊が仲間になると/);
   await page.locator('.sf-bag summary').click();assert(!/グラン|アイビー|スピネル|パレット王/.test(await page.locator('.sf-workshop').textContent()));
   await page.locator('.pn-close').click();await page.locator('[data-w=party]').click();assert.equal(await page.locator('.bond-card').count(),0);assert(!/グラン|アイビー|スピネル|パレット王/.test(await page.locator('.pt').textContent()));
   await page.locator('.pn-close').click();await page.locator('[data-w=journal]').click();await page.locator('[data-journal-tab=letters]').click();assert.equal(await page.locator('.jn-spirit').count(),0);assert.equal(await page.locator('.jn-letter').count(),0);
@@ -114,7 +160,7 @@ test('All companion screens reveal only joined spirits and reset a stale worksho
   for(const [chapter,expected] of stages){
     await page.evaluate(chapter=>{Panel.close();localStorage.setItem('cr_unlocked',JSON.stringify(['prologue','act1',chapter]));localStorage.removeItem('cr_save');World.open();},chapter);
     await page.locator('[data-w=forge]').click();assert.deepEqual(await page.locator('[data-forge-spirit]').evaluateAll(es=>es.map(e=>e.dataset.forgeSpirit)),expected);
-    await page.locator(`[data-forge-spirit=${expected.at(-1)}]`).click();assert.equal(await page.locator('[data-forge-card]').count(),3);
+    await page.locator(`[data-forge-spirit=${expected.at(-1)}]`).click();assert.equal(await page.locator('[data-forge-skill]').count(),3);assert.equal(await page.locator('[data-forge-card]').count(),1);
     await page.locator('.pn-close').click();await page.locator('[data-w=party]').click();assert.equal(await page.locator('.bond-card').count(),expected.length);assert.equal(await page.locator('.bond-skill').count(),expected.length*6);
     await page.locator('.pn-close').click();await page.locator('[data-w=journal]').click();await page.locator('[data-journal-tab=letters]').click();assert.equal(await page.locator('.jn-spirit').count(),expected.length);
   }
