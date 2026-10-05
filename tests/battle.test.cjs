@@ -656,7 +656,7 @@ for(const id of skillIds) {
     await page.locator('#cancelSel').click();
     await openMenu();await chooseLearned(id);
     await clickUnit(skill.target==='ally'?aria(await state()):enemy(await state()),true);
-    await drew(await page.evaluate(id=>GameArt.spiritEffects[id],skill.spirit),3);
+    await drewFx(await page.evaluate(id=>GameArt.spiritEffects[id],skill.spirit));
     await page.waitForFunction(()=>Board.__test.state().skillUses===1&&!Board.__test.state().busy);
     const s=await state(),a=aria(s),e=enemy(s);
     assert.equal(s.sp,12-skill.cost+(skill.power?1:0));assert.equal(s.spiritUses,1);
@@ -691,6 +691,9 @@ async function recordArt() {
   });
 }
 const drew=(id,cel,canvas='boardCanvas')=>page.waitForFunction(({id,cel,canvas})=>window.artCels.includes(`${canvas}:${id}:${cel}`),{id,cel,canvas},{timeout:5000});
+// Observe multiple actual effect cels instead of assuming that one brief cel
+// coincides with a rendered frame. Skill effects and costs are checked below.
+const drewFx=(id,canvas='boardCanvas')=>page.waitForFunction(({id,canvas})=>window.artCels.filter(key=>key.startsWith(`${canvas}:${id}:`)).length>=2,{id,canvas},{timeout:5000});
 
 test('All enemy types use their generated art and load only the current battle’s characters',async()=>{
   await boot('king');await recordArt();
@@ -705,7 +708,7 @@ test('Walking, attacking, taking damage and the slash effect play on the game ca
   const cell=await legalCell();assert(cell);await page.mouse.click(cell.x,cell.y);
   await drew('aria',2);await drew('aria',3);await idle();
   await page.evaluate(()=>Board.__test.arrange([{kind:'aria',r:5,c:4,atk:18,moved:false},{kind:'shade',r:4,c:4,hp:500,mhp:500}]));
-  await attack();await drew('aria',4);await drew('aria',5);await drew('shade',6);await drew('crystal_slash',3);
+  await attack();await drew('aria',4);await drew('aria',5);await drew('shade',6);await drewFx('crystal_slash');
   await page.waitForFunction(()=>Board.__test.state().mode==='idle');
   assert(enemy(await state()).hp<500);
   await page.waitForTimeout(1800);assert.deepEqual((await state()).artEffects,[],'One-shot effects must finish');
@@ -716,10 +719,7 @@ test('Each spirit has an animated enchant cut-in and no effect survives leaving 
   for(const id of ['gran','ivy','spinel','king']){
     await fixture('king',{spStart:12,spirits:['gran','ivy','spinel','king']});await openMenu();await page.locator('[data-k=spirit]').click();await page.locator(`[data-k=enchant][data-a=${id}]`).click();
     await page.locator('#cutin canvas').waitFor();await drew('aria',7,'aria');
-    const fx=await page.evaluate(id=>GameArt.spiritEffects[id],id);
-    // Verify motion on the cut-in canvas without requiring a single 69 ms cel
-    // to coincide with a render frame on a busy CI runner.
-    await page.waitForFunction(fx => window.artCels.filter(key => key.startsWith(`aria:${fx}:`)).length >= 2, fx, {timeout:5000});
+    const fx=await page.evaluate(id=>GameArt.spiritEffects[id],id);await drewFx(fx,'aria');
     await idle();assert.equal(aria(await state()).enchant.id,id);
     await page.evaluate(()=>window.artCels=[]);
   }
