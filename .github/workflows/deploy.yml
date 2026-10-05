@@ -39,7 +39,8 @@ jobs:
       - name: Install test browsers
         run: npx playwright install --with-deps chromium webkit
       - name: Test game, story, saves and interfaces
-        run: npm test
+        # Suites use separate browser contexts and ephemeral server ports.
+        run: node --test --test-concurrency=2 tests/*.test.cjs
       - name: Prepare game files
         run: |
           mkdir _site

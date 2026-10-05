@@ -112,6 +112,15 @@ test('Reducing motion, resizing or replacing the panel cancels a cascade and res
   await resume(C.createCrystal('hard', 4)); await page.locator('[data-rainbow]').click(); await page.locator('[data-gem="12"]').click();
   const third = await saved(); await page.evaluate(() => Panel.open('別の画面', '<p>旅へ戻る</p>')); await page.waitForTimeout(2100); assert.deepEqual(await saved(), third); assert.equal(await moving(), 0);
 });
+test('A keyboard cascade keeps focus in the dialog and Enter skips back to the board without spending another move', async () => {
+  await boot(); const s = C.createCrystal('hard', 4), move = C.crystalMoves(s.board)[0]; await resume(s);
+  await page.locator(`[data-gem="${move.a}"]`).focus(); await page.keyboard.press('Enter');
+  await page.locator(`[data-gem="${move.b}"]`).focus(); await page.keyboard.press('Enter');
+  assert(await page.locator('[data-crystal-hint]').evaluate(e => e === document.activeElement));
+  const snapshot = await saved(); await page.keyboard.press('Enter');
+  assert.equal(await page.locator('.mg-motion-layer').count(), 0); assert.equal(await page.evaluate(() => document.activeElement.dataset.gem), String(move.b));
+  assert.deepEqual(await saved(), snapshot);
+});
 test('Lantern light travels only through the pressed cross, and another press remains responsive', async () => {
   await boot(); const initial = 65535 ^ 19, s = { id: 'lantern', difficulty: 'hard', initial, board: initial, moves: 0, hints: 0, history: [] };
   await resume(s); await page.locator('[data-lamp="5"]').click(); assert.equal(await page.locator('.mg-motion-link').count(), 4); assert(await moving() > 0);

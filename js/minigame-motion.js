@@ -20,7 +20,7 @@ const MinigameMotion = (() => {
     blocked.forEach((wasDisabled, button) => { button.disabled = wasDisabled; }); blocked.clear();
     if (active) active.removeAttribute('aria-busy');
     if (skipButton?.isConnected) skipButton.textContent = skipText;
-    if (boardFocus?.isConnected && document.activeElement === document.body) boardFocus.focus({ preventScroll: true });
+    if (boardFocus?.isConnected && (document.activeElement === document.body || document.activeElement === skipButton)) boardFocus.focus({ preventScroll: true });
     skipButton = boardFocus = null; skipText = '';
   }
   function lock(host) {
@@ -29,6 +29,7 @@ const MinigameMotion = (() => {
     host.querySelectorAll('[data-gem]').forEach(button => { blocked.set(button, button.disabled); button.disabled = true; });
     skipButton = Panel.body().querySelector('[data-crystal-hint]');
     skipText = skipButton.textContent; skipButton.textContent = '連鎖演出を早送り';
+    if (boardFocus) skipButton.focus({ preventScroll: true });
   }
   function later(fn, delay) {
     const token = epoch;
