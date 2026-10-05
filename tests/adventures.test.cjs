@@ -12,10 +12,10 @@ before(async()=>{
 });
 afterEach(async()=>{if(context)await context.close();context=null;assert.deepEqual(errors||[],[],'adventures must not have runtime errors or missing assets');});
 after(async()=>{if(browser)await browser.close();if(server)await new Promise(r=>server.close(r));});
-async function boot(viewport={width:1200,height:900},active=null,settings=null,chapter='act2'){
+async function boot(viewport={width:1200,height:900},active=null,settings=null,chapter='act4'){
   errors=[];context=await browser.newContext({viewport,hasTouch:viewport.width<900});
   await context.addInitScript(({active,settings,chapter})=>{
-    if(!localStorage.getItem('cr_unlocked'))localStorage.setItem('cr_unlocked',JSON.stringify(['prologue','act1',...(chapter==='act2'?['act2']:[])]));
+    if(!localStorage.getItem('cr_unlocked'))localStorage.setItem('cr_unlocked',JSON.stringify(['prologue','act1','act2','act3','act4'].slice(0,['prologue','act1','act2','act3','act4'].indexOf(chapter)+1)));
     if(active&&!localStorage.getItem('cr_party'))localStorage.setItem('cr_party',JSON.stringify({aria:{lv:1,exp:0},minigames:{active}}));
     if(settings)localStorage.setItem('cr_settings',JSON.stringify(settings));
   },{active,settings,chapter});

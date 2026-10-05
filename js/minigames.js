@@ -5,14 +5,14 @@ const Minigames = (() => {
   const games = {
     voyage: { title: '星潮の航路', label: '先読み × 宝探し', need: 'act1', icon: '⛵', hue: '#91e7db',
       desc: '三つの海域を渡る小さな冒険。岩礁を避け、星の宝を連続で集めよう。風を使った疾走と、寄港地での選択が航海を変える。', story: '拾った星が帆に宿り、夜の海に一本の航路が生まれた。港で待つ人にも、同じ光が見えている。', ending: '星を積んで、港へ。', gems: ['m_teal', 'm_green'] },
-    crystal: { title: '結晶の連鎖', label: '連鎖 × フィーバー', need: 'act2', icon: '❖', hue: '#edc49f',
-      desc: '結晶を入れ替えて3つそろえると、次の連鎖へ。4つ以上で爆発する星結晶が生まれる。フィーバーと虹の一閃で、大逆転を狙おう。', story: '砕けた結晶は消えなかった。幾つもの色が重なると、眠っていた硝子庭園がもう一度、花を咲かせた。', ending: '眠る庭園に、彩りを。', gems: ['m_gold', 'm_violet'] },
-    lantern: { title: '灯台の色つなぎ', label: '色のパズル', need: 'act1', icon: '◈', hue: '#8be8ef',
+    lantern: { title: '灯台の色つなぎ', label: '色のパズル', need: 'act2', icon: '◈', hue: '#8be8ef',
       desc: '消えた灯りを、ひとつずつ結び直す。隣の灯りも変わる硝子盤で、港の灯台をともそう。',
       sizes: { gentle: [2, 3], normal: [3, 3], hard: [4, 4] }, story: '港に、帰る船の灯りがひとつ増えた。「待っている」という色は、雨の中でも消えない。', ending: '帰る船に、灯りを。', gems: ['m_teal', 'm_gold'] },
-    echo: { title: '精霊のこだま', label: '色と音の記憶', need: 'act2', icon: '✧', hue: '#c2a6ff',
+    echo: { title: '精霊のこだま', label: '色と音の記憶', need: 'act3', icon: '✧', hue: '#c2a6ff',
       desc: '潮、芽、金、虹。四つの響きを覚えて返すと、小さな夜空に星がひらく。音を消しても遊べます。',
       lengths: { gentle: 3, normal: 5, hard: 7 }, story: '時計ばかりが鳴っていた街に、違う音が帰ってきた。ひとりの旋律が、誰かの返事を待っている。', ending: '響きに、返事を。', gems: ['m_green', 'm_violet'] },
+    crystal: { title: '結晶の連鎖', label: '連鎖 × フィーバー', need: 'act4', icon: '❖', hue: '#edc49f',
+      desc: '結晶を入れ替えて3つそろえると、次の連鎖へ。4つ以上で爆発する星結晶が生まれる。フィーバーと虹の一閃で、大逆転を狙おう。', story: '砕けた結晶は消えなかった。幾つもの色が重なると、眠っていた硝子庭園がもう一度、花を咲かせた。', ending: '眠る庭園に、彩りを。', gems: ['m_gold', 'm_violet'] },
   };
   const pads = [{ name: '潮', symbol: '≈', art: 'tide', color: '#8ae0ef' }, { name: '芽', symbol: '❧', art: 'leaf', color: '#a4e9b6' }, { name: '金', symbol: '◇', art: 'gold', color: '#ffe099' }, { name: '虹', symbol: '✧', art: 'prism', color: '#d1b3ff' }];
   const prop = name => `<img class="mg-prop" src="assets/minigames/${name}.webp" width="128" height="128" alt="" aria-hidden="true" decoding="async">`;
@@ -103,14 +103,14 @@ const Minigames = (() => {
     const total = Object.values(party.minigames.records).flatMap(r => Object.values(r)).reduce((n, r) => n + r.clears, 0);
     const allThree = id => tiers.every(tier => party.minigames.records[id][tier]?.clears);
     Panel.open('色と音の休憩所', shell(`
-      <div class="mg-hero"><span class="mg-eyebrow">SMALL ADVENTURES, BRIGHT DISCOVERIES</span><h3>もう一つの冒険へ。</h3><p>星を積んで航海へ。連鎖で、眠る庭園に彩りを。<br>時間制限はありません。途中で閉じても続きから遊べます。</p><span class="mg-total">完成した遊び <b>${total}</b> 回</span><div class="mg-prize-intro">✦ 各遊びのハード初回クリアで <b>澄明の核 ×2</b><small>評価Cでも受け取れます。初Sの核×1は別の報酬。</small></div></div>
+      <div class="mg-hero"><span class="mg-eyebrow">SMALL ADVENTURES, BRIGHT DISCOVERIES</span><h3>もう一つの冒険へ。</h3><p>第一幕から第四幕まで、章の解放ごとに新しい遊びがひとつ増えます。<br>時間制限はありません。途中で閉じても続きから遊べます。</p><span class="mg-total">完成した遊び <b>${total}</b> 回</span><div class="mg-prize-intro">✦ 各遊びのハード初回クリアで <b>澄明の核 ×2</b><small>評価Cでも受け取れます。初Sの核×1は別の報酬。</small></div></div>
       ${active && available(active.id) ? `<button class="mg-resume" data-resume><span>途中から続ける</span><b>${games[active.id].title} / ${names[active.difficulty]}</b></button>` : ''}
       <div class="mg-catalog">${Object.entries(games).map(([id, game]) => {
-        const unlocked = available(id), preferred = party.minigames.preferred[id];
-        return `<article class="mg-card" style="--mg-color:${game.hue}" data-game="${id}">${cover(id)}<div class="mg-card-top"><span class="mg-emblem" aria-hidden="true">${prop({ voyage: 'ship', crystal: 'nova', lantern: 'lantern-on', echo: 'prism' }[id])}</span><div><small>${game.label}</small><h4>${game.title}</h4></div>${allThree(id) ? '<span class="mg-seal">三つの灯り ✦</span>' : ''}</div><p>${game.desc}</p>
+        const unlocked = available(id), preferred = party.minigames.preferred[id], chapter = CHAPTERS.find(ch => ch.key === game.need).act;
+        return `<article class="mg-card" style="--mg-color:${game.hue}" data-game="${id}">${cover(id)}<div class="mg-card-top"><span class="mg-emblem" aria-hidden="true">${prop({ voyage: 'ship', crystal: 'nova', lantern: 'lantern-on', echo: 'prism' }[id])}</span><div><small>${game.label}</small><h4>${game.title}</h4></div>${allThree(id) ? '<span class="mg-seal">三つの灯り ✦</span>' : ''}</div><span class="mg-chapter ${unlocked ? 'is-unlocked' : ''}">${unlocked ? '✦' : '◇'} ${chapter} · ${unlocked ? '解放済み' : '解放で追加'}</span><p>${game.desc}</p>
           <div class="mg-difficulties" role="group" aria-label="${game.title}の難易度">${tiers.map(tier => { const r = party.minigames.records[id][tier]; return `<button data-tier="${tier}" aria-pressed="${tier === preferred}" ${unlocked ? '' : 'disabled'}><b>${names[tier]}</b><small>${r?.clears ? `最高 ${grade(r.best)} / ${r.best}点` : '未完成'}</small></button>`; }).join('')}</div>
           <div class="mg-hard-prize ${party.minigames.records[id].hard?.hardCoreClaimed === 2 ? 'claimed' : ''}"><span>✧ ハード初回の宝</span><b>澄明の核 ×${2 - (party.minigames.records[id].hard?.hardCoreClaimed || 0) || 2}</b><small>${party.minigames.records[id].hard?.hardCoreClaimed === 2 ? '受取済み' : '未受取 · 評価を問わず獲得'}</small></div>
-          <div class="mg-card-actions"><button class="mg-primary" data-start ${unlocked ? '' : 'disabled'}>新しく遊ぶ</button><button class="mg-secondary" data-practice ${unlocked ? '' : 'disabled'}>練習する</button></div>${!unlocked ? `<p class="mg-note">${game.need === 'act1' ? '港へ旅立つと' : '第一幕を終えると'}遊べるようになります。</p>` : `<p class="mg-note">${game.gems.map(id => Progression.materials[id].name).join('・')}と共鳴の砂を、評価C・B・A・Sごとに1回。初Sで核×1を追加。${names[preferred]}のしずく上限 ${rewards[preferred][3]}。</p>`}
+          <div class="mg-card-actions"><button class="mg-primary" data-start ${unlocked ? '' : 'disabled'}>新しく遊ぶ</button><button class="mg-secondary" data-practice ${unlocked ? '' : 'disabled'}>練習する</button></div>${!unlocked ? `<p class="mg-note">${chapter}の解放で遊べるようになります。</p>` : `<p class="mg-note">${game.gems.map(id => Progression.materials[id].name).join('・')}と共鳴の砂を、評価C・B・A・Sごとに1回。初Sで核×1を追加。${names[preferred]}のしずく上限 ${rewards[preferred][3]}。</p>`}
           ${allThree(id) ? `<p class="mg-afterword">${game.story}</p>` : ''}</article>`;
       }).join('')}</div><p class="mg-footnote">練習は記録・報酬に含みません。新しく始めると、途中の記録は置き換わります。獲得した成績は残ります。</p>`), { onClose: () => { stopPulse(); session = null; } });
     const body = Panel.body();
@@ -118,6 +118,7 @@ const Minigames = (() => {
     body.querySelectorAll('[data-game]').forEach(card => {
       const id = card.dataset.game;
       card.querySelectorAll('[data-tier]').forEach(button => button.onclick = () => {
+        if (!available(id)) return;
         const p = load(); p.minigames.preferred[id] = button.dataset.tier; write(p); open(town);
       });
       card.querySelector('[data-start]').onclick = () => start(id, load().minigames.preferred[id]);

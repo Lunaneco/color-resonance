@@ -25,7 +25,7 @@ after(async () => { if (server) await new Promise(resolve => server.close(resolv
 async function boot(viewport = { width: 1440, height: 900 }, engine = chromium) {
   errors = []; browser = await engine.launch({ headless: true });
   context = await browser.newContext({ viewport, hasTouch: viewport.width < 900 });
-  await context.addInitScript(() => localStorage.setItem('cr_unlocked', JSON.stringify(['prologue', 'act1', 'act2'])));
+  await context.addInitScript(() => localStorage.setItem('cr_unlocked', JSON.stringify(['prologue', 'act1', 'act2', 'act3', 'act4'])));
   page = await context.newPage(); page.on('pageerror', e => errors.push(e.message));
   page.on('response', r => { if (r.url().startsWith(base) && r.status() >= 400) errors.push(r.status() + ' ' + r.url()); });
   await page.route('https://fonts.googleapis.com/**', r => r.fulfill({ contentType: 'text/css', body: '' }));

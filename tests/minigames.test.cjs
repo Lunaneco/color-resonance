@@ -54,9 +54,9 @@ before(async () => {
 });
 afterEach(async () => { if (context) await context.close(); context = null; assert.deepEqual(errors || [], [], 'Leisure must not have runtime errors or missing game files'); });
 after(async () => { if (browser) await browser.close(); if (server) await new Promise(resolve => server.close(resolve)); });
-async function boot(viewport = { width: 1100, height: 850 }, chapter = 'act2', storage = {}) {
+async function boot(viewport = { width: 1100, height: 850 }, chapter = 'act4', storage = {}) {
   errors = []; context = await browser.newContext({ viewport, hasTouch: viewport.width < 900 });
-  await context.addInitScript(({ chapter, storage }) => { localStorage.setItem('cr_unlocked', JSON.stringify(['prologue', 'act1', ...(chapter === 'act1' ? [] : ['act2'])])); for (const [key, value] of Object.entries(storage)) localStorage.setItem(key, JSON.stringify(value)); }, { chapter, storage });
+  await context.addInitScript(({ chapter, storage }) => { localStorage.setItem('cr_unlocked', JSON.stringify(['prologue', 'act1', 'act2', 'act3', 'act4'].slice(0, ['prologue', 'act1', 'act2', 'act3', 'act4'].indexOf(chapter) + 1))); for (const [key, value] of Object.entries(storage)) localStorage.setItem(key, JSON.stringify(value)); }, { chapter, storage });
   page = await context.newPage(); page.on('pageerror', error => errors.push(error.message));
   page.on('response', response => { if (response.url().startsWith(base) && response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
   await page.route('https://fonts.googleapis.com/**', route => route.fulfill({ contentType: 'text/css', body: '' }));
@@ -78,9 +78,62 @@ async function solveVisible() {
 
 test('Town workshops unlock with the story and the town panel offers a clear entrance', async () => {
   await boot(undefined, 'act1');
-  assert(await page.locator('[data-game="lantern"] [data-start]').isEnabled()); assert(await page.locator('[data-game="echo"] [data-start]').isDisabled());
+  assert(await page.locator('[data-game="voyage"] [data-start]').isEnabled()); assert(await page.locator('[data-game="lantern"] [data-start]').isDisabled());
   await page.locator('.pn-close').click(); assert(await page.locator('#wmPanel [data-a="games"]').isVisible());
   await page.locator('#wmPanel [data-a="games"]').click(); assert(await page.locator('.mg-catalog').isVisible());
+});
+
+test('Original chapter endings unlock one new game at a time, including practice and every difficulty', async () => {
+  await boot(undefined, 'act1');
+  await page.evaluate(() => { localStorage.setItem('cr_unlocked', '["prologue"]'); Minigames.open(); });
+  assert.equal(await page.locator('[data-start]:enabled, [data-practice]:enabled, [data-tier]:enabled').count(), 0);
+  const ids = ['voyage', 'lantern', 'echo', 'crystal'], chapters = ['第一幕', '第二幕', '第三幕', '第四幕'];
+  assert.deepEqual(await page.locator('[data-game]').evaluateAll(cards => cards.map(c => c.dataset.game)), ids);
+  for (const [step, key] of ['prologue', 'act1', 'act2', 'act3'].entries()) {
+    await page.evaluate(key => {
+      Panel.close(); document.documentElement.dataset.motion = 'reduced';
+      const lines = SCRIPT[key].split('\n').map(s => s.trim()).filter(s => s && !s.startsWith('#'));
+      Engine.play(key, lines.findIndex(s => s.startsWith('@next ')));
+    }, key);
+    await page.waitForFunction(next => Engine.load()?.map && Engine.load().chapter === next, 'act' + (step + 1));
+    await page.locator('[data-w="games"]').click();
+    assert.equal(await page.locator('[data-start]:enabled').count(), step + 1);
+    assert.equal(await page.locator('[data-practice]:enabled').count(), step + 1);
+    assert.equal(await page.locator('[data-tier]:enabled').count(), (step + 1) * 3);
+    for (const [i, id] of ids.entries()) {
+      const card = page.locator(`[data-game="${id}"]`);
+      assert.equal(await card.locator('[data-start]').isEnabled(), i <= step);
+      assert.match(await card.locator('.mg-chapter').textContent(), new RegExp(chapters[i]));
+      if (i > step) assert.equal(await card.locator('.mg-note').textContent(), chapters[i] + 'の解放で遊べるようになります。');
+    }
+  }
+  await page.evaluate(() => { Panel.close(); Engine.play('act1'); Minigames.open(); });
+  assert.equal(await page.evaluate(() => Engine.chapter), 'act1');
+  assert.equal(await page.locator('[data-start]:enabled').count(), 4, 'replaying an earlier chapter keeps unlocked games available');
+});
+
+test('Locked games preserve existing rewards and partial play, then resume when their chapter unlocks', async () => {
+  const party = P.migrate({ aria: { lv: 3, exp: 0 }, gold: 500 });
+  M.record(party, 'lantern', 'hard', 100, 7);
+  const active = M.createLantern('hard', seeded(11));
+  active.history.push(active.board); active.board ^= M.crossMask(4, 4, 5); active.moves++;
+  party.minigames.active = active; party.minigames.preferred.lantern = 'hard';
+  await boot(undefined, 'act1', { cr_party: clone(party) });
+  const before = await saved();
+  assert.equal(await page.locator('[data-resume]').count(), 0);
+  assert.match(await page.locator('[data-game="lantern"] .mg-hard-prize').textContent(), /受取済み/);
+  await page.evaluate(() => {
+    const card = document.querySelector('[data-game="lantern"]');
+    for (const selector of ['[data-start]', '[data-practice]', '[data-tier="normal"]']) card.querySelector(selector).onclick();
+  });
+  assert.equal(await page.locator('.mg-play').count(), 0);
+  assert.deepEqual(await saved(), before, 'locked start, practice and tier actions cannot alter the save');
+  await page.evaluate(() => { localStorage.setItem('cr_unlocked', '["prologue","act1","act2"]'); Minigames.open(); });
+  await page.locator('[data-resume]').click();
+  assert.deepEqual((await saved()).minigames.active, before.minigames.active);
+  assert.deepEqual((await saved()).minigames.records, before.minigames.records);
+  assert.deepEqual((await saved()).materials, before.materials);
+  assert.equal((await saved()).gold, before.gold);
 });
 
 for (const viewport of [{ width: 320, height: 480 }, { width: 390, height: 844 }, { width: 667, height: 375 }]) {
