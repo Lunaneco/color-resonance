@@ -1,0 +1,10 @@
+/* 一枚絵は人物の表情を残して配置。縦画面ではリラと両手へ寄る。 */
+.event-cg{inset:0;background:#030610;overflow:hidden;isolation:isolate}
+.event-cg::before{content:"";position:absolute;inset:-3%;background:var(--event-image) center/cover no-repeat;filter:blur(18px) brightness(.3)}
+.event-cg img{position:relative;width:100%;height:100%;object-fit:contain;object-position:center;display:block}
+@media(max-width:600px) and (orientation:portrait){
+  .event-cg img{height:calc(100% - 160px);object-fit:cover;object-position:68% 38%}
+  html[data-text-size="large"] .event-cg img{height:calc(100% - 200px)}
+}
+@media(prefers-reduced-motion:reduce){.event-cg{transition:none}}
+html[data-motion="reduced"] .event-cg{transition:none}

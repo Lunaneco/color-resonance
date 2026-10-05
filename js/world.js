@@ -148,7 +148,15 @@ const World = (() => {
   const nodesEl = document.getElementById('wmNodes');
   const ariaEl = document.getElementById('wmAria');
   const panel = document.getElementById('wmPanel');
-  let party = null, current = null, isOpen = false, moving = false;
+  let party = null, current = null, isOpen = false, moving = false, visit = 0, arrivalTimer = null;
+  function reload(readSave = false) {
+    party = readSave ? Board.reloadParty() : Board.party;
+    // Unknown/removed equipment is harmless in battle but must not break the wardrobe UI.
+    party.owned = party.owned.filter(id => EQUIP[id]);
+    for (const slot of ['blade', 'cloth', 'charm']) if (EQUIP[party.equip[slot]]?.slot !== slot) party.equip[slot] = null;
+    Board.saveParty();
+    return party;
+  }
 
   const unlocked = () => Engine.unlocked();
   const has = (k) => !k || unlocked().includes(k);
@@ -174,7 +182,7 @@ const World = (() => {
   function storyHere(n) { const s = nextChapter(); return s && n.chapter && n.chapter === s.chapter ? s : null; }
   // 精霊になった仲間（物語の進み具合で決まる）
   function spiritsNow() { const at = { gran: 'act2', ivy: 'act4', spinel: 'act5', king: 'finale' }; return Object.keys(at).filter(id => has(at[id]) || (party.stages[id] && party.stages[id].cleared)); }
-  const replayable = (n, rec) => !!(rec || n.type === 'free' || (n.type === 'quest' && bondReady(SIDE_QUESTS[n.quest])) || (n.clearedBy && has(n.clearedBy)));
+  const replayable = (n, rec) => !!(rec?.cleared || n.type === 'free' || (n.type === 'quest' && bondReady(SIDE_QUESTS[n.quest])) || (n.clearedBy && has(n.clearedBy)));
   function stageConf(n) {
     if (n.board) {
       const c = JSON.parse(JSON.stringify(BOARDS[n.board]));
@@ -268,8 +276,11 @@ const World = (() => {
 
   // ---------- 移動と案内 ----------
   async function go(id) {
-    if (moving) return;
+    if (moving || !isOpen) return;
     const n = node(id);
+    if (!n || !visible(n)) return;
+    reload();
+    const token = ++visit;
     Audio2.sfx.choose();
     if (current !== id) {
       moving = true;
@@ -278,6 +289,7 @@ const World = (() => {
       current = id; party.pos = id; Board.saveParty();
       await new Promise(r => setTimeout(r, 720));
       moving = false;
+      if (!isOpen || token !== visit) return;
       drawNodes();
     }
     showPanel(n);
@@ -296,6 +308,7 @@ const World = (() => {
     })[m.type] || '';
   }
   function showPanel(n) {
+    reload();
     const changed = panel.dataset.node !== n.id;
     panel.dataset.node = n.id;
     const story = storyHere(n);
@@ -336,7 +349,12 @@ const World = (() => {
     } else if (n.type === 'stage' && !story) {
       body += '<p class="wp-note">物語が進むと、ここで戦えるようになる。</p>';
     }
-    if (n.type === 'town') { acts.push(`<button class="wb main" data-a="shop">店に入る</button>`); }
+    if (n.type === 'town') {
+      acts.push(`<button class="wb main" data-a="shop">店に入る</button>`);
+      acts.push(`<button class="wb" data-a="games">色と音の休憩所</button>`);
+      const townNote = { aquamist: '港の硝子盤に灯りを戻す、灯台守の小さな遊び。', grey: '時計の音のあいだに、精霊のこだまが帰ってきた。', stone: '金継ぎの硝子盤と、谷に響く四つの音。', rainbow: '祭りのあとも、色と音は広場で遊んでいる。' }[n.id];
+      body += `<div class="wp-sec">町の余白<small>戦わずに遊べる</small></div><p class="wp-note">${townNote} 制限時間のないパズルと記憶あそびで、ひと休みできます。</p>`;
+    }
     if (n.type === 'town' && questsAt(n.id).length) body += `<div class="wp-sec">町の依頼<small>${questsAt(n.id).length}件</small></div>${questList(n.id)}`;
     acts.push(`<button class="wb" data-a="equip">装備</button>`);
     panel.innerHTML = body + `<div class="wp-acts">${acts.join('')}</div>`;
@@ -344,7 +362,7 @@ const World = (() => {
     if (changed) panel.scrollTop = 0;
     bindQuests(panel);
     panel.querySelectorAll('[data-diff]').forEach(b => b.onclick = e => {
-      e.stopPropagation(); party.stageDifficulty[sid] = b.dataset.diff; Board.saveParty();
+      e.stopPropagation(); reload(); party.stageDifficulty[sid] = b.dataset.diff; Board.saveParty();
       Audio2.sfx.choose(); drawNodes(); showPanel(n);
     });
     panel.querySelectorAll('[data-a]').forEach(b => b.onclick = (e) => {
@@ -353,6 +371,7 @@ const World = (() => {
       if (a === 'story') playStory(story);
       else if (a === 'sortie') sortie(n);
       else if (a === 'shop') openShop(n);
+      else if (a === 'games') Minigames.open(n.id);
       else if (a === 'equip') openEquip();
     });
   }
@@ -363,7 +382,8 @@ const World = (() => {
     if (s.map) Engine.play(s.chapter); else Engine.cont();
   }
   function sortie(n) {
-    if (n.quest && !bondReady(SIDE_QUESTS[n.quest])) return;
+    const original = confOf(n);
+    if (!original || !visible(n) || !replayable(n, stageRec(original.id))) return;
     const conf = stageConf(n);
     const th = n.theme || conf.theme || { bg: 'teal', preset: 'dim', fx: 'none', bgm: 'forest' };
     close();
@@ -392,6 +412,7 @@ const World = (() => {
   // ---------- 店 ----------
   function openShop(n) {
     const render = () => {
+      reload();
       const list = SHOPS[n.shop] || [];
       const row = (id) => {
         const it = ITEMS[id], eq = EQUIP[id], x = it || eq;
@@ -414,8 +435,9 @@ const World = (() => {
     render();
   }
   function buy(id, rerender) {
+    reload();
     const it = ITEMS[id], eq = EQUIP[id], x = it || eq;
-    if (party.gold < x.price) return;
+    if (!x || !Number.isFinite(x.price) || party.gold < x.price) return;
     if (it) { if ((party.items[id] || 0) >= ITEM_MAX) return; party.items[id] = (party.items[id] || 0) + 1; }
     else { if (party.owned.includes(id)) return; party.owned.push(id); }
     party.gold -= x.price;
@@ -429,6 +451,7 @@ const World = (() => {
   // ---------- 装備 ----------
   function openEquip() {
     const render = () => {
+      reload();
       const lv = party.aria.lv, gb = Board.gearBonus(party.equip), st = Board.statsFor('aria', lv, gb);
       const slot = (s) => {
         const mine = party.owned.filter(id => EQUIP[id] && EQUIP[id].slot === s);
@@ -452,6 +475,7 @@ const World = (() => {
     render();
   }
   function openParty() {
+    reload();
     const sp = ['gran', 'ivy', 'spinel', 'king'].filter(id => party.spirits[id] || spiritsNow().includes(id));
     const names = { gran: 'グラン', ivy: 'アイビー', spinel: 'スピネル', king: 'パレット王' };
     const cols = { gran: '#3fb4c9', ivy: '#5fd07a', spinel: '#ffd25e', king: '#b48cff' };
@@ -473,7 +497,8 @@ const World = (() => {
 
   // ---------- 開閉 ----------
   function open(opt = {}) {
-    party = Board.reloadParty();
+    reload(true);
+    clearTimeout(arrivalTimer); visit++; moving = false;
     Board.stop();
     document.getElementById('title').style.display = 'none';
     document.getElementById('textbox').classList.add('hidden');
@@ -489,18 +514,21 @@ const World = (() => {
     panel.dataset.node = '';
     panel.classList.add('hidden');
     const target = arrive || (s && s.map ? CHAPTER_NODE[s.chapter] : null);
-    if (target && node(target) && visible(node(target))) setTimeout(() => go(target), 450);
+    const token = visit;
+    if (target && node(target) && visible(node(target))) arrivalTimer = setTimeout(() => { if (isOpen && token === visit) go(target); }, 450);
     else showPanel(node(current));
   }
-  function close() { el.classList.add('hidden'); isOpen = false; panel.classList.add('hidden'); }
+  function close() { clearTimeout(arrivalTimer); visit++; moving = false; Minigames.close(); el.classList.add('hidden'); isOpen = false; panel.classList.add('hidden'); }
   el.querySelectorAll('[data-w]').forEach(b => b.addEventListener('click', e => {
     e.stopPropagation(); Audio2.sfx.choose();
     const w = b.dataset.w;
     if (w === 'equip') openEquip();
+    else if (w === 'games') Minigames.open(current);
+    else if (w === 'journal') Journal.open();
     else if (w === 'quests') openQuests();
     else if (w === 'party') openParty();
     else if (w === 'title') { close(); Main.toTitle(); }
   }));
   el.addEventListener('click', e => { if (e.target === el || e.target === mapEl || e.target.closest('svg')) panel.classList.add('hidden'); });
-  return { open, close, get isOpen() { return isOpen; }, refresh() { if (isOpen) { updateTop(); drawNodes(); } } };
+  return { open, close, get isOpen() { return isOpen; }, refresh() { if (isOpen) { reload(); updateTop(); drawNodes(); } } };
 })();

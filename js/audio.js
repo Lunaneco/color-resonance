@@ -2,9 +2,9 @@
 const Audio2 = (() => {
   const TRACKS = { haruka: 'assets/audio/haruka.mp3', forest: 'assets/audio/forest.mp3', fate: 'assets/audio/fate.mp3' };
   let ctx = null, master = null, sfxGain = null, rainNode = null, rainGain = null;
-  let bgm = null, bgmKey = null;
+  let bgm = null, bgmKey = null, rainLevel = 0;
   const vol = { bgm: 0.55, sfx: 0.7 };
-  try { const s = JSON.parse(localStorage.getItem('cr_vol') || 'null'); if (s) Object.assign(vol, s); } catch (e) {}
+  try { const s = JSON.parse(localStorage.getItem('cr_vol') || 'null'); if (s) for (const k of ['bgm', 'sfx']) if (typeof s[k] === 'number' && Number.isFinite(s[k])) vol[k] = Math.max(0, Math.min(1, s[k])); } catch (e) {}
 
   function init() {
     if (ctx) return;
@@ -50,9 +50,11 @@ const Audio2 = (() => {
   }
   function duck(on) { if (bgm) fadeTo(bgm, on ? vol.bgm * 0.35 : vol.bgm, 800); }
   function setVol(kind, v) {
+    if (!['bgm', 'sfx'].includes(kind) || !Number.isFinite(+v)) return;
+    v = Math.max(0, Math.min(1, +v));
     vol[kind] = v;
-    if (kind === 'bgm' && bgm) bgm.volume = v;
-    if (kind === 'sfx' && sfxGain) sfxGain.gain.value = v;
+    if (kind === 'bgm' && bgm) { cancelAnimationFrame(bgm._fade); bgm._fade = null; bgm.volume = v; }
+    if (kind === 'sfx' && sfxGain) { sfxGain.gain.value = v; rain(rainLevel); }
     try { localStorage.setItem('cr_vol', JSON.stringify(vol)); } catch (e) {}
   }
 
@@ -137,6 +139,7 @@ const Audio2 = (() => {
 
   // 雨の環境音
   function rain(level) {
+    rainLevel = Number.isFinite(+level) ? Math.max(0, Math.min(1.6, +level)) : 0; level = rainLevel;
     if (!ctx) return;
     if (!rainNode) {
       const len = ctx.sampleRate * 2, b = ctx.createBuffer(1, len, ctx.sampleRate), d = b.getChannelData(0);

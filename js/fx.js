@@ -18,7 +18,7 @@ const FX = (() => {
   function set(spec) {
     // spec: "rain:0.6,motes" / "none"
     const next = {};
-    if (spec && spec !== 'none') spec.split(',').forEach(s => { const [k, v] = s.trim().split(':'); if (k) next[k] = v ? parseFloat(v) : 1; });
+    if (spec && spec !== 'none') spec.split(',').forEach(s => { const [k, v] = s.trim().split(':'); if (['rain', 'storm', 'motes', 'ash', 'gold', 'sparkle', 'snow', 'stars'].includes(k)) { const n = v ? parseFloat(v) : 1; if (Number.isFinite(n)) next[k] = Math.max(0, Math.min(3, n)); } });
     modes = next;
     Audio2.rain(modes.storm ? 1 : modes.rain ? Math.min(1, modes.rain) * 0.7 : 0);
     // 星は固定配置
@@ -42,6 +42,7 @@ const FX = (() => {
 
   function frame(t) {
     const dt = Math.min(0.05, (t - last) / 1000); last = t;
+    if (document.hidden || document.documentElement.dataset.motion === 'reduced') { g.clearRect(0, 0, W, H); flash = 0; requestAnimationFrame(frame); return; }
     spawn(dt);
     g.clearRect(0, 0, W, H);
     for (let i = parts.length - 1; i >= 0; i--) {

@@ -1,0 +1,32 @@
+/* 待機の向きは戦場の斜め4方向と同じ配置で選ぶ。 */
+#cmdMenu.facing{width:278px;padding:12px;overflow-y:auto}
+#cmdMenu.facing .cm-desc{display:none}
+.cm-facing-help{margin:0 0 10px;font-size:11px;line-height:1.6;color:#bccce1}
+.cm-facing-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.cm-face{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:72px;padding:8px;border:1px solid #526680;border-radius:10px;background:linear-gradient(145deg,#223653,#112036);color:#edf8ff;transition:background .15s,border-color .15s}
+.cm-face b{font:700 28px/1 sans-serif;color:#9fe7f5}
+.cm-face span{font-size:13px;line-height:1.25;letter-spacing:.08em}
+.cm-face small{font-size:9px;line-height:1.2;color:#aabed5}
+.cm-face.current{border-color:#98deef;background:linear-gradient(145deg,#294660,#173246)}
+.cm-face:hover,.cm-face:focus-visible{outline:2px solid #f4d58e;outline-offset:2px;border-color:#f4d58e;background:#354865}
+#cmdMenu.facing [data-k=back]{justify-content:center;margin-top:8px;min-height:36px;background:#ffffff0a}
+.cm-facing-keys{margin:8px 0 0;font:10px/1.4 var(--gothic);color:#99aec7;text-align:center}
+.side-ally .ui-facing{color:#8fe8ff}
+.side-ally .ui-facing b{border-color:#8fe8ff}
+#boardScreen.compact #cmdMenu.sheet.facing{display:flex;flex-direction:column;width:auto;gap:0;padding:10px 12px}
+#boardScreen.compact #cmdMenu.sheet.facing .cm-face{min-height:60px;padding:6px}
+#boardScreen.compact #cmdMenu.sheet.facing .cm-facing-grid{gap:6px}
+#boardScreen.compact #cmdMenu.sheet.facing [data-k=back]{flex-shrink:0}
+@media(max-height:500px){
+  #boardScreen.compact #cmdMenu.sheet.facing{padding:8px 10px;bottom:10px;max-height:calc(100% - 80px)}
+  #boardScreen.compact:has(#cmdMenu.facing:not(.hidden)) #cmdBar{display:none}
+  #boardScreen.compact:has(#cmdMenu.facing:not(.hidden)) #missionBox{visibility:hidden}
+  #boardScreen.compact.short #cmdMenu.sheet.facing{left:auto;right:10px;width:306px}
+  #boardScreen.compact #cmdMenu.sheet.facing .cm-head{margin-bottom:4px;padding-bottom:4px}
+  #boardScreen.compact #cmdMenu.sheet.facing .cm-face{min-height:50px;flex-direction:row;gap:6px}
+  #boardScreen.compact #cmdMenu.sheet.facing .cm-face b{font-size:23px}
+  #boardScreen.compact #cmdMenu.sheet.facing .cm-face small{display:none}
+  #boardScreen.compact #cmdMenu.sheet.facing .cm-face.current span::after{content:' 現在';font-size:9px;color:#afdce8}
+  #boardScreen.compact #cmdMenu.sheet.facing .cm-facing-help{margin-bottom:6px;font-size:10px}
+  #boardScreen.compact #cmdMenu.sheet.facing .cm-facing-keys{display:none}
+}

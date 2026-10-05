@@ -17,7 +17,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -38,7 +38,7 @@ jobs:
         run: npm ci --ignore-scripts
       - name: Install test browser
         run: npx playwright install --with-deps chromium
-      - name: Test battle interactions
+      - name: Test game, story, saves and interfaces
         run: npm test
       - name: Prepare game files
         run: |

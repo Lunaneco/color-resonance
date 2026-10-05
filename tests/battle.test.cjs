@@ -10,12 +10,14 @@ let browser, server, base, context, page, errors;
 
 // Test-only access to battle state. The deployed JavaScript has no test API.
 const hook = `__test: {
-  state() { return {running,phase,turn,busy,over,paused,mode,sp,stage,skyCharges,tw,artEffects:artEffects.map(e=>e.id),sel:sel&&sel.id,spiritUses:stats&&stats.spiritUses,skillUses:stats&&stats.skillUses,difficulty,recommendedLv:cfg&&cfg.recommendedLv,missionProgress:(cfg&&cfg.missions||[]).map(m=>missionState(m,false)),
+  state() { return {running,phase,turn,busy,over,paused,mode,sp,stage,skyCharges,tw,zoom:cam.z,itemUses:stats&&stats.items,artEffects:artEffects.map(e=>e.id),sel:sel&&sel.id,spiritUses:stats&&stats.spiritUses,skillUses:stats&&stats.skillUses,difficulty,recommendedLv:cfg&&cfg.recommendedLv,missionProgress:(cfg&&cfg.missions||[]).map(m=>missionState(m,false)),
     units:units.map(u=>({id:u.id,kind:u.kind,side:u.side,dir:u.dir,lv:u.lv,atk:u.atk,def:u.def,armor:u.armor,root:u.root,guard:u.guard,r:u.r,c:u.c,hp:u.hp,mhp:u.mhp,moved:u.moved,acted:u.acted,dead:!!u.dead,hidden:!!u.hidden,enchant:u.enchant,until:u.until,
       ...toScreen(unitXY(u).x,unitXY(u).y),bodyY:toScreen(unitXY(u).x,unitXY(u).y-tw*u.hgt*.5).y})),
     cells:cells.map((c,i)=>({id:i,r:c.r,c:c.c,floor:c.floor,...toScreen(topOf(c).x,topOf(c).y)})),
     ends:moveInfo?[...moveInfo.ends]:[],targets:targets?[...targets]:[],cfg:cfg&&cfg.id}; },
   arrange(updates) { for(const spec of updates){const u=units.find(u=>spec.id?u.id===spec.id:u.kind===spec.kind);Object.assign(u,spec);}refreshHud();select(ariaU(),true); },
+  addAlly(kind,r,c,extra={}) { const u=makeUnit(kind,'ally',1,cellAt(r,c),extra);units.push(u);refreshHud();return u.id; },
+  damage(fromId,toId) { return calcDamage(units.find(u=>u.id===fromId),units.find(u=>u.id===toId),{},null,false); },
   pick(x,y){const c=pick(x,y);return c&&{r:c.r,c:c.c};}
 },
 `;
@@ -169,6 +171,7 @@ for(const id of ['gran','ivy','spinel']){
   test(`Stage ${id} renders and completes an enemy turn`,async()=>{
     await boot(id);assert((await state()).ends.length>0);await openMenu();
     await page.locator('[data-k=wait]').click();
+    await page.locator('[data-k=facewait][aria-current=true]').click();
     await page.waitForFunction(()=>Board.__test.state().turn===2&&!Board.__test.state().busy,{},{timeout:25000});
     const s=await state();assert.equal(s.cfg,id);assert(!s.over);assert(!aria(s).acted);
   });
@@ -225,12 +228,17 @@ test('A summoned spirit becomes selectable on the next turn',async()=>{
 test('Victory rewards and continuation work normally',async()=>{
   await boot();await fixture();await attack();await page.locator('#resNext').waitFor({timeout:12000});
   assert(await page.evaluate(()=>Board.party.stages.cove.cleared));assert(await page.evaluate(()=>Board.party.gold>0));
-  await page.locator('#resNext').click();assert(!(await state()).running);assert(!(await page.evaluate(()=>Panel.isOpen())));
+  await page.keyboard.press('Escape');assert(await page.evaluate(()=>Panel.isOpen()),'Escape must not dismiss the required result action');
+  await page.keyboard.press('Tab');assert.equal(await page.locator(':focus').getAttribute('id'),'resNext');
+  await page.keyboard.press('Enter');assert(!(await state()).running);assert(!(await page.evaluate(()=>Panel.isOpen())));
 });
 
 test('Defeat can be retried without old turn work continuing',async()=>{
   await boot();await fixture();await page.evaluate(()=>Board.__test.arrange([{kind:'aria',hp:1},{kind:'shade',hp:1000,atk:1000}]));
-  await page.locator('#endTurn').click();await page.locator('#resRetry').waitFor({timeout:12000});await page.locator('#resRetry').click();await idle();
+  await page.locator('#endTurn').click();await page.locator('#resRetry').waitFor({timeout:12000});
+  await page.keyboard.press('Escape');assert(await page.evaluate(()=>Panel.isOpen()));
+  await page.keyboard.press('Tab');assert.equal(await page.locator(':focus').getAttribute('id'),'resRetry');
+  await page.keyboard.press('Enter');await idle();
   const s=await state();assert.equal(s.turn,1);assert.equal(aria(s).hp,aria(s).mhp);assert(!s.over);assert.equal(await page.locator('#resRetry').count(),0);
 });
 
@@ -553,4 +561,172 @@ test('Enemy movement and attacks update the facing information for the next play
   await inspectByHover();const e=enemy(await state());
   assert.equal(e.dir,2);assert.equal(await page.locator('.ui-facing').getAttribute('data-dir'),'2');
   assert.equal(await page.locator('.ui-approach').getAttribute('data-side'),'front');
+});
+
+test('Waiting chooses all four directions without spending resources before confirmation',async()=>{
+  await boot();await fixture();
+  await page.evaluate(()=>Board.__test.addAlly('gran',1,1,{until:4,summon:3}));
+  for(const dir of [0,1,2,3]) {
+    await page.evaluate(()=>Board.__test.arrange([{kind:'aria',acted:false,moved:false,dir:0},{kind:'shade',hp:500,mhp:500}]));
+    const before=await state();await openMenu();await page.locator('[data-k=wait]').click();
+    const choosing=await state();assert.equal(choosing.mode,'facing');assert(!aria(choosing).acted&&!aria(choosing).moved);
+    if(dir===0){await page.waitForTimeout(200);await page.screenshot({path:'/tmp/cr-wait-desktop.png'});}
+    assert.equal(choosing.sp,before.sp);assert.equal(choosing.turn,before.turn);assert.equal(aria(choosing).dir,0);
+    assert(await page.locator('#endTurn').isDisabled());
+    await page.keyboard.press('e');assert.equal((await state()).turn,before.turn,'Turn shortcut must not skip the direction choice');
+    await page.locator(`[data-k=facewait][data-a="${dir}"]`).click();
+    const after=await state();assert.equal(aria(after).dir,dir);assert(aria(after).acted&&aria(after).moved);
+    assert.equal(after.sp,before.sp);assert.equal(after.turn,before.turn);assert.equal(after.mode,'idle');
+    assert.match(await page.locator('#unitInfo .ui-facing').textContent(),new RegExp(facingCases[dir].name));
+  }
+});
+
+test('Cancelling the direction choice keeps the moved position and permits a complete movement undo',async()=>{
+  await boot();await fixture();const before=await state();
+  const cell=await legalCell();assert(cell);await page.mouse.click(cell.x,cell.y);await idle();
+  const moved=await state();assert(aria(moved).moved);
+  await page.locator('[data-k=wait]').click();await page.keyboard.press('ArrowDown');await page.keyboard.press('Escape');
+  const cancelled=await state();assert.equal(cancelled.mode,'selected');assert(!aria(cancelled).acted);
+  assert.deepEqual([aria(cancelled).r,aria(cancelled).c,aria(cancelled).dir],[aria(moved).r,aria(moved).c,aria(moved).dir]);
+  assert.deepEqual(cancelled.cells.map(c=>c.floor),moved.cells.map(c=>c.floor));
+  await page.locator('#cancelSel').click();const undone=await state();
+  assert.deepEqual([aria(undone).r,aria(undone).c,aria(undone).dir],[aria(before).r,aria(before).c,aria(before).dir]);
+  assert(!aria(undone).moved&&!aria(undone).acted);assert.deepEqual(undone.cells.map(c=>c.floor),before.cells.map(c=>c.floor));
+});
+
+test('The direction choice supports keyboard focus, confirmation, and the back button',async()=>{
+  await boot('king');await fixture('king');await page.evaluate(()=>Board.__test.addAlly('gran',1,1));
+  await page.keyboard.press('w');assert.equal((await state()).mode,'facing');
+  assert.equal(await page.locator(':focus').getAttribute('data-a'),'0');
+  await page.locator('#skills .skill').first().click();assert.equal((await state()).mode,'facing');assert.equal(await page.locator('[data-k=facewait]').count(),4,'Spirit shortcuts must not bypass the pending direction choice');
+  await page.locator('[data-k=facewait][data-a="0"]').focus();
+  await page.keyboard.press('ArrowDown');assert.equal(await page.locator(':focus').getAttribute('data-a'),'1');
+  await page.keyboard.press('Enter');assert.equal(aria(await state()).dir,1);assert(aria(await state()).acted);
+  await page.evaluate(()=>Board.__test.arrange([{kind:'aria',acted:false,moved:false,dir:3}]));
+  await openMenu();await page.locator('[data-k=wait]').click();await page.locator('[data-k=back]').click();
+  assert.equal((await state()).mode,'selected');assert.equal(aria(await state()).dir,3);assert(!aria(await state()).acted);
+  await page.keyboard.press('w');await page.keyboard.press('3');assert.equal(aria(await state()).dir,2);assert(aria(await state()).acted);
+});
+
+for(const viewport of [{width:320,height:480},{width:390,height:844},{width:667,height:375}]) {
+  test(`The wait direction panel is readable and tappable at ${viewport.width}×${viewport.height}`,async()=>{
+    await boot('cove',viewport);await fixture();await page.evaluate(()=>Board.__test.addAlly('gran',1,1));
+    await page.locator('#actHere').tap();await page.locator('[data-k=wait]').tap();
+    await inViewport('cmdMenu');
+    const buttons=page.locator('[data-k=facewait]');assert.equal(await buttons.count(),4,`Mode: ${(await state()).mode}`);
+    for(const b of await buttons.all()) {
+      const box=await b.boundingBox();assert(box.width>=44&&box.height>=44,'Direction choices need usable touch targets');
+      assert(box.x>=0&&box.y>=0&&box.x+box.width<=viewport.width&&box.y+box.height<=viewport.height);
+    }
+    await page.waitForTimeout(200);await page.screenshot({path:`/tmp/cr-wait-${viewport.width}.png`});
+    await page.locator('[data-k=facewait][data-a="3"]').tap();const s=await state();
+    assert.equal(aria(s).dir,3);assert(aria(s).acted&&aria(s).moved);assert.equal(s.turn,1);
+  });
+}
+
+test('A summoned spirit can select its facing and the choice changes real rear attack damage',async()=>{
+  await boot('king');await fixture('king',{spStart:6});
+  await page.evaluate(()=>Board.__test.arrange([{kind:'aria',r:7,c:7},{kind:'shade',r:4,c:4,hp:1000,mhp:1000,atk:30}]));
+  const spiritId=await page.evaluate(()=>Board.__test.addAlly('gran',5,4,{until:4,summon:3,dir:0}));
+  const s=await state(),spirit=s.units.find(u=>u.id===spiritId),e=enemy(s);
+  const front=await page.evaluate(({from,to})=>Board.__test.damage(from,to),{from:e.id,to:spiritId});
+  await page.locator('#cancelSel').click();await clickUnit(spirit,true);await openMenu();await page.locator('[data-k=wait]').click();
+  await page.locator('[data-k=facewait][data-a="2"]').click();const after=await state(),a=after.units.find(u=>u.id===spiritId);
+  assert.equal(a.dir,2);assert(a.acted&&a.moved);assert(!aria(after).acted,'Waiting one spirit must keep the other ally available');
+  const back=await page.evaluate(({from,to})=>Board.__test.damage(from,to),{from:e.id,to:spiritId});
+  assert.equal(front.side,'front');assert.equal(back.side,'back');assert(back.dmg>front.dmg,'Chosen facing must drive combat damage, not just the icon');
+});
+
+test('Stopping during a direction choice removes the panel and cannot consume the next battle’s action',async()=>{
+  await boot();await fixture();await openMenu();await page.locator('[data-k=wait]').click();
+  await page.evaluate(()=>{Board.stop();Board.start({...BOARDS.cove,intro:null,tutorial:null,beats:[]});});await idle();
+  const after=await state();assert.equal(after.turn,1);assert.equal(after.mode,'selected');assert(!aria(after).acted);
+  assert(await page.locator('#cmdMenu').isHidden());assert(!(await page.locator('#endTurn').isDisabled()));
+});
+
+test('Rapid item targeting consumes one item and a two-turn guard expires after two enemy turns',async()=>{
+  await boot('cove',{width:1440,height:900},{cr_party:{aria:{lv:1,exp:0},spirits:{},items:{i_ward:1}}});await fixture();
+  await page.evaluate(()=>{
+    Board.__test.arrange([{kind:'aria',hp:1000,mhp:1000},{kind:'shade',r:0,c:0,root:8,hp:1000,mhp:1000,atk:25}]);
+    Board.__test.addAlly('gran',1,0,{hp:1000,mhp:1000});
+  });
+  const before=await state(),a=aria(before),e=enemy(before);
+  const normal=await page.evaluate(({from,to})=>Board.__test.damage(from,to),{from:e.id,to:a.id});
+  await openMenu();await page.locator('[data-k=item]').click();await page.locator('[data-k=useitem][data-a=i_ward]').click();
+  await page.mouse.dblclick(a.x,a.bodyY);await page.waitForFunction(()=>Board.__test.state().mode==='idle');
+  let s=await state();assert.equal(s.itemUses,1);assert.equal(aria(s).guard,2);
+  assert.equal(await page.evaluate(()=>Board.party.items.i_ward||0),0);
+  const protectedDamage=await page.evaluate(({from,to})=>Board.__test.damage(from,to),{from:e.id,to:a.id});assert(protectedDamage.dmg<normal.dmg);
+  await page.locator('#endTurn').click();await page.waitForFunction(()=>Board.__test.state().turn===2&&!Board.__test.state().busy);
+  assert.equal(aria(await state()).guard,1);
+  await page.locator('#endTurn').click();await page.waitForFunction(()=>Board.__test.state().turn===3&&!Board.__test.state().busy);
+  assert.equal(aria(await state()).guard,0);
+});
+
+test('A three-turn summoned spirit remains playable for exactly three following player turns',async()=>{
+  await boot('king');await fixture('king',{spStart:6});
+  await page.evaluate(()=>Board.__test.arrange([{kind:'aria',r:7,c:7,atk:1,hp:1000,mhp:1000},{kind:'shade',r:0,c:0,root:12,hp:1000,mhp:1000,atk:1}]));
+  await openMenu();await page.locator('[data-k=spirit]').click();await page.locator('[data-k=summon][data-a=gran]').click();
+  const cell=await legalCell('targets');assert(cell);await page.mouse.click(cell.x,cell.y);
+  for(const turn of [2,3,4]) {
+    await page.waitForFunction(turn=>Board.__test.state().turn===turn&&!Board.__test.state().busy,turn,{timeout:25000});
+    const spirit=(await state()).units.find(u=>u.kind==='gran');assert(spirit&&!spirit.dead&&!spirit.acted);
+    await page.locator('#endTurn').click();
+  }
+  await page.waitForFunction(()=>Board.__test.state().turn===5&&!Board.__test.state().busy,{},{timeout:25000});
+  assert(!(await state()).units.some(u=>u.kind==='gran'&&!u.dead));
+});
+
+test('Reduced motion keeps attack damage while suppressing battle zoom and screen shake',async()=>{
+  await boot('cove',{width:1440,height:900},{cr_settings:{reduceMotion:true,textSize:'normal'}});await fixture();
+  await page.evaluate(()=>{
+    window.boardShakes=0;const original=Element.prototype.animate;
+    Element.prototype.animate=function(...args){if(this.id==='boardScreen')window.boardShakes++;return original.apply(this,args);};
+    Board.__test.arrange([{kind:'aria',atk:25,hp:1000,mhp:1000},{kind:'shade',hp:500,mhp:500}]);
+    Board.__test.addAlly('gran',1,1);
+  });
+  assert.equal(await page.evaluate(()=>document.documentElement.dataset.motion),'reduced');
+  await attack();await page.waitForFunction(()=>Board.__test.state().units.find(u=>u.kind==='shade').hp<500);
+  assert.equal((await state()).zoom,1);assert.equal(await page.evaluate(()=>window.boardShakes),0);
+});
+
+test('Stopping an attack immediately cancels its screen vibration before a new battle',async()=>{
+  await boot();await fixture();await page.evaluate(()=>Board.__test.arrange([{kind:'aria',atk:25},{kind:'shade',hp:500,mhp:500}]));
+  await attack();await page.waitForFunction(()=>document.getElementById('boardScreen').getAnimations().length>0);
+  await page.evaluate(()=>Board.stop());
+  assert.equal(await page.locator('#boardScreen').evaluate(e=>e.getAnimations().length),0);
+  await page.evaluate(()=>Board.start({...BOARDS.cove,intro:null,tutorial:null,beats:[]}));await idle();
+  assert.equal((await state()).turn,1);assert(!aria(await state()).acted);
+});
+
+test('Actual attack and victory rewards cap Aria at LV99 and keep the save exportable after further battles',async()=>{
+  await boot('cove',{width:1440,height:900},{cr_party:{aria:{lv:98,exp:99},spirits:{}}});
+  for(const round of [0,1]) {
+    await fixture();await page.evaluate(()=>Board.__test.arrange([{kind:'shade',lv:99,hp:1,armor:0}]));
+    await attack();await page.locator('#resNext').waitFor({timeout:12000});
+    const s=await state(),record=await page.evaluate(()=>Board.party.aria);
+    assert.equal(record.lv,99);assert.equal(record.exp,0);assert.equal(aria(s).lv,99);
+    assert.match(await page.locator('.r-exp').textContent(),/成長上限/);
+    assert.equal(await page.locator('.r-lv').count(),round===0?1:0,'The cap must not produce another level-up');
+    const exported=await page.evaluate(()=>{const text=SaveData.exportText();return {result:SaveData.previewText(text),party:JSON.parse(JSON.parse(text).data.cr_party)};});
+    assert(exported.result.ok,exported.result.message);assert.equal(exported.result.level,99);
+    assert.equal(exported.party.aria.lv,99);assert.equal(exported.party.aria.exp,0);
+    await page.locator('#resNext').click();
+  }
+});
+
+test('Actual summon hit, kill, and arrival experience cap a spirit at LV99 and preserve save export',async()=>{
+  await boot('king',{width:1440,height:900},{cr_party:{aria:{lv:11,exp:0},spirits:{gran:{lv:98,exp:99,bond:0,uses:0}}}});
+  for(const round of [0,1]) {
+    await fixture('king',{spStart:6});await page.evaluate(()=>Board.__test.arrange([{kind:'shade',lv:99,hp:1,armor:0}]));
+    await openMenu();await page.locator('[data-k=spirit]').click();await page.locator('[data-k=summon][data-a=gran]').click();
+    const cell=await legalCell('targets');assert(cell);await page.mouse.click(cell.x,cell.y);
+    await page.locator('#resNext').waitFor({timeout:12000});
+    const record=await page.evaluate(()=>Board.party.spirits.gran),spirit=(await state()).units.find(u=>u.kind==='gran');
+    assert.equal(record.lv,99);assert.equal(record.exp,0);assert.equal(spirit.lv,99);
+    assert.equal(await page.locator('.r-lv').count(),round===0?1:0);
+    const exported=await page.evaluate(()=>{const text=SaveData.exportText();return {result:SaveData.previewText(text),party:JSON.parse(JSON.parse(text).data.cr_party)};});
+    assert(exported.result.ok,exported.result.message);assert.equal(exported.party.spirits.gran.lv,99);assert.equal(exported.party.spirits.gran.exp,0);
+    await page.locator('#resNext').click();
+  }
 });

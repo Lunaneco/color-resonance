@@ -136,6 +136,7 @@ const Board = (() => {
   const fxp = [];
   const artEffects = [];
   let cutinCancel = null;
+  let shakeAnimation = null;
   let t0 = performance.now(), running = false, sess = 0, renderFrame = null;
   let turn = 0, phase = 'player', stage = 1, busy = false, over = false, paused = false;
   let sel = null, mode = 'idle', moveInfo = null, targets = null, targetCmd = null, hover = null, threat = null, menuSub = null, infoU = null;
@@ -310,7 +311,8 @@ const Board = (() => {
   function topOf(cell) { const b = base(cell.r, cell.c); return { x: b.x, y: b.y - cell.h * hStep }; }
   const toScreen = (x, y) => ({ x: (x - cam.x) * cam.z + cam.x, y: (y - cam.y) * cam.z + cam.y });
   const toWorld = (x, y) => ({ x: (x - cam.x) / cam.z + cam.x, y: (y - cam.y) / cam.z + cam.y });
-  function focus(x, y, z = 1.15) { cam.tx = x; cam.ty = y; cam.tz = z; }
+  const reducedMotion = () => document.documentElement.dataset.motion === 'reduced';
+  function focus(x, y, z = 1.15) { cam.tx = x; cam.ty = y; cam.tz = reducedMotion() ? 1 : z; }
   function unfocus() { cam.tz = 1; }
 
   function unitXY(u, now = performance.now()) {
@@ -365,6 +367,7 @@ const Board = (() => {
   function render(now) {
     if (!running) return;
     const t = (now - t0) / 1000;
+    if (reducedMotion()) cam.z = cam.tz = 1;
     cam.z += (cam.tz - cam.z) * 0.12; cam.x += (cam.tx - cam.x) * 0.12; cam.y += (cam.ty - cam.y) * 0.12;
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     g.clearRect(0, 0, W, H);
@@ -710,11 +713,12 @@ const Board = (() => {
       g.lineWidth = 3; g.strokeStyle = 'rgba(0,0,0,.8)'; g.strokeText('Lv' + u.lv, x - w / 2 - 3, top + h / 2);
       g.fillStyle = u.side === 'ally' ? '#dff3ff' : '#e6d6ff'; g.fillText('Lv' + u.lv, x - w / 2 - 3, top + h / 2);
     }
-    if (u.side === 'enemy') {
+    if (u.side !== 'neutral') {
       const size = Math.max(14, tw * .19), bx = x + w / 2 + 3, by = top + h / 2 - size / 2;
+      const color = u.side === 'ally' ? '#8fe8ff' : '#ffd07a';
       g.fillStyle = 'rgba(5,10,25,.95)'; g.fillRect(bx, by, size, size);
-      g.strokeStyle = '#ffd07a'; g.lineWidth = 1; g.strokeRect(bx, by, size, size);
-      g.fillStyle = '#ffd07a'; g.font = `700 ${size - 1}px sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.strokeStyle = color; g.lineWidth = 1; g.strokeRect(bx, by, size, size);
+      g.fillStyle = color; g.font = `700 ${size - 1}px sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
       g.fillText(FACING[u.dir].arrow, bx + size / 2, by + size / 2);
     }
     g.restore();
@@ -815,7 +819,11 @@ const Board = (() => {
     floatLayer.appendChild(d); setTimeout(() => d.remove(), 1600);
   }
   function shake(px = 7) {
-    screen.animate([{ transform: 'translate(0,0)' }, { transform: `translate(${-px}px,${px * 0.5}px)` }, { transform: `translate(${px}px,${-px * 0.6}px)` }, { transform: `translate(${-px * 0.5}px,${px * 0.3}px)` }, { transform: 'translate(0,0)' }], { duration: 380 });
+    shakeAnimation?.cancel(); shakeAnimation = null;
+    if (reducedMotion()) return;
+    const animation = screen.animate([{ transform: 'translate(0,0)' }, { transform: `translate(${-px}px,${px * 0.5}px)` }, { transform: `translate(${px}px,${-px * 0.6}px)` }, { transform: `translate(${-px * 0.5}px,${px * 0.3}px)` }, { transform: 'translate(0,0)' }], { duration: 380 });
+    shakeAnimation = animation;
+    animation.onfinish = () => { if (shakeAnimation === animation) shakeAnimation = null; };
   }
   let hintTimer = null;
   function say(who, text, ms = 8000) {
@@ -961,13 +969,16 @@ const Board = (() => {
   }
 
   // ---------- 経験とLV ----------
+  const MAX_LV = 99;
   const expHit = (a, d) => Math.max(2, Math.min(25, 8 + (d.lv - a.lv) * 2));
   const expKill = (a, d) => Math.max(6, Math.min(80, 30 + (d.lv - a.lv) * 7 + (d.kind === 'boss' ? 30 : 0)));
   function gainExp(kind, amt, u) {
     const r = rec(kind);
-    if (kind === 'aria') stats.expA += amt;
-    r.exp += amt;
-    while (r.exp >= 100) {
+    // セーブの育成範囲と統一。上限に届く分だけ受け取り、経験値の繰り越しを止める。
+    const gain = Math.min(Number.isFinite(amt) ? Math.max(0, Math.floor(amt)) : 0, Math.max(0, (MAX_LV - r.lv) * 100 - r.exp));
+    if (kind === 'aria') stats.expA += gain;
+    r.exp += gain;
+    while (r.lv < MAX_LV && r.exp >= 100) {
       r.exp -= 100;
       const oldLv = r.lv, before = statsOf(kind, oldLv);
       r.lv++;
@@ -986,6 +997,7 @@ const Board = (() => {
         const a = ariaU(); if (a) { const p = unitXY(a); popNum(p.x + tw * 0.3, p.y - tw * 1.1, `${SPIRITS[kind].name} LV UP`, 'lvup small'); }
       }
     }
+    if (r.lv >= MAX_LV) r.exp = 0;
     saveParty();
   }
 
@@ -1404,7 +1416,7 @@ const Board = (() => {
     tutorialStep('turn');
   }
   function endPlayerPhase() { return runTask((async () => {
-    if (phase !== 'player' || busy || over || paused) return;
+    if (phase !== 'player' || busy || over || paused || mode === 'facing') return;
     hideSay();
     const my = sess;
     busy = true; deselect(); threat = null; endBtn.disabled = true;
@@ -1523,6 +1535,7 @@ const Board = (() => {
   function cancel() {
     if (busy || over) return;
     hideSay();
+    if (mode === 'facing') { closeFacing(); return; }
     if (mode === 'target') { targets = null; targetCmd = null; mode = 'selected'; if (sel) { moveInfo = sel.moved ? null : reachable(sel); showMenu(sel, menuSub); phaseLabel.textContent = sel.moved ? '行動を選んでください' : '光る床へ移動／本人に触れて、その場で行動'; } return; }
     if (mode === 'selected' && sel) {
       if (menuSub) { showMenu(sel); return; }
@@ -1574,10 +1587,33 @@ const Board = (() => {
     if (paused || over) return;
     if (live().filter(u => u.side === 'ally').every(u => u.acted)) later(() => { if (phase === 'player' && !busy && !over && !paused) endPlayerPhase(); }, 500);
   }
+  function openFacing(u) {
+    // 向きを確定するまで行動も移動取り消しの記録も消費しない。
+    mode = 'facing'; targets = null; targetCmd = null; moveInfo = null;
+    endBtn.disabled = true;
+    phaseLabel.textContent = '正面を向ける方向を選んで待機（Escで戻る）';
+    showMenu(u, 'facing'); updateBar();
+    cmdMenu.querySelector(`[data-k="facewait"][data-a="${u.dir}"]`)?.focus({ preventScroll: true });
+  }
+  function closeFacing() {
+    mode = 'selected'; endBtn.disabled = false;
+    if (!sel) { deselect(); return; }
+    moveInfo = sel.moved ? null : reachable(sel);
+    showMenu(sel); updateBar(); showInfo(sel);
+    phaseLabel.textContent = sel.moved ? '行動を選んでください' : '光る床へ移動／本人に触れて、その場で行動';
+    cmdMenu.querySelector('[data-k="wait"]')?.focus({ preventScroll: true });
+  }
+  function finishWait(u, dir) {
+    if (mode !== 'facing' || !Number.isInteger(dir) || dir < 0 || dir >= DIRS.length) return;
+    u.dir = dir; u.acted = true; u.moved = true; u.undo = null;
+    endBtn.disabled = false;
+    deselect(); showInfo(u); refreshHud(); autoEnd();
+  }
   function command(k, arg) {
     if (!running || phase !== 'player' || busy || !sel || over || paused || Panel.isOpen()) return;
     hideSay();
     const u = sel;
+    if (mode === 'facing' && k !== 'facewait' && k !== 'back') return;
     Audio2.sfx.choose();
     if (k === 'attack') enterTarget('attack', attackTargets(u));
     else if (k === 'flash') { const s = new Set(); nb4(cellOf(u)).forEach(c => s.add(idx(c.r, c.c))); enterTarget('flash', s); }
@@ -1597,11 +1633,12 @@ const Board = (() => {
       else cells.forEach(c => { if (c.walk && dist(c, u) <= 2) s.add(idx(c.r, c.c)); });
       enterTarget('item:' + arg, s);
     }
-    else if (k === 'back') showMenu(u);
+    else if (k === 'back') { if (mode === 'facing') closeFacing(); else showMenu(u); }
     else if (k === 'summon') { if (u.enchant || live().some(x => x.until)) return; enterTarget('summon:' + arg, summonCells(u)); }
     else if (k === 'enchant') { if (live().some(x => x.until)) return; doEnchant(u, arg); }
     else if (k === 'sky') { const s = new Set(); cells.forEach(c => { if (c.walk && dist(c, u) <= 4) s.add(idx(c.r, c.c)); }); enterTarget('sky', s); }
-    else if (k === 'wait') { u.acted = true; u.moved = true; deselect(); refreshHud(); autoEnd(); }
+    else if (k === 'wait') openFacing(u);
+    else if (k === 'facewait') finishWait(u, Number(arg));
     else if (k === 'undo') undoMove(u);
   }
   function execTarget(cell) {
@@ -1627,6 +1664,7 @@ const Board = (() => {
   function onClick(cell) {
     if (!running || busy || over || phase !== 'player' || paused || Panel.isOpen()) return;
     hideSay();
+    if (mode === 'facing') return;
     if (!cell) { if (mode !== 'selected') cancel(); return; }
     const id = idx(cell.r, cell.c), u = unitAt(cell);
     if (mode === 'target') {
@@ -1672,12 +1710,12 @@ const Board = (() => {
   const actHereBtn = $id('actHere'), cancelBtn = $id('cancelSel');
   let barState = '';
   function updateBar() {
-    const st = phase === 'player' && !busy && !over && !paused && sel ? (mode === 'target' ? 't' : sel.moved ? 'm' : 's') : '';
+    const st = phase === 'player' && !busy && !over && !paused && sel ? (mode === 'facing' ? 'f' : mode === 'target' ? 't' : sel.moved ? 'm' : 's') : '';
     if (st === barState) return;
     barState = st;
     actHereBtn.classList.toggle('hidden', st !== 's');
     cancelBtn.classList.toggle('hidden', !st);
-    cancelBtn.textContent = st === 't' ? '戻る' : st === 'm' ? '移動を戻す' : '選び直す';
+    cancelBtn.textContent = st === 't' || st === 'f' ? '戻る' : st === 'm' ? '移動を戻す' : '選び直す';
   }
   actHereBtn.addEventListener('click', e => { e.stopPropagation(); if (sel && !busy) { hideSay(); Audio2.sfx.choose(); showMenu(sel); } });
   cancelBtn.addEventListener('click', e => { e.stopPropagation(); if (!sel || busy) return; hideSay(); if (mode === 'selected' && !sel.moved && !menuSub) { deselect(); return; } cancel(); });
@@ -1687,10 +1725,17 @@ const Board = (() => {
     const changed = cmdMenu.dataset.sub !== (sub || '');
     cmdMenu.dataset.sub = sub || '';
     cmdMenu.classList.toggle('learned', sub === 'learned');
+    cmdMenu.classList.toggle('facing', sub === 'facing');
     menuSub = sub || null;
     const it = [];
     const btn = (k, label, opt = {}) => `<button class="cm-b" data-k="${k}" ${opt.a ? `data-a="${opt.a}"` : ''} ${opt.dis ? 'disabled' : ''} data-d="${opt.d || ''}">${label}${opt.cost != null ? `<em>${opt.cost}</em>` : ''}${opt.key ? `<kbd>${opt.key}</kbd>` : ''}</button>`;
-    if (sub === 'spirit') {
+    if (sub === 'facing') {
+      it.push(`<div class="cm-head">向きを選んで待機<small>${u.name}</small></div>`);
+      it.push('<p class="cm-facing-help">選んだ方向が正面になります。背後からの攻撃に気をつけて。</p>');
+      it.push(`<div class="cm-facing-grid" role="group" aria-label="待機する向き">${[3, 0, 2, 1].map(dir => `<button class="cm-face${u.dir === dir ? ' current' : ''}" data-k="facewait" data-a="${dir}" aria-label="${FACING[dir].name}を向いて待機" ${u.dir === dir ? 'aria-current="true"' : ''}><b aria-hidden="true">${FACING[dir].arrow}</b><span>${FACING[dir].name}</span><small>${u.dir === dir ? '現在の向き' : 'この向きで待機'}</small></button>`).join('')}</div>`);
+      it.push(btn('back', '戻る', { d: '向きと行動を確定せず戻る', key: 'Esc' }));
+      it.push('<p class="cm-facing-keys">方向キー＋Enter · 1↗ 2↘ 3↙ 4↖</p>');
+    } else if (sub === 'spirit') {
       it.push(`<div class="cm-head">精霊<small>共鳴 ${sp}</small></div>`);
       const summoned = live().find(x => x.until);
       const enchanted = u.enchant;
@@ -1731,7 +1776,7 @@ const Board = (() => {
         it.push(btn('item', '道具 ▸', { dis: !nItems, d: nItems ? '道具を使う（行動を使う）' : '道具を持っていない' }));
         if (stage && skyCharges > 0) it.push(btn('sky', '小さな夜空', { cost: '×' + skyCharges, d: 'ルノワールの夜空。周り2マスを夜空に変え、白い膜を打つ' }));
       }
-      it.push(btn('wait', '待機', { key: 'W', d: 'この者の行動を終える' }));
+      it.push(btn('wait', '待機 · 向きを選ぶ', { key: 'W', d: '4方向から正面を向ける方向を選んで、行動を終える' }));
       if (u.moved) it.push(btn('undo', '移動を戻す', { d: '歩く前の場所に戻る' }));
     }
     it.push('<div class="cm-desc"></div>');
@@ -1741,7 +1786,8 @@ const Board = (() => {
     const desc = cmdMenu.querySelector('.cm-desc');
     cmdMenu.querySelectorAll('button').forEach(b => {
       b.onclick = (e) => { e.stopPropagation(); command(b.dataset.k, b.dataset.a); };
-      b.onmouseenter = () => { desc.textContent = b.dataset.d || ''; };
+      // タッチの疑似ホバーで説明が増えると、下端固定メニューが指の下から動いてしまう。
+      b.onmouseenter = () => { if (matchMedia('(hover: hover) and (pointer: fine)').matches) desc.textContent = b.dataset.d || ''; };
     });
     // 位置（狭い画面では下に敷く）
     const narrow = screen.classList.contains('compact');
@@ -1790,15 +1836,15 @@ const Board = (() => {
     const rng = effRng(u);
     const unknown = u.kind === 'chrome' && stage === 0;
     const neutral = u.side === 'neutral';
-    const facing = u.side === 'enemy' ? FACING[u.dir] : null;
-    const side = facing && sel && !sel.dead && sel.side === 'ally' ? attackSide(cellOf(sel), u) : null;
+    const facing = neutral ? null : FACING[u.dir];
+    const side = u.side === 'enemy' && sel && !sel.dead && sel.side === 'ally' ? attackSide(cellOf(sel), u) : null;
     unitInfo.className = 'side-' + u.side;
     unitInfo.innerHTML = `${port}<div class="ui-main">
       <div class="ui-top"><span class="ui-name">${u.name}</span>${neutral ? '' : `<span class="ui-lv">LV<b>${u.lv}</b></span>`}</div>
       ${facing ? `<div class="ui-facing" data-dir="${u.dir}"><b>${facing.arrow}</b><span>正面：${facing.name}</span></div>${side ? `<div class="ui-approach ${side}" data-side="${side}">${APPROACH[side]}</div>` : ''}` : ''}
       ${u.word ? `<div class="ui-word">「${u.word}」</div>` : ''}
       ${neutral ? '<div class="ui-word">——その人の色は、切らない</div>' : `<div class="ui-bar hp"><i style="width:${unknown ? 100 : Math.round(u.hp / u.mhp * 100)}%"></i><span>HP ${unknown ? '？？？' : `${u.hp} / ${u.mhp}`}</span></div>`}
-      ${r ? `<div class="ui-bar exp"><i style="width:${r.exp}%"></i><span>EXP ${r.exp} / 100</span></div>` : ''}
+      ${r ? `<div class="ui-bar exp"><i style="width:${r.lv >= MAX_LV ? 100 : r.exp}%"></i><span>${r.lv >= MAX_LV ? 'EXP MAX · 成長上限' : `EXP ${r.exp} / 100`}</span></div>` : ''}
       ${neutral ? '' : `<div class="ui-st"><span>攻<b>${u.atk}</b></span><span>防<b>${unknown ? '?' : u.def}</b></span><span>移<b>${u.mov}</b></span><span>射<b>${rng[0] === rng[1] ? rng[0] : rng[0] + '-' + rng[1]}</b></span></div>`}
       <div class="ui-tags">${ft}${st.join('')}</div></div>`;
   }
@@ -1818,7 +1864,7 @@ const Board = (() => {
       b.style.setProperty('--sc', s.color);
       b.innerHTML = `${GameArt.available(id) ? GameArt.portrait(id, 'sk-art') : ''}<span class="sk-n">${s.name}</span><span class="sk-d">${state}</span><span class="sk-c">Lv${r.lv}・絆${bondRank(id)}</span>`;
       b.onclick = () => {
-        if (busy || phase !== 'player' || over || paused) return;
+        if (busy || phase !== 'player' || over || paused || mode === 'facing' || Panel.isOpen()) return;
         const a2 = ariaU(); if (!a2 || a2.acted) return;
         hideSay();
         if (sel !== a2) { if (sel && sel.moved) return; select(a2, true); }
@@ -2025,7 +2071,7 @@ const Board = (() => {
       ${(stats.questItems || []).length ? `<p class="r-bond">この難易度の初回報酬：${stats.questItems.map(x => `${ITEMS[x.id].name} +${x.count}`).join('・')}</p>` : ''}
       ${u ? `<div class="r-unique"><small>Sランク達成　ユニーク装備</small><b>${u.name}</b><span>${u.desc}</span></div>` : ''}
       <div class="r-stats"><div>${cfg.inverted ? '切り離した膜' : '切り分けた穢れ'}<b>${stats.kills}</b></div><div>ターン<b>${turn}</b></div><div>${floorNames()[0]}の床<b>${Math.round(stats.rainbowEnd * 100)}%</b></div><div>しずく<b>+${gold}</b></div></div>
-      <div class="r-exp">アリア　LV <b>${ar.lv}</b>　<span class="r-expbar"><i style="width:${ar.exp}%"></i></span>　EXP +${stats.expA}</div>
+      <div class="r-exp">アリア　LV <b>${ar.lv}</b>　<span class="r-expbar"><i style="width:${ar.lv >= MAX_LV ? 100 : ar.exp}%"></i></span>　${ar.lv >= MAX_LV ? '成長上限' : `EXP +${stats.expA}`}</div>
       ${lv ? `<div class="r-lvs">${lv}</div>` : ''}
       ${Object.entries(stats.bondGains).map(([id, n]) => `<p class="r-bond" style="color:${SPIRITS[id].color}">${SPIRITS[id].name}との絆 +${n}（絆${bondRank(id)}）</p>`).join('')}
       ${stats.learned.map(id => { const s = Progression.skills.find(s => s.id === id); return `<div class="r-unique"><small>アリアが覚えた${s.type}</small><b>${s.name}</b><span>${s.desc}</span></div>`; }).join('')}
@@ -2067,7 +2113,18 @@ const Board = (() => {
   cv.addEventListener('touchstart', e => { const t = e.touches[0]; touchCell = pick(t.clientX, t.clientY); hover = touchCell; const u = touchCell && unitAt(touchCell); if (u) showInfo(u); e.preventDefault(); }, { passive: false });
   cv.addEventListener('touchend', e => { onClick(touchCell); e.preventDefault(); }, { passive: false });
   addEventListener('keydown', e => {
-    if (!running || Panel.isOpen() || paused) return;
+    if (!running || Panel.isOpen() || paused || e.ctrlKey || e.altKey || e.metaKey || e.target.closest?.('input,textarea,select,[contenteditable="true"]')) return;
+    if (mode === 'facing') {
+      if (e.key === 'Escape') { e.preventDefault(); cancel(); return; }
+      const buttons = [...cmdMenu.querySelectorAll('[data-k="facewait"]')];
+      const i = buttons.indexOf(document.activeElement);
+      const next = e.key === 'ArrowLeft' ? (i < 0 ? 0 : i % 2 ? i - 1 : i + 1)
+        : e.key === 'ArrowRight' ? (i < 0 ? 1 : i % 2 ? i - 1 : i + 1)
+          : e.key === 'ArrowUp' || e.key === 'ArrowDown' ? (i < 0 ? 0 : (i + 2) % 4) : -1;
+      if (next >= 0) { e.preventDefault(); buttons[next]?.focus({ preventScroll: true }); return; }
+      if (/^[1-4]$/.test(e.key) && !e.repeat) { e.preventDefault(); command('facewait', String(Number(e.key) - 1)); }
+      return;
+    }
     if (e.key === 'Escape') cancel();
     else if ((e.key === 'a' || e.key === 'A') && sel && mode === 'selected' && !busy) command('attack');
     else if ((e.key === 'w' || e.key === 'W') && sel && mode === 'selected' && !busy) command('wait');
@@ -2082,7 +2139,7 @@ const Board = (() => {
     hideSay();
     Panel.open('戦い方', `
       <h4>目的</h4>盤のどこかにいる<b>穢れの影</b>を、すべて心剣で切り分けてください。アリアが倒れると、やり直しになります。
-      <h4>動かし方</h4>味方に触れると、<b>光る床</b>が歩ける場所。床に触れると移動し、そのあとメニューが開きます。<br>動かずに行動したいときは、本人にもう一度触れるか「その場で行動」。届く敵に直接触れても攻撃できます。<br>右クリック／Esc／「選び直す」：戻る　E：ターン終了　A：攻撃　W：待機
+      <h4>動かし方</h4>味方に触れると、<b>光る床</b>が歩ける場所。床に触れると移動し、そのあとメニューが開きます。<br>動かずに行動したいときは、本人にもう一度触れるか「その場で行動」。届く敵に直接触れても攻撃できます。<br><b>待機は4方向から向きを選んで確定</b>。Esc／戻るで取り消しても行動は消費せず、移動も戻せます。方向キーで選び、Enterで確定できます。<br>右クリック／Esc／「選び直す」：戻る　E：ターン終了　A：攻撃　W：待機の向き選び
       <div class="tip-tiles"><div><img src="assets/tiles/crys_land_flat.png">虹の床（味方）</div><div><img src="assets/tiles/dark_land_flat.png">くすんだ床（穢れ）</div></div>
       <h4>床の割合と加護</h4>味方が歩いた床・攻撃した床は<b>虹色</b>に、穢れが立つ床は<b>くすみ</b>ます。盤全体の割合が<b>25%・45%・65%</b>を超えるたびに、その側の攻撃・守り・共鳴が強くなります（65%で毎ターン回復）。<br>自分の色の床に立つと攻撃+10%、相手の色の床では守り-10%。
       <h4>位置どり</h4>敵の足元の<b style="color:#ffd07a">橙の矢印が正面</b>、<b style="color:#81e7ff">青の二本線が背後</b>です。HPの横にも正面を向く矢印が表示されます。敵の情報欄では、選んだ味方の現在位置が正面・側面・背後のどれかを確認できます。<br>高い場所から打つと+15%。敵の<b>背後</b>から+25%（会心も出やすい）、側面から+10%。
@@ -2106,6 +2163,7 @@ const Board = (() => {
   }
   function restart() {
     sess++;
+    shakeAnimation?.cancel(); shakeAnimation = null;
     artEffects.length = 0; cutinCancel?.(); cutinCancel = null;
     cancelPending();
     cfg = Progression.prepare(baseCfg, baseCfg.difficulty);
@@ -2180,6 +2238,7 @@ const Board = (() => {
   })()); }
   function stop() {
     sess++; running = false; over = true;
+    shakeAnimation?.cancel(); shakeAnimation = null;
     artEffects.length = 0; cutinCancel?.(); cutinCancel = null;
     cancelAnimationFrame(renderFrame); renderFrame = null;
     cancelPending();
@@ -2188,6 +2247,7 @@ const Board = (() => {
   }
   function end(won) {
     sess++;
+    shakeAnimation?.cancel(); shakeAnimation = null;
     artEffects.length = 0; cutinCancel?.(); cutinCancel = null;
     cancelAnimationFrame(renderFrame); renderFrame = null;
     cancelPending();

@@ -802,3 +802,236 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 #boardScreen.compact.short #phaseLabel{grid-column:auto}
 #boardScreen.compact.short #cmdMenu.sheet{bottom:74px;max-height:calc(100% - 150px)}
 #boardScreen.compact.short #skillName{top:70px}
+
+/* 旅の入口と共通の操作。淡い色でも文字は背景から十分に分ける。 */
+:root{--ink-faint:#a3b0ca;--glass:rgba(12,20,41,.78)}
+button,input,a,[tabindex="0"]{-webkit-tap-highlight-color:rgba(190,220,255,.2)}
+button:focus-visible,a:focus-visible,input:focus-visible,[tabindex="0"]:focus-visible{outline:2px solid #d9efff;outline-offset:3px;box-shadow:0 0 0 5px rgba(105,175,230,.18)}
+button:disabled{cursor:default}
+button:not(:disabled):active{filter:brightness(1.13)}
+.pn-body{overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#5b729e transparent;touch-action:pan-y}
+.pn-body p{overflow-wrap:anywhere}
+.pn-close{width:44px;height:44px;flex:none}
+.pn-head{gap:12px;padding:14px 24px}
+.pn-title{min-width:0;line-height:1.5}
+.chap,.setting-button,.seg button,.wb,.wm-btns button,.eq-it,.eq-off,.sh-buy{min-height:44px}
+.pn-body .btn-main{min-height:44px;letter-spacing:.12em}
+.t-main{width:min(700px,55vw);min-width:0;gap:8px;padding:24px 12px}
+.t-logo{width:100%;font-size:clamp(40px,6.5vw,90px);white-space:nowrap;text-align:center}
+.t-sub{font-size:clamp(14px,1.5vw,20px);letter-spacing:.35em;margin:8px 0 12px;text-align:center}
+.t-save-summary{font-size:12px;line-height:1.7;color:#c9d8ed;text-align:center;max-width:100%;padding:0 8px;margin-bottom:10px;overflow-wrap:anywhere;text-shadow:0 1px 4px #000}
+.t-menu{width:min(360px,100%);gap:5px}
+.t-menu button{width:100%;min-height:44px;padding:10px 22px;border-radius:11px;font-size:15px;letter-spacing:.18em;color:#d8e3f4;border:1px solid transparent;transition:background .2s,color .2s,border-color .2s}
+.t-menu button:hover{letter-spacing:.18em;background:rgba(190,215,255,.08);border-color:rgba(200,220,255,.22)}
+.t-menu button::before,.t-menu button::after{display:none}
+.t-menu button.t-primary{background:linear-gradient(120deg,rgba(184,218,255,.18),rgba(215,192,252,.14));border-color:rgba(200,224,255,.64);color:#fff;box-shadow:0 6px 26px rgba(0,0,0,.18)}
+.t-menu button.t-primary:hover{background:linear-gradient(120deg,rgba(184,218,255,.28),rgba(215,192,252,.22))}
+.t-menu button:disabled{opacity:.42;border-color:transparent}
+.t-tools{display:flex;gap:12px;align-items:center;justify-content:center;max-width:100%;margin-top:12px;flex-wrap:wrap}
+.t-tools button{font-size:12px;letter-spacing:.08em;min-height:40px;padding:6px 12px;color:#d1dff3;border-bottom:1px solid rgba(190,215,255,.34)}
+.t-tools button:hover{color:#fff;border-color:#d1e4ff}
+.t-glow{background:radial-gradient(ellipse at 28% 62%,rgba(140,180,255,.14),transparent 56%),linear-gradient(90deg,transparent 20%,rgba(4,7,18,.56) 56%,rgba(4,7,18,.85) 100%)}
+.t-foot{color:#b6c3dc;letter-spacing:.16em;font-size:12px;max-width:calc(100% - 32px);text-align:right;pointer-events:none}
+.g-in{max-width:100%;padding:24px}
+.g-tap{font-size:15px;letter-spacing:.2em;line-height:1.9}
+.g-note{letter-spacing:.06em;line-height:1.7;color:#b5c3dc}
+.g-quiet{min-height:44px;border:1px solid rgba(190,215,255,.3);border-radius:999px;margin-top:28px;padding:10px 22px;font-size:12px;color:#c7d6ef;background:rgba(190,215,255,.04)}
+.g-quiet:hover{background:rgba(190,215,255,.12);border-color:#d1e4ff}
+.game-menu{display:flex;flex-direction:column;align-items:stretch;gap:10px;text-align:center;max-width:420px;margin:auto}
+.game-menu .btn-main{margin-top:0}
+.menu-actions,.save-actions{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;margin-top:10px}
+.menu-actions .btn-main{margin-top:0;flex:1;letter-spacing:.08em;font-size:13px;padding:10px 18px}
+.danger{color:#f3c5ce!important;border-color:rgba(227,147,163,.55)!important;background:rgba(173,55,81,.08)!important}
+.danger:hover{background:rgba(173,55,81,.2)!important}
+.settings-layout{display:grid;gap:20px}
+.settings-section{padding-bottom:18px;border-bottom:1px solid rgba(200,220,255,.13)}
+.settings-section:last-child{border-bottom:0;padding-bottom:0}
+.settings-section h4{margin:0 0 10px;color:#e7effe}
+.setting-group{border:0;margin:12px 0;padding:0}
+.setting-group legend{font-family:var(--mincho);font-size:13px;color:#d7e3f6;margin-bottom:7px}
+.seg{gap:6px}
+.seg button{font-size:12px;line-height:1.4;padding:9px 16px;letter-spacing:.02em;background:rgba(255,255,255,.025)}
+.seg button.on{background:rgba(175,209,255,.16);border-color:#c9dfff}
+#sp{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+#sp button{min-width:0;white-space:nowrap;padding:9px 6px}
+.volume-row{gap:12px;margin:12px 0;min-height:44px}
+.volume-row label{min-width:70px;font-size:13px}
+.volume-row input{width:100%;min-width:0;min-height:38px;cursor:pointer}
+.volume-row output{width:42px;flex:none;text-align:right;font-size:12px;font-variant-numeric:tabular-nums;color:#dce8fa}
+.setting-switch{display:flex;align-items:flex-start;gap:10px;min-height:44px;padding:10px 0;cursor:pointer;color:#e7effe;line-height:1.7}
+.setting-switch input{margin-top:5px;width:18px;height:18px;accent-color:#bcd6ff;flex:none}
+.setting-switch small{display:block;color:var(--ink-dim);font-size:12px}
+.setting-button{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 15px;line-height:1.5;font-size:12px;color:#e7effe;border:1px solid var(--line);border-radius:10px;background:rgba(180,208,255,.06);cursor:pointer;max-width:100%;text-align:center}
+.setting-button:hover{background:rgba(180,208,255,.16);border-color:#bcd6ff}
+.file-label input{position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;overflow:hidden}
+.file-label:focus-within{outline:2px solid #d9efff;outline-offset:3px}
+.save-preview,.reset-confirm{padding:12px 14px;margin:12px 0;background:rgba(175,209,255,.065);border:1px solid rgba(190,215,255,.25);border-radius:11px;line-height:1.8;font-size:12px}
+.save-preview .setting-button{margin-top:8px;border-color:#bcd6ff}
+.reset-confirm{border-color:rgba(227,147,163,.38);background:rgba(173,55,81,.06)}
+.save-status{font-size:12px;color:#b9e7d9;min-height:0;margin:8px 0;line-height:1.7}
+.save-status:empty{display:none}
+.save-status.error{color:#f6bdc8}
+.guide-intro{font-family:var(--mincho);color:#e7effe;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.guide-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 24px;margin:20px 0}
+.guide-grid section{position:relative;padding-top:26px}
+.guide-grid h4{margin:0 0 7px}
+.guide-grid p{font-size:13px;line-height:1.85;margin-top:5px}
+.guide-no{position:absolute;top:0;font-family:var(--latin);font-size:20px;line-height:1;color:#bcd6ff;letter-spacing:.12em}
+.guide-shortcuts{font-size:12px;color:#d3dff1;line-height:2}
+kbd{display:inline-block;font-family:var(--gothic);font-size:11px;padding:1px 5px;border:1px solid rgba(190,215,255,.28);border-radius:4px;background:rgba(190,215,255,.06);letter-spacing:0}
+.about-game{padding:4px 0 14px;text-align:center}
+.about-game p{margin:8px 0;line-height:2}
+.about-tagline{font-family:var(--mincho);font-size:19px;color:#eaf2ff;letter-spacing:.15em}
+#world{background:linear-gradient(180deg,rgba(5,9,23,.44),rgba(5,9,23,.06) 35%,rgba(5,9,23,.62))}
+#wmTop{padding:10px 14px;border-radius:16px;background:rgba(6,12,28,.75);border:1px solid rgba(190,215,255,.12);backdrop-filter:blur(10px);z-index:4}
+.wm-stat{border:0;background:rgba(170,200,255,.055);border-radius:10px}
+.wm-btns button{font-size:12px;padding:8px 13px;letter-spacing:.06em}
+.wn-name{color:#f0f5ff}
+.wn-meta{color:#d9e5fb;border-color:rgba(190,200,235,.32)}
+.wp-desc,.wp-ms div{color:#c9d5e8}
+.wp-note{line-height:1.7}
+.wp-difficulty button{min-height:48px}
+.wp-difficulty button small{color:#b4c3df}
+.quest-card{padding:13px 15px;background:linear-gradient(115deg,rgba(180,145,255,.08),rgba(155,203,255,.03))}
+.quest-card b{font-size:15px;line-height:1.65}
+.quest-card small,.quest-card em{font-size:12px}
+.bond-card{padding:13px 15px;background:linear-gradient(115deg,rgba(180,210,255,.05),transparent)}
+.sh-row{gap:12px;padding:10px 4px}
+.sh-main small,.eq-it small,.eq-none{line-height:1.6}
+.result .r-stats{padding:12px 0;border-top:1px solid rgba(200,220,255,.12);border-bottom:1px solid rgba(200,220,255,.12)}
+.result .r-stats div{min-width:68px;color:#c1d0e7}
+#cmdBar,#cmdMenu,#unitInfo,#floorBar,#missionBox{backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#cmdMenu{border-color:rgba(200,220,255,.38);background:linear-gradient(180deg,rgba(17,29,55,.96),rgba(7,15,33,.97))}
+.cm-b:focus-visible{outline-offset:-3px}
+#hint{z-index:8}
+#toast{z-index:75;box-shadow:0 8px 26px rgba(0,0,0,.34);line-height:1.7}
+#text{overflow-wrap:anywhere}
+#textbox{padding-bottom:28px}
+#tbButtons button{min-height:34px;padding:6px 12px;background:rgba(8,14,31,.95);color:#cbd9ee}
+
+@media(max-width:820px){
+  #title{padding:20px 16px;align-items:center;justify-content:center}
+  .t-main{width:min(540px,100%);max-height:calc(100dvh - 40px);overflow-y:auto;padding:24px 18px 20px;border:1px solid rgba(200,220,255,.22);border-radius:22px;background:linear-gradient(180deg,rgba(6,13,30,.61),rgba(6,13,30,.86));box-shadow:0 18px 65px rgba(0,0,0,.35);scrollbar-width:thin;scrollbar-color:#5b729e transparent;overscroll-behavior:contain;touch-action:pan-y}
+  .t-logo{font-size:clamp(32px,7.8vw,52px)}
+  .t-sub{font-size:14px;letter-spacing:.15em;margin:4px 0 8px}
+  .t-save-summary{font-size:11px;margin-bottom:7px;line-height:1.7}
+  .t-menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;gap:5px}
+  .t-menu button{font-size:13px;letter-spacing:.07em;padding:10px 8px;background:rgba(255,255,255,.035);border-color:rgba(200,220,255,.1)}
+  .t-menu button:hover{letter-spacing:.07em}
+  .t-menu button:last-child{grid-column:1/-1}
+  .t-tools{margin-top:5px;gap:5px;width:100%;flex-wrap:nowrap}
+  .t-tools button{flex:1;font-size:11px;letter-spacing:.02em;padding:8px 4px;min-height:40px}
+  .t-aria{left:-16vw;filter:brightness(.72) drop-shadow(0 0 36px rgba(150,185,235,.3))}
+  .t-glow{background:linear-gradient(180deg,rgba(4,7,18,.16),rgba(4,7,18,.4))}
+  .t-foot{bottom:12px;right:16px;font-size:10px;letter-spacing:.04em;text-align:center;left:16px}
+  .pn-box{width:calc(100% - 20px);max-height:calc(100dvh - 32px);border-radius:16px}
+  .pn-head{padding:10px 14px}
+  .pn-title{font-size:17px;letter-spacing:.12em}
+  .pn-body{padding:16px 16px 22px;font-size:13px;line-height:1.85}
+  .pn-body h4{font-size:15px}
+  .chap-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .chap{padding:11px 12px}
+  .chap .c-a{font-size:10px;letter-spacing:.1em}
+  .chap .c-t{font-size:13px;letter-spacing:.05em;line-height:1.6}
+  .guide-grid{gap:20px;grid-template-columns:1fr}
+  .guide-grid section{padding-left:36px;padding-top:0}
+  .guide-no{left:0;top:3px;font-size:18px}
+  .settings-layout{gap:18px}
+  .settings-section{padding-bottom:15px}
+  .volume-row label{min-width:56px}
+  .seg button{flex:1;min-width:60px;padding:8px 10px;font-size:12px}
+  #sp button{min-width:0;font-size:11px;padding:9px 4px}
+  .save-actions .setting-button{flex:1;min-width:110px}
+  #wmTop{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;padding:8px 10px;top:8px;left:8px;right:8px;border-radius:13px}
+  .wm-title{font-size:13px;letter-spacing:.06em}
+  .wm-title span{font-size:10px;letter-spacing:.12em}
+  .wm-stat{gap:8px;padding:3px 8px;font-size:10px;letter-spacing:0;margin-left:0;white-space:nowrap}
+  .wm-stat b{font-size:17px;margin-left:3px}
+  .wm-btns{grid-column:1/-1;margin-left:0;gap:4px;overflow-x:auto;scrollbar-width:thin;padding-bottom:1px;overscroll-behavior-x:contain;touch-action:pan-x}
+  .wm-btns button{flex:1;min-width:max-content;padding:8px 10px;min-height:40px;font-size:11px;letter-spacing:.03em}
+  #wmViewport{top:134px;bottom:0;transition:bottom .2s ease}
+  #world:has(#wmPanel:not(.hidden)) #wmViewport{bottom:48vh}
+  .wm-pan-note{top:116px;font-size:10px;left:12px;color:#bbc9df}
+  #world #wmPanel{max-height:46vh;padding:14px 15px}
+  #textbox{bottom:max(14px,env(safe-area-inset-bottom));width:calc(100% - 20px);padding:28px 18px 24px;border-radius:14px}
+  #namePlate{left:14px;font-size:14px;padding:5px 14px 5px 10px;max-width:calc(100% - 30px)}
+  #text{font-size:16px;line-height:1.85;letter-spacing:.035em;min-height:3.7em}
+  #tbButtons{right:8px;top:-52px;gap:4px;max-width:calc(100% - 16px)}
+  #tbButtons button{min-height:36px;font-size:11px;padding:7px 10px;letter-spacing:.03em}
+  #nextMark{bottom:10px;right:15px}
+}
+@media(max-width:600px) and (max-height:600px){
+  #title{padding:12px}
+  .t-main{max-height:calc(100dvh - 24px);padding:16px 13px;gap:5px;border-radius:17px}
+  .t-logo{font-size:clamp(29px,9vw,46px)}
+  .t-sub{font-size:12px;margin:2px 0 4px;letter-spacing:.1em}
+  .t-save-summary{font-size:10px;margin-bottom:4px}
+  .t-tools{margin-top:2px}
+  .t-foot{display:none}
+  .t-aria{left:-24vw;height:114vh}
+  .pn-head{padding:7px 12px}
+  .pn-title{font-size:15px}
+  .pn-body{padding:13px 13px 18px}
+  #boardScreen.compact #unitInfo{gap:6px;padding:7px 8px}
+  #boardScreen.compact #unitInfo .ui-port,#boardScreen.compact #unitInfo .ui-word{display:none}
+  #boardScreen.compact .ui-main{gap:2px}
+  #boardScreen.compact .ui-name{font-size:12px;letter-spacing:.03em}
+  #boardScreen.compact .ui-st{gap:5px;font-size:10px}
+  #boardScreen.compact .ui-st b{font-size:12px;margin-left:2px}
+  #boardScreen.compact .ui-lv b{font-size:15px}
+  #boardScreen.compact .ui-hp{font-size:10px}
+  #boardScreen.compact #skills{gap:3px}
+  #boardScreen.compact #skills .skill.spirit{padding:5px 8px}
+  #boardScreen.compact #skills .skill.spirit .sk-n{font-size:11px;letter-spacing:.02em}
+  #boardScreen.compact #hint{bottom:222px;max-height:calc(100% - 345px);overflow-y:auto;padding:7px 10px;font-size:11px;line-height:1.6}
+  #boardScreen.compact #hint.show{pointer-events:auto}
+  #textbox{padding:24px 14px 20px}
+  #text{font-size:15px;line-height:1.8;min-height:3.6em}
+  #choiceBox{top:35%;gap:7px}
+  #choiceBox button{padding:11px 16px;font-size:13px;line-height:1.6}
+}
+@media(max-height:500px) and (min-width:601px){
+  #title{padding:14px 24px;justify-content:flex-end}
+  .t-main{width:min(590px,68vw);max-height:calc(100dvh - 28px);padding:14px 20px;gap:4px;background:linear-gradient(180deg,rgba(6,13,30,.7),rgba(6,13,30,.9));border:1px solid rgba(200,220,255,.2);border-radius:18px;overflow-y:auto;touch-action:pan-y}
+  .t-logo{font-size:clamp(34px,6vw,54px)}
+  .t-sub{font-size:12px;letter-spacing:.1em;margin:3px 0 2px}
+  .t-save-summary{font-size:10px;margin-bottom:3px}
+  .t-menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;gap:4px}
+  .t-menu button{font-size:12px;letter-spacing:.06em;padding:7px 8px;min-height:40px;border-color:rgba(200,220,255,.1)}
+  .t-menu button:hover{letter-spacing:.06em}
+  .t-menu button:last-child{grid-column:1/-1}
+  .t-tools{margin-top:0;gap:12px}
+  .t-tools button{min-height:34px;padding:6px 8px;font-size:10px}
+  .t-foot{display:none}
+  .t-aria{left:-2vw;height:134vh;bottom:-35vh;filter:brightness(.75) drop-shadow(0 0 36px rgba(150,185,235,.3))}
+  .t-sword{display:none}
+  #wmTop{display:flex;gap:8px;padding:5px 8px;align-items:center}
+  .wm-title{font-size:12px;letter-spacing:.03em;flex:none}
+  .wm-title span{display:none}
+  .wm-stat{font-size:10px;gap:7px;padding:3px 6px;margin-left:auto;flex:none}
+  .wm-btns{flex:0 1 auto;padding-bottom:0}
+  .wm-btns button{padding:6px 8px;font-size:10px;min-height:36px;flex:none}
+  #wmViewport,#world:has(#wmPanel:not(.hidden)) #wmViewport{top:78px;bottom:0}
+  .wm-pan-note{top:60px;font-size:9px}
+  #world #wmPanel{max-height:calc(100dvh - 86px);width:min(340px,50vw);left:auto;padding:11px 13px}
+  .pn-box{max-height:calc(100dvh - 24px)}
+  .pn-head{padding:6px 16px}
+  .pn-title{font-size:16px}
+  .pn-body{padding:12px 18px 18px}
+  .guide-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  #textbox{min-height:105px;bottom:10px;width:calc(100% - 28px);padding:21px 24px 17px}
+  #text{font-size:15px;line-height:1.75;min-height:3.5em}
+  #namePlate{font-size:13px;left:20px;top:-16px}
+  #tbButtons{top:-37px;right:10px;gap:4px}
+  #tbButtons button{min-height:32px;padding:5px 10px;font-size:10px}
+}
+
+/* 演出は短くしても、操作の完了・出現状態は保つ。 */
+html[data-motion="reduced"] *,html[data-motion="reduced"] *::before,html[data-motion="reduced"] *::after{animation-duration:.001ms!important;animation-delay:0ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;transition-delay:0ms!important;scroll-behavior:auto!important}
+html[data-motion="reduced"] .bg{animation:none;transform:none}
+html[data-motion="reduced"] .aura .ring{animation:none;opacity:.22;transform:scale(1.2)}
+html[data-motion="reduced"] .aura .core{animation:none;opacity:1}
+html[data-text-size="large"] #text{font-size:clamp(21px,1.9vw,25px);line-height:1.85}
+html[data-text-size="large"] .log-row{font-size:17px;line-height:1.9}
+@media(max-width:820px){html[data-text-size="large"] #text{font-size:19px}html[data-text-size="large"] .log-row{font-size:16px}}
+@media(max-height:500px){html[data-text-size="large"] #text{font-size:18px;line-height:1.75}}

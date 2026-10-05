@@ -2,10 +2,15 @@
 const $ = (s) => document.querySelector(s);
 
 const Panel = (() => {
-  const el = $('#panel'); let onClose = null;
+  const el = $('#panel'); let onClose = null, returnFocus = null;
+  const box = el.querySelector('.pn-box'), title = el.querySelector('.pn-title');
+  title.id = 'panelTitle'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-labelledby', 'panelTitle'); box.tabIndex = -1;
+  el.querySelector('.pn-close').setAttribute('aria-label', '閉じる');
+  const focusable = () => [...box.querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled),a[href],[tabindex="0"]')].filter(e => e.tabIndex >= 0 && e.getClientRects().length);
   el.querySelector('.pn-close').onclick = () => close();
   el.addEventListener('mousedown', e => { if (e.target === el && !el.dataset.noclose) close(); });
   function open(title, html, opt = {}) {
+    if (el.classList.contains('hidden')) returnFocus = document.activeElement;
     el.querySelector('.pn-title').textContent = title;
     el.querySelector('.pn-body').innerHTML = html;
     el.querySelector('.pn-close').style.display = opt.noClose ? 'none' : '';
@@ -13,8 +18,21 @@ const Panel = (() => {
     onClose = opt.onClose || null;
     el.classList.remove('hidden');
     el.querySelector('.pn-body').scrollTop = 0;
+    const target = focusable()[0] || box; target.focus({ preventScroll: true });
   }
-  function close() { el.classList.add('hidden'); el.querySelector('.pn-body').innerHTML = ''; const f = onClose; onClose = null; f && f(); }
+  function close() {
+    if (el.classList.contains('hidden')) return;
+    el.classList.add('hidden'); el.querySelector('.pn-body').innerHTML = ''; const f = onClose; onClose = null; f && f();
+    if (el.classList.contains('hidden') && returnFocus?.isConnected) returnFocus.focus({ preventScroll: true });
+    document.dispatchEvent(new Event('game-panel-closed'));
+  }
+  el.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !el.dataset.noclose) { e.preventDefault(); e.stopPropagation(); close(); }
+    if (e.key === 'Tab') {
+      const list = focusable(), first = list[0] || box, last = list.at(-1) || box;
+      if (!list.length || e.shiftKey && document.activeElement === first || !e.shiftKey && document.activeElement === last) { e.preventDefault(); (e.shiftKey ? last : first).focus(); }
+    }
+  });
   return { open, close, isOpen: () => !el.classList.contains('hidden'), body: () => el.querySelector('.pn-body') };
 })();
 
@@ -44,6 +62,7 @@ const Engine = (() => {
     speakerArt = null; speakerArtId = null;
   }
   function showSpeakerArt(who) {
+    if (scene.cgs.includes('lila-wave')) { clearSpeakerArt(); return; }
     const id = GameArt.speakers[who];
     if (!id || id === 'aria' || scene.gran && id === 'gran' || scene.mari && id === 'mari' || scene.renoir && id === 'renoir') {
       if (speakerArt) { speakerArt.classList.add('dim'); GameArt.mount(speakerArt, speakerArtId, 'idle'); }
@@ -68,6 +87,22 @@ const Engine = (() => {
   const tints = {};
   let scene = defaultScene();
   const prog = { shavings: 0 };
+  let token = 0;
+  let stageShake = null;
+  const timers = new Map();
+  function later(fn, ms, cancel) {
+    const mine = token, id = setTimeout(() => { timers.delete(id); if (mine === token) fn(); else cancel?.(); }, ms);
+    timers.set(id, cancel); return id;
+  }
+  function cancelTimer(id) { clearTimeout(id); timers.delete(id); }
+  const waitStage = ms => new Promise(resolve => later(() => resolve(true), ms, () => resolve(false)));
+  function abandon() {
+    token++; running = false;
+    stageShake?.cancel(); stageShake = null; inlineMode = false;
+    for (const [id, cancel] of timers) { clearTimeout(id); cancel?.(); } timers.clear();
+    if (waiting) { const done = waiting; waiting = null; done(false); }
+    typing = false; completeType = null; skip = false; typeTimer = null;
+  }
 
   function defaultScene() { return { bg: null, preset: 'none', bgm: 'none', fx: 'none', aria: false, gran: null, mari: false, renoir: false, aura: 'none', pouch: false, cgs: [] }; }
 
@@ -145,9 +180,13 @@ const Engine = (() => {
   let cgCanvas = null, threads = [];
   function cg(key) {
     if (key === 'off') { scene.cgs = []; cgLayer.querySelectorAll('.cgItem').forEach(e => { e.classList.remove('show'); setTimeout(() => e.remove(), 1400); }); cgCanvas = null; threads = []; return; }
-    if (['sword', 'feather', 'flight', 'lands', 'night', 'day', 'tear', 'shavings', 'transform'].includes(key)) scene.cgs = [...(scene.cgs || []), key];
+    if (['sword', 'feather', 'flight', 'lands', 'night', 'day', 'tear', 'shavings', 'transform', 'lila-wave'].includes(key)) scene.cgs = [...new Set([...(scene.cgs || []), key])];
     const add = (html, style = {}, cls = '') => { const d = document.createElement('div'); d.className = 'cg cgItem ' + cls; d.innerHTML = html; Object.assign(d.style, style); cgLayer.appendChild(d); requestAnimationFrame(() => requestAnimationFrame(() => d.classList.add('show'))); return d; };
-    if (key === 'sword') {
+    if (key === 'lila-wave') {
+      clearSpeakerArt(); hide('aria');
+      const url = 'assets/cg/lila-wave-v1.png';
+      add(`<img src="${url}" alt="黒い津波に飲まれながら浮き橋の綱を握り、アリアへ最後の別れを告げるリラ">`, { '--event-image': `url("${url}")` }, 'event-cg');
+    } else if (key === 'sword') {
       add('<img src="assets/img/sword.png" style="height:100%;filter:drop-shadow(0 0 30px rgba(220,235,255,.95))">', { left: '50%', top: '8vh', height: '74vh', transform: 'translateX(-50%) rotate(8deg)', animation: 'glint 3s ease-in-out infinite' });
       FX.flash('230,240,255', 0.5);
     } else if (key === 'feather') {
@@ -202,11 +241,11 @@ const Engine = (() => {
     } else if (key === 'slash') {
       add('<div style="position:absolute;left:-20%;right:-20%;top:50%;height:6px;background:linear-gradient(90deg,transparent,#fff6d8 40%,#fff 50%,#ffd98a 60%,transparent);box-shadow:0 0 40px #ffd27a,0 0 90px #ffe9b0;transform:rotate(-24deg);animation:fadeUp .2s ease"></div>', { inset: '0' });
       FX.flash('255,230,160', 1); Audio2.sfx.cut();
-      setTimeout(() => cg('off'), 1600);
+      later(() => cg('off'), 1600);
     } else if (key === 'tear') {
       add('<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 70%,rgba(30,40,80,.4),rgba(0,0,0,.92))"></div><div class="tearDrop"></div>', { inset: '0' });
       Audio2.sfx.tear();
-      setTimeout(() => { FX.flash('230,240,255', 0.7); }, 2900);
+      later(() => { FX.flash('230,240,255', 0.7); }, 2900);
     } else if (key === 'shavings') {
       const labels = ['路地の石畳', 'グランの芯', '茨の奥', '鉛の中', '王の足元'];
       const n = Math.min(5, prog.shavings + 1);
@@ -219,16 +258,18 @@ const Engine = (() => {
     Renoir.gulp(); Audio2.sfx.star(3); FX.flash('200,220,255', 0.2);
   }
   function skyUp() {
+    const mine = token;
     Renoir.skyCast();
     const t0 = performance.now();
-    const step = (t) => { const k = Math.min(1, (t - t0) / 3500); Renoir.state.sky = k; if (k < 1) requestAnimationFrame(step); };
+    const step = (t) => { if (mine !== token) return; const k = Math.min(1, (t - t0) / 3500); Renoir.state.sky = k; if (k < 1) requestAnimationFrame(step); };
     requestAnimationFrame(step);
-    for (let i = 0; i < 10; i++) setTimeout(() => Audio2.sfx.star(i), i * 260);
+    for (let i = 0; i < 10; i++) later(() => Audio2.sfx.star(i), i * 260);
     FX.flash('220,230,255', 0.5);
   }
 
   // ---------- 章カード ----------
   function chapterCard(arg) {
+    const mine = token;
     const [act, title] = arg.split('|');
     card.querySelector('.cc-act').textContent = act;
     card.querySelector('.cc-title').textContent = title;
@@ -236,27 +277,38 @@ const Engine = (() => {
     // アニメーションを再始動
     card.querySelectorAll('div').forEach(d => { d.style.animation = 'none'; d.offsetHeight; d.style.animation = ''; });
     return new Promise(res => {
-      const done = () => { card.classList.add('out'); setTimeout(() => { card.classList.add('hidden'); res(); }, 1100); };
-      const t = setTimeout(done, skip ? 600 : 3600);
-      card.onclick = () => { clearTimeout(t); done(); card.onclick = null; };
+      let doneOnce = false;
+      const done = () => { if (doneOnce || mine !== token) return; doneOnce = true; card.onclick = null; card.classList.add('out'); later(() => { card.classList.add('hidden'); res(true); }, 1100, () => res(false)); };
+      const t = later(done, skip ? 600 : 3600, () => res(false));
+      card.onclick = () => { cancelTimer(t); done(); };
     });
   }
 
   // ---------- 文字送り ----------
-  function speedMs() { try { return +(localStorage.getItem('cr_speed') || 32); } catch (e) { return 32; } }
+  function speedMs() { try { const n = +(localStorage.getItem('cr_speed') ?? 32); return [0, 14, 32, 55].includes(n) ? n : 32; } catch (e) { return 32; } }
   function typeText(text) {
     textEl.innerHTML = '';
     nextMark.classList.remove('show');
-    const sp = skip ? 0 : speedMs();
+    const sp = skip || document.documentElement.dataset.motion === 'reduced' ? 0 : speedMs(), mine = token;
     const frag = document.createDocumentFragment();
-    [...text].forEach((ch, i) => { const s = document.createElement('span'); s.className = 'ch'; s.textContent = ch; s.style.animationDelay = (i * sp) + 'ms'; frag.appendChild(s); });
+    const template = document.createElement('template'); template.innerHTML = text; let count = 0;
+    const copy = (source, target) => {
+      for (const node of source.childNodes) {
+        if (node.nodeType === Node.TEXT_NODE) for (const ch of node.textContent) { const s = document.createElement('span'); s.className = 'ch'; s.textContent = ch; s.style.animationDelay = (count++ * sp) + 'ms'; target.appendChild(s); }
+        else if (node.nodeType === Node.ELEMENT_NODE) {
+          if (['BR', 'B', 'STRONG', 'SMALL', 'EM'].includes(node.tagName)) { const el = document.createElement(node.tagName); target.appendChild(el); copy(node, el); }
+          else copy(node, target);
+        }
+      }
+    };
+    copy(template.content, frag);
     textEl.appendChild(frag);
     typing = true;
-    clearTimeout(typeTimer);
+    cancelTimer(typeTimer);
     return new Promise(res => {
-      const finish = () => { typing = false; nextMark.classList.add('show'); res(); };
-      typeTimer = setTimeout(finish, text.length * sp + 200);
-      completeType = () => { clearTimeout(typeTimer); textEl.querySelectorAll('.ch').forEach(s => s.style.animationDelay = '0ms'); finish(); };
+      const finish = () => { if (mine !== token) { res(false); return; } typing = false; completeType = null; nextMark.classList.add('show'); res(true); };
+      typeTimer = later(finish, count * sp + 200, () => res(false));
+      completeType = () => { if (mine !== token) return; cancelTimer(typeTimer); textEl.querySelectorAll('.ch').forEach(s => s.style.animationDelay = '0ms'); finish(); };
     });
   }
   let completeType = null;
@@ -264,16 +316,18 @@ const Engine = (() => {
   function waitAdvance(textLen = 20) {
     return new Promise(res => {
       waiting = res;
-      if (skip) setTimeout(() => advance(), 50);
-      else if (auto) setTimeout(() => { if (waiting === res) advance(); }, 1400 + textLen * 70);
+      if (skip) later(() => { if (waiting === res) advance(); }, 50);
+      else if (auto) later(() => { if (waiting === res) advance(); }, 1400 + textLen * 70);
     });
   }
   function advance() {
+    if (Panel.isOpen() || document.hidden || !running && !inlineMode) return;
     if (typing && completeType) { completeType(); return; }
-    if (waiting) { const w = waiting; waiting = null; Audio2.sfx.page(); w(); }
+    if (waiting) { const w = waiting; waiting = null; Audio2.sfx.page(); w(true); }
   }
 
   async function sayLine(who, text) {
+    const mine = token;
     tb.classList.remove('hidden');
     if (!inlineMode) showSpeakerArt(who);
     if (who) {
@@ -286,34 +340,45 @@ const Engine = (() => {
     aria.classList.toggle('dim', !!who && who !== 'アリア');
     if (!who) aria.classList.remove('dim');
     log.push({ who, text }); if (log.length > 300) log.shift();
-    await typeText(text);
+    if (!await typeText(text) || mine !== token) return;
     await waitAdvance(text.length);
   }
   async function centerLine(text) {
+    const mine = token;
     tb.classList.add('hidden');
     centerEl.innerHTML = text; centerEl.classList.add('show');
     log.push({ who: '', text: text.replace(/<br>/g, '') });
-    await new Promise(r => setTimeout(r, skip ? 50 : 900));
-    await waitAdvance(30);
+    if (!await waitStage(skip ? 50 : 900) || mine !== token) return;
+    if (!await waitAdvance(30) || mine !== token) return;
     centerEl.classList.remove('show');
-    await new Promise(r => setTimeout(r, skip ? 30 : 600));
+    await waitStage(skip ? 30 : 600);
   }
 
   // ---------- 選択 ----------
   function choice(key) {
-    const C = CHOICES[key];
+    const C = CHOICES[key], mine = token;
+    if (!C) return Promise.resolve();
     tb.classList.add('hidden');
     const used = new Set();
     return new Promise(res => {
       const render = () => {
+        if (mine !== token) return;
         choiceBox.innerHTML = `<div class="cprompt">${C.prompt}</div>`;
         C.options.forEach((o, i) => {
           const b = document.createElement('button'); b.textContent = o.t; if (used.has(i)) b.classList.add('used');
           b.onclick = async (e) => {
             e.stopPropagation();
+            if (mine !== token || choiceBox.classList.contains('hidden')) return;
             choiceBox.classList.add('hidden');
-            if (o.ok) { Audio2.sfx.choose(); for (const l of parse(o.lines.join('\n'))) await runLine(l); res(); }
-            else { Audio2.sfx.wrong(); used.add(i); for (const l of parse(o.lines.join('\n'))) await runLine(l); tb.classList.add('hidden'); render(); choiceBox.classList.remove('hidden'); }
+            if (o.ok) Audio2.sfx.choose();
+            else { Audio2.sfx.wrong(); used.add(i); }
+            for (const l of parse(o.lines.join('\n'))) {
+              if (mine !== token) { res(); return; }
+              await runLine(l);
+              if (mine !== token) { res(); return; }
+            }
+            if (o.ok) res();
+            else { tb.classList.add('hidden'); render(); choiceBox.classList.remove('hidden'); }
           };
           choiceBox.appendChild(b);
         });
@@ -325,6 +390,7 @@ const Engine = (() => {
 
   // ---------- 盤 ----------
   function board(key) {
+    const mine = token;
     clearSpeakerArt();
     tb.classList.add('hidden'); hide('aria'); bigAura.classList.remove('show');
     skip = false; updateBtns();
@@ -332,14 +398,19 @@ const Engine = (() => {
     return new Promise(res => {
       if (key === 'chrome') {
         conf.onPhase0 = async () => {
+          if (mine !== token || !Board.running) return;
           inlineMode = true;
-          for (const l of parse(FINALE_PHASE0)) await runLine(l);
+          for (const l of parse(FINALE_PHASE0)) {
+            if (mine !== token || !Board.running) return;
+            await runLine(l);
+            if (mine !== token || !Board.running) return;
+          }
           tb.classList.add('hidden'); inlineMode = false;
           Board.enterPhase1({ skyCharges: Renoir.state.colors.length || 4, say: { who: 'アリア', text: '白い膜だけを、切り分ける。<br><small>メニューの「小さな夜空」で、ルノワールの夜空が床を取り戻してくれる</small>' } });
         };
       }
       Board.start(conf, () => { res(); });
-    }).then(() => { if (scene.aura !== 'none') setAura(scene.aura); });
+    }).then(() => { if (mine === token && scene.aura !== 'none') setAura(scene.aura); });
   }
 
   // ---------- 命令 ----------
@@ -355,7 +426,7 @@ const Engine = (() => {
       case 'hide': hide(a[0]); break;
       case 'aura': setAura(a[0]); break;
       case 'cg': cg(a[0]); break;
-      case 'thread': thread(a[0]); await new Promise(r => setTimeout(r, skip ? 50 : 900)); break;
+      case 'thread': thread(a[0]); await waitStage(skip ? 50 : 900); break;
       case 'keep': keep(a[0]); break;
       case 'sky': skyUp(); break;
       case 'board': await board(a[0]); break;
@@ -365,10 +436,10 @@ const Engine = (() => {
       case 'toast': toast(arg); Audio2.sfx.skill(); break;
       case 'tint': tints[a[0]] = a[1]; break;
       case 'flash': FX.flash(a[0] === 'black' ? '0,0,0' : '255,255,255', 1); break;
-      case 'shake': document.getElementById('app').animate([{ transform: 'translate(0,0)' }, { transform: 'translate(-10px,6px)' }, { transform: 'translate(9px,-6px)' }, { transform: 'translate(-5px,3px)' }, { transform: 'translate(0,0)' }], { duration: 500 }); break;
+      case 'shake': if (document.documentElement.dataset.motion !== 'reduced') { stageShake?.cancel(); stageShake = document.getElementById('app').animate([{ transform: 'translate(0,0)' }, { transform: 'translate(-10px,6px)' }, { transform: 'translate(9px,-6px)' }, { transform: 'translate(-5px,3px)' }, { transform: 'translate(0,0)' }], { duration: 500 }); } break;
       case 'sfx': Audio2.sfx[a[0]] && Audio2.sfx[a[0]](); break;
-      case 'wait': await new Promise(r => setTimeout(r, +a[0])); break;
-      case 'next': unlock(a[0]); await fadeOut(); toMap(a[0]); return 'stop';
+      case 'wait': await waitStage(Math.max(0, Math.min(60000, +a[0] || 0))); break;
+      case 'next': { const mine = token; unlock(a[0]); await fadeOut(); if (mine === token) toMap(a[0]); return 'stop'; }
       case 'end': unlock('done'); await credits(); return 'stop';
     }
   }
@@ -381,9 +452,8 @@ const Engine = (() => {
   }
 
   // ---------- 進行 ----------
-  let token = 0;
   async function run(from = 0) {
-    const my = ++token; running = true;
+    const my = token; running = true;
     for (idx = from; idx < lines.length; idx++) {
       if (my !== token) return;
       const l = lines[idx];
@@ -394,6 +464,7 @@ const Engine = (() => {
     running = false;
   }
   function play(key, from = 0, restore) {
+    if (!Object.hasOwn(SCRIPT, key)) return;
     chapter = key; lines = parse(SCRIPT[key]);
     if (typeof World !== 'undefined') World.close();
     $('#title').classList.add('hide'); $('#title').style.display = 'none';
@@ -409,8 +480,8 @@ const Engine = (() => {
   }
   function resetStage() {
     clearSpeakerArt(); cgLayer.querySelectorAll('canvas').forEach(cv => GameArt.unmount(cv));
-    token++; waiting = null; typing = false;
-    tb.classList.add('hidden'); centerEl.classList.remove('show'); choiceBox.classList.add('hidden');
+    abandon(); card.onclick = null; card.classList.add('hidden'); card.classList.remove('out'); nextMark.classList.remove('show');
+    tb.classList.add('hidden'); centerEl.classList.remove('show'); choiceBox.classList.add('hidden'); choiceBox.innerHTML = '';
     cgLayer.innerHTML = ''; aria.classList.remove('show'); bigAura.classList.remove('show');
     for (const k in tints) delete tints[k];
     scene = defaultScene();
@@ -423,19 +494,46 @@ const Engine = (() => {
     (s.cgs || []).forEach(k => cg(k));
   }
   function fadeOut() {
-    return new Promise(r => { tb.classList.add('hidden'); setTimeout(r, 400); });
+    tb.classList.add('hidden'); return waitStage(400);
   }
 
   // ---------- 保存 ----------
+  const lineId = l => {
+    const text = JSON.stringify(l); let h = 2166136261;
+    for (let i = 0; i < text.length; i++) h = Math.imul(h ^ text.charCodeAt(i), 16777619);
+    return (h >>> 0).toString(16).padStart(8, '0');
+  };
+  function cursorAt(index) {
+    if (!lines[index]) return null;
+    const id = lineId(lines[index]); let n = 0;
+    for (let i = 0; i < index; i++) if (lineId(lines[i]) === id) n++;
+    return { id, n };
+  }
+  function resumeIndex(s) {
+    const chapterLines = parse(SCRIPT[s.chapter]);
+    if (s.cursor) {
+      let n = 0;
+      for (let i = 0; i < chapterLines.length; i++) if (lineId(chapterLines[i]) === s.cursor.id && n++ === s.cursor.n) return i;
+    }
+    let at = s.idx;
+    // この版で増えた序章のCG命令2行を、以前の数値位置へ足す。
+    if (!s.scriptVersion && s.chapter === 'prologue' && at >= 106) at += at >= 109 ? 2 : 1;
+    return Math.max(0, Math.min(chapterLines.length - 1, at));
+  }
   function save() {
     try {
-      localStorage.setItem('cr_save', JSON.stringify({ chapter, idx, scene, colors: Renoir.state.colors, sky: Renoir.state.sky, shavings: prog.shavings, tints, at: Date.now() }));
+      localStorage.setItem('cr_save', JSON.stringify({ chapter, idx, cursor: cursorAt(idx), scriptVersion: 2, scene, colors: Renoir.state.colors, sky: Renoir.state.sky, shavings: prog.shavings, tints, at: Date.now() }));
     } catch (e) {}
   }
-  function load() { try { return JSON.parse(localStorage.getItem('cr_save') || 'null'); } catch (e) { return null; } }
-  function unlocked() { try { return JSON.parse(localStorage.getItem('cr_unlocked') || '["prologue"]'); } catch (e) { return ['prologue']; } }
+  function load() { try { const value = SaveData.story(JSON.parse(localStorage.getItem('cr_save') || 'null')); return Object.hasOwn(SCRIPT, value.chapter) ? value : null; } catch (e) { return null; } }
+  function unlocked() { try { const value = JSON.parse(localStorage.getItem('cr_unlocked') || '["prologue"]'); return Array.isArray(value) ? [...new Set(['prologue', ...value.filter(k => k === 'done' || Object.hasOwn(SCRIPT, k))])] : ['prologue']; } catch (e) { return ['prologue']; } }
   function unlock(k) { try { const u = unlocked(); if (!u.includes(k)) u.push(k); localStorage.setItem('cr_unlocked', JSON.stringify(u)); } catch (e) {} }
-  function cont() { const s = load(); if (!s || !SCRIPT[s.chapter]) return false; if (s.map) { World.open(); return true; } play(s.chapter, s.idx, s); return true; }
+  function cont() {
+    const s = load(); if (!s) return false; if (s.map) { World.open(); return true; }
+    const from = resumeIndex(s);
+    if (s.chapter === 'prologue' && from >= 107 && from <= 109) { s.scene = s.scene || defaultScene(); s.scene.cgs = ['lila-wave']; }
+    play(s.chapter, from, s); return true;
+  }
   // 章の終わり：ワールドマップへ。次の章は地図の「物語」から始まる
   function toMap(next) {
     token++; running = false;
@@ -450,13 +548,14 @@ const Engine = (() => {
   function updatePouch() { const p = $('#pouch'); p.classList.toggle('hidden', !scene.pouch || prog.shavings === 0); p.querySelector('.p-n').textContent = prog.shavings; }
 
   async function credits() {
+    const mine = token;
     tb.classList.add('hidden'); cgLayer.innerHTML = '';
     const d = document.createElement('div'); d.className = 'cg cgItem credits';
-    d.innerHTML = `<div style="font-size:15px;color:#b9c6de">（了）</div><div class="c1">Color Resonance</div><div>夜空の黒と透明の剣</div><div style="margin-top:30px;font-size:13px;color:#7f8aa6;letter-spacing:.2em">おつかれさまでした。<br>章えらびと「共鳴の練習」がいつでも遊べます。</div>`;
+    d.innerHTML = `<div style="font-size:15px;color:#b9c6de">（了）</div><div class="c1">Color Resonance</div><div>夜空の黒と透明の剣</div><div style="margin-top:30px;font-size:13px;color:#a3b0c7;letter-spacing:.12em;line-height:2">旅の続きを、好きな場所から。<br>地図には12の依頼と、町の小さな遊び。<br>手帳には、育てた絆から届く便りが残ります。</div>`;
     d.style.inset = '0'; cgLayer.appendChild(d); requestAnimationFrame(() => d.classList.add('show'));
     FX.set('stars:1');
-    await new Promise(r => setTimeout(r, 2000));
-    await waitAdvance(80);
+    if (!await waitStage(2000) || mine !== token) return;
+    if (!await waitAdvance(80) || mine !== token) return;
     Main.toTitle();
   }
 
@@ -486,13 +585,21 @@ const Engine = (() => {
     advance();
   });
   addEventListener('keydown', e => {
-    if (Panel.isOpen()) { if (e.key === 'Escape') Panel.close(); return; }
+    if (Panel.isOpen()) { if (e.key === 'Escape' && !$('#panel').dataset.noclose) Panel.close(); return; }
     if (Board.running && !inlineMode) return;
+    if (e.target.closest?.('button,input,select,textarea,a[href],[role="button"]')) return;
     if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); advance(); }
     if (e.key === 'Control') { skip = true; updateBtns(); advance(); }
   });
   addEventListener('keyup', e => { if (e.key === 'Control') { skip = false; updateBtns(); } });
+  const resumeAuto = () => {
+    const owner = waiting;
+    if (owner && (auto || skip) && !document.hidden && !Panel.isOpen()) later(() => { if (waiting === owner) advance(); }, skip ? 50 : 1400);
+  };
+  document.addEventListener('game-panel-closed', resumeAuto);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) resumeAuto(); else { skip = false; updateBtns(); } });
+  addEventListener('blur', () => { skip = false; updateBtns(); });
   addEventListener('wheel', e => { if (e.deltaY < -30 && !Board.running && running && !Panel.isOpen() && $('#title').style.display === 'none') showLog(); });
 
-  return { play, cont, load, unlocked, resetStage, toast, setBg, get chapter() { return chapter; }, stop() { token++; running = false; } };
+  return { play, cont, load, unlocked, resetStage, toast, setBg, clearLog() { log.length = 0; }, get chapter() { return chapter; }, stop() { abandon(); updateBtns(); } };
 })();
