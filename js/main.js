@@ -89,7 +89,7 @@ const Main = (() => {
     setTimeout(() => gate.remove(), preferences.reduceMotion ? 30 : 1000);
     const ch = location.hash.match(/ch=(\w+)/), bd = location.hash.match(/board=(\w+)/);
     if (ch && SCRIPT[ch[1]]) { title.style.display = 'none'; Engine.play(ch[1]); }
-    else if (bd && BOARDS[bd[1]]) { title.style.display = 'none'; Engine.setBg('teal', 'dim'); Board.start(BOARDS[bd[1]], () => toTitle()); }
+    else if (bd && BOARDS[bd[1]]) { title.style.display = 'none'; Engine.setBg('teal', 'dim'); Board.start({ ...BOARDS[bd[1]], resultLabel: 'タイトルへ戻る' }, () => toTitle()); }
     else if (location.hash.includes('world')) { title.style.display = 'none'; World.open(); }
     else {
       toTitle();

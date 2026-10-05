@@ -413,7 +413,7 @@ const World = (() => {
     Engine.resetStage();
     Engine.setBg(th.bg, th.preset || 'dim'); FX.set(th.fx || 'none'); Audio2.playBgm(th.bgm || 'forest');
     if (!Renoir.state.colors.length) Renoir.state.colors = ['teal', 'green', 'gold', 'violet'].slice(0, Math.max(1, spiritsNow().length));
-    Board.start(conf, () => open({ at: n.id }));
+    Board.start({ ...conf, resultLabel: 'マップへ戻る' }, () => open({ at: n.id }));
   }
 
   // ---------- サブクエスト ----------

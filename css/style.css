@@ -207,11 +207,14 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 /* ---------- パネル ---------- */
 #panel{position:absolute;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(3,5,12,.6);backdrop-filter:blur(6px);animation:cardIn .3s ease}
 .pn-box{width:min(760px,94vw);max-height:84vh;display:flex;flex-direction:column;border-radius:20px;background:linear-gradient(180deg,rgba(20,30,60,.95),rgba(10,14,30,.96));border:1px solid var(--line);box-shadow:0 30px 80px rgba(0,0,0,.6)}
-.pn-head{display:flex;align-items:center;justify-content:space-between;padding:18px 26px;border-bottom:1px solid var(--line)}
+.pn-head{display:flex;flex-shrink:0;align-items:center;justify-content:space-between;padding:18px 26px;border-bottom:1px solid var(--line)}
 .pn-title{font-family:var(--mincho);font-size:19px;letter-spacing:.2em}
 .pn-close{font-size:24px;color:var(--ink-dim);width:36px;height:36px;border-radius:50%}
 .pn-close:hover{color:#fff;background:rgba(255,255,255,.06)}
-.pn-body{padding:20px 26px 26px;overflow:auto;font-size:14.5px;line-height:1.85;color:var(--ink-dim)}
+.pn-body{min-height:0;padding:20px 26px 26px;overflow:auto;font-size:14.5px;line-height:1.85;color:var(--ink-dim)}
+.pn-footer{flex-shrink:0;display:flex;justify-content:center;padding:12px 20px max(12px,env(safe-area-inset-bottom));border-top:1px solid var(--line);background:linear-gradient(105deg,#263c4b,#131d32)}
+.pn-footer .btn-main{min-height:44px;min-width:min(280px,100%);max-width:100%;margin:0;letter-spacing:.12em}
+.pn-footer .btn-main:focus-visible{outline:2px solid #f2dfa8;outline-offset:3px}
 .pn-body h4{font-family:var(--mincho);color:var(--ink);font-size:16px;letter-spacing:.12em;margin:14px 0 4px}
 .pn-body h4:first-child{margin-top:0}
 .pn-body b{color:#fff}

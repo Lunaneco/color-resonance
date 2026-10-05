@@ -3,7 +3,7 @@ const $ = (s) => document.querySelector(s);
 
 const Panel = (() => {
   const el = $('#panel'); let onClose = null, returnFocus = null;
-  const box = el.querySelector('.pn-box'), title = el.querySelector('.pn-title');
+  const box = el.querySelector('.pn-box'), title = el.querySelector('.pn-title'), footer = el.querySelector('.pn-footer');
   title.id = 'panelTitle'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-labelledby', 'panelTitle'); box.tabIndex = -1;
   el.querySelector('.pn-close').setAttribute('aria-label', '閉じる');
   const focusable = () => [...box.querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled),summary,a[href],[tabindex="0"]')].filter(e => e.tabIndex >= 0 && e.getClientRects().length);
@@ -13,6 +13,8 @@ const Panel = (() => {
     if (el.classList.contains('hidden')) returnFocus = document.activeElement;
     el.querySelector('.pn-title').textContent = title;
     el.querySelector('.pn-body').innerHTML = html;
+    footer.innerHTML = opt.footer || '';
+    footer.classList.toggle('hidden', !opt.footer);
     el.querySelector('.pn-close').style.display = opt.noClose ? 'none' : '';
     el.dataset.noclose = opt.noClose ? '1' : '';
     onClose = opt.onClose || null;
@@ -22,7 +24,7 @@ const Panel = (() => {
   }
   function close() {
     if (el.classList.contains('hidden')) return;
-    el.classList.add('hidden'); el.querySelector('.pn-body').innerHTML = ''; const f = onClose; onClose = null; f && f();
+    el.classList.add('hidden'); el.querySelector('.pn-body').innerHTML = ''; footer.innerHTML = ''; footer.classList.add('hidden'); const f = onClose; onClose = null; f && f();
     if (el.classList.contains('hidden') && returnFocus?.isConnected) returnFocus.focus({ preventScroll: true });
     document.dispatchEvent(new Event('game-panel-closed'));
   }
@@ -409,7 +411,7 @@ const Engine = (() => {
           Board.enterPhase1({ skyCharges: Renoir.state.colors.length || 4, say: { who: 'アリア', text: '白い膜だけを、切り分ける。<br><small>メニューの「小さな夜空」で、ルノワールの夜空が床を取り戻してくれる</small>' } });
         };
       }
-      Board.start(conf, () => { res(); });
+      Board.start({ ...conf, resultLabel: '物語をつづける' }, () => { res(); });
     }).then(() => { if (mine === token && scene.aura !== 'none') setAura(scene.aura); });
   }
 

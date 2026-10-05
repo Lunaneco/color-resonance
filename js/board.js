@@ -2138,7 +2138,7 @@ const Board = (() => {
       ${Object.entries(stats.bondGains).map(([id, n]) => `<p class="r-bond" style="color:${SPIRITS[id].color}">${SPIRITS[id].name}との絆 +${n}（絆${bondRank(id)}）</p>`).join('')}
       ${Object.entries(stats.trainingGains).map(([id, gains]) => Object.entries(gains).filter(([, n]) => n).map(([route, n]) => `<p class="r-bond" style="color:${SPIRITS[id].color}">${SPIRITS[id].name}・${Progression.routes[route].name}熟練 +${n}（${Progression.training(party, id, route)}）</p>`).join('')).join('')}
       ${stats.learned.map(id => { const s = Progression.skills.find(s => s.id === id); return `<div class="r-unique"><small>${Progression.routes[s.route].name}の熟練で覚えた${s.type}</small><b>${s.name}</b><span>${s.desc}</span></div>`; }).join('')}
-      <div><button class="btn-main" id="resNext">つづける</button></div></div>`, { noClose: true });
+      </div>`, { noClose: true, footer: `<button class="btn-main" id="resNext">${cfg.resultLabel || (onDone ? 'つづける' : 'マップへ戻る')}</button>` });
     if (u) Audio2.sfx.levelup();
     document.getElementById('resNext').onclick = () => { if (!running) return; Panel.close(); end(true); };
   }
@@ -2150,7 +2150,7 @@ const Board = (() => {
       Panel.open('', `<div class="result"><div class="r-name" style="margin-top:8px">${cfg.loseText || '黒が、すべてを覆った。'}</div>
         <p style="margin:10px 0 4px">リラの声がした気がした。<br>「急がなくていい。凪いだ水面を選びなさい」</p>
         <p style="font-size:12px;color:var(--ink-faint)">得た経験・精霊との絆・覚えた技は、残っています。<br>難易度：${Progression.difficulties[difficulty].name}</p>
-        <button class="btn-main" id="resRetry">もう一度、立ち上がる</button></div>`, { noClose: true });
+        </div>`, { noClose: true, footer: '<button class="btn-main" id="resRetry">もう一度、立ち上がる</button>' });
       document.getElementById('resRetry').onclick = () => { Panel.close(); restart(); };
     }, 1500);
   }
@@ -2217,6 +2217,7 @@ const Board = (() => {
   // ---------- 開始・終了 ----------
   function start(conf, done) {
     stop();
+    if (World.isOpen) World.close();
     party = loadParty();
     const key = Progression.normalize(conf.difficulty || Progression.selected(party, conf.id));
     baseCfg = { ...conf, difficulty: key }; onDone = done;
@@ -2317,7 +2318,8 @@ const Board = (() => {
     cancelPending();
     running = false; screen.classList.add('hidden'); hideSay(); floatLayer.innerHTML = ''; hideMenu();
     document.getElementById('pouch').style.visibility = '';
-    const cb = onDone; onDone = null; cb && cb(won);
+    const cb = onDone; onDone = null;
+    if (cb) cb(won); else World.open();
   }
   return {
     start, enterPhase1, help, stop,
