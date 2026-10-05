@@ -903,6 +903,7 @@ const Board = (() => {
     hintTimer = ms ? later(() => hintEl.classList.remove('show'), ms) : null;
   }
   function hideSay() { if (hintTimer) hintTimer(); hintTimer = null; hintEl.classList.remove('show'); }
+  hintEl.addEventListener('click', e => { e.stopPropagation(); hideSay(); });
   $id('hintClose').addEventListener('click', e => { e.stopPropagation(); hideSay(); });
   async function showBanner(kind, main, sub) {
     bannerEl.className = '';

@@ -110,9 +110,10 @@ for(const viewport of [{width:1440,height:900},{width:390,height:844},{width:667
     await boot('cove',viewport);const before=await state();
     assert(await page.locator('#hint').evaluate(e=>e.classList.contains('show')));
     await inViewport('hintClose');
-    if(viewport.width<900)await page.locator('#hintClose').tap();else await page.locator('#hintClose').click();
+    if(viewport.width<900)await page.locator('#hintText').tap();else await page.locator('#hintText').click();
     assert(!await page.locator('#hint').evaluate(e=>e.classList.contains('show')));
     const after=await state();assert.deepEqual([aria(after).r,aria(after).c,after.turn,after.mode],[aria(before).r,aria(before).c,before.turn,before.mode]);
+    assert.equal(after.sp,before.sp);assert.deepEqual(after.cells,before.cells);
     assert(!aria(after).moved&&!aria(after).acted);
     await page.locator('#boardHelp').click();assert(await page.evaluate(()=>Panel.isOpen()));
     assert((await page.locator('.pn-body').textContent()).includes('動かし方'));
@@ -133,10 +134,12 @@ test('Dismissing a tutorial preserves later instructions, and the last instructi
   await page.evaluate(()=>Board.start({...BOARDS.cove,map:{low:['land_flat'],mid:['land_flat'],high:['land_flat'],hills:0,obsAmt:0,water:null},enemies:[{kind:'shade',lv:1,n:2}],beats:[]}));
   await idle();
   await page.evaluate(()=>{Math.random=()=>.5;const foes=Board.__test.state().units.filter(u=>u.side==='enemy');Board.__test.arrange([{kind:'aria',r:5,c:4,hp:1000,mhp:1000,atk:999},{id:foes[0].id,r:2,c:2,hp:1},{id:foes[1].id,r:1,c:1,hp:1000,mhp:1000,atk:1}]);});
-  await page.locator('#hintClose').click();
+  await page.locator('#hintText').click();
   const cell=await legalCell();assert(cell);await page.mouse.click(cell.x,cell.y);await idle();
   assert((await page.locator('#hintText').textContent()).includes('歩いた床は'));
   assert(await page.locator('#hint').evaluate(e=>e.classList.contains('show')));
+  await page.locator('#hintClose').click();
+  assert(!await page.locator('#hint').evaluate(e=>e.classList.contains('show')));
   await page.evaluate(()=>{const s=Board.__test.state(),a=s.units.find(u=>u.kind==='aria'),e=s.units.find(u=>u.side==='enemy');Board.__test.arrange([{id:e.id,r:a.r===0?1:a.r-1,c:a.c}]);});
   await page.locator('[data-k=attack]').click();await clickUnit(enemy(await state()),true);
   await page.waitForFunction(()=>document.getElementById('hintText').textContent.includes('言葉が煙になって'));
