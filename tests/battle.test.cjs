@@ -11,12 +11,13 @@ let browser, server, base, context, page, errors;
 // Test-only access to battle state. The deployed JavaScript has no test API.
 const hook = `__test: {
   state() { return {running,phase,turn,busy,over,paused,mode,sp,stage,skyCharges,tw,zoom:cam.z,itemUses:stats&&stats.items,artEffects:artEffects.map(e=>e.id),sel:sel&&sel.id,spiritUses:stats&&stats.spiritUses,skillUses:stats&&stats.skillUses,difficulty,recommendedLv:cfg&&cfg.recommendedLv,missionProgress:(cfg&&cfg.missions||[]).map(m=>missionState(m,false)),
-    units:units.map(u=>({id:u.id,kind:u.kind,side:u.side,dir:u.dir,lv:u.lv,atk:u.atk,def:u.def,armor:u.armor,root:u.root,guard:u.guard,r:u.r,c:u.c,hp:u.hp,mhp:u.mhp,moved:u.moved,acted:u.acted,dead:!!u.dead,hidden:!!u.hidden,enchant:u.enchant,until:u.until,
+    units:units.map(u=>({id:u.id,kind:u.kind,side:u.side,dir:u.dir,lv:u.lv,atk:u.atk,def:u.def,armor:u.armor,root:u.root,guard:u.guard,r:u.r,c:u.c,hp:u.hp,mhp:u.mhp,moved:u.moved,acted:u.acted,normalAttacks:u.normalAttacks,undo:!!u.undo,dead:!!u.dead,hidden:!!u.hidden,enchant:u.enchant,until:u.until,
       ...toScreen(unitXY(u).x,unitXY(u).y),bodyY:toScreen(unitXY(u).x,unitXY(u).y-tw*u.hgt*.5).y})),
     cells:cells.map((c,i)=>({id:i,r:c.r,c:c.c,floor:c.floor,...toScreen(topOf(c).x,topOf(c).y)})),
     ends:moveInfo?[...moveInfo.ends]:[],targets:targets?[...targets]:[],cfg:cfg&&cfg.id}; },
   arrange(updates) { for(const spec of updates){const u=units.find(u=>spec.id?u.id===spec.id:u.kind===spec.kind);Object.assign(u,spec);}refreshHud();select(ariaU(),true); },
   addAlly(kind,r,c,extra={}) { const u=makeUnit(kind,'ally',1,cellAt(r,c),extra);units.push(u);refreshHud();return u.id; },
+  command(k,arg) { command(k,arg); },
   damage(fromId,toId) { return calcDamage(units.find(u=>u.id===fromId),units.find(u=>u.id===toId),{},null,false); },
   pick(x,y){const c=pick(x,y);return c&&{r:c.r,c:c.c};}
 },
@@ -216,6 +217,117 @@ test('Enchanting keeps the action available and prevents a second enchant or sum
   assert.equal(aria(s).enchant.id,'gran');assert(!aria(s).acted);assert.equal(s.sp,3);assert(!(await page.locator('#endTurn').isDisabled()));
   await page.locator('[data-k=spirit]').click();assert(await page.locator('[data-k=enchant][data-a=ivy]').isDisabled());assert(await page.locator('[data-k=summon][data-a=gran]').isDisabled());
 });
+
+async function enchantBattle(id='king',viewport={width:1440,height:900}) {
+  await boot('king',viewport);await fixture('king',{spStart:6,spirits:['gran','ivy','spinel','king']});
+  await page.evaluate(()=>Board.__test.arrange([{kind:'aria',atk:25,hp:200,mhp:1000},{kind:'shade',hp:1000,mhp:1000,atk:1,dir:2}]));
+  await openMenu();await page.locator('[data-k=spirit]').click();
+  assert.match(await page.locator('.cm-spirit-choice').textContent(),/通常攻撃が毎ターン2回/);
+  await page.locator(`[data-k=enchant][data-a=${id}]`).click();await idle();
+}
+async function enchantedHit(target) {
+  target=target||enemy(await state());
+  if(!await page.locator('#cmdMenu').isVisible())await openMenu();
+  await page.locator('[data-k=attack]').click();await clickUnit(target,true);
+  await page.waitForFunction(()=>{const s=Board.__test.state();return !s.busy||s.over;},{},{timeout:15000});
+}
+
+for(const id of ['gran','ivy','spinel','king']) {
+  test(`Enchanted ${id} grants exactly two normal attacks with its effect on both hits`,async()=>{
+    await enchantBattle(id);await page.evaluate(()=>Board.__test.addAlly('gran',1,1));
+    if(id==='spinel'){await page.evaluate(()=>Board.__test.arrange([{kind:'shade',armor:3,def:999}]));await openMenu();}
+    const before=await state();assert.match(await page.locator('.cm-combo').textContent(),/残り2回/);
+    if(id==='king'){await page.keyboard.press('Escape');await clickUnit(enemy(await state()),true);await idle();}else await enchantedHit();
+    const first=await state(),a=aria(first),d=enemy(first);
+    assert.equal(first.turn,1);assert(!a.acted&&a.moved);assert.equal(a.normalAttacks,1);assert(!a.undo);assert(d.hp<enemy(before).hp);assert.equal(first.sp,4);
+    assert.match(await page.locator('.cm-combo').textContent(),/残り1回/);
+    assert.equal(await page.locator('[data-k=flash],[data-k=pray],[data-k=spirit],[data-k=learned],[data-k=item],[data-k=undo]').count(),0);
+    if(id==='gran')assert.deepEqual([d.r,d.c],[3,4]);
+    if(id==='ivy'){assert(a.hp>aria(before).hp);assert.equal(d.root,1);}
+    if(id==='spinel')assert.equal(d.armor,0);
+    assert.equal(first.cells.find(c=>c.r===enemy(before).r&&c.c===enemy(before).c).floor,'rainbow');
+    await enchantedHit();const second=await state();assert(aria(second).acted);assert.equal(aria(second).normalAttacks,2);assert(enemy(second).hp<d.hp);assert.equal(second.sp,5);assert.equal(second.turn,1);
+    if(id==='ivy')assert(aria(second).hp>a.hp);
+    await clickUnit(enemy(second),true);await page.keyboard.press('a');await page.waitForTimeout(300);
+    assert.equal(enemy(await state()).hp,enemy(second).hp,'A third attack is unavailable');
+  });
+}
+
+test('Enchanted follow-up can target a different enemy and cannot undo movement or use another action',async()=>{
+  await enchantBattle();
+  await page.evaluate(()=>Board.__test.addAlly('gran',1,1));
+  const cell=await legalCell();assert(cell);await page.mouse.click(cell.x,cell.y);await idle();const moved=aria(await state());assert(moved.undo);
+  await page.evaluate(()=>{const s=Board.__test.state(),a=s.units.find(u=>u.kind==='aria'),n=s.cells.filter(c=>Math.abs(c.r-a.r)+Math.abs(c.c-a.c)===1&&!s.units.some(u=>u.r===c.r&&u.c===c.c));Board.__test.arrange([{kind:'shade',r:n[0].r,c:n[0].c}]);Board.__test.addAlly('shade',n[1].r,n[1].c,{side:'enemy',hp:1000,mhp:1000,atk:1});});
+  await enchantedHit();const first=await state(),hit=enemy(first),a=aria(first);
+  assert(!a.undo);assert.equal(await page.locator('#cancelSel').textContent(),'選び直す');
+  await page.evaluate(()=>{for(const k of ['undo','flash','pray','spirit','learned','item','sky','enchant','summon'])Board.__test.command(k,'ivy');});
+  const guarded=await state(),afterGuard=aria(guarded);assert.equal(guarded.sp,first.sp);assert.deepEqual([afterGuard.r,afterGuard.c,afterGuard.dir,afterGuard.normalAttacks,afterGuard.acted,afterGuard.enchant],[a.r,a.c,a.dir,a.normalAttacks,a.acted,a.enchant]);assert.equal(guarded.mode,'selected');assert.equal(guarded.itemUses,0);
+  await page.locator('#skills .skill').first().click();assert.equal((await state()).mode,'selected');assert.equal(await page.locator('[data-k=summon]').count(),0);
+  await page.locator('[data-k=attack]').click();await page.keyboard.press('Escape');assert.equal((await state()).mode,'selected');assert.equal(aria(await state()).normalAttacks,1);
+  await page.locator('#cancelSel').click();assert.equal((await state()).mode,'idle');assert.deepEqual([aria(await state()).r,aria(await state()).c],[moved.r,moved.c]);
+  await clickUnit(aria(await state()),true);assert.equal((await state()).ends.length,0);assert.match(await page.locator('.cm-combo').textContent(),/残り1回/);
+  const other=(await state()).units.find(u=>u.side==='enemy'&&u.id!==hit.id);
+  await enchantedHit(other);const end=await state();assert(end.units.find(u=>u.id===other.id).hp<other.hp);assert.equal(end.units.find(u=>u.id===hit.id).hp,hit.hp);assert(aria(end).acted);
+});
+
+test('A missed enchanted attack uses one opportunity, and waiting can abandon the follow-up with a chosen facing',async()=>{
+  await enchantBattle();await page.evaluate(()=>{Board.__test.addAlly('gran',1,1);Math.random=()=>0;});
+  const before=await state();await enchantedHit();const missed=await state();assert.equal(enemy(missed).hp,enemy(before).hp);assert.equal(missed.sp,before.sp);assert.equal(aria(missed).normalAttacks,1);assert(!aria(missed).acted);
+  await page.keyboard.press('w');assert.equal((await state()).mode,'facing');await page.keyboard.press('Escape');assert(!aria(await state()).acted);assert.match(await page.locator('.cm-combo').textContent(),/残り1回/);
+  await page.keyboard.press('w');await page.keyboard.press('4');const end=await state();assert(aria(end).acted);assert.equal(aria(end).dir,3);assert.equal(aria(end).normalAttacks,1);
+});
+
+test('An enchanted kill with no target in reach keeps a usable wait option',async()=>{
+  await enchantBattle('gran');await page.evaluate(()=>{Board.__test.arrange([{kind:'shade',hp:1}]);Board.__test.addAlly('shade',0,0,{side:'enemy',hp:1000,mhp:1000,root:10});});
+  await enchantedHit();assert(!aria(await state()).acted);assert(await page.locator('[data-k=attack]').isDisabled());assert.match(await page.locator('.cm-combo').textContent(),/届く敵がいません/);
+  await page.keyboard.press('w');await page.keyboard.press('2');
+  await page.waitForFunction(()=>Board.__test.state().turn===2&&!Board.__test.state().busy,{},{timeout:25000});assert.equal(aria(await state()).normalAttacks,0);
+});
+
+test('Enchanted attacks reset on the next turn and return to one attack after the three-turn effect expires',async()=>{
+  await enchantBattle();await enchantedHit();await enchantedHit();
+  await page.waitForFunction(()=>Board.__test.state().turn===2&&!Board.__test.state().busy,{},{timeout:25000});
+  const next=await state();assert.equal(aria(next).enchant.turns,2);assert.equal(aria(next).normalAttacks,0);assert(!aria(next).moved&&!aria(next).acted);
+  await openMenu();assert.match(await page.locator('.cm-combo').textContent(),/残り2回/);
+  for(const turn of [3,4]){await page.locator('#endTurn').click();await page.waitForFunction(turn=>Board.__test.state().turn===turn&&!Board.__test.state().busy,turn,{timeout:25000});}
+  assert.equal(aria(await state()).enchant,null);await page.evaluate(()=>Board.__test.addAlly('gran',1,1));await openMenu();
+  assert.equal(await page.locator('.cm-combo').count(),0);await enchantedHit();assert(aria(await state()).acted);assert.equal(aria(await state()).normalAttacks,1);
+});
+
+test('Using a skill while enchanted still consumes the whole action',async()=>{
+  await enchantBattle();await page.evaluate(()=>Board.__test.addAlly('gran',1,1));
+  await page.locator('[data-k=flash]').click();await clickUnit(enemy(await state()),true);await idle();
+  const end=await state();assert(aria(end).acted);assert.equal(aria(end).normalAttacks,0);assert.equal(end.sp,1);assert(await page.locator('#cmdMenu').evaluate(e=>e.classList.contains('hidden')));
+});
+
+test('A summoned spirit still has one normal attack per turn',async()=>{
+  await boot('king');await fixture('king',{spStart:6});await page.evaluate(()=>Board.__test.arrange([{kind:'aria',hp:1000,mhp:1000},{kind:'shade',hp:1000,mhp:1000,atk:1,r:1,c:1,root:10}]));
+  await openMenu();await page.locator('[data-k=spirit]').click();await page.locator('[data-k=summon][data-a=gran]').click();const cell=await legalCell('targets');assert(cell);await page.mouse.click(cell.x,cell.y);
+  await page.waitForFunction(()=>Board.__test.state().turn===2&&!Board.__test.state().busy,{},{timeout:25000});
+  const su=(await state()).units.find(u=>u.kind==='gran');assert(su);
+  await page.evaluate(id=>{const s=Board.__test.state(),u=s.units.find(u=>u.id===id);Board.__test.arrange([{kind:'shade',r:u.r-1,c:u.c,dir:2},{id,moved:true}]);},su.id);
+  await clickUnit((await state()).units.find(u=>u.id===su.id),true);await page.locator('[data-k=attack]').click();await clickUnit(enemy(await state()),true);await idle();
+  const end=await state(),spirit=end.units.find(u=>u.id===su.id);assert(spirit.acted);assert.equal(spirit.normalAttacks,1);assert.equal(end.turn,2);assert(!aria(end).acted);
+});
+
+test('The first enchanted hit can win immediately and an interrupted hit cannot grant the next battle a follow-up',async()=>{
+  await enchantBattle();await page.evaluate(()=>Board.__test.arrange([{kind:'shade',hp:1}]));await enchantedHit();await page.locator('#resNext').waitFor({timeout:12000});assert((await state()).over);
+  assert(await page.locator('#cmdMenu').evaluate(e=>e.classList.contains('hidden')));await page.locator('#resNext').click();
+  await fixture('king',{spStart:6});await page.evaluate(()=>Board.__test.arrange([{kind:'aria',enchant:{id:'king',turns:3,from:1}},{kind:'shade',hp:1000}]));
+  await openMenu();await page.locator('[data-k=attack]').click();await clickUnit(enemy(await state()),true);await page.evaluate(()=>Board.stop());await fixture('cove');await page.waitForTimeout(1500);
+  const fresh=await state();assert.equal(fresh.cfg,'cove');assert.equal(aria(fresh).normalAttacks,0);assert(!aria(fresh).acted&&!aria(fresh).enchant);assert.equal(enemy(fresh).hp,1);
+});
+
+for(const viewport of [{width:320,height:480},{width:390,height:844},{width:667,height:375}]) {
+  test(`Enchanted follow-up is visible and tappable at ${viewport.width}×${viewport.height}`,async()=>{
+    await enchantBattle('king',viewport);await page.evaluate(()=>Board.__test.addAlly('gran',1,1));
+    await page.locator('[data-k=attack]').tap();await page.touchscreen.tap(enemy(await state()).x,enemy(await state()).bodyY);await idle();
+    await inViewport('cmdMenu');assert.match(await page.locator('.cm-combo').textContent(),/残り1回/);
+    await page.screenshot({path:`/tmp/cr-balance-followup-${viewport.width}.png`});
+    const button=page.locator('[data-k=attack]'),box=await button.boundingBox();assert(box.height>=40&&box.width>=44);
+    await button.tap();await page.touchscreen.tap(enemy(await state()).x,enemy(await state()).bodyY);await idle();assert(aria(await state()).acted);assert.equal(aria(await state()).normalAttacks,2);
+  });
+}
 
 test('A summoned spirit becomes selectable on the next turn',async()=>{
   await boot('king');await fixture('king',{spStart:6});await page.evaluate(()=>Board.__test.arrange([{kind:'aria',atk:25,hp:1000,mhp:1000},{kind:'shade',hp:1000,mhp:1000,atk:1,r:1,c:1}]));

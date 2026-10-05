@@ -1018,7 +1018,7 @@ const Board = (() => {
     if (side === 'enemy' && cfg.enemyBoost) { if (kind !== 'chrome') s.mhp = Math.round(s.mhp * cfg.enemyBoost.hp); s.atk = Math.round(s.atk * cfg.enemyBoost.atk); }
     return Object.assign({
       id: uid++, kind, side, lv, r: cell.r, c: cell.c, hp: s.mhp, mhp: s.mhp, atk: s.atk, def: s.def, mov: G.mov + (ar ? GB.mov : 0), jump: G.jump + (ar ? GB.jump : 0), rng: G.rng, fly: !!G.fly, armor: G.armor || 0, hgt: G.h,
-      dir: side === 'ally' ? 0 : 2, moved: false, acted: false, root: 0, guard: 0, enchant: null, summon: 0, name: KIND_NAME[kind] || (SPIRITS[kind] && SPIRITS[kind].name) || kind, word: '',
+      dir: side === 'ally' ? 0 : 2, moved: false, acted: false, normalAttacks: 0, root: 0, guard: 0, enchant: null, summon: 0, name: KIND_NAME[kind] || (SPIRITS[kind] && SPIRITS[kind].name) || kind, word: '',
       flash: 0, lunge: null, knock: null, mv: null, dk: null, dieT: 0, bornT: performance.now(), hidden: false, dead: false,
     }, extra);
   }
@@ -1404,7 +1404,7 @@ const Board = (() => {
       const ar = ariaU(); if (ar && GB.regen && ar.hp < ar.mhp) heal(ar, Math.round(ar.mhp * GB.regen / 100));
       if (T.regen) live().filter(u => u.side === 'ally' && u.hp < u.mhp).forEach(u => heal(u, Math.round(u.mhp * T.regen)));
     }
-    live().filter(u => u.side === 'ally').forEach(u => { u.moved = false; u.acted = false; u.undo = null; });
+    live().filter(u => u.side === 'ally').forEach(u => { u.moved = false; u.acted = false; u.normalAttacks = 0; u.undo = null; });
     refreshHud();
     await showBanner('player', 'PLAYER PHASE', `TURN ${turn}　—　${floorNames()[0]}の手番`);
     if (my !== sess || over) return;
@@ -1517,6 +1517,9 @@ const Board = (() => {
   }
 
   // ---------- 選択と命令 ----------
+  const normalAttackLimit = u => stage && u.kind === 'aria' && u.enchant ? 2 : 1;
+  const followUpPending = u => u && !u.acted && u.normalAttacks > 0 && u.normalAttacks < normalAttackLimit(u);
+  const selectionPrompt = u => followUpPending(u) ? 'あと1回攻撃できます／待機で向きを選んで終了' : u.moved ? '行動を選んでください' : '光る床へ移動／本人に触れて、その場で行動';
   function select(u, quiet) {
     sel = u; mode = 'selected'; threat = null; menuSub = null;
     moveInfo = u.moved ? null : reachable(u);
@@ -1524,7 +1527,7 @@ const Board = (() => {
     if (u.moved || !moveInfo.ends.size) showMenu(u); else hideMenu();
     showInfo(u);
     if (!quiet) Audio2.sfx.choose();
-    phaseLabel.textContent = u.moved ? '行動を選んでください' : '光る床へ移動／本人に触れて、その場で行動';
+    phaseLabel.textContent = selectionPrompt(u);
     tutorialStep('select');
   }
   function deselect() {
@@ -1536,17 +1539,17 @@ const Board = (() => {
     if (busy || over) return;
     hideSay();
     if (mode === 'facing') { closeFacing(); return; }
-    if (mode === 'target') { targets = null; targetCmd = null; mode = 'selected'; if (sel) { moveInfo = sel.moved ? null : reachable(sel); showMenu(sel, menuSub); phaseLabel.textContent = sel.moved ? '行動を選んでください' : '光る床へ移動／本人に触れて、その場で行動'; } return; }
+    if (mode === 'target') { targets = null; targetCmd = null; mode = 'selected'; if (sel) { moveInfo = sel.moved ? null : reachable(sel); showMenu(sel, menuSub); phaseLabel.textContent = selectionPrompt(sel); } return; }
     if (mode === 'selected' && sel) {
       if (menuSub) { showMenu(sel); return; }
       if (!sel.moved && !cmdMenu.classList.contains('hidden')) { hideMenu(); return; }
-      if (sel.moved && !sel.acted) { undoMove(sel); return; }
+      if (sel.moved && !sel.acted && sel.undo && !sel.normalAttacks) { undoMove(sel); return; }
       deselect();
     }
     threat = null;
   }
   function undoMove(u) {
-    if (!u.undo || u.acted) return;
+    if (!u.undo || u.acted || u.normalAttacks) return;
     for (let i = u.undo.floors.length - 1; i >= 0; i--) { const [c, f] = u.undo.floors[i]; c.floor = c.prev = f; c.flipT = 0; }
     u.r = u.undo.r; u.c = u.undo.c; u.dir = u.undo.dir; u.moved = false; u.undo = null;
     Audio2.sfx.page();
@@ -1559,13 +1562,18 @@ const Board = (() => {
     hideMenu();
     phaseLabel.textContent = '対象を選んでください（右クリック／Escで戻る）';
   }
-  function act(u, fn) { return runTask((async () => {
+  function act(u, fn, normal = false) {
+    if (!running || phase !== 'player' || busy || over || paused || u.acted || (u.normalAttacks && !normal) || (normal && u.normalAttacks >= normalAttackLimit(u))) return;
+    return runTask((async () => {
     const my = sess;
     busy = true; hideMenu(); targets = null; targetCmd = null; mode = 'acting'; threat = null;
     endBtn.disabled = true; phaseLabel.textContent = '';
     const r = await fn();
     if (my !== sess || !running) return;
-    u.acted = true; u.moved = true;
+    // 空振りも1回に数える。1撃目を確定したら、移動や別の行動には戻せない。
+    if (normal) u.normalAttacks++;
+    u.acted = !(normal && u.normalAttacks < normalAttackLimit(u));
+    u.moved = true; u.undo = null;
     if (over) return;
     busy = false; endBtn.disabled = false;
     deselect();
@@ -1581,6 +1589,7 @@ const Board = (() => {
       return;
     }
     void r;
+    if (followUpPending(u)) { select(u, true); return; }
     autoEnd();
   })()); }
   function autoEnd() {
@@ -1600,7 +1609,7 @@ const Board = (() => {
     if (!sel) { deselect(); return; }
     moveInfo = sel.moved ? null : reachable(sel);
     showMenu(sel); updateBar(); showInfo(sel);
-    phaseLabel.textContent = sel.moved ? '行動を選んでください' : '光る床へ移動／本人に触れて、その場で行動';
+    phaseLabel.textContent = selectionPrompt(sel);
     cmdMenu.querySelector('[data-k="wait"]')?.focus({ preventScroll: true });
   }
   function finishWait(u, dir) {
@@ -1613,6 +1622,7 @@ const Board = (() => {
     if (!running || phase !== 'player' || busy || !sel || over || paused || Panel.isOpen()) return;
     hideSay();
     const u = sel;
+    if (u.acted || (followUpPending(u) && !['attack', 'wait', 'facewait', 'back'].includes(k))) return;
     if (mode === 'facing' && k !== 'facewait' && k !== 'back') return;
     Audio2.sfx.choose();
     if (k === 'attack') enterTarget('attack', attackTargets(u));
@@ -1634,8 +1644,8 @@ const Board = (() => {
       enterTarget('item:' + arg, s);
     }
     else if (k === 'back') { if (mode === 'facing') closeFacing(); else showMenu(u); }
-    else if (k === 'summon') { if (u.enchant || live().some(x => x.until)) return; enterTarget('summon:' + arg, summonCells(u)); }
-    else if (k === 'enchant') { if (live().some(x => x.until)) return; doEnchant(u, arg); }
+    else if (k === 'summon') { if (u.kind !== 'aria' || !stage || !(cfg.spirits || []).includes(arg) || sp < COST_SUMMON || u.enchant || live().some(x => x.until)) return; enterTarget('summon:' + arg, summonCells(u)); }
+    else if (k === 'enchant') { if (u.kind !== 'aria' || !stage || !(cfg.spirits || []).includes(arg) || enchantUsed || sp < COST_ENCHANT || u.enchant?.id === arg || live().some(x => x.until)) return; doEnchant(u, arg); }
     else if (k === 'sky') { const s = new Set(); cells.forEach(c => { if (c.walk && dist(c, u) <= 4) s.add(idx(c.r, c.c)); }); enterTarget('sky', s); }
     else if (k === 'wait') openFacing(u);
     else if (k === 'facewait') finishWait(u, Number(arg));
@@ -1643,7 +1653,8 @@ const Board = (() => {
   }
   function execTarget(cell) {
     const u = sel, cmd = targetCmd, o = unitAt(cell);
-    if (cmd === 'attack' && o) act(u, () => attack(u, o, { normal: true }));
+    if (!u || u.acted || !cmd || (followUpPending(u) && cmd !== 'attack')) return;
+    if (cmd === 'attack' && o && foe(u, o) && attackTargets(u).has(idx(cell.r, cell.c))) act(u, () => attack(u, o, { normal: true }), true);
     else if (cmd === 'flash') { sp -= flashCost(); act(u, () => flashStrike(u, cell)); }
     else if (cmd === 'pray' && o) { sp -= COST_PRAY; act(u, () => pray(u, o)); }
     else if (cmd.startsWith('skill:')) {
@@ -1674,7 +1685,7 @@ const Board = (() => {
     }
     if (mode === 'selected' && sel) {
       if (!sel.moved && moveInfo && moveInfo.ends.has(id) && !u) { doMove(sel, cell); return; }
-      if (u && foe(sel, u) && attackTargets(sel).has(id)) { act(sel, () => attack(sel, u, { normal: true })); return; }
+      if (u && foe(sel, u) && attackTargets(sel).has(id)) { const a = sel; act(a, () => attack(a, u, { normal: true }), true); return; }
       if (u === sel) { if (cmdMenu.classList.contains('hidden')) showMenu(sel); else if (!sel.moved) hideMenu(); return; }
       if (u && u.side === 'ally') {
         if (sel.moved) { const p = unitXY(sel); floatText(p.x, p.y - tw * 1.5, '行動か待機を選んで', 'sys'); return; }
@@ -1710,7 +1721,7 @@ const Board = (() => {
   const actHereBtn = $id('actHere'), cancelBtn = $id('cancelSel');
   let barState = '';
   function updateBar() {
-    const st = phase === 'player' && !busy && !over && !paused && sel ? (mode === 'facing' ? 'f' : mode === 'target' ? 't' : sel.moved ? 'm' : 's') : '';
+    const st = phase === 'player' && !busy && !over && !paused && sel ? (mode === 'facing' ? 'f' : mode === 'target' ? 't' : followUpPending(sel) ? 'a' : sel.moved ? 'm' : 's') : '';
     if (st === barState) return;
     barState = st;
     actHereBtn.classList.toggle('hidden', st !== 's');
@@ -1722,10 +1733,13 @@ const Board = (() => {
   function hideMenu() { cmdMenu.classList.add('hidden'); }
   function showMenu(u, sub) {
     if (!u || u.acted) { hideMenu(); return; }
+    const followUp = followUpPending(u);
+    if (followUp && sub !== 'facing') sub = null;
     const changed = cmdMenu.dataset.sub !== (sub || '');
     cmdMenu.dataset.sub = sub || '';
     cmdMenu.classList.toggle('learned', sub === 'learned');
     cmdMenu.classList.toggle('facing', sub === 'facing');
+    cmdMenu.classList.toggle('followup', followUp && sub !== 'facing');
     menuSub = sub || null;
     const it = [];
     const btn = (k, label, opt = {}) => `<button class="cm-b" data-k="${k}" ${opt.a ? `data-a="${opt.a}"` : ''} ${opt.dis ? 'disabled' : ''} data-d="${opt.d || ''}">${label}${opt.cost != null ? `<em>${opt.cost}</em>` : ''}${opt.key ? `<kbd>${opt.key}</kbd>` : ''}</button>`;
@@ -1737,6 +1751,7 @@ const Board = (() => {
       it.push('<p class="cm-facing-keys">方向キー＋Enter · 1↗ 2↘ 3↙ 4↖</p>');
     } else if (sub === 'spirit') {
       it.push(`<div class="cm-head">精霊<small>共鳴 ${sp}</small></div>`);
+      it.push('<div class="cm-note cm-spirit-choice"><b>召喚 6</b>：登場の大技＋精霊が別行動<br><b>宿す 3</b>：アリアの通常攻撃が毎ターン2回</div>');
       const summoned = live().find(x => x.until);
       const enchanted = u.enchant;
       if (summoned) it.push(`<div class="cm-note">${summoned.name}を召喚している間は、心剣に宿せない</div>`);
@@ -1749,7 +1764,7 @@ const Board = (() => {
           : (summoned ? '（召喚している間は宿せない）' : enchantUsed ? '（このターンはもう宿した）' : sp < COST_ENCHANT ? '（共鳴が足りない）' : '');
         it.push(`<div class="cm-sp" style="--sc:${s.color}"><div class="cm-spn">${s.name}<small>Lv${rec(id).lv}・絆${bondRank(id)}</small></div>
           <button class="cm-s" data-k="summon" data-a="${id}" ${canSum ? '' : 'disabled'} data-d="【召喚】${s.summon.name}：${s.summon.desc}。${3 + GB.summonTurns}ターン共に戦う（行動を使う）${why('summon')}">召喚<em>${COST_SUMMON}</em></button>
-          <button class="cm-s" data-k="enchant" data-a="${id}" ${canEn ? '' : 'disabled'} data-d="【心剣に宿す】${s.enchant.name}：${s.enchant.desc}。${3 + GB.enchantTurns}ターン（行動を使わない・1ターンに1度）${why('enchant')}">宿す<em>${COST_ENCHANT}</em></button></div>`);
+          <button class="cm-s" data-k="enchant" data-a="${id}" ${canEn ? '' : 'disabled'} data-d="【心剣に宿す】${s.enchant.name}：${s.enchant.desc}。${3 + GB.enchantTurns}ターン、通常攻撃が毎ターン2回（移動は1回・技や道具は1回）。宿す行動は消費なし・1ターンに1度${why('enchant')}">宿す<em>${COST_ENCHANT}</em></button></div>`);
       });
       it.push(btn('back', 'もどる', { d: '' }));
     } else if (sub === 'learned') {
@@ -1766,18 +1781,19 @@ const Board = (() => {
     } else {
       const atk = attackTargets(u).size > 0;
       it.push(`<div class="cm-head">${u.name}<small>Lv${u.lv}</small></div>`);
-      it.push(btn('attack', u.kind === 'aria' ? (u.enchant ? SPIRITS[u.enchant.id].enchant.name : '心剣') : '攻撃', { dis: !atk, key: 'A', d: atk ? '届く敵を選んで攻撃する。敵に直接触れても攻撃できる' : '届く場所に敵がいない' }));
-      if (u.kind === 'aria') {
+      if (normalAttackLimit(u) === 2) it.push(`<div class="cm-combo" role="status" aria-live="polite"><span>通常攻撃</span><b>残り${2 - u.normalAttacks}回</b><small>${followUp ? (atk ? '同じ敵にも、別の敵にも追撃できます。' : '届く敵がいません。待機で向きを選べます。') : '1ターンに2回。技・道具を選ぶと行動終了。'}</small></div>`);
+      it.push(btn('attack', (followUp ? '追撃 · ' : '') + (u.kind === 'aria' ? (u.enchant ? SPIRITS[u.enchant.id].enchant.name : '心剣') : '攻撃'), { dis: !atk, key: 'A', d: atk ? '届く敵を選んで攻撃する。敵に直接触れても攻撃できる' : '届く場所に敵がいない' }));
+      if (u.kind === 'aria' && !followUp) {
         if (stage) it.push(btn('flash', '透明の一閃', { cost: flashCost(), dis: sp < flashCost(), d: '前方2マスを貫く一閃。必中・威力1.35倍、通り道を虹に染める' }));
         it.push(btn('pray', '凪の祈り', { cost: COST_PRAY, dis: sp < COST_PRAY, d: '自分か隣の味方のHPを35%癒し、周りを虹に染める' }));
-        if (stage && (cfg.spirits || []).length) it.push(btn('spirit', '精霊 ▸', { d: '精霊を召喚する／心剣に宿す（どちらか一方だけ）' }));
+        if (stage && (cfg.spirits || []).length) it.push(btn('spirit', '精霊 ▸', { d: '召喚6：大技＋精霊の別行動／宿す3：通常攻撃が毎ターン2回（どちらか一方だけ）' }));
         if (stage && Progression.learned(party).length) it.push(btn('learned', '覚えた技 ▸', { d: '精霊との絆で覚えた魔法・スキル・技。召喚や宿しなしでも使える' }));
         const nItems = Object.keys(party.items).filter(k => party.items[k] > 0 && typeof ITEMS !== 'undefined' && ITEMS[k]).length;
         it.push(btn('item', '道具 ▸', { dis: !nItems, d: nItems ? '道具を使う（行動を使う）' : '道具を持っていない' }));
         if (stage && skyCharges > 0) it.push(btn('sky', '小さな夜空', { cost: '×' + skyCharges, d: 'ルノワールの夜空。周り2マスを夜空に変え、白い膜を打つ' }));
       }
       it.push(btn('wait', '待機 · 向きを選ぶ', { key: 'W', d: '4方向から正面を向ける方向を選んで、行動を終える' }));
-      if (u.moved) it.push(btn('undo', '移動を戻す', { d: '歩く前の場所に戻る' }));
+      if (u.moved && u.undo && !u.normalAttacks) it.push(btn('undo', '移動を戻す', { d: '歩く前の場所に戻る' }));
     }
     it.push('<div class="cm-desc"></div>');
     cmdMenu.innerHTML = it.join('');
@@ -1826,7 +1842,7 @@ const Board = (() => {
         : `<div class="ui-port foe ${u.kind}"></div>`;
     const r = ally ? rec(u.kind) : null;
     const st = [];
-    if (u.enchant) { const es = SPIRITS[u.enchant.id]; st.push(`<span style="--c:${es.color}">宿：${es.enchant.name}・${u.enchant.turns}</span>`); }
+    if (u.enchant) { const es = SPIRITS[u.enchant.id]; st.push(`<span style="--c:${es.color}">宿：${es.enchant.name}・${u.enchant.turns}</span>`); if (normalAttackLimit(u) === 2) st.push(`<span style="--c:${es.color}">通常攻撃${phase === 'player' ? ` 残り${u.acted ? 0 : 2 - u.normalAttacks}回` : '2回'}</span>`); }
     if (u.until) st.push(`<span style="--c:${s.color}">${u.summon > 0 ? `召喚 あと${u.summon}ターン` : '召喚 このターンまで'}</span>`);
     if (u.root) st.push('<span style="--c:#7fd67a">縛られている</span>');
     if (u.guard) st.push('<span style="--c:#ffd25e">守り</span>');
@@ -1857,7 +1873,7 @@ const Board = (() => {
     list.forEach(id => {
       const s = SPIRITS[id], r = rec(id), su = live().find(u => u.kind === id);
       const anySum = live().some(u => u.until), en = a && a.enchant;
-      const state = su ? (su.summon > 0 ? `召喚中・あと${su.summon}ターン` : '召喚中・このターンまで') : (en && en.id === id) ? `心剣に宿る・あと${en.turns}ターン`
+      const state = su ? (su.summon > 0 ? `召喚中・あと${su.summon}ターン` : '召喚中・このターンまで') : (en && en.id === id) ? `通常攻撃2回・あと${en.turns}ターン`
         : anySum ? '召喚中は宿せない' : en ? (sp >= COST_ENCHANT ? '宿し替えできる' : '宿し中は召喚できない') : sp >= COST_SUMMON ? '召喚・宿しができる' : sp >= COST_ENCHANT ? '宿せる' : '共鳴を待つ';
       const b = document.createElement('button');
       b.className = 'skill spirit' + (su || (a && a.enchant && a.enchant.id === id) ? ' armed' : '');
@@ -1865,7 +1881,7 @@ const Board = (() => {
       b.innerHTML = `${GameArt.available(id) ? GameArt.portrait(id, 'sk-art') : ''}<span class="sk-n">${s.name}</span><span class="sk-d">${state}</span><span class="sk-c">Lv${r.lv}・絆${bondRank(id)}</span>`;
       b.onclick = () => {
         if (busy || phase !== 'player' || over || paused || mode === 'facing' || Panel.isOpen()) return;
-        const a2 = ariaU(); if (!a2 || a2.acted) return;
+        const a2 = ariaU(); if (!a2 || a2.acted || followUpPending(a2)) return;
         hideSay();
         if (sel !== a2) { if (sel && sel.moved) return; select(a2, true); }
         if (mode === 'target') { mode = 'selected'; targets = null; targetCmd = null; moveInfo = a2.moved ? null : reachable(a2); }
@@ -2143,7 +2159,7 @@ const Board = (() => {
       <div class="tip-tiles"><div><img src="assets/tiles/crys_land_flat.png">虹の床（味方）</div><div><img src="assets/tiles/dark_land_flat.png">くすんだ床（穢れ）</div></div>
       <h4>床の割合と加護</h4>味方が歩いた床・攻撃した床は<b>虹色</b>に、穢れが立つ床は<b>くすみ</b>ます。盤全体の割合が<b>25%・45%・65%</b>を超えるたびに、その側の攻撃・守り・共鳴が強くなります（65%で毎ターン回復）。<br>自分の色の床に立つと攻撃+10%、相手の色の床では守り-10%。
       <h4>位置どり</h4>敵の足元の<b style="color:#ffd07a">橙の矢印が正面</b>、<b style="color:#81e7ff">青の二本線が背後</b>です。HPの横にも正面を向く矢印が表示されます。敵の情報欄では、選んだ味方の現在位置が正面・側面・背後のどれかを確認できます。<br>高い場所から打つと+15%。敵の<b>背後</b>から+25%（会心も出やすい）、側面から+10%。
-      <h4>精霊</h4>仲間になった精霊は、<b>共鳴</b>を使って力を貸してくれます。<br>・<b>召喚</b>（共鳴6）：盤に降り立ち、登場の大技のあと3ターン共に戦う。<br>・<b>心剣に宿す</b>（共鳴3）：3ターンのあいだ、アリアの攻撃が精霊の力をまとう。行動を使わず、1ターンに1度。<br>召喚と宿しは同時にはできません。召喚している間は宿せず、宿している間は召喚できません。
+      <h4>精霊</h4>仲間になった精霊は、<b>共鳴</b>を使って力を貸してくれます。<br>・<b>召喚</b>（共鳴6）：盤に降り立ち、登場の大技のあと3ターン共に戦う。<br>・<b>心剣に宿す</b>（共鳴3）：3ターンのあいだ、精霊の力をまとった<b>通常攻撃が毎ターン2回</b>に。同じ敵にも別の敵にも追撃でき、空振りも1回に数えます。移動は最初の1回だけで、技・魔法・道具を選ぶと行動は終了します。宿すときは行動を使わず、1ターンに1度。<br>召喚と宿しは同時にはできません。召喚している間は宿せず、宿している間は召喚できません。
       <h4>道具とミッション</h4>町で買った道具は、メニューの「道具」から使えます（行動を使う）。<br>右上のミッションをすべて達成するとSランク。各ステージで最初にSランクを取ると、ユニーク装備が手に入ります。
       <h4>LV</h4>攻撃と撃破で経験値が入り、100たまるとLVが上がります。精霊は、召喚や宿しで育ちます。
       <h4>精霊との絆・覚えた技</h4>召喚で絆+3、心剣に宿すと+2。召喚した精霊の攻撃や、宿した心剣が命中すると+1、覚えた技を使うと+2。絆8・20・40で、その精霊からアリアが魔法・スキル・技を覚えます。<br>習得後は「覚えた技」から、召喚や宿しをせずに使えます。絆が深まるほど精霊のHP・攻撃・守りと、宿した心剣・覚えた技の効果が育ちます。負けても絆と習得は残ります。
