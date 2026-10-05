@@ -25,7 +25,7 @@ const Minigames = (() => {
   const available = id => Engine.unlocked().includes(games[id].need);
   const load = () => Board.party;
   function write(party) { Board.saveParty(); if (typeof World !== 'undefined') World.refresh(); }
-  function stopPulse() { run++; if (pulseTimer) clearTimeout(pulseTimer); pulseTimer = null; }
+  function stopPulse() { run++; if (pulseTimer) clearTimeout(pulseTimer); pulseTimer = null; if (typeof MinigameMotion !== 'undefined') MinigameMotion.clear(); }
   const bits = n => { let count = 0; for (; n; n &= n - 1) count++; return count; };
   function crossMask(rows, cols, index) {
     const r = Math.floor(index / cols), c = index % cols;
@@ -143,6 +143,7 @@ const Minigames = (() => {
   }
   function render() {
     if (!session) return;
+    MinigameMotion.clear();
     const s = session, game = games[s.id];
     const previous = Panel.body();
     const scroll = previous.querySelector(`.mg-play[data-id="${s.id}"]`) ? previous.scrollTop : 0;
@@ -193,7 +194,7 @@ const Minigames = (() => {
         s.board ^= crossMask(rows, cols, index); s.moves++; s.history.push(index); s.history = s.history.slice(-256); delete s.hint;
         s.message = `${Math.floor(index / cols) + 1}行${index % cols + 1}列と隣の灯りを切り替えました。`;
         Audio2.sfx.star(index); persist();
-        if (s.board === full) finish(); else { render(); Panel.body().querySelector(`[data-lamp="${index}"]`).focus({ preventScroll: true }); }
+        if (s.board === full) finish(); else { render(); Panel.body().querySelector(`[data-lamp="${index}"]`).focus({ preventScroll: true }); MinigameMotion.lantern(index, crossMask(rows, cols, index), s.board); }
       };
       button.onkeydown = event => {
         const offsets = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -cols, ArrowDown: cols };
@@ -203,7 +204,7 @@ const Minigames = (() => {
       };
     });
     body.querySelector('[data-undo]').onclick = () => {
-      if (!s.history.length) return; s.board ^= crossMask(rows, cols, s.history.pop()); s.moves++; s.message = 'ひとつ前の灯りに戻しました。'; delete s.hint; persist(); render();
+      if (!s.history.length) return; const index = s.history.pop(), mask = crossMask(rows, cols, index); s.board ^= mask; s.moves++; s.message = 'ひとつ前の灯りに戻しました。'; delete s.hint; persist(); render(); MinigameMotion.lantern(index, mask, s.board);
     };
     body.querySelector('[data-reset]').onclick = () => {
       s.board = s.initial; s.history = []; s.hints++; s.message = '同じ盤面からやり直せます。成績のため、使った手数は残ります。'; delete s.hint; persist(); render();
@@ -222,7 +223,7 @@ const Minigames = (() => {
     return `<p class="mg-instruction"><b>響いた順番を覚えて、返そう。</b>全3節。間違えても、その節から何度でも続けられます。</p>
       <div class="mg-meter"><span>節 <b>${s.round + 1} / 3</b></span><span>覚える音 <b>${length}</b></span><span>返した音 <b data-input>${s.input.length} / ${length}</b></span></div>
       ${s.practice ? '<div class="mg-tip">練習では「潮→芽→金」から始まります。お手本を見てから「順番を返す」を選ぼう。返す時は、次の響きに印がつきます。</div>' : ''}
-      <div class="mg-echo" data-phase="${s.phase}" role="group" aria-label="四つの響き"><div class="mg-echo-turn" role="status">${s.phase === 'answer' ? `あなたの番 · あと${length - s.input.length}音` : s.phase === 'watch' || s.phase === 'manual' ? 'お手本 · 光った結晶を覚えよう' : '① お手本を見る → ② 同じ順で返す'}</div>${pads.map((pad, i) => `<button class="mg-pad${s.practice && s.phase === 'answer' && s.sequence[s.input.length] === i ? ' practice-target' : ''}" data-pad="${i}" style="--pad-color:${pad.color}" aria-label="${i + 1} ${pad.name}${s.practice && s.phase === 'answer' && s.sequence[s.input.length] === i ? ' 次の響き' : ''}" ${s.phase !== 'answer' ? 'disabled' : ''}><kbd>${i + 1}</kbd>${prop(pad.art)}<b><span aria-hidden="true">${pad.symbol}</span> ${pad.name}</b></button>`).join('')}</div>
+      <div class="mg-echo" data-phase="${s.phase}" role="group" aria-label="四つの響き"><div class="mg-echo-turn" role="status"><span>${s.phase === 'answer' ? `あなたの番 · あと${length - s.input.length}音` : s.phase === 'watch' || s.phase === 'manual' ? 'お手本 · 光った結晶を覚えよう' : '① お手本を見る → ② 同じ順で返す'}</span><span class="mg-verse-stars" role="img" aria-label="完成した節 ${s.round} / 3">${[0, 1, 2].map(i => `<i class="${i < s.round ? 'lit' : ''}" aria-hidden="true">✦</i>`).join('')}</span></div>${pads.map((pad, i) => `<button class="mg-pad${s.practice && s.phase === 'answer' && s.sequence[s.input.length] === i ? ' practice-target' : ''}" data-pad="${i}" style="--pad-color:${pad.color}" aria-label="${i + 1} ${pad.name}${s.practice && s.phase === 'answer' && s.sequence[s.input.length] === i ? ' 次の響き' : ''}" ${s.phase !== 'answer' ? 'disabled' : ''}><kbd>${i + 1}</kbd>${prop(pad.art)}<b><span aria-hidden="true">${pad.symbol}</span> ${pad.name}</b></button>`).join('')}</div>
       <div class="mg-echo-progress" aria-hidden="true">${Array.from({ length }, (_, i) => `<i class="${i < s.input.length ? 'done' : ''}"></i>`).join('')}</div>
       <div class="mg-status" role="status" aria-live="polite">${s.message || '「お手本を聴く」で、色と記号の順番を見てみよう。'}</div>
       <div class="mg-toolbar"><button data-listen>${s.phase === 'ready' ? 'お手本を聴く' : 'もう一度聴く'}</button><button data-step>一音ずつ見る</button><button data-answer ${s.phase === 'ready' ? 'disabled' : ''}>順番を返す</button></div>
@@ -234,6 +235,7 @@ const Minigames = (() => {
     Panel.body().querySelectorAll('.mg-pad').forEach(pad => pad.classList.toggle('sounding', pad === button));
     Panel.body().querySelector('.mg-status').textContent = message;
     Audio2.sfx.star([0, 2, 4, 5][index]);
+    MinigameMotion.echo(index, 'listen');
   }
   function bindEcho(body) {
     const s = session, length = games.echo.lengths[s.difficulty] + s.round;
@@ -267,15 +269,17 @@ const Minigames = (() => {
     const length = games.echo.lengths[s.difficulty] + s.round;
     Audio2.sfx.star([0, 2, 4, 5][index]);
     if (index !== s.sequence[s.input.length]) {
-      s.mistakes++; s.input = []; s.phase = 'ready'; s.message = '違う響きでした。この節から、落ち着いてもう一度。'; Audio2.sfx.wrong(); persist(); render(); return;
+      s.mistakes++; s.input = []; s.phase = 'ready'; s.message = '違う響きでした。この節から、落ち着いてもう一度。'; Audio2.sfx.wrong(); persist(); render(); MinigameMotion.echo(index, 'wrong'); return;
     }
     s.input.push(index); s.message = `${pads[index].symbol} ${pads[index].name}、届きました。あと${length - s.input.length}音。`;
-    if (s.input.length === length) {
+    const completedVerse = s.input.length === length, input = s.input.length;
+    if (completedVerse) {
       s.round++;
       if (s.round >= 3) { finish(); return; }
       s.input = []; s.phase = 'ready'; s.message = '響きが届き、星がひとつ灯りました。次の節を聴こう。';
     }
     persist(); render();
+    MinigameMotion.echo(index, completedVerse ? 'verse' : 'answer', s.round, input);
   }
   const progressBar = (value, goal, label) => `<div class="mg-quest-progress" role="progressbar" aria-label="${label}" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="${Math.min(goal, value)}"><i style="width:${Math.min(100, value / goal * 100)}%"></i></div>`;
   function voyageHtml(s) {
@@ -312,13 +316,18 @@ const Minigames = (() => {
   function camp(choice) {
     const s = session; if (!s || s.id !== 'voyage' || !PlayCore.voyageCamp(s, choice)) return;
     s.message = { repair: '船を直しました。次の海へ。', wind: '帆に風が集まりました。疾走を狙うなら今。', treasure: '秘蔵の宝 +28。港まで大切に運ぼう。' }[choice];
-    Audio2.sfx.star(4); persist(); render();
+    if (choice === 'repair') Audio2.sfx.heal(); else Audio2.sfx.star(4);
+    persist(); render(); MinigameMotion.camp(choice);
   }
   function sail(lane) {
     const s = session; if (!s || s.id !== 'voyage' || s.completed) return;
-    const result = PlayCore.voyageTurn(s, lane, s.mode || 'sail'); if (!result.valid) return;
-    s.mode = 'sail'; s.message = result.log; Audio2.sfx[result.lost ? 'wrong' : 'star'](Math.min(6, s.combo));
-    if (result.won) finish(); else if (result.lost) fail(); else { persist(); render(); }
+    const mode = s.mode || 'sail', fromLane = s.lane;
+    const result = PlayCore.voyageTurn(s, lane, mode); if (!result.valid) return;
+    s.mode = 'sail'; s.message = result.log;
+    if (result.events.some(event => event.hp < 0)) Audio2.sfx.wrong();
+    else if (result.events.some(event => event.tile === 'heart')) Audio2.sfx.heal();
+    else Audio2.sfx.star(Math.min(6, s.combo));
+    if (result.won) finish(); else if (result.lost) fail(); else { persist(); render(); MinigameMotion.voyage(fromLane, mode, result.events, s.combo); }
   }
   function crystalHtml(s) {
     const rule = PlayCore.crystalRules[s.difficulty], selected = s.selected ?? -1;
@@ -361,6 +370,7 @@ const Minigames = (() => {
     });
     body.querySelector('[data-rainbow]').onclick = () => { s.mode = s.mode === 'rainbow' ? null : 'rainbow'; delete s.selected; delete s.burstText; s.message = s.mode ? '虹の一閃：消したい横一列を選ぼう。もう一度ボタンを押すと取消。' : '虹の一閃を取り消しました。まだ使えます。'; render(); };
     body.querySelector('[data-crystal-hint]').onclick = () => {
+      if (body.querySelector('.mg-crystal-grid[aria-busy="true"]')) { MinigameMotion.clear(); return; }
       const move = PlayCore.crystalMoves(s.board)[0];
       delete s.burstText;
       s.hint = move ? [move.a, move.b] : [s.board.findIndex(n => n >= 4)];
@@ -369,6 +379,7 @@ const Minigames = (() => {
   }
   function gem(index) {
     const s = session; if (!s || s.id !== 'crystal' || s.completed) return;
+    if (Panel.body().querySelector('.mg-crystal-grid[aria-busy="true"]')) return;
     let action;
     if (s.mode === 'rainbow') action = { type: 'rainbow', index };
     else if (s.board[index] >= 4) action = { type: 'burst', index };
@@ -379,15 +390,15 @@ const Minigames = (() => {
       action = { type: 'swap', a, b: index };
     }
     delete s.selected; delete s.hint; s.mode = null;
-    const result = PlayCore.crystalTurn(s, action);
-    if (!result.valid) { delete s.burstText; s.message = '3つそろいませんでした。手数は減っていません。別の結晶を試そう。'; render(); return; }
+    const before = s.board.slice(), result = PlayCore.crystalTurn(s, action);
+    if (!result.valid) { delete s.burstText; s.message = '3つそろいませんでした。手数は減っていません。別の結晶を試そう。'; Audio2.sfx.wrong(); render(); MinigameMotion.crystal(before, action, result); return; }
     s.burstText = `${result.fever ? 'FEVER ×2 · ' : ''}${result.chain} CHAIN · +${result.gain}`;
     s.message = `${result.chain}連鎖、彩り+${result.gain}。${result.bursts ? `星結晶が${result.bursts}個はじけた！ ` : ''}${result.shuffled ? '交換できるよう盤面を組み替えました。' : s.charge >= 12 ? '次の一手はフィーバー、彩り2倍！' : '次の連鎖を探そう。'}`;
     Audio2.sfx.star(Math.min(6, result.chain + 1));
-    if (result.won) finish(); else if (result.lost) fail(); else { persist(); render(); if (result.chain >= 3 || result.bursts || result.fever) bloom('.mg-crystal-scene'); }
+    if (result.won) finish(); else if (result.lost) fail(); else { persist(); render(); MinigameMotion.crystal(before, action, result); }
   }
   function bloom(selector) {
-    if (document.documentElement.dataset.motion === 'reduced') return;
+    if (document.documentElement.dataset.motion === 'reduced' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const target = Panel.body().querySelector(selector); if (!target) return;
     const image = document.createElement('img'); image.src = 'assets/ui/star-bloom.gif?play=' + ++bloomSequence; image.alt = ''; image.className = 'mg-bloom'; target.append(image);
     setTimeout(() => image.remove(), 1500);
@@ -400,6 +411,7 @@ const Minigames = (() => {
     Panel.open('次の冒険へ、もう一度', shell(`<div class="mg-result mg-failed"><span class="mg-eyebrow">${games[s.id].title} / ${s.practice ? '練習' : names[s.difficulty]}</span><div class="mg-failure-icon" aria-hidden="true">☾</div><h3>${s.id === 'voyage' ? '港まで、あと少し。' : '次の一手に、光を。'}</h3><p>${s.id === 'voyage' ? `${s.step}区画を進み、宝の輝き${s.points}。次は岩礁の前で護りや回復を使ってみよう。` : `彩り${s.power} / ${PlayCore.crystalRules[s.difficulty].target}。星結晶・フィーバー・虹の一閃が目標への近道。`}</p><p class="mg-note">今回は未クリア。しずくと素材は消費していません。獲得済みの報酬と記録も残っています。</p><div class="mg-card-actions"><button class="mg-primary" data-retry>もう一度挑戦</button><button class="mg-secondary" data-home>休憩所へ</button></div></div>`), { onClose: () => { stopPulse(); session = null; } });
     Panel.body().querySelector('[data-retry]').onclick = () => start(s.id, s.difficulty, s.practice);
     Panel.body().querySelector('[data-home]').onclick = () => open();
+    MinigameMotion.result(false, s.id);
   }
   function finish() {
     const s = session;
@@ -425,6 +437,7 @@ const Minigames = (() => {
     Panel.body().querySelector('[data-retry]').onclick = () => start(s.id, s.difficulty, s.practice);
     Panel.body().querySelector('[data-home]').onclick = () => open();
     if (result?.hardMaterials.m_core) bloom('.mg-hard-award');
+    MinigameMotion.result(true, s.id);
   }
   document.addEventListener('keydown', event => {
     if (event.isComposing || event.ctrlKey || event.altKey || event.metaKey) return;

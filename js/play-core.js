@@ -26,9 +26,9 @@ const PlayCore = (() => {
     const cost = mode === 'dash' ? 2 : mode === 'guard' ? 1 : 0;
     if (s.charge < cost) return { valid: false };
     s.charge -= cost; s.lane = lane;
-    const log = []; let gain = 0;
+    const log = [], events = []; let gain = 0;
     for (let n = 0; n < (mode === 'dash' ? 2 : 1) && s.step < rule.length; n++) {
-      const tile = s.map[s.step++][lane], before = s.points;
+      const tile = s.map[s.step++][lane], before = s.points, hp = s.hp, charge = s.charge;
       if (tile === 'reef') {
         s.combo = 0;
         if (mode === 'guard') log.push('護りが岩礁を防いだ');
@@ -44,10 +44,11 @@ const PlayCore = (() => {
         log.push(tiles[tile].name);
       }
       gain += s.points - before;
+      events.push({ tile, lane, step: s.step, gain: s.points - before, hp: s.hp - hp, charge: s.charge - charge, combo: s.combo, guarded: tile === 'reef' && mode === 'guard' });
       if (!s.hp || s.step % (rule.length / 3) === 0) break;
     }
     s.camp = s.hp > 0 && s.step < rule.length && s.step % (rule.length / 3) === 0;
-    return { valid: true, gain, log: log.join(' → '), won: s.step === rule.length && s.hp > 0, lost: s.hp === 0 };
+    return { valid: true, gain, events, log: log.join(' → '), won: s.step === rule.length && s.hp > 0, lost: s.hp === 0 };
   }
   function voyageCamp(s, choice) {
     if (!s.camp || !['repair', 'wind', 'treasure'].includes(choice)) return false;
@@ -99,6 +100,7 @@ const PlayCore = (() => {
   function settle(s, first, keep = -1) {
     const fever = s.charge >= 12; if (fever) s.charge = 0;
     let clear = new Set(first), chain = 0, gain = 0, count = 0, bursts = 0;
+    const frames = [];
     while (clear.size && chain < 20) {
       chain++;
       // A matched star crystal explodes; nearby stars join the same blast, once each.
@@ -107,19 +109,27 @@ const PlayCore = (() => {
       function blasts(i) { bursts++; for (const j of blast(i)) clear.add(j); }
       clear.delete(keep);
       const amount = clear.size; count += amount; gain += amount * chain * (fever ? 2 : 1);
+      // Presentation receives a trace of this exact turn; it never rolls its own board.
+      const frame = { before: s.board.slice(), clear: [...clear], nova: keep, exploded: [...exploded], gain: amount * chain * (fever ? 2 : 1), falls: [] };
       if (keep >= 0) s.board[keep] = s.board[keep] % 4 + 4;
       for (let col = 0; col < 5; col++) {
-        const left = Array.from({ length: 5 }, (_, row) => row * 5 + col).filter(i => !clear.has(i)).map(i => s.board[i]);
+        const sources = Array.from({ length: 5 }, (_, row) => row * 5 + col).filter(i => !clear.has(i));
+        const left = sources.map(i => s.board[i]), missing = 5 - left.length;
         while (left.length < 5) left.unshift(Math.floor(random(s) * 4));
-        for (let row = 0; row < 5; row++) s.board[row * 5 + col] = left[row];
+        for (let row = 0; row < 5; row++) {
+          const to = row * 5 + col;
+          s.board[to] = left[row];
+          frame.falls.push({ to, from: row < missing ? (row - missing) * 5 + col : sources[row - missing], value: left[row] });
+        }
       }
+      frame.after = s.board.slice(); frames.push(frame);
       keep = -1; clear = new Set(groups(s.board).flat());
     }
     // Extremely long cascades are bounded; no animation or random loop can block input.
     let shuffled = false;
     if (clear.size || !s.board.some(n => n >= 4) && !crystalMoves(s.board).length) { s.board = freshBoard(s); shuffled = true; }
     s.power += gain; s.charge = Math.min(12, s.charge + count); s.maxChain = Math.max(s.maxChain, chain); s.bursts += bursts;
-    return { gain, chain, count, bursts, fever, shuffled };
+    return { gain, chain, count, bursts, fever, shuffled, frames };
   }
   function crystalTurn(s, action) {
     if (s.movesLeft <= 0 || s.power >= crystalRules[s.difficulty].target) return { valid: false };
