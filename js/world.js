@@ -335,7 +335,7 @@ const World = (() => {
       turns: `${m.n}ターン以内にクリア`, hp: `アリアのHPを${m.n}%以上残す`, back: `背後から${m.n}回攻撃する`, crit: `会心の一撃を${m.n}回出す`,
       summonKill: `召喚した精霊で${m.n}体倒す`, enchantKill: `精霊を宿した心剣で${m.n}体倒す`, flashMulti: '透明の一閃で2体を同時に斬る',
       noSpirit: '精霊の力を借りずにクリア', noItem: '道具を使わずにクリア', noDown: '召喚した精霊を倒させない',
-      rainbow: `クリア時に${f[0]}の床${m.n}%以上`, dullMax: `${f[1]}を一度も${m.n}%にしない`, bossLast: '核を最後に倒す',
+      rainbow: `クリア時に${f[0]}の床${m.n}%以上`, dullMax: `${f[1]}を一度も${m.n}%にしない`, bossLast: '核を最後に倒す', guardianVoice: '守り手の理性を3段階取り戻す',
       spiritUse: `${Progression.spirits[m.spirit]?.name}の力を${m.n}回使う`, skillUse: `${m.spirit ? Progression.spirits[m.spirit].name + 'から' : ''}覚えた技を${m.n}回使う`,
     })[m.type] || '';
   }

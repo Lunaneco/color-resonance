@@ -47,7 +47,7 @@ const BOARDS = {
     loseText: '黒いにじみが、入り江を覆った。',
   },
   gran: {
-    id: 'gran', missions: [{ type: 'turns', n: 11 }, { type: 'hp', n: 50 }, { type: 'dullMax', n: 50 }], unique: 'u_bell',
+    id: 'gran', missions: [{ type: 'turns', n: 11 }, { type: 'hp', n: 50 }, { type: 'guardianVoice', n: 3 }], unique: 'u_bell',
     act: '第一幕', title: 'グラン・オーシャン', cols: 10, rows: 10, recLv: 2, par: 11, spStart: 3, dullStart: 0.1,
     map: { low: ['sea_flat', 'sea_calm', 'sea_wave1', 'sea_flat', 'sea_calm', 'sea_shallow', 'sea_wave2'], mid: ['land_flat'], high: ['land_high'], water: 'sea_deep', waterAmt: 0.08, hills: 0.24, obstacles: ['rocks'], obsAmt: 0.03 },
     enemies: [{ kind: 'boss', lv: 4 }, { kind: 'shade', lv: 2, n: 3 }, { kind: 'shade', lv: 3, n: 2 }],

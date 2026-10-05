@@ -25,6 +25,15 @@ test('Every HP threshold, armour phase and fourteen distinct forecasts use walka
  for(const p of checks){for(const plan of p.plans){assert(plan.length);assert.equal(new Set(plan.map(c=>c.r+','+c.c)).size,plan.length);assert(plan.every(c=>c.r>=0&&c.r<10&&c.c>=0&&c.c<10&&(c.r||c.c)));}assert(p.modes[2].power<p.modes[0].power);assert.equal(p.modes[2].rng[1],3);}
  assert.deepEqual(checks.find(p=>p.id==='spinel').modes.map(m=>m.armor),[3,2,0]);
 });
+test('Boss missions permit phase pollution without a permanent dullness failure',async()=>{
+ const c=await content();vm.runInContext((await fs.readFile(path.join(root,'js/world.js'),'utf8')).split('const World =')[0],c);
+ const boards=JSON.parse(vm.runInContext('JSON.stringify([...Object.values(BOARDS),...Object.values(SIDE_QUESTS),...Object.values(RESTORATION_STAGES),...Object.values(FREE_STAGES)])',c));
+ const bosses=boards.filter(b=>b.enemies.some(e=>['boss','chrome'].includes(e.kind)));
+ for(const id of ['gran','chrome','restore8','lg_night','q_echo','f_void'])assert(bosses.some(b=>b.id===id),id+' is audited');
+ for(const b of bosses)assert(!b.missions.some(m=>m.type==='dullMax'),b.id+' must allow scripted pollution');
+ const gran=boards.find(b=>b.id==='gran');assert.deepEqual(gran.missions.map(m=>m.type),['turns','hp','guardianVoice']);
+ assert.equal(gran.missions[2].n,3);assert.equal(gran.unique,'u_bell');
+});
 test('All routes use valid illustrated rewards, original boss art and ten native transparent new sprites',async()=>{
  const c=await content(),manifest=JSON.parse(await fs.readFile(path.join(root,'assets/generated/manifest.json'),'utf8')),quality=JSON.parse(await fs.readFile(path.join(root,'assets/generated/quality-guardians.json'),'utf8'));
  const profiles=JSON.parse(vm.runInContext('JSON.stringify(GUARDIANS)',c)),rewards=JSON.parse(vm.runInContext(`JSON.stringify(Object.values(GUARDIAN_STAGES).map(b=>({id:b.id,g:Progression.rewards(b,'gentle'),n:Progression.rewards(b,'normal'),h:Progression.rewards(b,'hard'),m:Progression.battleMaterials(b,'hard')})))`,c));
@@ -44,6 +53,8 @@ const hook=`__guardianQA:{
  next(){return runTask(playerPhase());},
  fall(){return runTask(defeat(ariaU()));},
  finish(){units.filter(u=>u.side==='enemy').forEach(u=>u.dead=true);stats.guardianVoices=3;stats.purify=3;stats.back=3;stats.dullMax=0;stats.enchantKills=3;stats.summonKills=3;cells.forEach(c=>paint(c,'rainbow'));win();},
+ pollute(){cells.forEach(c=>paint(c,'dull'));refreshHud();},
+ winPolluted(){units.filter(u=>u.side==='enemy').forEach(u=>u.dead=true);win();},
  reach(){const seen=flood(cellOf(ariaU()));return {foes:live().filter(u=>u.side==='enemy').length,unreachable:live().filter(u=>!seen.has(cellOf(u))).length};}
 }, `;
 before(async()=>{
@@ -61,6 +72,37 @@ const state=page=>page.evaluate(()=>Board.__guardianQA.state()),ready=page=>page
 async function battle(page,id,{flat=true}={}){await page.evaluate(({id,flat})=>{Panel.close();World.close();const c=BOARDS[id];Board.start({...c,...(flat?{cols:8,rows:8,map:{low:['land_flat'],mid:['land_flat'],high:['land_flat'],hills:0,obsAmt:0,waterAmt:0},enemies:[{kind:'boss',lv:1}]}:{}),intro:null,tutorial:null},()=>World.open());},{id,flat});await ready(page);}
 const boss=s=>s.units.find(u=>u.guardian&&!u.dead),hero=s=>s.units.find(u=>u.kind==='aria');
 for(const engine of ['chromium','webkit']){
+ test(`${engine}: Gran earns hard S after high pollution and old mission rewards remain claimed`,async()=>{
+  await session(engine,{width:390,height:844},async page=>{
+   await page.evaluate(()=>{
+    const old={cleared:true,best:'A',clears:1,missions:[true,true,false],materialMissions:[true,true,false]};
+    Board.party.stages.gran={...old,difficulties:{hard:{...old}}};Board.party.stageDifficulty.gran='hard';Board.party.pos='belfry';Board.saveParty();World.open();
+    Object.assign(BOARDS.gran,{cols:8,rows:8,map:{low:['land_flat'],mid:['land_flat'],high:['land_flat'],hills:0,obsAmt:0,waterAmt:0},enemies:[{kind:'boss',lv:1}],intro:null});
+   });
+   assert.match(await page.locator('#wmPanel .wp-ms').textContent(),/理性を3段階/);
+   assert(!/くすみ/.test(await page.locator('#wmPanel .wp-ms').textContent()));
+   for(let attempt=0;attempt<2;attempt++){
+    await page.locator('[data-w=guardians]').click();await page.locator('[data-gj-chapter=act1]').click();await page.locator('[data-gj-stage=gran]').click();
+    assert.match(await page.locator('.gj-missions').textContent(),/3段階の声/);
+    assert(!/くすみ/.test(await page.locator('.gj-missions').textContent()));
+    await page.locator('#gjSortie').click();await ready(page);
+    assert.equal((await state(page)).difficulty,'hard');
+    assert.match(await page.locator('#missionBox').textContent(),/理性を3段階/);
+    const before=await page.evaluate(()=>({...Board.party.materials}));
+    await page.evaluate(()=>{Board.__guardianQA.arrange();Board.__guardianQA.pollute();Board.__guardianQA.strike();Board.__guardianQA.strike();});
+    const s=await state(page);assert.equal(s.stats.guardianVoices,3);assert(s.stats.dullMax>=.9);assert(s.cells.filter(c=>c.floor==='dull').length>s.cells.length*.5);
+    await page.evaluate(()=>Board.__guardianQA.winPolluted());await page.locator('#resNext').waitFor();
+    assert.equal(await page.locator('.r-rank').textContent(),'S');assert.equal(await page.locator('.r-ms .ng').count(),0);
+    assert.equal(await page.locator('.r-unique:not(.r-equipment)').count(),attempt?0:1);
+    const saved=await page.evaluate(()=>JSON.parse(localStorage.cr_party)),record=saved.stages.gran.difficulties.hard;
+    assert.equal(record.clears,attempt+2);assert.deepEqual(record.missions,[true,true,true]);assert.deepEqual(record.materialMissions,[true,true,true]);
+    assert.equal(saved.owned.filter(id=>id==='u_bell').length,1);
+    assert.equal(saved.materials.m_dust-before.m_dust,attempt?4:5);assert.equal(saved.materials.m_teal-before.m_teal,attempt?3:4);assert.equal(saved.materials.m_core-before.m_core,attempt?0:1);
+    await page.screenshot({path:`/tmp/cr-boss-missions-${engine}-${attempt}-result.png`});
+    await page.locator('#resNext').click();await page.locator('.gj-book').waitFor();await page.locator('.pn-close').click();
+   }
+  },{started:false,progress:0});
+ });
  test(`${engine}: pollution visibly clears on all four original sprites while preserving every alpha pixel`,async()=>{
   await session(engine,{width:390,height:844},async page=>{for(const id of ['gran','ivy','spinel','king']){await battle(page,id);const report=await page.evaluate(id=>{
     const render=tone=>{const cv=document.createElement('canvas');cv.width=cv.height=512;const c=cv.getContext('2d',{willReadFrequently:true});GameArt.draw(c,id,0,256,490,400,400,tone==null?{}:{tone});return c.getImageData(0,0,512,512).data;};
