@@ -21,6 +21,7 @@ const Board = (() => {
   // ---------- 画像 ----------
   const IMG = {}; let META = null;
   const PIC = {};
+  const RAINBOW_FLOOR_ALPHA = 0.45;
   const ready = Promise.all([
     fetch('assets/tiles/meta.json').then(r => r.json()).then(m => {
       META = m;
@@ -380,7 +381,8 @@ const Board = (() => {
     // 足元の影
     const bc = { x: ox, y: oy + (cols + rows - 2) * th / 4 };
     const sh = g.createRadialGradient(bc.x, bc.y + th, 10, bc.x, bc.y + th, (cols + rows) * tw * 0.42);
-    sh.addColorStop(0, inv ? 'rgba(0,0,10,.6)' : 'rgba(5,10,30,.55)'); sh.addColorStop(1, 'rgba(0,0,0,0)');
+    // 背景は #bgLayer にある章ごとの風景。影を薄くし、虹の光を柔らかく見せる。
+    sh.addColorStop(0, inv ? 'rgba(0,0,10,.24)' : 'rgba(5,10,30,.18)'); sh.addColorStop(1, 'rgba(0,0,0,0)');
     g.fillStyle = sh; g.fillRect(-W, -H, W * 3, H * 3);
     drawDecor(true);
 
@@ -432,16 +434,10 @@ const Board = (() => {
     if (c.flipT) { k = (now - c.flipT) / 480; if (k < 0) k = 0; if (k >= 1) { k = 1; c.flipT = 0; c.prev = c.floor; } }
     const lift = k > 0 && k < 1 ? -Math.sin(Math.PI * k) * th * 0.22 : 0;
     const y = b.y - c.h * hStep + lift;
-    const pre = (f) => (f === 'rainbow' && !inv) ? 'crys_' : 'dark_';
+    // 味方になっても地形素材は通常の床のまま。虹は上面の光として重ねる。
     const layer = (name, yy) => {
-      if (!c.walk) {
-        if (OBST.has(c.t) || c.t === name) { sprite('dark_' + name, x, yy, 1 - ratioA * 0.9); sprite('crys_' + name, x, yy, ratioA * 0.9); }
-        else sprite('dark_' + name, x, yy, 1);
-        return;
-      }
-      const a = pre(c.prev), bb = pre(c.floor);
-      if (k < 1 && a !== bb) { sprite(a + name, x, yy, 1); sprite(bb + name, x, yy, k); }
-      else sprite(bb + name, x, yy, 1);
+      if (!c.walk && (OBST.has(c.t) || c.t === name)) { sprite('dark_' + name, x, yy, 1 - ratioA * 0.9); sprite('crys_' + name, x, yy, ratioA * 0.9); }
+      else sprite('dark_' + name, x, yy, 1);
     };
     const colName = OBST.has(c.t) ? 'land_flat' : c.t;
     for (let i = 0; i < c.h; i++) layer(colName, b.y - i * hStep + lift * (i / Math.max(1, c.h)));
@@ -469,15 +465,29 @@ const Board = (() => {
       } else if (wRain <= 0) {
         g.save(); diamond(x, y, tw * 0.98, th * 0.98); g.fillStyle = 'rgba(10,16,34,.12)'; g.fill(); g.restore();
       }
-      if (wRain > 0.5) {
+      if (wRain > 0) {
+        g.save(); diamond(x, y, tw * 0.98, th * 0.98);
+        const aura = g.createLinearGradient(x - tw / 2, y - th / 2, x + tw / 2, y + th / 2);
+        aura.addColorStop(0, '#7fd7dd'); aura.addColorStop(.22, '#b6a6ec');
+        aura.addColorStop(.44, '#ecaac9'); aura.addColorStop(.65, '#f3d89b');
+        aura.addColorStop(.84, '#c3e3a3'); aura.addColorStop(1, '#9ce0c8');
+        g.globalCompositeOperation = 'screen'; g.globalAlpha = RAINBOW_FLOOR_ALPHA * wRain;
+        g.fillStyle = aura; g.fill(); g.restore();
+        // 薄い虹の縁と柔らかな反射。通常の床の凹凸や波を残す。
+        g.save(); diamond(x, y, tw * 0.97, th * 0.97);
+        const edge = g.createLinearGradient(x - tw / 2, y, x + tw / 2, y);
+        edge.addColorStop(0, `rgba(202,184,244,${0.38 * wRain})`);
+        edge.addColorStop(.5, `rgba(246,221,177,${0.5 * wRain})`);
+        edge.addColorStop(1, `rgba(178,226,207,${0.38 * wRain})`);
+        g.strokeStyle = edge; g.lineWidth = Math.max(0.7, tw / 100); g.stroke(); g.restore();
         const sw = (t * 0.55 + (c.c + c.r) * 0.13) % 3.2;
-        if (sw < 1) { g.save(); diamond(x, y, tw, th); g.clip(); const gx = x - tw + sw * tw * 2; const gr = g.createLinearGradient(gx - 30, y, gx + 30, y); gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(.5, `rgba(255,255,255,${0.32 * wRain})`); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(x - tw, y - th, tw * 2, th * 2); g.restore(); }
+        if (sw < 1) { g.save(); diamond(x, y, tw, th); g.clip(); const gx = x - tw + sw * tw * 2; const gr = g.createLinearGradient(gx - 30, y, gx + 30, y); gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(.5, `rgba(255,241,215,${0.09 * wRain})`); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(x - tw, y - th, tw * 2, th * 2); g.restore(); }
       }
     } else {
       // 終章：味方の床は夜空、敵の床は白い膜
       g.save(); diamond(x, y, tw * 0.99, th * 0.99);
-      g.fillStyle = `rgba(2,3,9,${0.5 - wRain * 0.15})`; g.fill();
-      if (wRain > 0) { const gr = g.createRadialGradient(x, y, 0, x, y, tw * 0.6); gr.addColorStop(0, `rgba(70,90,200,${0.42 * wRain})`); gr.addColorStop(1, `rgba(20,30,90,${0.25 * wRain})`); g.globalCompositeOperation = 'screen'; g.fillStyle = gr; g.fill(); g.globalCompositeOperation = 'source-over'; }
+      g.fillStyle = `rgba(2,3,9,${0.5 - wRain * 0.38})`; g.fill();
+      if (wRain > 0) { const gr = g.createRadialGradient(x, y, 0, x, y, tw * 0.6); gr.addColorStop(0, 'rgb(70,90,200)'); gr.addColorStop(1, 'rgb(20,30,90)'); g.globalCompositeOperation = 'screen'; g.globalAlpha = RAINBOW_FLOOR_ALPHA * wRain; g.fillStyle = gr; g.fill(); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; }
       if (wDull > 0) { const gr = g.createLinearGradient(x - tw / 2, y - th / 2, x + tw / 2, y + th / 2); gr.addColorStop(0, `rgba(250,250,255,${0.78 * wDull})`); gr.addColorStop(1, `rgba(210,220,238,${0.6 * wDull})`); g.fillStyle = gr; g.fill(); }
       g.restore();
       if (wRain > 0) drawStars(c, x, y, t, wRain);
@@ -485,7 +495,7 @@ const Board = (() => {
     // 範囲
     const id = idx(c.r, c.c);
     const pulse = 0.5 + 0.5 * Math.sin(t * 4);
-    if (mode === 'selected' && moveInfo && moveInfo.ends.has(id)) tint(x, y, '120,215,255', 0.3 + 0.1 * pulse, 0.95, true);
+    if (mode === 'selected' && moveInfo && moveInfo.ends.has(id)) tint(x, y, '120,215,255', 0.14 + 0.04 * pulse, 0.95, true);
     if (threat && threat.ends.has(id)) tint(x, y, '255,120,150', 0.13, 0.35);
     if (atkSet && atkSet.has(id)) tint(x, y, '255,120,140', 0.2 + 0.1 * pulse, 0.85);
     if (mode === 'target' && targets && targets.has(id)) tint(x, y, targetCmd === 'pray' ? '150,255,190' : targetCmd && (targetCmd.startsWith('summon') || targetCmd === 'sky') ? '200,170,255' : '255,120,150', 0.32 + 0.12 * pulse, 0.95, true);
@@ -2181,7 +2191,7 @@ const Board = (() => {
     Panel.open('戦い方', `
       <h4>目的</h4>盤のどこかにいる<b>穢れの影</b>を、すべて心剣で切り分けてください。アリアが倒れると、やり直しになります。
       <h4>動かし方</h4>味方に触れると、<b>光る床</b>が歩ける場所。床に触れると移動し、そのあとメニューが開きます。<br>動かずに行動したいときは、本人にもう一度触れるか「その場で行動」。届く敵に直接触れても攻撃できます。<br><b>待機は4方向から向きを選んで確定</b>。Esc／戻るで取り消しても行動は消費せず、移動も戻せます。方向キーで選び、Enterで確定できます。<br>右クリック／Esc／「選び直す」：戻る　E：ターン終了　A：攻撃　W：待機の向き選び
-      <div class="tip-tiles"><div><img src="assets/tiles/crys_land_flat.png">虹の床（味方）</div><div><img src="assets/tiles/dark_land_flat.png">くすんだ床（穢れ）</div></div>
+      <div class="tip-tiles"><div><span class="tip-rainbow-floor${cfg.inverted ? ' night' : ''}"><img src="assets/tiles/dark_land_flat.png" alt=""></span>${floorNames()[0]}の床（味方）</div><div><img src="assets/tiles/dark_land_flat.png" alt="">${floorNames()[1]}の床（穢れ）</div></div>
       <h4>床の割合と加護</h4>味方が歩いた床・攻撃した床は<b>虹色</b>に、穢れが立つ床は<b>くすみ</b>ます。盤全体の割合が<b>25%・45%・65%</b>を超えるたびに、その側の攻撃・守り・共鳴が強くなります（65%で毎ターン回復）。<br>自分の色の床に立つと攻撃+10%、相手の色の床では守り-10%。
       <h4>位置どり</h4>敵の足元の<b style="color:#ffd07a">橙の矢印が正面</b>、<b style="color:#81e7ff">青の二本線が背後</b>です。HPの横にも正面を向く矢印が表示されます。敵の情報欄では、選んだ味方の現在位置が正面・側面・背後のどれかを確認できます。<br>高い場所から打つと+15%。敵の<b>背後</b>から+25%（会心も出やすい）、側面から+10%。
       <h4>精霊</h4>仲間になった精霊は、<b>共鳴</b>を使って力を貸してくれます。<br>・<b>召喚</b>（共鳴6）：盤に降り立ち、登場の大技のあと3ターン共に戦う。<br>・<b>心剣に宿す</b>（共鳴3）：3ターンのあいだ、精霊の力をまとった<b>通常攻撃が毎ターン2回</b>に。同じ敵にも別の敵にも追撃でき、空振りも1回に数えます。移動は最初の1回だけで、技・魔法・道具を選ぶと行動は終了します。宿すときは行動を使わず、1ターンに1度。<br>召喚と宿しは同時にはできません。召喚している間は宿せず、宿している間は召喚できません。

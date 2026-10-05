@@ -234,6 +234,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .tip-tiles{display:flex;gap:14px;margin:8px 0 2px;flex-wrap:wrap}
 .tip-tiles div{display:flex;align-items:center;gap:8px;font-size:13px}
 .tip-tiles img{height:34px}
+.tip-rainbow-floor{position:relative;display:inline-flex;isolation:isolate}
+.tip-rainbow-floor::after{content:"";position:absolute;inset:0 0 30%;background:linear-gradient(135deg,#7fd7dd,#b6a6ec,#ecaac9,#f3d89b,#c3e3a3,#9ce0c8);opacity:.45;mix-blend-mode:screen;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.tip-rainbow-floor.night::after{background:radial-gradient(ellipse,#465ac8,#141e5a)}
 
 /* 結果 */
 .result{text-align:center}
