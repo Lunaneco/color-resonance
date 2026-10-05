@@ -260,6 +260,7 @@ test('Enchanted follow-up can target a different enemy and cannot undo movement 
   await page.evaluate(()=>{const s=Board.__test.state(),a=s.units.find(u=>u.kind==='aria'),n=s.cells.filter(c=>Math.abs(c.r-a.r)+Math.abs(c.c-a.c)===1&&!s.units.some(u=>u.r===c.r&&u.c===c.c));Board.__test.arrange([{kind:'shade',r:n[0].r,c:n[0].c}]);Board.__test.addAlly('shade',n[1].r,n[1].c,{side:'enemy',hp:1000,mhp:1000,atk:1});});
   await enchantedHit();const first=await state(),hit=enemy(first),a=aria(first);
   assert(!a.undo);assert.equal(await page.locator('#cancelSel').textContent(),'選び直す');
+  assert.match(await page.locator('#skills .skill').filter({hasText:'アイビー'}).textContent(),/追撃か待機を選択/);
   await page.evaluate(()=>{for(const k of ['undo','flash','pray','spirit','learned','item','sky','enchant','summon'])Board.__test.command(k,'ivy');});
   const guarded=await state(),afterGuard=aria(guarded);assert.equal(guarded.sp,first.sp);assert.deepEqual([afterGuard.r,afterGuard.c,afterGuard.dir,afterGuard.normalAttacks,afterGuard.acted,afterGuard.enchant],[a.r,a.c,a.dir,a.normalAttacks,a.acted,a.enchant]);assert.equal(guarded.mode,'selected');assert.equal(guarded.itemUses,0);
   await page.locator('#skills .skill').first().click();assert.equal((await state()).mode,'selected');assert.equal(await page.locator('[data-k=summon]').count(),0);

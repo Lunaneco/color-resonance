@@ -1874,7 +1874,7 @@ const Board = (() => {
       const s = SPIRITS[id], r = rec(id), su = live().find(u => u.kind === id);
       const anySum = live().some(u => u.until), en = a && a.enchant;
       const state = su ? (su.summon > 0 ? `召喚中・あと${su.summon}ターン` : '召喚中・このターンまで') : (en && en.id === id) ? `通常攻撃2回・あと${en.turns}ターン`
-        : anySum ? '召喚中は宿せない' : en ? (sp >= COST_ENCHANT ? '宿し替えできる' : '宿し中は召喚できない') : sp >= COST_SUMMON ? '召喚・宿しができる' : sp >= COST_ENCHANT ? '宿せる' : '共鳴を待つ';
+        : followUpPending(a) ? '追撃か待機を選択' : anySum ? '召喚中は宿せない' : en ? (enchantUsed ? 'このターンは宿し済み' : sp >= COST_ENCHANT ? '宿し替えできる' : '宿し中は召喚できない') : sp >= COST_SUMMON ? '召喚・宿しができる' : sp >= COST_ENCHANT ? '宿せる' : '共鳴を待つ';
       const b = document.createElement('button');
       b.className = 'skill spirit' + (su || (a && a.enchant && a.enchant.id === id) ? ' armed' : '');
       b.style.setProperty('--sc', s.color);
