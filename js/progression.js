@@ -3,7 +3,7 @@ const Progression = (() => {
   const difficulties = {
     gentle: { name: 'やさしい', level: -1, enemyLevel: -1, hp: 0.85, atk: 1, reward: 0.8, desc: '敵のHPが少なく、受ける傷も軽い' },
     normal: { name: 'ふつう', level: 0, enemyLevel: 0, hp: 1, atk: 1, reward: 1, desc: '標準の敵と報酬' },
-    hard: { name: 'ハード', level: 3, enemyLevel: 2, hp: 1.15, atk: 1.08, reward: 1.5, desc: '敵が強くなる・しずく1.5倍・S評価でユニーク装備' },
+    hard: { name: 'ハード', level: 3, enemyLevel: 2, hp: 1.15, atk: 1.08, reward: 1.5, desc: '敵が強くなる・しずく1.5倍・ボスSでユニーク／通常戦Sで通常装備' },
   };
   const spirits = {
     gran: { name: 'グラン', color: '#3fb4c9' }, ivy: { name: 'アイビー', color: '#5fd07a' },
@@ -175,12 +175,36 @@ const Progression = (() => {
     return gained;
   }
   const ordinaryRewards = { cove: 'e_glass', gran: 'a_wool', ivy: 'c_bell', spinel: 'a_gold', king: 'e_prism', chrome: 'a_star', f_mist: 'a_rain', f_fruit: 'e_tide', f_maze: 'a_moss', f_stars: 'c_brush', f_void: 'c_feather', q_harbor: 'e_glass', q_lantern: 'a_rain', q_tide: 'e_tide', q_clock: 'c_lens', q_orchard: 'a_wool', q_thorns: 'c_bell', q_bloom: 'c_tea', q_bridge: 'a_moss', q_gold: 'a_gold', q_palette: 'e_amber', q_stargarden: 'c_brush', q_echo: 'a_star' };
+  const isBossStage = conf => (conf.enemies || []).some(e => e.kind === 'boss' || e.kind === 'chrome');
+  const ordinaryEquipment = conf => conf.ordinaryReward || ordinaryRewards[conf.id] || 'e_glass';
   function rewards(conf, key) {
     key = normalize(key);
     const firstItems = { ...(conf.firstItems || { i_tea: 1 }) };
     if (key === 'gentle') firstItems.i_tea = (firstItems.i_tea || 0) + 1;
     if (key === 'hard') firstItems.i_ward = (firstItems.i_ward || 0) + 1;
-    return { firstItems, sEquipment: key === 'hard' ? conf.unique || null : key === 'normal' ? conf.ordinaryReward || ordinaryRewards[conf.id] || 'e_glass' : null, sItems: key === 'gentle' ? { i_shard: 1, i_powder: 1 } : {}, unique: key === 'hard' };
+    const unique = key === 'hard' && isBossStage(conf) && !!conf.unique;
+    return { firstItems, sEquipment: key === 'hard' ? unique ? conf.unique : ordinaryEquipment(conf) : null,
+      sItems: key === 'normal' ? { i_shard: 2, i_powder: 1 } : key === 'gentle' ? { i_shard: 1, i_powder: 1 } : {}, unique };
+  }
+  function reconcileRewards(party, stages, gear) {
+    const all = [...new Map(stages.map(c => [c.id, c])).values()];
+    const earned = c => { const r = party.stages?.[c.id]?.difficulties?.hard; return r && (r.sRewardClaimed || r.best === 'S'); };
+    const protectedIds = new Set(all.filter(c => isBossStage(c) && earned(c)).map(c => c.unique));
+    const changes = [];
+    for (const id of [...party.owned]) {
+      if (!gear[id]?.unique || protectedIds.has(id)) continue;
+      const sources = all.filter(c => c.unique === id && !isBossStage(c) && earned(c));
+      if (!sources.length) continue;
+      const replacement = ordinaryEquipment(sources[0]), next = gear[replacement];
+      if (!next || next.unique) continue;
+      party.owned = [...new Set(party.owned.filter(x => x !== id).concat(replacement))];
+      let equipped = false;
+      for (const slot of ['blade','cloth','charm']) if (party.equip[slot] === id) { party.equip[slot] = null; equipped = true; }
+      if (equipped && !party.equip[next.slot]) party.equip[next.slot] = replacement;
+      sources.forEach(c => { party.stages[c.id].difficulties.hard.sRewardClaimed = true; });
+      changes.push({ from:id, to:replacement });
+    }
+    return changes;
   }
   function migrate(party) {
     if (!isRecord(party)) party = {};
@@ -275,6 +299,6 @@ const Progression = (() => {
     copy.enemyBoost = { hp: d.hp, atk: d.atk };
     return copy;
   }
-  return { difficulties, spirits, routes, skills, thresholds, normalize, selected, level, rank, learned, training, practice, rewards, migrate, prepare,
+  return { difficulties, spirits, routes, skills, thresholds, normalize, selected, level, rank, learned, training, practice, rewards, isBossStage, ordinaryEquipment, reconcileRewards, migrate, prepare,
     companions, materialDescription, materials, MATERIAL_MAX, skillLevel, skill, enhancement, recipe, upgrade, awardMaterials, battleMaterials, collectBattleMaterials, leisureMaterials, leisureHardBonus };
 })();

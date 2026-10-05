@@ -44,9 +44,9 @@ test('Boss mission limits follow local hazards, available allies and active tact
 });
 test('All routes use valid illustrated rewards, original boss art and ten native transparent new sprites',async()=>{
  const c=await content(),manifest=JSON.parse(await fs.readFile(path.join(root,'assets/generated/manifest.json'),'utf8')),quality=JSON.parse(await fs.readFile(path.join(root,'assets/generated/quality-guardians.json'),'utf8'));
- const profiles=JSON.parse(vm.runInContext('JSON.stringify(GUARDIANS)',c)),rewards=JSON.parse(vm.runInContext(`JSON.stringify(Object.values(GUARDIAN_STAGES).map(b=>({id:b.id,g:Progression.rewards(b,'gentle'),n:Progression.rewards(b,'normal'),h:Progression.rewards(b,'hard'),m:Progression.battleMaterials(b,'hard')})))`,c));
+ const profiles=JSON.parse(vm.runInContext('JSON.stringify(GUARDIANS)',c)),rewards=JSON.parse(vm.runInContext(`JSON.stringify(Object.values(GUARDIAN_STAGES).map(b=>({id:b.id,boss:!!b.guardian,g:Progression.rewards(b,'gentle'),n:Progression.rewards(b,'normal'),h:Progression.rewards(b,'hard'),m:Progression.battleMaterials(b,'hard')})))`,c));
  for(const p of profiles){const a=manifest.assets.find(a=>a.id===p.art);assert(a,p.art);await fs.access(path.join(root,'assets/generated',a.sheet));}
- for(const r of rewards){assert.equal(r.g.sEquipment,null);assert(r.n.sEquipment);assert(r.h.sEquipment);assert.equal(r.m.m_dust,4);assert(Object.keys(r.m).length===2);}
+ for(const r of rewards){assert.equal(r.g.sEquipment,null);assert.equal(r.n.sEquipment,null);assert(r.h.sEquipment);assert.equal(r.h.unique,r.boss);assert.equal(r.h.sEquipment.startsWith('u_'),r.boss);assert.equal(r.m.m_dust,4);assert(Object.keys(r.m).length===2);}
  assert.equal(Object.keys(quality.assets).length,10);for(const a of Object.values(quality.assets)){assert.equal(a.alphaRange[0],0);assert(a.alphaRange[1]>=250);}
 });
 let server,base,browsers;
@@ -81,6 +81,18 @@ const state=page=>page.evaluate(()=>Board.__guardianQA.state()),ready=page=>page
 async function battle(page,id,{flat=true}={}){await page.evaluate(({id,flat})=>{Panel.close();World.close();const c=BOARDS[id];Board.start({...c,...(flat?{cols:8,rows:8,map:{low:['land_flat'],mid:['land_flat'],high:['land_flat'],hills:0,obsAmt:0,waterAmt:0},enemies:[{kind:'boss',lv:1}]}:{}),intro:null,tutorial:null},()=>World.open());},{id,flat});await ready(page);}
 const boss=s=>s.units.find(u=>u.guardian&&!u.dead),hero=s=>s.units.find(u=>u.kind==='aria');
 for(const engine of ['chromium','webkit']){
+ test(`${engine}: old nonboss unique equipment converts on reload and map rewards distinguish hard gear from normal items`,async()=>{
+  await session(engine,{width:390,height:844},async page=>{
+   await page.evaluate(()=>{const old={cleared:true,best:'S',clears:2,missions:[true,true,true],materialMissions:[true,true,true],materialMasteryClaimed:true,sRewardClaimed:true};Board.party.stages.cove={...old,difficulties:{hard:{...old}}};Board.party.owned=['u_knot','a_wool'];Board.party.equip={blade:null,cloth:'a_wool',charm:'u_knot'};Board.party.stageDifficulty.cove='hard';Board.party.pos='cove';Board.saveParty();});
+   await page.reload({waitUntil:'networkidle'});await page.locator('#gate').click();await page.locator('#world').waitFor({state:'visible'});
+   const saved=await page.evaluate(()=>JSON.parse(localStorage.cr_party));assert.deepEqual(saved.owned,['a_wool','e_glass']);assert.deepEqual(saved.equip,{blade:'e_glass',cloth:'a_wool',charm:null});assert.equal(saved.stages.cove.difficulties.hard.clears,2);assert(saved.stages.cove.difficulties.hard.materialMasteryClaimed);assert(saved.stages.cove.difficulties.hard.sRewardClaimed);
+   const before=await page.evaluate(()=>JSON.stringify(Board.party));assert.equal(await page.evaluate(()=>JSON.stringify(Board.reloadParty())),before,'Reloading cannot repeat the equipment conversion');
+   assert.equal(await page.locator('#wmPanel [data-reward-kind=unique]').count(),0);assert.match(await page.locator('#wmPanel [data-reward-kind=equipment]').textContent(),/ハードのS評価 · 通常装備/);
+   await page.locator('#wmPanel [data-diff=normal]').click();assert.equal(await page.locator('#wmPanel [data-reward-kind=equipment]').count(),0);assert.match(await page.locator('#wmPanel [data-reward-kind=items]').textContent(),/ふつうのS評価 · アイテム/);assert.equal(await page.locator('#wmPanel [data-reward-kind=items] [data-inventory=i_shard]').count(),1);
+   await page.screenshot({path:`/tmp/cr-rewards-${engine}-normal-cove.png`});
+   const portable=await page.evaluate(()=>SaveData.exportText());assert(await page.evaluate(t=>SaveData.importText(t).ok,portable));assert.deepEqual(await page.evaluate(()=>Board.reloadParty().owned),saved.owned);
+  });
+ });
  test(`${engine}: Gran earns hard S after high pollution and old mission rewards remain claimed`,async()=>{
   await session(engine,{width:390,height:844},async page=>{
    await page.evaluate(()=>{
@@ -164,7 +176,7 @@ for(const engine of ['chromium','webkit']){
  test(`${engine}: chapter gating, path completion, original save replay and difficulty-specific rewards survive result return`,async()=>{
   await session(engine,{width:390,height:844},async page=>{
    await page.locator('[data-w=guardians]').click();await page.locator('[data-gj-chapter=act1]').click();assert(await page.locator('[data-gj-stage=gran]').isDisabled());await page.locator('[data-gj-stage=gp_gran]').click();assert.equal(await page.locator('[data-gj-diff]').count(),3);assert.match(await page.locator('.gj-missions').textContent(),/12ターン/);await page.locator('[data-gj-diff=hard]').click();await page.locator('#gjSortie').click();await ready(page);assert.equal((await state(page)).cfg,'gp_gran');assert.equal((await state(page)).difficulty,'hard');await page.evaluate(()=>Board.__guardianQA.finish());await page.locator('#resNext').waitFor();await page.locator('#resNext').click();await page.locator('.gj-book').waitFor();assert(await page.locator('[data-gj-stage=gran]').isEnabled());
-   await page.locator('[data-gj-stage=gran]').click();await page.locator('[data-gj-diff=normal]').click();await page.locator('#gjSortie').click();await ready(page);await page.evaluate(()=>Board.__guardianQA.finish());await page.locator('#resNext').waitFor();assert.equal(await page.locator('.r-unique:not(.r-equipment)').count(),0);assert(await page.evaluate(()=>Board.party.owned.includes('a_wool')));await page.locator('#resNext').click();await page.locator('#gjRecall').click();assert.equal(await page.locator('.gj-voices section').count(),4);
+   await page.locator('[data-gj-stage=gran]').click();await page.locator('[data-gj-diff=normal]').click();await page.locator('#gjSortie').click();await ready(page);await page.evaluate(()=>Board.__guardianQA.finish());await page.locator('#resNext').waitFor();assert.equal(await page.locator('.r-unique:not(.r-equipment)').count(),0);assert.equal(await page.locator('.r-equipment').count(),0);assert.match(await page.locator('.r-bond').allTextContents().then(x=>x.join(' ')),/ふつうのS評価報酬/);await page.locator('#resNext').click();await page.locator('#gjRecall').click();assert.equal(await page.locator('.gj-voices section').count(),4);
    await page.evaluate(()=>{Panel.close();Board.party.stages.gp_gran=undefined;Board.saveParty();GuardianJourney.open('act1');});assert(await page.locator('[data-gj-stage=gran]').isEnabled(),'Existing original boss clear permits replay');
   });
   await session(engine,{width:390,height:844},async page=>{await page.locator('[data-w=guardians]').click();assert.equal(await page.locator('[data-gj-chapter]').count(),1);assert.equal(await page.locator('img[src*=guardian_]').count(),0);assert(await page.evaluate(()=>!GuardianJourney.available(BOARDS.gb_tokinel)));},{unlocked:['prologue','act1'],started:false,progress:0});

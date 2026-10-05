@@ -109,7 +109,7 @@ GUARDIANS.forEach((p, i) => {
     map:{...ref.map, hills:Math.min(.25,ref.map.hills||.2), obsAmt:.015, waterAmt:.025}, hue:p.colour, decor:ref.decor,
     spirits:CHAPTER_STATE[p.chapter].colors.map(c=>({teal:'gran',green:'ivy',gold:'spinel',violet:'king'}[c])),
     spStart:postgame?6:Math.min(6,3+Math.floor(i/2)), theme:ref.theme||{bg:['rain','glass','forest','canyon','stars','stars'][i],preset:'night',fx:'stars:.15',bgm:i<2?'haruka':'forest'},
-    postgame, companion:postgame, reward:80+p.lv*15, firstItems:{i_tea:1,i_shard:1}, ordinaryReward:Progression.rewards(ref,'normal').sEquipment, material:p.material,
+    postgame, companion:postgame, reward:80+p.lv*15, firstItems:{i_tea:1,i_shard:1}, ordinaryReward:Progression.ordinaryEquipment(ref), material:p.material,
     kegWords:['道を閉じろ','帰る場所はない','違いを消せ'], colorWords:['通っていい道','守り手の名前','戻ってきた声'],
     loseText:'守り手へ声が届かなかった。道と予告を確かめ、もう一度。' };
   const path = { ...shared, id:'gp_'+p.id, title:p.place+'・影を払う道', desc:'影を払い、汚染された精霊へ辿り着く通常戦。',unique:ref.unique||p.unique,

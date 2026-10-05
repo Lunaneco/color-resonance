@@ -75,7 +75,7 @@ const enemy=s=>s.units.find(u=>u.side==='enemy'&&!u.dead&&!u.hidden);
 async function fixture(id='cove', extra={}) {
   await page.evaluate(({id,extra})=>Board.start({...BOARDS[id],guardian:null,bossArt:null,map:{low:['land_flat'],mid:['land_flat'],high:['land_flat'],hills:0,obsAmt:0,water:null},enemies:[{kind:'shade',lv:1}],intro:null,tutorial:null,beats:[],...extra}),{id,extra});
   await idle();
-  await page.evaluate(()=>{Math.random=()=>0.5;Board.__test.arrange([{kind:'aria',r:5,c:4,dir:0,atk:999},{kind:'shade',r:4,c:4,dir:2,hp:1}]);});
+  await page.evaluate(foeKind=>{Math.random=()=>0.5;Board.__test.arrange([{kind:'aria',r:5,c:4,dir:0,atk:999},{kind:foeKind,r:4,c:4,dir:2,hp:1}]);},extra.enemies?.[0]?.kind||'shade');
 }
 async function openMenu(){await page.locator('#actHere').click();await page.waitForTimeout(200);}
 async function clickUnit(u, body=false) {await page.mouse.click(u.x,body?u.bodyY:u.y);}
@@ -470,7 +470,7 @@ test('Difficulty clears and first quest rewards are separate, while old clears r
   assert(rewards[1]-rewards[0]>rewards[0]);
 });
 
-test('Real victories award easy S items, normal S equipment, and hard S unique gear only once per tier',async()=>{
+test('Real nonboss victories award lower-tier S items and hard S ordinary equipment only once per tier',async()=>{
   await boot('cove',{width:1440,height:900},{cr_party:partyWithTraining(0)});
   for(const key of ['gentle','normal','hard']) {
     for(let attempt=0;attempt<2;attempt++) {
@@ -482,13 +482,13 @@ test('Real victories award easy S items, normal S equipment, and hard S unique g
       assert.equal(p.materials.m_core,['gentle','normal','hard'].indexOf(key)+1);
       assert.equal(await page.locator('.r-materials').count(),attempt?1:2);
       assert.match(await page.locator('.r-materials').first().textContent(),/戦闘クリア素材/);
-      assert.equal(p.items.i_shard,1);assert.equal(p.items.i_powder,1);
-      assert.deepEqual(p.owned,key==='gentle'?[]:key==='normal'?['e_glass']:['e_glass','u_quest_harbor']);
+      assert.equal(p.items.i_shard,key==='gentle'?1:3);assert.equal(p.items.i_powder,key==='gentle'?1:2);
+      assert.deepEqual(p.owned,key==='hard'?['e_glass']:[]);assert(!p.owned.includes('u_quest_harbor'));
       const result=await page.locator('.result').textContent();
-      if(!attempt)assert.match(result,key==='gentle'?/やさしいのS評価報酬/:key==='normal'?/通常装備/:/ユニーク装備/);
+      if(!attempt)assert.match(result,key==='gentle'?/やさしいのS評価報酬/:key==='normal'?/ふつうのS評価報酬/:/ハードのS評価　通常装備/);
       else assert.equal(await page.locator('.r-unique').count(),0,'A repeat S clear cannot award another rank reward');
       if(!attempt){
-        const rewardId=key==='gentle'?'i_shard':key==='normal'?'e_glass':'u_quest_harbor';
+        const rewardId=key==='hard'?'e_glass':'i_shard';
         assert(await page.locator(`.result [data-inventory=${rewardId}]`).count()>0);
         assert(await page.locator('.result [data-inventory=m_core]').count()>0);
         await page.locator('.result .inventory-art img').evaluateAll(async imgs=>{for(const i of imgs)i.loading='eager';await Promise.all(imgs.map(i=>i.decode()));});
@@ -498,16 +498,16 @@ test('Real victories award easy S items, normal S equipment, and hard S unique g
   }
 });
 
-test('Hard A grants no unique gear, a later hard S grants it, and another quest has its own unique reward',async()=>{
+test('Hard boss A grants no unique gear, a later S grants it once, and another boss has a distinct reward',async()=>{
   await boot('cove');
-  await fixture('cove',{id:'q_harbor',unique:'u_quest_harbor',difficulty:'hard',missions:[{type:'noItem'},{type:'hp',n:60},{type:'back',n:99}]});
+  await fixture('cove',{id:'q_orchard',unique:'u_quest_orchard',enemies:[{kind:'boss',lv:1}],difficulty:'hard',missions:[{type:'noItem'},{type:'hp',n:60},{type:'back',n:99}]});
   await attack();await page.locator('#resNext').waitFor({timeout:12000});
   assert.equal(await page.locator('.r-rank').textContent(),'A');
-  assert(!await page.evaluate(()=>Board.party.owned.includes('u_quest_harbor')));
-  assert(!await page.evaluate(()=>Board.party.stages.q_harbor.difficulties.hard.sRewardClaimed));
+  assert(!await page.evaluate(()=>Board.party.owned.includes('u_quest_orchard')));
+  assert(!await page.evaluate(()=>Board.party.stages.q_orchard.difficulties.hard.sRewardClaimed));
   await page.locator('#resNext').click();
-  for(const id of ['q_harbor','q_lantern']) {
-    await fixture('cove',{id,unique:'u_quest_'+id.slice(2),difficulty:'hard',missions:[]});
+  for(const id of ['q_orchard','q_orchard','q_bridge']) {
+    await fixture('cove',{id,unique:'u_quest_'+id.slice(2),enemies:[{kind:'boss',lv:1}],difficulty:'hard',missions:[]});
     await attack();await page.locator('#resNext').waitFor({timeout:12000});
     assert.equal(await page.locator('.r-rank').textContent(),'S');
     assert(await page.evaluate(id=>Board.party.owned.includes('u_quest_'+id.slice(2)),id));
@@ -516,16 +516,16 @@ test('Hard A grants no unique gear, a later hard S grants it, and another quest 
   assert.equal(await page.evaluate(()=>Board.party.owned.filter(id=>id.startsWith('u_quest_')).length),2);
 });
 
-test('An owned normal S reward converts to half its shop price once and every stage reward names valid equipment',async()=>{
+test('An owned hard nonboss S reward converts to half its price once and every stage uses the right equipment category',async()=>{
   const p=partyWithTraining(0);p.owned=['e_glass'];
   await boot('cove',{width:1440,height:900},{cr_party:p});
   assert(await page.evaluate(()=>[...Object.values(BOARDS),...Object.values(FREE_STAGES),...Object.values(SIDE_QUESTS)].every(c=>{
     const n=Progression.rewards(c,'normal').sEquipment,h=Progression.rewards(c,'hard').sEquipment;
-    return EQUIP[n]&&!EQUIP[n].unique&&EQUIP[h]?.unique;
+    return n===null&&EQUIP[h]&&!!EQUIP[h].unique===Progression.isBossStage(c);
   })));
   for(let attempt=0;attempt<2;attempt++) {
     const before=await page.evaluate(()=>Board.party.gold);
-    await fixture('cove',{id:'q_harbor',unique:'u_quest_harbor',difficulty:'normal',missions:[]});
+    await fixture('cove',{id:'q_harbor',unique:'u_quest_harbor',difficulty:'hard',missions:[]});
     await attack();await page.locator('#resNext').waitFor({timeout:12000});
     const clearGold=Number(await page.locator('.r-stats div').last().locator('b').textContent());
     const after=await page.evaluate(()=>Board.party.gold);

@@ -86,14 +86,35 @@ test('Old expert selection and records merge into hard without losing clears, mi
   const saved=JSON.stringify(p);P.migrate(p);assert.equal(JSON.stringify(p),saved);
 });
 
-test('S rewards distinguish items, ordinary equipment, and hard-only unique gear for every real stage and quest',()=>{
-  for(const conf of [...Object.values(B),...Object.values(Q)]){
-    const easy=P.rewards(conf,'gentle'),normal=P.rewards(conf,'normal'),hard=P.rewards(conf,'hard');
-    assert(Object.keys(easy.sItems).length);assert.equal(easy.sEquipment,null);assert(normal.sEquipment&&!normal.sEquipment.startsWith('u_'));assert.equal(hard.sEquipment,conf.unique);assert(hard.unique);
+test('Every real stage reserves unique S rewards for hard bosses, ordinary gear for hard routes and items for lower tiers',()=>{
+  const c=vm.createContext({localStorage:{getItem:()=>null}});
+  for(const name of ['progression','story','quests','restoration-content','guardian-content'])vm.runInContext(fs.readFileSync(path.join(__dirname,'../js/'+name+'.js'),'utf8'),c);
+  vm.runInContext(fs.readFileSync(path.join(__dirname,'../js/world.js'),'utf8').split('const World =')[0],c);
+  vm.runInContext('Object.assign(EQUIP,RESTORATION_GEAR)',c);
+  const policy=vm.runInContext('Progression',c),gear=vm.runInContext('EQUIP',c);
+  const stages=JSON.parse(vm.runInContext('JSON.stringify([...Object.values(BOARDS),...Object.values(SIDE_QUESTS),...Object.values(RESTORATION_STAGES),...Object.values(FREE_STAGES)])',c));
+  for(const conf of stages){
+    const easy=policy.rewards(conf,'gentle'),normal=policy.rewards(conf,'normal'),hard=policy.rewards(conf,'hard');
+    assert(Object.keys(easy.sItems).length);assert.equal(easy.sEquipment,null);assert.equal(normal.sEquipment,null);assert.equal(normal.sItems.i_shard,2);assert.equal(normal.sItems.i_powder,1);
+    const boss=conf.enemies.some(e=>['boss','chrome'].includes(e.kind));assert.equal(hard.unique,boss&&!!conf.unique,conf.id);
+    if(boss&&conf.unique)assert.equal(hard.sEquipment,conf.unique);else assert(!hard.sEquipment.startsWith('u_'),conf.id);
+    assert(gear[hard.sEquipment],conf.id+' reward exists');
     assert(Object.keys(easy.firstItems).length&&Object.keys(normal.firstItems).length&&Object.keys(hard.firstItems).length);
   }
+  for(const id of ['cove','gp_gran','gran','chrome','q_harbor','q_orchard','f_mist','f_fruit','restore8','lg_night'])assert(stages.some(c=>c.id===id),id+' is covered');
   assert.equal(new Set(Object.values(Q).map(q=>q.unique)).size,12);
   assert(Object.values(Q).every(q=>q.unique.startsWith('u_quest_')));
+});
+
+test('Old nonboss uniques convert once with equipped slots and claims intact while earned boss rewards are protected',()=>{
+  const gear={u_knot:{unique:true,slot:'charm'},e_glass:{slot:'blade'},u_bell:{unique:true,slot:'blade'},a_wool:{slot:'cloth'}};
+  const stages=[B.cove,B.gran,{...B.gran,id:'gp_gran',enemies:[{kind:'shade'}],ordinaryReward:'a_wool'}];
+  const old=P.migrate({aria:{lv:5,exp:0},gold:123,owned:['u_knot','e_glass','u_bell'],equip:{charm:'u_knot',blade:'u_bell'},stages:{cove:{cleared:true,difficulties:{hard:{cleared:true,best:'S',clears:3,missions:[true,true,true],sRewardClaimed:true,materialMasteryClaimed:true}}},gp_gran:{cleared:true,difficulties:{hard:{best:'S'}}},gran:{cleared:true,difficulties:{hard:{best:'S',sRewardClaimed:true}}}}});
+  assert.deepEqual(plain(P.reconcileRewards(old,stages,gear)),[{from:'u_knot',to:'e_glass'}]);assert.deepEqual(plain(old.owned),['e_glass','u_bell']);assert.equal(old.equip.charm,null);assert.equal(old.equip.blade,'u_bell');assert.equal(old.gold,123);assert.equal(old.stages.cove.difficulties.hard.clears,3);assert(old.stages.cove.difficulties.hard.materialMasteryClaimed);
+  const saved=JSON.stringify(old);assert.equal(P.reconcileRewards(old,stages,gear).length,0);P.migrate(old);assert.equal(JSON.stringify(old),saved);
+  const onlyRoute=P.migrate({aria:{lv:2,exp:0},owned:['u_bell'],equip:{blade:'u_bell'},stages:{gp_gran:{difficulties:{hard:{best:'S'}}}}});
+  assert.deepEqual(plain(P.reconcileRewards(onlyRoute,stages,gear)),[{from:'u_bell',to:'a_wool'}]);assert.equal(onlyRoute.equip.blade,null);assert.equal(onlyRoute.equip.cloth,'a_wool');assert(onlyRoute.stages.gp_gran.difficulties.hard.sRewardClaimed);
+  const unknown=P.migrate({aria:{lv:2,exp:0},owned:['u_knot']});assert.equal(P.reconcileRewards(unknown,stages,gear).length,0);assert(unknown.owned.includes('u_knot'),'Unknown provenance is not mistaken for a nonboss reward');
 });
 
 test('Minigame migration bounds rewards and preserves only usable partial sessions', () => {

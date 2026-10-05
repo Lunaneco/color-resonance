@@ -180,6 +180,7 @@ const World = (() => {
   }
   function reload(readSave = false) {
     party = readSave ? Board.reloadParty() : Board.party;
+    Board.reconcileRewards();
     // Unknown/removed equipment is harmless in battle but must not break the wardrobe UI.
     party.owned = party.owned.filter(id => EQUIP[id]);
     for (const slot of ['blade', 'cloth', 'charm']) if (EQUIP[party.equip[slot]]?.slot !== slot) party.equip[slot] = null;
@@ -371,11 +372,11 @@ const World = (() => {
       body += `<div class="wp-info"><span>適正LV <b>${lv}</b></span><span>最高ランク <b class="r${record && record.best || 'none'}">${record && record.best || '—'}</b></span><span>クリア <b>${record?.clears || 0}</b>回</span></div>
         <div class="wp-sec">ミッション<small>${Progression.difficulties[key].name}の実績</small></div>${missionsHtml(conf, record)}${conf.missionGuide ? `<p class="wp-note wp-mission-guide">${conf.missionGuide}</p>` : ''}
         ${u ? `<div class="wp-unique ${got ? 'got' : ''}" data-reward-kind="${u.unique ? 'unique' : 'equipment'}">${InventoryArt.icon(rewards.sEquipment)}<small>${Progression.difficulties[key].name}のS評価 · ${u.unique ? 'ユニーク装備' : '通常装備'}${record?.sRewardClaimed ? ' · 受取済み' : ''}</small><b>${u.name}${got ? ' · 所持済み' : ''}</b><span>${u.desc}</span>${!u.unique && !record?.sRewardClaimed ? '<small>所持済みなら価格の半分をしずくで受け取れます</small>' : ''}</div>` : ''}
-        ${Object.keys(rewards.sItems).length ? `<div class="wp-unique ${record?.sRewardClaimed ? 'got' : ''}" data-reward-kind="items"><small>やさしいのS評価 · アイテム${record?.sRewardClaimed ? ' · 受取済み' : ''}</small><b>${InventoryArt.chips(rewards.sItems, '×')}</b></div>` : ''}`;
+        ${Object.keys(rewards.sItems).length ? `<div class="wp-unique ${record?.sRewardClaimed ? 'got' : ''}" data-reward-kind="items"><small>${Progression.difficulties[key].name}のS評価 · アイテム${record?.sRewardClaimed ? ' · 受取済み' : ''}</small><b>${InventoryArt.chips(rewards.sItems, '×')}</b></div>` : ''}`;
       const clearMaterials = Progression.battleMaterials(conf, key), gem = Object.keys(clearMaterials).find(id => id !== 'm_dust');
       body += `<div class="wp-sec">強化素材<small>素材袋に入ります</small></div><p class="wp-note">クリアで毎回：${InventoryArt.chips(clearMaterials, '×')}<br>各ミッションの初達成：共鳴の砂 ×1・${Progression.materials[gem].name} ×1<br>この難易度の初S評価：澄明の核 ×1${record?.materialMasteryClaimed ? ' · 受取済み' : ''}</p>`;
       if (conf.reward) body += `<p class="wp-note">基本報酬 ${Math.round(conf.reward * Progression.difficulties[key].reward)}しずく＋撃破・ランク報酬</p>`;
-      body += `<p class="wp-note">${record?.cleared ? '初回報酬は受取済み' : 'この難易度の初回報酬：' + Object.entries(rewards.firstItems).map(([id, v]) => `${ITEMS[id].name} ×${v}`).join('・')}<br>S評価報酬は各難易度で1回。ユニーク装備はハードのS評価のみ。道具の所持上限は各9個</p>`;
+      body += `<p class="wp-note">${record?.cleared ? '初回報酬は受取済み' : 'この難易度の初回報酬：' + Object.entries(rewards.firstItems).map(([id, v]) => `${ITEMS[id].name} ×${v}`).join('・')}<br>S評価報酬は各難易度で1回。ユニーク装備はハードのボス戦S評価のみ。通常戦のハードSは通常装備、ふつう以下は素材・アイテム。道具の所持上限は各9個</p>`;
       if (!story) acts.push(`<button class="wb main" data-a="sortie">出撃</button>`);
       else acts.push(`<button class="wb" data-a="sortie">この戦場だけ戦う</button>`);
     } else if (n.type === 'quest') {

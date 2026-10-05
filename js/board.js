@@ -106,7 +106,12 @@ const Board = (() => {
     p.owned = p.owned || [];
     p.equip = Object.assign({ blade: null, cloth: null, charm: null }, p.equip || {});
     p.stages = p.stages || {};
-    return Progression.migrate(p);
+    Progression.migrate(p); reconcilePartyRewards(p); return p;
+  }
+  function reconcilePartyRewards(p) {
+    // 初回のパーティ読込は戦場定義より先。全定義の読込後にだけ旧報酬を照合する。
+    if (typeof BOARDS === 'undefined' || typeof FREE_STAGES === 'undefined' || typeof RESTORATION_STAGES === 'undefined' || typeof EQUIP === 'undefined') return [];
+    return Progression.reconcileRewards(p,[...Object.values(BOARDS),...Object.values(FREE_STAGES),...Object.values(SIDE_QUESTS),...Object.values(RESTORATION_STAGES)],EQUIP);
   }
   // 装備の効果を合計する
   function gearBonus(equip) {
@@ -2334,7 +2339,7 @@ const Board = (() => {
         dr.sRewardClaimed = true;
         awardItems(reward.sItems, stats.rankItems);
         const id = reward.sEquipment, gear = typeof EQUIP !== 'undefined' && EQUIP[id];
-        if (gear && (difficulty === 'hard' ? gear.unique : !gear.unique)) {
+        if (gear && (reward.unique ? gear.unique : !gear.unique)) {
           if (!party.owned.includes(id)) { party.owned.push(id); if (gear.unique) unique = id; else equipment = id; }
           else if (!gear.unique) { equipment = id; equipmentGold = Math.round(gear.price / 2); party.gold += equipmentGold; }
         }
@@ -2357,8 +2362,8 @@ const Board = (() => {
       ${Object.entries(stats.materialRewards || {}).filter(([, bag]) => Object.keys(bag).length).map(([kind, bag]) => `<div class="r-materials"><small>${{ clear: '戦闘クリア素材 · 毎回', mission: 'ミッション初達成の素材', mastery: '初S評価の素材' }[kind]}</small>${InventoryArt.chips(bag)}</div>`).join('')}
       ${(stats.questItems || []).length ? `<p class="r-bond">この難易度の初回報酬：${InventoryArt.chips(Object.fromEntries(stats.questItems.map(x => [x.id, x.count])))}</p>` : ''}
       ${u ? `<div class="r-unique"><small>Sランク達成　ユニーク装備</small>${InventoryArt.icon(unique)}<b>${u.name}</b><span>${u.desc}</span></div>` : ''}
-      ${equipment ? `<div class="r-unique r-equipment"><small>ふつうのS評価　通常装備</small>${InventoryArt.icon(equipment)}<b>${EQUIP[equipment].name}</b><span>${equipmentGold ? `所持済みのため ${equipmentGold}しずくに交換` : EQUIP[equipment].desc}</span></div>` : ''}
-      ${(stats.rankItems || []).length ? `<p class="r-bond">やさしいのS評価報酬：${InventoryArt.chips(Object.fromEntries(stats.rankItems.map(x => [x.id, x.count])))}</p>` : ''}
+      ${equipment ? `<div class="r-unique r-equipment"><small>${Progression.difficulties[difficulty].name}のS評価　通常装備</small>${InventoryArt.icon(equipment)}<b>${EQUIP[equipment].name}</b><span>${equipmentGold ? `所持済みのため ${equipmentGold}しずくに交換` : EQUIP[equipment].desc}</span></div>` : ''}
+      ${(stats.rankItems || []).length ? `<p class="r-bond">${Progression.difficulties[difficulty].name}のS評価報酬：${InventoryArt.chips(Object.fromEntries(stats.rankItems.map(x => [x.id, x.count])))}</p>` : ''}
       <div class="r-stats"><div>${cfg.inverted ? '切り離した膜' : '切り分けた穢れ'}<b>${stats.kills}</b></div><div>ターン<b>${turn}</b></div><div>${floorNames()[0]}の床<b>${Math.round(stats.rainbowEnd * 100)}%</b></div><div>しずく<b>+${gold}</b></div></div>
       <div class="r-exp">アリア　LV <b>${ar.lv}</b>　<span class="r-expbar"><i style="width:${ar.lv >= MAX_LV ? 100 : ar.exp}%"></i></span>　${ar.lv >= MAX_LV ? '成長上限' : `EXP +${stats.expA}`}</div>
       ${lv ? `<div class="r-lvs">${lv}</div>` : ''}
@@ -2454,7 +2459,7 @@ const Board = (() => {
       <h4>位置どり</h4>敵の足元の<b style="color:#ffd07a">橙の矢印が正面</b>、<b style="color:#81e7ff">青の二本線が背後</b>です。HPの横にも正面を向く矢印が表示されます。敵の情報欄では、選んだ味方の現在位置が正面・側面・背後のどれかを確認できます。<br>高い場所から打つと+15%。敵の<b>背後</b>から+25%（会心も出やすい）、側面から+10%。
       <h4>精霊</h4>仲間になった精霊は、<b>共鳴</b>を使って力を貸してくれます。<br>・<b>召喚</b>（共鳴6）：盤に降り立ち、登場の大技のあと3ターン共に戦う。<br>・<b>心剣に宿す</b>（共鳴3）：3ターンのあいだ、精霊の力をまとった<b>通常攻撃が毎ターン2回</b>に。同じ敵にも別の敵にも追撃でき、空振りも1回に数えます。移動は最初の1回だけで、技・魔法・道具を選ぶと行動は終了します。宿すときは行動を使わず、1ターンに1度。<br>召喚と宿しは同時にはできません。召喚している間は宿せず、宿している間は召喚できません。
       <p><b>召喚した精霊が倒されたら、その戦闘中は再召喚も心剣に宿すこともできません。</b>他の精霊は使えます。召喚の期限で帰還した精霊は再び使え、再挑戦・次の戦闘では戦闘不能の制限を解除します。</p>
-      <h4>道具とミッション</h4>町で買った道具は、メニューの「道具」から使えます（行動を使う）。<br>右上のミッションをすべて達成するとSランク。S評価の報酬は難易度別。<b>ハードはユニーク装備、ふつうは通常装備、やさしいはアイテム</b>です。各難易度で1回ずつ受け取れ、所持済みの通常装備は価格の半分のしずくになります。
+      <h4>道具とミッション</h4>町で買った道具は、メニューの「道具」から使えます（行動を使う）。<br>右上のミッションをすべて達成するとSランク。S評価の報酬は難易度別。<b>ハードのボス戦はユニーク装備、通常戦は通常装備。ふつう・やさしいはアイテム</b>です。各難易度で1回ずつ受け取れ、所持済みの通常装備は価格の半分のしずくになります。
       <h4>LV</h4>攻撃と撃破で経験値が入り、100たまるとLVが上がります。精霊は、召喚や宿しで育ちます。
       <h4>精霊との絆・覚えた技</h4>召喚で絆+3、心剣に宿すと+2。召喚した精霊の攻撃や、宿した心剣が命中すると+1、覚えた技を使うと+2。絆は精霊と技の強さを育てます。<b>習得はエンチャントと召喚の熟練を別々に判定</b>し、それぞれ8・20・40で3種ずつ、全24種。宿すとエンチャント熟練+2、宿した通常攻撃の命中で+1。召喚すると召喚熟練+3、精霊の命中で+1。覚えた技の使用は熟練に入りません。<br>習得後は「覚えた技」から、召喚や宿しをせずに使えます。絆が深まるほど精霊のHP・攻撃・守りと、宿した心剣・覚えた技の効果が育ちます。負けても絆と習得は残ります。
       <h4>ルノワールの四響エンチャント</h4>クロムだけが使う切り札です。共鳴6・1戦闘に1回。3ターン、4精霊のエンチャント効果をまとめて宿し、通常攻撃が毎ターン2回になります。宿す行動は消費しません。吸収して身につけたルノワール自身の能力なので、他の精霊の召喚中・戦闘不能でも使えます。クロム自身に精霊の召喚能力はありません。再挑戦・次の戦闘で使用回数は戻ります。<h4>復興の灯</h4>復興編は敵の全滅と、番号のついた灯をすべて点けることが目的です。アリアとクロムの<b>「浄化」（共鳴2）</b>で2マス以内の灯そのものを選んでください。周り2マスも虹に戻ります。防壁を持つ核は、灯が全部点くまで攻撃が届きません。<h4>難易度・依頼</h4>マップの戦場や依頼でやさしい・ふつう・ハードの3段階の難易度を選べます。適正LV・報酬・ミッション実績は難易度ごとに表示されます。戦闘開始後は再挑戦も同じ難易度です。町の「依頼」でサブクエストを探せます。
@@ -2591,7 +2596,8 @@ const Board = (() => {
     start, enterPhase1, help, stop,
     setDifficulty(d) { try { localStorage.setItem('cr_diff', Progression.normalize(d)); } catch (e) {} },
     resetParty() { party = fillParty({ aria: { lv: 1, exp: 0 }, spirits: {} }); saveParty(); },
-    reloadParty() { party = loadParty(); return party; },
+    reloadParty() { party = loadParty(); saveParty(); return party; },
+    reconcileRewards() { const changes = reconcilePartyRewards(party); if (changes.length) saveParty(); return changes; },
     saveParty() { saveParty(); },
     gearBonus, statsFor,
     get party() { return party; },
