@@ -158,7 +158,7 @@ test('Every restoration and legend battlefield has all reachable lights and both
   await session('chromium',{width:1440,height:900},async page=>{
     for(const seed of [12345,90512])for(const id of await page.evaluate(()=>Object.keys(RESTORATION_STAGES))){
       await page.evaluate(({id,seed})=>{let n=seed;Math.random=()=>((n=Math.imul(n,1664525)+1013904223|0)>>>0)/4294967296;World.close();Panel.close();Board.start({...RESTORATION_STAGES[id],intro:null},()=>World.open());},{id,seed});
-      await ready(page);const s=await page.evaluate(()=>Board.__restQA.reachableObjectives());const count=await page.evaluate(id=>RESTORATION_STAGES[id].restoreBeacons,id);assert.equal(s.goals,count,id);assert.equal(s.reachable,count,id);assert.equal(s.heroes,2,id);
+      await ready(page);const s=await page.evaluate(()=>Board.__restQA.reachableObjectives());const count=await page.evaluate(id=>RESTORATION_STAGES[id].restoreBeacons||0,id);assert.equal(s.goals,count,id);assert.equal(s.reachable,count,id);assert.equal(s.heroes,2,id);
     }
   },{progress:8});
 });

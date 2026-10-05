@@ -415,13 +415,15 @@ for(const viewport of [{width:1440,height:900},{width:390,height:844},{width:320
     await page.locator('#panel [data-quest=q_tide]').click();
     await page.locator('#wmPanel [data-diff=hard]').waitFor();
     assert.equal(await page.locator('#wmPanel [data-diff]').count(),3);
-    assert.equal(await page.locator('#wmPanel [data-reward-kind=equipment]').count(),1);
+    assert.equal(await page.locator('#wmPanel [data-reward-kind=items]').count(),1);
+    assert.equal(await page.locator('#wmPanel [data-reward-kind=equipment]').count(),0);
     await page.locator('#wmPanel [data-diff=gentle]').click();
     assert.equal(await page.locator('#wmPanel [data-reward-kind=items]').count(),1);
     assert.equal(await page.locator('#wmPanel [data-reward-kind=unique]').count(),0);
     await page.locator('#wmPanel [data-diff=hard]').click();
-    assert.equal(await page.locator('#wmPanel [data-reward-kind=unique]').count(),1);
-    assert.match(await page.locator('#wmPanel [data-reward-kind=unique]').textContent(),/潮騒の刻印/);
+    assert.equal(await page.locator('#wmPanel [data-reward-kind=unique]').count(),0);
+    assert.equal(await page.locator('#wmPanel [data-reward-kind=equipment]').count(),1);
+    assert.match(await page.locator('#wmPanel [data-reward-kind=equipment]').textContent(),/潮の刻印/);
     assert.match(await page.locator('#wmPanel').textContent(),/適正LV 8/);
     assert(await page.locator('#wmPanel [data-diff=hard]').getAttribute('aria-pressed')==='true');
     const panelBounds=await inViewport('wmPanel');
@@ -466,7 +468,8 @@ test('Difficulty clears and first quest rewards are separate, while old clears r
   const p=await page.evaluate(()=>Board.reloadParty());
   assert.equal(p.stages.cove.clears,2);
   assert.equal(p.stages.q_harbor.difficulties.normal.clears,1);assert.equal(p.stages.q_harbor.difficulties.hard.clears,2);
-  assert.equal(p.stages.q_harbor.clears,3);assert.equal(p.items.i_shard,2);
+  assert.equal(p.stages.q_harbor.clears,3);assert.equal(p.items.i_shard,4);assert.equal(p.items.i_powder,1);
+  assert(p.stages.q_harbor.difficulties.normal.sRewardClaimed);assert(p.stages.q_harbor.difficulties.hard.sRewardClaimed);
   assert(rewards[1]-rewards[0]>rewards[0]);
 });
 

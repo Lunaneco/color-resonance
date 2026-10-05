@@ -31,6 +31,16 @@ const Journal = (() => {
       { at: 20, title: '隣の色', text: '「調和とは、全部を同じ色にすることではない。隣の色を残せるよう、七色の結界には隙間がある」\nその内側で、アリアは自分の呼吸を聞いた。' },
       { at: 40, title: '続きを描く手', text: '「世界の色を守る仕事は、王ひとりのものではない。続きを選ぶ手が増えるほど、絵は広くなる」\n王の皿には、まだ使っていない色が残っていた。' },
     ],
+    vard: [
+      { at: 8, title: '折らずに残す', text: '「怒りは、まだある。だから次の木を折らないように、この角の向け先を選ぶ」\nヴァルドは幼い果樹の前で足を止め、落ちた実をそっと土の外へ転がした。' },
+      { at: 20, title: '潮の友の分', text: '「グランは水の加減を覚えた。俺は、あいつの通る畝を踏まないようになった」\n二つの実が並んでいた。甘いほうを誰が食べるかで言い合って、結局、二人で半分ずつ食べた。' },
+      { at: 40, title: '芽が出るまで', text: '「直した枝がまた折れても、今度は全部壊さない。芽が出るまで、ここに水を運ぶ」\n角の金色の筋を、ヴァルドは夕日に向けた。マリーの残した継ぎ目から、新しい木の影が伸びていた。' },
+    ],
+    mari: [
+      { at: 8, title: '帰る窓', text: '「クリスタリアの王妃は、どの窓を通っても、声の持ち主へ返ってくる歌を教えてくれたの」\nマリーは翼で窓の形をなぞった。覚えた道を、一人で閉じないための歌だった。' },
+      { at: 20, title: '港の結び目', text: '「ネリのお母さんに教わった結び方、今も船に使ってた！ 手は変わっても、続いていることがあるんだね」\nマリーはほどける端を残して紐を結んだ。港から届く荷にも、同じ端が揺れていた。' },
+      { at: 40, title: '風の先の人たち', text: '「森の薬草を谷へ。谷の修理道具を港へ。風の速さより、誰が待っているかを知っていたい」\n時計師と測った鐘の間隔を数え、マリーは翼を広げた。次に帰ったら話すことが、また一つ増えていた。' },
+    ],
   };
   const tabs = { journey: '旅の記録', letters: '精霊の便り', memories: '思い出', marks: '旅のしるし' };
   function achievements(p, unlocked, colors = []) {
@@ -42,8 +52,8 @@ const Journal = (() => {
       { title: '三つの岸', desc: '異なる戦場を3つクリア', now: Math.min(3, cleared), total: 3 },
       { title: '言葉を残さず', desc: 'いずれかの戦場でSランク', now: +stages.some(r => r.best === 'S' || Object.values(r.difficulties || {}).some(d => d.best === 'S')), total: 1 },
       { title: '難しい岸へ', desc: 'ハードの難易度で戦場をクリア', now: +stages.some(r => r.difficulties?.hard?.cleared), total: 1 },
-      { title: '四つの声', desc: '4精霊と旅をする', now: friends, total: 4 },
-      { title: '響きを継ぐ', desc: '二つの系統から24種類の技を覚える', now: learned, total: 24 },
+      { title: '四つの声', desc: '4精霊と旅をする', now: Math.min(4, friends), total: 4 },
+      { title: '響きを継ぐ', desc: '二つの系統から24種類の技を覚える', now: Math.min(24, learned), total: 24 },
       { title: '六つの灯り', desc: '2種類の遊びを全3難易度で完成', now: lights, total: 6 },
       { title: '星の冒険者', desc: '航路と結晶の連鎖を全3難易度で完成', now: ['voyage', 'crystal'].flatMap(id => Object.values(mini[id] || {})).filter(r => r.clears > 0).length, total: 6 },
       { title: 'もう一杯', desc: '物語の最後まで読む', now: +unlocked.includes('done'), total: 1 },

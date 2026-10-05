@@ -11,8 +11,8 @@ test('Journal marks derive from completed play and do not award drops or invent 
     for(const id of Object.keys(Progression.spirits))p.spirits[id]={lv:4,exp:0,bond:40,training:{enchant:40,summon:40}};
     for(const id of ['lantern','echo','voyage','crystal'])for(const tier of ['gentle','normal','hard'])p.minigames.records[id][tier]={clears:1};
     Progression.migrate(p);const rich=JSON.stringify(p),complete=Journal.achievements(p,['prologue','act1','act2','act4','act5','finale','done']);
-    return {empty,complete,unchanged:rich===JSON.stringify(p),gold:p.gold};})()`,c);
-  assert(result.empty.every(m=>m.now===0));assert(result.complete.every(m=>m.now===m.total));assert(result.unchanged);assert.equal(result.gold,42);
+    const six=Journal.achievements(p,['prologue','act1','act2','act4','act5','finale','done','vardbond','maribond']);return {empty,complete,six,unchanged:rich===JSON.stringify(p),gold:p.gold};})()`,c);
+  assert(result.empty.every(m=>m.now===0));assert(result.complete.every(m=>m.now===m.total));assert(result.six.every(m=>m.now===m.total));assert(result.unchanged);assert.equal(result.gold,42);
 });
 let browser,server,base,context,page,errors;
 before(async()=>{
@@ -35,6 +35,15 @@ test('Only completed chapters and met spirits reveal journal prose',async()=>{
   assert(!(await page.locator('.jn-timeline').textContent()).includes('クリスタは、最初から'));
   await page.locator('[data-journal-tab=letters]').click();assert.equal(await page.locator('.jn-letter.opened').count(),2);assert.equal(await page.locator('.jn-letter').count(),3);assert.equal(await page.locator('.jn-spirit').count(),1);
   assert((await page.locator('.jn-spirit').nth(0).textContent()).includes('あと 20'));assert(!(await page.locator('.jn-letters').textContent()).includes('黄金の庇護'));
+});
+test('Vard and Marii have three letters each after recruitment; unjoined training records reveal neither',async()=>{
+  await boot(undefined,['prologue','act1','act2','act3','act4','act5','finale','epilogue','done'],40);
+  await page.evaluate(()=>{for(const id of ['vard','mari'])Board.party.spirits[id]={lv:26,exp:0,bond:40,training:{enchant:40,summon:40}};Journal.open('letters');});
+  assert.equal(await page.locator('.jn-spirit').count(),4);assert.doesNotMatch(await page.locator('.jn-letters').textContent(),/風の先の人たち|潮の友の分/);
+  await page.evaluate(()=>{localStorage.cr_unlocked=JSON.stringify([...Engine.unlocked(),'vardbond','maribond']);Journal.open('letters');});
+  assert.equal(await page.locator('.jn-spirit').count(),6);assert.equal(await page.locator('.jn-letter').count(),18);assert.equal(await page.locator('.jn-letter.opened').count(),9);
+  const prose=await page.locator('.jn-letters').textContent();assert.match(prose,/潮の友の分/);assert.match(prose,/ネリのお母さん/);assert.match(prose,/クリスタリアの王妃/);assert.match(prose,/時計師/);
+  assert.equal(await page.evaluate(()=>Board.party.gold),42);
 });
 test('Journal pages preserve the current story and return keyboard focus to their entrance',async()=>{
   await boot();const before=await page.evaluate(()=>localStorage.getItem('cr_save'));
