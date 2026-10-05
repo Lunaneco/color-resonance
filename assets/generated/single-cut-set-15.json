@@ -1,0 +1,159 @@
+[
+  {
+    "id": "golden_single_cut",
+    "name": "黄金の裁断・単体の剣弧",
+    "category": "fx",
+    "source": "source/golden_single_cut.png",
+    "references": [
+      "references/single-cut-thrust-reference.png",
+      "references/single-cut-shatter-reference.png",
+      "references/heartblade-weapon-reference.png"
+    ],
+    "sourceGenerator": "GPT Image image_gen",
+    "revision": "r1",
+    "prompt": "Use case: illustration-story. Reinterpret the supplied real Color Resonance reference assets into ONE original transparent VFX master for the learned single-enemy technique 黄金の裁断 (spinel_verdict). Reference 1 is the actual existing golden thrust: use only its warm amber/gold/pearl color identity and clean illustrated light finish, NOT its straight projectile or faceted spear shape. Reference 2 is the actual area golden spell: use only its strong simple white/gold value grouping, NOT its diamond, star or explosion shape. Reference 3 is the real heart sword: use its pearl-white light identity only; no hilt or literal weapon drawing. The new technique is a sword CUT at one enemy, not a thrust, area burst or armor-fracture scene.\nCreate one 1536 x 1024 true-transparent RGBA canvas. Exactly ONE slim upright CURVED sword-cut band, like a clean shallow parenthesis opening to the LEFT: continuous white-gold cutting arc bends toward the right around mid-height, tapering gently to rounded smooth tips at the top and bottom. Center its overall contour near (768,512), about 640px high and 320px wide, leaving at least220px fully transparent margin on each side. The band width is about65px at its broadest middle section. One filled continuous band with a pearl-white broad inner core, warm soft gold main body, and a modest medium amber outer contour so it can read on a bright floor. Only2–3 broad smoothly shaded cel-color areas; no parallel trim lines, cracked facets, tessellation, runes or noisy texture. Preserve a clear open left-side negative space; no second arc or closed circle. Robust simple contour when later resized to roughly120px tall; no isolated tips or tiny specks. Calm clean game illustration, a decisive short cutting stroke rather than violent tearing. True alpha-zero background and padding, no outside bloom cloud or fog.\nNo character, face, hand, enemy silhouette, body pixels, wound, gore, erasure, helmet, shell, fracture, shard, star, sparkle, particle, arrowhead, projectile, spear, diamond, giant sword model, halo, area ring, floor painting, ground, platform, backdrop, text, letters, numbers, symbol, border, checkerboard or watermark. Exactly the ONE simple shallow curved filled gold cutting band.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "sourceSize": [
+      1536,
+      1024
+    ],
+    "sourceCropBoxPx": [
+      0,
+      0,
+      1536,
+      1024
+    ],
+    "sourceAnchorPx": [
+      957.5,
+      513
+    ],
+    "sourceAnchorReason": "Measured midpoint of the core96 horizontal span881..1034 at row513; fixes the solid cutting-band center onto the target, not the empty center of its crescent bbox.",
+    "sourceCoreBox96Px": [
+      574,
+      52,
+      1036,
+      975
+    ],
+    "peakCoreWidthPx": 60,
+    "peakWidthNote": "60px is unrotated core width reference; unrotated core height is119.87px. Projected bounds change with rotation.",
+    "supersampleFactor": 4,
+    "pivotPx": [
+      128,
+      96
+    ],
+    "celScaleEnvelope": [
+      0.18,
+      0.42,
+      0.7,
+      0.9,
+      1,
+      1,
+      0.88,
+      0.7,
+      0.5,
+      0.32,
+      0.18,
+      0.1
+    ],
+    "celPngOpacities": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0.95,
+      0.85,
+      0.7,
+      0.55
+    ],
+    "celRotationDeg": [
+      -16,
+      -11,
+      -5,
+      1,
+      7,
+      7,
+      12,
+      16,
+      20,
+      24,
+      28,
+      30
+    ],
+    "preRollMs": 20,
+    "celDurationsMs": [
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40
+    ],
+    "transparentTailMs": 220,
+    "direction": "one upright curved gold band rotates clockwise -16 to30deg at fixed target pivot; opening on left",
+    "techniques": [
+      "spinel_verdict"
+    ],
+    "techniqueNames": [
+      "黄金の裁断"
+    ],
+    "trigger": "spiritSkill for spinel_verdict; one enemy within range2; after strike result !r.pass && !r.miss && r.dmg>0. Exclude chrome stage0 pass.",
+    "integrationNote": "Current spiritSkill queues spinel_shield before resolving strike. Future integration must select this cutting cue only for spinel_verdict after confirmed normal damage, replacing shared generated FX instead of stacking. Pierce, damage and armor handling unchanged. Material only; not connected.",
+    "upgrades": "Shared across 1.4.0 technique upgrades0..+3; base power2 with pierce and sure hit; existing range/paint/cost unchanged. No fabricated upgrade animation system.",
+    "drawLayer": "target effect at captured unitXY(target).x,y-tw*.6; pivot placed onto the solid middle of the cut",
+    "palette": "pearl-white/gold/amber in one smooth filled curved band; no independent sparkle or armor-shard system",
+    "notFor": [
+      "golden_thrust spear strike",
+      "dawn_shatter area spell",
+      "spinel_guard protection",
+      "lead armor peel or shell break",
+      "chrome stage0 non-hit passage",
+      "enemy release or death"
+    ],
+    "compatibilityCheckedCommit": "d8136b8467f93aed839261c5a02ca74728383792",
+    "sourceCropAlphaNote": {
+      "fullMasterCanvasRetained": true,
+      "noCropOfOutlyingAlpha": true,
+      "sourceAlphaExtrema": [
+        0,
+        254
+      ],
+      "note": "Generated master retained unchanged; full canvas registered once; final cells have 24px alpha-zero padding."
+    },
+    "continuousVisualPlayback": "NOT VERIFIED",
+    "actualGamePlacement": "NOT VERIFIED",
+    "independentAudit": {
+      "verdict": "static and all-cel material audit PASS with notes",
+      "confirmedNg": [],
+      "reviewed": [
+        "all PNG and GIF cels on dark/light backgrounds at native and tile64-equivalent size",
+        "no visible contour breaks",
+        "no visible separate particles",
+        "no white-to-black fragment change",
+        "14 GIF frames,720ms,one-shot,transparent end",
+        "independent source-registration reconstruction:all24 PNG cel RGBA pixels across both sets match"
+      ],
+      "crossEnvironmentPngCelReconstructionPixelMatch": 12,
+      "universalEncodedByteMatchGuaranteed": false,
+      "continuousVisualPlayback": "NOT VERIFIED",
+      "actualGamePlacement": "NOT VERIFIED",
+      "source": "parent-coordinated independent AI audit,delegated2026-10-05"
+    },
+    "pngWeakAlphaIslands": {
+      "observedCels": "some PNG cels",
+      "maxAlpha": 3,
+      "alphaScale": 255,
+      "scope": "micro islands in weak-alpha antialias pixels",
+      "strictZeroIslands": false
+    },
+    "compatibilityNote": "Originally produced on1.4.0; publication checked against latest copied game and origin1.5.0. All3 technique definitions and board/art code unchanged. New star-tree UI background/bloom and all other work are preserved."
+  }
+]

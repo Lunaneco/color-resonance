@@ -1,0 +1,161 @@
+[
+  {
+    "id": "seven_color_single_slash",
+    "name": "七彩・虹彩の単体剣光",
+    "category": "fx",
+    "source": "source/seven_color_single_slash.png",
+    "references": [
+      "references/heartblade-weapon-reference.png",
+      "references/single-blade-palette-reference.png",
+      "references/heartblade-slash-reference.png"
+    ],
+    "sourceGenerator": "GPT Image image_gen",
+    "revision": "r1",
+    "prompt": "Use case: illustration-story. Using the three supplied actual Color Resonance visual references, reinterpret their visual language into ONE original transparent registered VFX master for the learned techniques 七彩の刃 (king_edge) and 虹彩の極剣 (king_spectrum). Reference 1 is the real heart sword: retain its pearl/opal light identity, not its physical hilt, facets or weapon drawing. Reference 2 is the existing broad rainbow area-slash crescent: retain its restrained rainbow family only, NOT its crescent silhouette, wide area shape or busy faceting. Reference 3 is the existing clean heart-sword slash: retain its illustrated luminous cel finish only, NOT its curved plume or haze.\nOutput 1536 x 1024, RGBA true transparent. Exactly ONE narrow, mostly straight, solid tapered diagonal band of sword light, running lower-left to upper-right from approximately (280,680) to (1256,344), centered near (768,512). It must read as a close sword cutting line across ONE enemy, not a flying projectile, broad crescent or area spell. Its total length roughly 1000px and its broadest thickness roughly 90px, with smooth rounded-tapered connected ends. Pearl-white central body covering most of the band, with a clean moderate lavender/blue outside contour for bright-floor contrast, and seven restrained broad color regions (red/orange/yellow/green/cyan/blue/violet) running along the band. Simple broad color shapes and smooth clean illustrated cel shading. One filled contour, no stacked parallel hairline trails, no tessellation, no crystal facets, no grain or outside bloom cloud. Make the contour robust when resized to about 150px long; no tiny detached ends or specks. At least 220px of clear transparent padding on all sides. Preserve inner band opacity apart from minimal clean edge antialiasing; no holes or translucent ghost trail. This is a shared small single-target sword cue across two techniques and their upgrades, not a new game mechanic.\nNo character, enemy, face, hands, hilt, literal sword model, body pixels, hit wound, blood, black erasure, shell fracture, ground, floor painting, area circle, halo ring, crescent, wave, plume, beam column, arrowhead, projectile orb, decorative shard, diamond, spark, particle, star, sigil, rune, text, watermark, border, checkerboard or background. Only the single slender diagonal light band is visible.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "sourceSize": [
+      1536,
+      1024
+    ],
+    "sourceCropBoxPx": [
+      0,
+      0,
+      1536,
+      1024
+    ],
+    "sourceAnchorPx": [
+      780.5,
+      545
+    ],
+    "sourceCoreBox96Px": [
+      47,
+      210,
+      1514,
+      880
+    ],
+    "peakCoreWidthPx": 160,
+    "peakWidthNote": "160px is unrotated registered core width reference; actual peak GIF bbox at11deg is167px. Source diagonal band changes projected bbox width during rotation.",
+    "supersampleFactor": 4,
+    "pivotPx": [
+      128,
+      96
+    ],
+    "celScaleEnvelope": [
+      0.18,
+      0.42,
+      0.7,
+      0.9,
+      1,
+      1,
+      0.88,
+      0.7,
+      0.5,
+      0.32,
+      0.18,
+      0.1
+    ],
+    "celPngOpacities": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0.95,
+      0.85,
+      0.7,
+      0.55
+    ],
+    "celRotationDeg": [
+      -18,
+      -12,
+      -5,
+      3,
+      11,
+      11,
+      18,
+      24,
+      29,
+      33,
+      36,
+      38
+    ],
+    "preRollMs": 20,
+    "celDurationsMs": [
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40,
+      40
+    ],
+    "transparentTailMs": 220,
+    "direction": "one diagonal band rotates clockwise -18 to38deg around fixed target pivot; source diagonal begins about -25deg",
+    "techniques": [
+      "king_edge",
+      "king_spectrum"
+    ],
+    "techniqueNames": [
+      "七彩の刃",
+      "虹彩の極剣"
+    ],
+    "trigger": "spiritSkill for king_edge or king_spectrum; one enemy target; after strike result !r.pass && !r.miss && r.dmg>0. Exclude chrome stage0 pass.",
+    "integrationNote": "Current spiritSkill queues king_prism before resolving strike. Future integration must select this cue only for these two techniques after confirmed normal damage, replacing their shared generated FX instead of stacking it. Other king techniques keep their existing assets. Material only; not connected.",
+    "upgrades": "Shared across 1.4.0 technique upgrades0..+3; existing power/range/paint mechanics unchanged. One common material, not separate upgrade or recolored variants.",
+    "drawLayer": "single target effect above floor at captured target center unitXY(target).x,y-tw*.6",
+    "palette": "pearl-white central blade and restrained rainbow along one filled tapered band; no independent sparkle system",
+    "notFor": [
+      "king_resonance area slashes",
+      "king_prism projectile spell",
+      "king_canvas barrier",
+      "chrome stage0 non-hit passage",
+      "summoned spirit expiry",
+      "enemy release or death"
+    ],
+    "compatibilityCheckedCommit": "d8136b8467f93aed839261c5a02ca74728383792",
+    "sourceCropAlphaNote": {
+      "fullMasterCanvasRetained": true,
+      "noCropOfOutlyingAlpha": true,
+      "sourceAlphaExtrema": [
+        0,
+        254
+      ],
+      "note": "Generated master retained unchanged; full canvas is registered once; final cells have24px alpha-zero padding."
+    },
+    "continuousVisualPlayback": "NOT VERIFIED",
+    "actualGamePlacement": "NOT VERIFIED",
+    "independentAudit": {
+      "verdict": "static and all-cel material audit PASS with notes",
+      "confirmedNg": [],
+      "reviewed": [
+        "all PNG and GIF cels on dark/light backgrounds at native and tile64-equivalent size",
+        "no visible contour breaks",
+        "no visible separate particles",
+        "no white-to-black fragment change",
+        "14 GIF frames,720ms,one-shot,transparent end",
+        "independent source-registration reconstruction:all24 PNG cel RGBA pixels across both sets match"
+      ],
+      "crossEnvironmentPngCelReconstructionPixelMatch": 12,
+      "universalEncodedByteMatchGuaranteed": false,
+      "continuousVisualPlayback": "NOT VERIFIED",
+      "actualGamePlacement": "NOT VERIFIED",
+      "source": "parent-coordinated independent AI audit,delegated2026-10-05"
+    },
+    "pngWeakAlphaIslands": {
+      "observedCel": 6,
+      "detachedComponentCount": 10,
+      "maxAlpha": 4,
+      "alphaScale": 255,
+      "scope": "PNG weak-alpha islands; not visible separate particles at original/tile64 static review",
+      "strictZeroIslands": false
+    },
+    "compatibilityNote": "Originally produced on1.4.0; publication checked against latest copied game and origin1.5.0. All3 technique definitions and board/art code unchanged. New star-tree UI background/bloom and all other work are preserved."
+  }
+]

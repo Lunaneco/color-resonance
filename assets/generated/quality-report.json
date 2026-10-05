@@ -5179,5 +5179,722 @@
       "continuousVisualPlayback": "NOT VERIFIED",
       "actualGamePlacement": "NOT VERIFIED"
     }
+  },
+  "singleBladeSet14": {
+    "assetCount": 1,
+    "checks": [
+      {
+        "id": "seven_color_single_slash",
+        "pngCels": 12,
+        "uniquePngCels": 11,
+        "gifFrames": 14,
+        "durationMs": 720,
+        "visibleEndMs": 500,
+        "pngVisibleEndMs": 500,
+        "loop": false,
+        "firstLastBlank": true,
+        "transparentTailMs": 220,
+        "pivotPx": [
+          128,
+          96
+        ],
+        "transparentClearancePx": 24,
+        "sourceRegistration": "one measured master anchor; no per-cel crop or centering",
+        "geometry": "one filled diagonal master, angular sweep and uniform scaling at fixed target point",
+        "rotationDeg": [
+          -18,
+          -12,
+          -5,
+          3,
+          11,
+          11,
+          18,
+          24,
+          29,
+          33,
+          36,
+          38
+        ],
+        "peakHold": {
+          "cels": [
+            4,
+            5
+          ],
+          "startMs": 180,
+          "endMs": 260
+        },
+        "bodyOrDamageOrErasureDrawn": false,
+        "additionalParticleSystem": false,
+        "celRegistrations": [
+          {
+            "cel": 0,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.0196319018404908,
+            "rotationDeg": -18,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              114,
+              83,
+              142,
+              109
+            ],
+            "pivotAlpha": 255
+          },
+          {
+            "cel": 1,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.045807770961145196,
+            "rotationDeg": -12,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              96,
+              72,
+              160,
+              120
+            ],
+            "pivotAlpha": 252
+          },
+          {
+            "cel": 2,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.07634628493524198,
+            "rotationDeg": -5,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              73,
+              63,
+              184,
+              129
+            ],
+            "pivotAlpha": 252
+          },
+          {
+            "cel": 3,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.09815950920245399,
+            "rotationDeg": 3,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              52,
+              65,
+              204,
+              127
+            ],
+            "pivotAlpha": 252
+          },
+          {
+            "cel": 4,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.10906612133605999,
+            "rotationDeg": 11,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              41,
+              73,
+              216,
+              119
+            ],
+            "pivotAlpha": 252
+          },
+          {
+            "cel": 5,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.10906612133605999,
+            "rotationDeg": 11,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              41,
+              73,
+              216,
+              119
+            ],
+            "pivotAlpha": 252
+          },
+          {
+            "cel": 6,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.09597818677573279,
+            "rotationDeg": 18,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              49,
+              85,
+              207,
+              107
+            ],
+            "pivotAlpha": 252
+          },
+          {
+            "cel": 7,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.07634628493524198,
+            "rotationDeg": 24,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              66,
+              90,
+              191,
+              105
+            ],
+            "pivotAlpha": 252
+          },
+          {
+            "cel": 8,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.054533060668029994,
+            "rotationDeg": 29,
+            "pngOpacity": 0.95,
+            "alphaBoxPx": [
+              84,
+              89,
+              174,
+              105
+            ],
+            "pivotAlpha": 238
+          },
+          {
+            "cel": 9,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.0349011588275392,
+            "rotationDeg": 33,
+            "pngOpacity": 0.85,
+            "alphaBoxPx": [
+              100,
+              89,
+              158,
+              104
+            ],
+            "pivotAlpha": 213
+          },
+          {
+            "cel": 10,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.0196319018404908,
+            "rotationDeg": 36,
+            "pngOpacity": 0.7,
+            "alphaBoxPx": [
+              110,
+              90,
+              146,
+              102
+            ],
+            "pivotAlpha": 178
+          },
+          {
+            "cel": 11,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.010906612133605999,
+            "rotationDeg": 38,
+            "pngOpacity": 0.55,
+            "alphaBoxPx": [
+              119,
+              91,
+              139,
+              101
+            ],
+            "pivotAlpha": 139
+          }
+        ],
+        "gifOpaqueAreas": [
+          57,
+          282,
+          769,
+          1256,
+          1552,
+          1552,
+          1220,
+          775,
+          391,
+          164,
+          57,
+          17
+        ],
+        "gifCoreComponentSizes": [
+          [
+            57
+          ],
+          [
+            282
+          ],
+          [
+            769
+          ],
+          [
+            1256
+          ],
+          [
+            1552
+          ],
+          [
+            1552
+          ],
+          [
+            1220
+          ],
+          [
+            775
+          ],
+          [
+            391
+          ],
+          [
+            164
+          ],
+          [
+            57
+          ],
+          [
+            17
+          ]
+        ],
+        "gifVisibleComponents": 1,
+        "componentAdjacency": "8-neighbor; all 12 visible GIF cels",
+        "gifEndRgbMeans": [
+          203.03239556692245,
+          203.40650406504062,
+          206.2982456140351,
+          203.33333333333331
+        ],
+        "pngEndMethod": "uniform contraction and partial alpha",
+        "gifEndMethod": "contraction retaining source color; no RGB darkening",
+        "continuousVisualPlayback": "NOT VERIFIED",
+        "actualGamePlacement": "NOT VERIFIED"
+      }
+    ],
+    "sourceCropAlphaNote": {
+      "fullMasterCanvasRetained": true,
+      "noCropOfOutlyingAlpha": true,
+      "sourceAlphaExtrema": [
+        0,
+        254
+      ],
+      "note": "Generated master retained unchanged; full canvas is registered once; final cells have24px alpha-zero padding."
+    },
+    "independentAudit": {
+      "verdict": "static and all-cel material audit PASS with notes",
+      "confirmedNg": [],
+      "reviewed": [
+        "all PNG and GIF cels on dark/light backgrounds at native and tile64-equivalent size",
+        "no visible contour breaks",
+        "no visible separate particles",
+        "no white-to-black fragment change",
+        "14 GIF frames,720ms,one-shot,transparent end",
+        "independent source-registration reconstruction:all24 PNG cel RGBA pixels across both sets match"
+      ],
+      "crossEnvironmentPngCelReconstructionPixelMatch": 12,
+      "universalEncodedByteMatchGuaranteed": false,
+      "continuousVisualPlayback": "NOT VERIFIED",
+      "actualGamePlacement": "NOT VERIFIED",
+      "source": "parent-coordinated independent AI audit,delegated2026-10-05"
+    },
+    "playbackContract": {
+      "assertions": 45,
+      "scope": "Read-only VM of actual copied GameArt.sample; onset/midpoint/preceding-ms of every cel; end and future timestamps remain null. No browser/rendering.",
+      "actualArtJsSha256": "955553cdecf0dd598dd469de631557718add3311dec327a01cb8877fe2d164a9",
+      "continuousVisualPlayback": "NOT VERIFIED",
+      "actualGamePlacement": "NOT VERIFIED"
+    },
+    "pngWeakAlphaIslands": {
+      "observedCel": 6,
+      "detachedComponentCount": 10,
+      "maxAlpha": 4,
+      "alphaScale": 255,
+      "scope": "PNG weak-alpha islands; not visible separate particles at original/tile64 static review",
+      "strictZeroIslands": false
+    }
+  },
+  "singleCutSet15": {
+    "assetCount": 1,
+    "checks": [
+      {
+        "id": "golden_single_cut",
+        "pngCels": 12,
+        "uniquePngCels": 11,
+        "gifFrames": 14,
+        "durationMs": 720,
+        "visibleEndMs": 500,
+        "pngVisibleEndMs": 500,
+        "loop": false,
+        "firstLastBlank": true,
+        "transparentTailMs": 220,
+        "pivotPx": [
+          128,
+          96
+        ],
+        "transparentClearancePx": 24,
+        "sourceRegistration": "one measured master anchor; no per-cel crop or centering",
+        "geometry": "one filled curved gold master, angular sweep and uniform scaling at fixed target point",
+        "rotationDeg": [
+          -16,
+          -11,
+          -5,
+          1,
+          7,
+          7,
+          12,
+          16,
+          20,
+          24,
+          28,
+          30
+        ],
+        "peakHold": {
+          "cels": [
+            4,
+            5
+          ],
+          "startMs": 180,
+          "endMs": 260
+        },
+        "bodyOrDamageOrErasureDrawn": false,
+        "additionalParticleSystem": false,
+        "celRegistrations": [
+          {
+            "cel": 0,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.023376623376623374,
+            "rotationDeg": -16,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              114,
+              85,
+              132,
+              111
+            ],
+            "pivotAlpha": 255
+          },
+          {
+            "cel": 1,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.054545454545454536,
+            "rotationDeg": -11,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              100,
+              72,
+              135,
+              127
+            ],
+            "pivotAlpha": 253
+          },
+          {
+            "cel": 2,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.0909090909090909,
+            "rotationDeg": -5,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              89,
+              54,
+              138,
+              143
+            ],
+            "pivotAlpha": 253
+          },
+          {
+            "cel": 3,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.11688311688311688,
+            "rotationDeg": 1,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              80,
+              39,
+              140,
+              152
+            ],
+            "pivotAlpha": 254
+          },
+          {
+            "cel": 4,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.12987012987012986,
+            "rotationDeg": 7,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              69,
+              28,
+              141,
+              152
+            ],
+            "pivotAlpha": 254
+          },
+          {
+            "cel": 5,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.12987012987012986,
+            "rotationDeg": 7,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              69,
+              28,
+              141,
+              152
+            ],
+            "pivotAlpha": 254
+          },
+          {
+            "cel": 6,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.11428571428571428,
+            "rotationDeg": 12,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              72,
+              33,
+              140,
+              142
+            ],
+            "pivotAlpha": 254
+          },
+          {
+            "cel": 7,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.0909090909090909,
+            "rotationDeg": 16,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              82,
+              44,
+              138,
+              130
+            ],
+            "pivotAlpha": 254
+          },
+          {
+            "cel": 8,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.06493506493506493,
+            "rotationDeg": 20,
+            "pngOpacity": 0.95,
+            "alphaBoxPx": [
+              92,
+              57,
+              137,
+              119
+            ],
+            "pivotAlpha": 241
+          },
+          {
+            "cel": 9,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.04155844155844156,
+            "rotationDeg": 24,
+            "pngOpacity": 0.85,
+            "alphaBoxPx": [
+              105,
+              70,
+              135,
+              111
+            ],
+            "pivotAlpha": 215
+          },
+          {
+            "cel": 10,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.023376623376623374,
+            "rotationDeg": 28,
+            "pngOpacity": 0.7,
+            "alphaBoxPx": [
+              113,
+              80,
+              133,
+              105
+            ],
+            "pivotAlpha": 178
+          },
+          {
+            "cel": 11,
+            "registeredCenterPx": [
+              128,
+              96
+            ],
+            "uniformScale": 0.012987012987012986,
+            "rotationDeg": 30,
+            "pngOpacity": 0.55,
+            "alphaBoxPx": [
+              120,
+              86,
+              132,
+              102
+            ],
+            "pivotAlpha": 109
+          }
+        ],
+        "gifOpaqueAreas": [
+          65,
+          331,
+          910,
+          1491,
+          1834,
+          1834,
+          1420,
+          911,
+          469,
+          194,
+          65,
+          21
+        ],
+        "gifCoreComponentSizes": [
+          [
+            65
+          ],
+          [
+            331
+          ],
+          [
+            910
+          ],
+          [
+            1491
+          ],
+          [
+            1834
+          ],
+          [
+            1834
+          ],
+          [
+            1420
+          ],
+          [
+            911
+          ],
+          [
+            469
+          ],
+          [
+            194
+          ],
+          [
+            65
+          ],
+          [
+            21
+          ]
+        ],
+        "gifVisibleComponents": 1,
+        "componentAdjacency": "8-neighbor; all 12 visible GIF cels",
+        "gifEndRgbMeans": [
+          209.37526652452024,
+          211.213058419244,
+          211.9025641025641,
+          214.50793650793653
+        ],
+        "pngEndMethod": "uniform contraction and partial alpha",
+        "gifEndMethod": "contraction retaining source color; no RGB darkening",
+        "continuousVisualPlayback": "NOT VERIFIED",
+        "actualGamePlacement": "NOT VERIFIED"
+      }
+    ],
+    "sourceCropAlphaNote": {
+      "fullMasterCanvasRetained": true,
+      "noCropOfOutlyingAlpha": true,
+      "sourceAlphaExtrema": [
+        0,
+        254
+      ],
+      "note": "Generated master retained unchanged; full canvas registered once; final cells have 24px alpha-zero padding."
+    },
+    "independentAudit": {
+      "verdict": "static and all-cel material audit PASS with notes",
+      "confirmedNg": [],
+      "reviewed": [
+        "all PNG and GIF cels on dark/light backgrounds at native and tile64-equivalent size",
+        "no visible contour breaks",
+        "no visible separate particles",
+        "no white-to-black fragment change",
+        "14 GIF frames,720ms,one-shot,transparent end",
+        "independent source-registration reconstruction:all24 PNG cel RGBA pixels across both sets match"
+      ],
+      "crossEnvironmentPngCelReconstructionPixelMatch": 12,
+      "universalEncodedByteMatchGuaranteed": false,
+      "continuousVisualPlayback": "NOT VERIFIED",
+      "actualGamePlacement": "NOT VERIFIED",
+      "source": "parent-coordinated independent AI audit,delegated2026-10-05"
+    },
+    "playbackContract": {
+      "assertions": 45,
+      "scope": "Read-only VM of actual copied GameArt.sample; onset/midpoint/preceding-ms of every cel; end and future timestamps remain null. No browser/rendering.",
+      "actualArtJsSha256": "955553cdecf0dd598dd469de631557718add3311dec327a01cb8877fe2d164a9",
+      "continuousVisualPlayback": "NOT VERIFIED",
+      "actualGamePlacement": "NOT VERIFIED"
+    },
+    "pngWeakAlphaIslands": {
+      "observedCels": "some PNG cels",
+      "maxAlpha": 3,
+      "alphaScale": 255,
+      "scope": "micro islands in weak-alpha antialias pixels",
+      "strictZeroIslands": false
+    }
   }
 }

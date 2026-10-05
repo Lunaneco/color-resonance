@@ -3,10 +3,10 @@
   "title": "Color Resonance ゲーム素材",
   "counts": {
     "characters": 18,
-    "effects": 34,
-    "sourceSheets": 52,
-    "pngCels": 508,
-    "gifs": 151
+    "effects": 36,
+    "sourceSheets": 54,
+    "pngCels": 532,
+    "gifs": 155
   },
   "production": {
     "generator": "built-in imagegen",
@@ -7530,6 +7530,267 @@
               "name": "足元に閉じる",
               "startMs": 440,
               "endMs": 1000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "seven_color_single_slash",
+      "name": "七彩・虹彩の単体剣光",
+      "category": "fx",
+      "assetRole": "single-target-learned-sword-slash",
+      "source": "source/seven_color_single_slash.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "sheet": "sheets/seven_color_single_slash.png",
+      "frames": [
+        "frames/seven_color_single_slash/000.png",
+        "frames/seven_color_single_slash/001.png",
+        "frames/seven_color_single_slash/002.png",
+        "frames/seven_color_single_slash/003.png",
+        "frames/seven_color_single_slash/004.png",
+        "frames/seven_color_single_slash/005.png",
+        "frames/seven_color_single_slash/006.png",
+        "frames/seven_color_single_slash/007.png",
+        "frames/seven_color_single_slash/008.png",
+        "frames/seven_color_single_slash/009.png",
+        "frames/seven_color_single_slash/010.png",
+        "frames/seven_color_single_slash/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          256,
+          192
+        ],
+        "order": "row-major"
+      },
+      "pivotPx": [
+        128,
+        96
+      ],
+      "scaleReferenceTileWidthPx": 80,
+      "direction": "one diagonal band rotates clockwise -18 to38deg around fixed target pivot; source diagonal begins about -25deg",
+      "techniques": [
+        "king_edge",
+        "king_spectrum"
+      ],
+      "triggerCondition": "spiritSkill for king_edge or king_spectrum; one enemy target; after strike result !r.pass && !r.miss && r.dmg>0. Exclude chrome stage0 pass.",
+      "productionSet": "single-blade-set-14",
+      "animations": {
+        "effect": {
+          "name": "七彩・虹彩の単体剣光",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            20,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            220
+          ],
+          "frameStartsMs": [
+            0,
+            20,
+            60,
+            100,
+            140,
+            180,
+            220,
+            260,
+            300,
+            340,
+            380,
+            420,
+            460,
+            500
+          ],
+          "loop": false,
+          "gif": "gifs/seven_color_single_slash/effect.gif",
+          "size": [
+            256,
+            192
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 720,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/seven_color_single_slash/preview.gif",
+          "visibleEndMs": 500,
+          "pngVisibleEndMs": 500,
+          "gifTransparentTailMs": 220,
+          "phases": [
+            {
+              "name": "剣光が振り抜かれる",
+              "startMs": 20,
+              "endMs": 180
+            },
+            {
+              "name": "ピーク保持",
+              "startMs": 180,
+              "endMs": 260
+            },
+            {
+              "name": "剣光の縮退",
+              "startMs": 260,
+              "endMs": 500
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "golden_single_cut",
+      "name": "黄金の裁断・単体の剣弧",
+      "category": "fx",
+      "assetRole": "single-target-learned-sword-slash",
+      "source": "source/golden_single_cut.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "sheet": "sheets/golden_single_cut.png",
+      "frames": [
+        "frames/golden_single_cut/000.png",
+        "frames/golden_single_cut/001.png",
+        "frames/golden_single_cut/002.png",
+        "frames/golden_single_cut/003.png",
+        "frames/golden_single_cut/004.png",
+        "frames/golden_single_cut/005.png",
+        "frames/golden_single_cut/006.png",
+        "frames/golden_single_cut/007.png",
+        "frames/golden_single_cut/008.png",
+        "frames/golden_single_cut/009.png",
+        "frames/golden_single_cut/010.png",
+        "frames/golden_single_cut/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          256,
+          192
+        ],
+        "order": "row-major"
+      },
+      "pivotPx": [
+        128,
+        96
+      ],
+      "scaleReferenceTileWidthPx": 80,
+      "direction": "one upright curved gold band rotates clockwise -16 to30deg at fixed target pivot; opening on left",
+      "techniques": [
+        "spinel_verdict"
+      ],
+      "triggerCondition": "spiritSkill for spinel_verdict; one enemy within range2; after strike result !r.pass && !r.miss && r.dmg>0. Exclude chrome stage0 pass.",
+      "productionSet": "single-cut-set-15",
+      "animations": {
+        "effect": {
+          "name": "黄金の裁断・単体の剣弧",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            20,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            40,
+            220
+          ],
+          "frameStartsMs": [
+            0,
+            20,
+            60,
+            100,
+            140,
+            180,
+            220,
+            260,
+            300,
+            340,
+            380,
+            420,
+            460,
+            500
+          ],
+          "loop": false,
+          "gif": "gifs/golden_single_cut/effect.gif",
+          "size": [
+            256,
+            192
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 720,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/golden_single_cut/preview.gif",
+          "visibleEndMs": 500,
+          "pngVisibleEndMs": 500,
+          "gifTransparentTailMs": 220,
+          "phases": [
+            {
+              "name": "剣光が振り抜かれる",
+              "startMs": 20,
+              "endMs": 180
+            },
+            {
+              "name": "ピーク保持",
+              "startMs": 180,
+              "endMs": 260
+            },
+            {
+              "name": "剣光の縮退",
+              "startMs": 260,
+              "endMs": 500
             }
           ]
         }
