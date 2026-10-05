@@ -156,6 +156,7 @@ const Board = (() => {
   let stats = null, difficulty = 'normal', tierA = 0, tierE = 0, ratioA = 0, ratioE = 0, kegIdx = 0, colorIdx = 0, totalFoes = 0;
   let hudReady = false;
   let guardianHistory = [];
+  let guardianVoicePending = false;
 
   // 終了・やり直しをまたいで、古い戦闘の演出や行動を続けない。
   const cancelled = Symbol('battle cancelled');
@@ -920,9 +921,15 @@ const Board = (() => {
     if (hintTimer) hintTimer();
     hintTimer = ms ? later(() => hintEl.classList.remove('show'), ms) : null;
   }
-  function hideSay() { if (hintTimer) hintTimer(); hintTimer = null; hintEl.classList.remove('show'); }
-  hintEl.addEventListener('click', e => { e.stopPropagation(); hideSay(); });
-  $id('hintClose').addEventListener('click', e => { e.stopPropagation(); hideSay(); });
+  function hideSay() { if (hintTimer) hintTimer(); hintTimer = null; guardianVoicePending = false; hintEl.classList.remove('show'); }
+  function dismissSay(e) {
+    e.stopPropagation();
+    const resume = guardianVoicePending;
+    hideSay();
+    if (resume) autoEnd();
+  }
+  hintEl.addEventListener('click', dismissSay);
+  $id('hintClose').addEventListener('click', dismissSay);
   async function showBanner(kind, main, sub) {
     bannerEl.className = '';
     bannerEl.innerHTML = `<div class="pb-line"></div><div class="pb-main">${main}</div><div class="pb-sub">${sub}</div>`;
@@ -1668,7 +1675,8 @@ const Board = (() => {
       areaCells(cellOf(e),next+2).filter(c=>c.floor!=='dull').sort((a,b)=>dist(a,e)-dist(b,e)).slice(0,8+next*6).forEach((c,i)=>paint(c,'dull',i*25));
       const q=unitXY(e); fxp.push({k:'ring',x:q.x,y:q.y,r:tw*.3,grow:tw*3,col:next===1?'170,140,205':'145,230,210',life:0,max:1.1}); Audio2.sfx.expose();
       guardianIntent(e);
-      say('戦場の声',p.lines[next].map(([who,text])=>`<b>${who}</b> ${text}`).join('<br>')+'<small>穢れが外へ流れ出した。予告の床を虹にして防ごう。</small>',10000);
+      guardianVoicePending = true;
+      say('戦場の声',p.lines[next].map(([who,text])=>`<b>${who}</b> ${text}`).join('<br>')+'<small>穢れが外へ流れ出した。予告の床を虹にして防ごう。</small>',0);
     }
   }
   async function guardianResolve(e) {
@@ -1777,7 +1785,12 @@ const Board = (() => {
   })()); }
   function autoEnd() {
     if (paused || over) return;
-    if (live().filter(u => u.side === 'ally').every(u => u.acted)) later(() => { if (phase === 'player' && !busy && !over && !paused) endPlayerPhase(); }, 500);
+    if (!live().filter(u => u.side === 'ally').every(u => u.acted)) return;
+    if (guardianVoicePending) {
+      phaseLabel.textContent = '声をタップして次の手番へ／ターン終了でも進めます';
+      return;
+    }
+    later(() => { if (phase === 'player' && !busy && !over && !paused && !guardianVoicePending) endPlayerPhase(); }, 500);
   }
   function openFacing(u) {
     // 向きを確定するまで行動も移動取り消しの記録も消費しない。

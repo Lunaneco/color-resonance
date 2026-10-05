@@ -716,7 +716,10 @@ test('Each spirit has an animated enchant cut-in and no effect survives leaving 
   for(const id of ['gran','ivy','spinel','king']){
     await fixture('king',{spStart:12,spirits:['gran','ivy','spinel','king']});await openMenu();await page.locator('[data-k=spirit]').click();await page.locator(`[data-k=enchant][data-a=${id}]`).click();
     await page.locator('#cutin canvas').waitFor();await drew('aria',7,'aria');
-    const fx=await page.evaluate(id=>GameArt.spiritEffects[id],id);await drew(fx,3,'aria');
+    const fx=await page.evaluate(id=>GameArt.spiritEffects[id],id);
+    // Verify motion on the cut-in canvas without requiring a single 69 ms cel
+    // to coincide with a render frame on a busy CI runner.
+    await page.waitForFunction(fx => window.artCels.filter(key => key.startsWith(`aria:${fx}:`)).length >= 2, fx, {timeout:5000});
     await idle();assert.equal(aria(await state()).enchant.id,id);
     await page.evaluate(()=>window.artCels=[]);
   }
