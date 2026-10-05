@@ -1,0 +1,470 @@
+{
+  "generator": "built-in image_gen.imagegen",
+  "date": "2026-10-05",
+  "prompts": [
+    {
+      "id": "e_glass",
+      "name": "硝子の刻印",
+      "kind": "equipment",
+      "slot": "blade",
+      "unique": false,
+      "prompt": "Use case: stylized-concept. Asset type: one fantasy RPG inventory icon, square production raster with genuine transparent background. Subject: 硝子の刻印, a single small heart-sword engraving talisman: a clear icy pale-blue oval glass rune tablet, slim brushed-silver rim, one simple luminous four-point heart-sword rune etched at its center. It is a sigil upgrade for a transparent magical sword, not a full sword. Smooth elegant Japanese fantasy storybook illustration, clean hand-painted shading, distinct generous silhouette, softly illuminated teal and ivory glass with restrained pale-gold accents. Three-quarter front view, entire isolated object centered, occupying 72 percent of square canvas, ample transparent margin. Readable at 48 pixels. No scene, character, hands, pedestal, shadow plane, UI frame, letters, text, watermark, glitter spray or tiny repetitive decoration. Keep the glass object visible against a dark navy game interface. 髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "e_tide",
+      "name": "潮の刻印",
+      "kind": "equipment",
+      "slot": "blade",
+      "unique": false,
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: A rounded aquamarine heart-sword sigil tablet shaped like a curling wave, silver rim, one flowing white wave engraving, small pearl inset. A sword engraving talisman, not a full sword.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "e_ash",
+      "name": "灰の刻印",
+      "kind": "equipment",
+      "slot": "blade",
+      "unique": false,
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: A dark smoky charcoal hexagonal heart-sword sigil tablet with a restrained warm ember core and one pale-gold rising-smoke engraving, satin silver border.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "e_amber",
+      "name": "琥珀の刻印",
+      "kind": "equipment",
+      "slot": "blade",
+      "unique": false,
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: A honey amber elongated diamond heart-sword sigil tablet in a simple bronze bezel, broad warm golden facet and one clean flowing flame engraving.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "e_prism",
+      "name": "虹彩の刻印",
+      "kind": "equipment",
+      "slot": "blade",
+      "unique": false,
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: A violet octagonal heart-sword sigil tablet, four broad rainbow glass facets within a pale-gold bezel, one simple star-like heart-sword engraving.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "a_rain",
+      "name": "雨よけの外套",
+      "kind": "equipment",
+      "slot": "cloth",
+      "unique": false,
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: An unworn hooded slate teal rain cloak with ivory lining, single silver teardrop clasp, soft broad folds, clear practical weatherproof silhouette. Empty garment without body or mannequin.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "a_wool",
+      "name": "毛織りのケープ",
+      "kind": "equipment",
+      "slot": "cloth",
+      "unique": false,
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: An unworn short cream wool cape with muted brown trim, simple wooden toggle clasp and cozy rounded shoulders. Smooth soft wool, no fuzzy granular texture; empty garment without mannequin.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "a_moss",
+      "name": "苔むした胸当て",
+      "kind": "equipment",
+      "slot": "cloth",
+      "unique": false,
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: An empty muted bronze breastplate with broad smooth muted green moss patches on the shoulder rims, leaf clasp and softly aged curved metal. No body, mannequin, busy corrosion or tiny moss details.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "a_gold",
+      "name": "金糸の衣",
+      "kind": "equipment",
+      "slot": "cloth",
+      "unique": false,
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: An unworn long ivory tunic with broad elegant golden seams and one amber clasp, restrained embroidered leaf accents; empty garment, no person or mannequin.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "a_star",
+      "name": "星織りのドレス",
+      "kind": "equipment",
+      "slot": "cloth",
+      "unique": false,
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: An unworn deep midnight-blue fantasy dress with ivory shoulder capelet, silver crescent clasp and a few LARGE pale-gold four-point stars along a flowing wide skirt. No mannequin, body, dense star pattern or glitter.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "c_lens",
+      "name": "拡大鏡のかけら",
+      "kind": "equipment",
+      "slot": "charm",
+      "unique": false,
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One asymmetrical clear glass fragment held in a small silver half-ring, a simple magnifying lens charm with a tiny loop. Make the broken but rounded glass edge visible.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "c_bell",
+      "name": "小さな鈴",
+      "kind": "equipment",
+      "slot": "charm",
+      "unique": false,
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One tiny rounded warm brass bell with an ivory ribbon tied in a small bow, simple clearly visible sound slit and clapper.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "c_tea",
+      "name": "カモミールの小袋",
+      "kind": "equipment",
+      "slot": "charm",
+      "unique": false,
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One small cream linen sachet tied with sage green string, a single chamomile flower tucked under its knot; closed bag with soft clean folds.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "c_brush",
+      "name": "絵筆の飾り",
+      "kind": "equipment",
+      "slot": "charm",
+      "unique": false,
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One small paintbrush pendant with a dark wooden handle, bronze ferrule and soft violet bristles, a delicate small loop and short ivory cord.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "c_feather",
+      "name": "渡り鳥の羽",
+      "kind": "equipment",
+      "slot": "charm",
+      "unique": false,
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One long ivory migratory-bird feather with a soft slate-blue tip, simple curved quill and slender golden attachment loop, broad clean vanes without tiny repetitive barbs.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_knot",
+      "name": "リラの結び目",
+      "kind": "equipment",
+      "slot": "charm",
+      "unique": true,
+      "lore": "冷えた指でもほどけるように、少し長めに端を残した結び目。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: A treasured ivory-blue ribbon tied in a loose double knot with two long uneven ends, one tiny teal glass bead. Tender handmade memento, clean broad ribbon folds.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_bell",
+      "name": "鐘楼の子守唄",
+      "kind": "equipment",
+      "slot": "blade",
+      "unique": true,
+      "lore": "渡り鳥が鐘楼に残していった歌。背中から、そっと届く。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: A heart-sword sigil shaped like a small old brass belfry bell, midnight-blue glass inset and one silver musical-wave engraving, single feather charm at the edge.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_vine",
+      "name": "姉妹の蔦冠",
+      "kind": "equipment",
+      "slot": "charm",
+      "unique": true,
+      "lore": "ひと冬かけて編んだドレスの、残った糸で編んだ冠。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: A circular delicate green vine crown entwined with one ivory thread, a few LARGE leaves and two small white blossoms. Sisters handmade keepsake, airy but strong silhouette.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_kintsugi",
+      "name": "金継ぎの衣",
+      "kind": "equipment",
+      "slot": "cloth",
+      "unique": true,
+      "lore": "割れたところを、金でつないだ衣。傷のところがいちばん強い。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: An empty ivory and muted indigo robe with three broad broken ceramic-like panels joined by clean sweeping golden kintsugi seams, elegant warm gold collar. No mannequin.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_palette",
+      "name": "王のパレット",
+      "kind": "equipment",
+      "slot": "blade",
+      "unique": true,
+      "lore": "世界の色の調和を守ってきた、王の絵の具皿。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: A royal heart-sword sigil in the form of a single small ivory painter palette with a pale-gold rim and four smooth large paint wells: cyan, green, amber, violet. No brush or extra objects.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_nightsky",
+      "name": "小さな夜空のかけら",
+      "kind": "equipment",
+      "slot": "charm",
+      "unique": true,
+      "lore": "星が光るための黒。ルノワールの中で灯った夜空の一粒。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One deep indigo rounded triangular glass fragment holding a SINGLE luminous ivory star, minimal silver bezel and tiny attachment loop. A small piece of night sky, no star cloud.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_mist",
+      "name": "霧のヴェール",
+      "kind": "equipment",
+      "slot": "cloth",
+      "unique": true,
+      "lore": "グランが灯台に預けた霧の、ひとすじ。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One unworn airy pale-blue veil with smooth translucent gauze folds and a small silver teardrop clasp, a clean sweeping floating cloth silhouette. No face, body or mannequin.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_fruit",
+      "name": "赤い果実のブローチ",
+      "kind": "equipment",
+      "slot": "charm",
+      "unique": true,
+      "lore": "怒ったあとほど甘い、という赤い国の果実をかたどったもの。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: A single ruby-red fruit-shaped brooch with a broad green leaf and fine brushed-gold stem and bezel. Distinct rich red rounded fruit, not a loose edible apple.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_compass",
+      "name": "迷子の羅針盤",
+      "kind": "equipment",
+      "slot": "charm",
+      "unique": true,
+      "lore": "居心地がよすぎて出口を忘れた森で、マリーが落としたもの。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: A small round antique bronze compass, cream dial with a large emerald leaf-shaped needle, hinged half-open lid and simple attachment loop. No letters, numbers or dense markings.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_lens",
+      "name": "星見のレンズ",
+      "kind": "equipment",
+      "slot": "charm",
+      "unique": true,
+      "lore": "遠い星まで、すこしだけ近くに見える。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One deep sapphire convex stargazing lens held in a simple silver round frame, a large ivory star reflected inside and a tiny gold loop.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_sheath",
+      "name": "透明の鞘",
+      "kind": "equipment",
+      "slot": "blade",
+      "unique": true,
+      "lore": "何も壊さない刃のための、何も隠さない鞘。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: A long narrow empty clear icy-glass sword sheath with pale-gold throat and tip, gently curved slim outline and one simple star engraving. Entire sheath visible; no sword blade.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_quest_harbor",
+      "name": "配達人の結び紐",
+      "kind": "equipment",
+      "slot": "charm",
+      "unique": true,
+      "lore": "忘れものを、持ち主の手へ返すための紐。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: A delivery-person keepsake: warm rust-brown cord loosely tied around one small ivory rectangular parcel tag, simple bronze knot bead and two tidy loose ends. No text on the tag.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_quest_lantern",
+      "name": "帰港の灯",
+      "kind": "equipment",
+      "slot": "charm",
+      "unique": true,
+      "lore": "霧の向こうでも、帰る場所を知らせる灯り。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One small brass harbor lantern pendant with teal glass panes and a warm ivory flame, a sturdy round carrying loop, simple square-sided design.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_quest_tide",
+      "name": "潮騒の刻印",
+      "kind": "equipment",
+      "slot": "blade",
+      "unique": true,
+      "lore": "波が退く瞬間に合わせて刻んだ、深碧のしるし。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: A deep teal rounded crescent heart-sword sigil tablet with silver-white foam engraving and a simple pale-gold border, clearly different from the ordinary tide oval.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_quest_clock",
+      "name": "再び動く秒針",
+      "kind": "equipment",
+      "slot": "charm",
+      "unique": true,
+      "lore": "謝罪の言葉とともに、時を刻みはじめた針。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: A SINGLE slender long antique golden clock second-hand pendant with a red jewel at its round pivot and a clearly pointed tip. No clock face, letters or numbers.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_quest_orchard",
+      "name": "果樹園のケープ",
+      "kind": "equipment",
+      "slot": "cloth",
+      "unique": true,
+      "lore": "苦い果実の収穫を手伝った日に贈られたケープ。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: An unworn sage-green short orchard cape, warm cream lining, bronze clasp shaped like one red fruit, broad smooth leaf-edge hem. No person or mannequin.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_quest_thorns",
+      "name": "帰り鳥の蔦輪",
+      "kind": "equipment",
+      "slot": "charm",
+      "unique": true,
+      "lore": "鳥たちが帰る道を、蔦の輪で結んだもの。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: A bird-homecoming vine ring charm, circular curved green vine with two large leaves and a single small ivory feather tied to its side with cream thread.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_quest_bloom",
+      "name": "花守りの衣",
+      "kind": "equipment",
+      "slot": "cloth",
+      "unique": true,
+      "lore": "芽吹きを守った手に、やさしく寄り添う衣。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: An unworn pale mint flower-keeper robe with ivory lining, a single large white flower clasp and a few broad pink petal accents on the hem. Empty garment, no mannequin.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_quest_bridge",
+      "name": "渡り橋の留め具",
+      "kind": "equipment",
+      "slot": "charm",
+      "unique": true,
+      "lore": "向こう岸へ渡る勇気を、胸元に留める金具。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One sturdy bronze bridge clasp, two broad curved metal pieces securely joined by a central silver rivet, a pale-blue stone inset. A wearable buckle, not an entire bridge.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_quest_gold",
+      "name": "鍛冶師の金線",
+      "kind": "equipment",
+      "slot": "blade",
+      "unique": true,
+      "lore": "傷を隠さず、輝く道筋に変える金の線。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: A heart-sword engraving charm made from a SINGLE smooth looping gold wire that traces a broad repaired crack shape, anchored by a small amber stone, strong clean silhouette.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_quest_palette",
+      "name": "色祭りの絵筆",
+      "kind": "equipment",
+      "slot": "charm",
+      "unique": true,
+      "lore": "城下町に戻った七色を、旅の道へ描く絵筆。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One festive painter brush charm with a golden handle, ivory ferrule and broad clean rainbow-tinted bristle tip; a simple short teal ribbon tied at the loop. No extra palette.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_quest_stargarden",
+      "name": "星庭の羽衣",
+      "kind": "equipment",
+      "slot": "cloth",
+      "unique": true,
+      "lore": "星と色の響き合いを織り込んだ、庭の羽衣。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: An unworn flowing violet and pale-blue ceremonial feather robe, ivory collar, pale-gold star clasp and two broad wing-like cloth panels, only a few large star accents. No body or mannequin.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "u_quest_echo",
+      "name": "四響の刻印",
+      "kind": "equipment",
+      "slot": "blade",
+      "unique": true,
+      "lore": "四つの絆を、ひとつの透明な剣へ刻んだもの。",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: A round clear-glass heart-sword sigil divided into four broad petals: cyan, green, amber and violet, joined by one pale-gold central star. A single unified four-resonance tablet.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "i_tea",
+      "name": "カモミールの茶",
+      "kind": "item",
+      "unique": false,
+      "desc": "自分か隣の味方のHPを40%回復",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One simple ivory ceramic teacup with warm chamomile tea, a single chamomile flower on the rim and one soft broad curl of steam. No saucer or table.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "i_water",
+      "name": "澄んだ湧き水",
+      "kind": "item",
+      "unique": false,
+      "desc": "自分か隣の味方のHPを全回復",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One small clear rounded glass vial of pure pale-blue spring water, cork stopper and a single silver teardrop charm tied at its neck. No label or letters.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "i_shard",
+      "name": "虹のかけら",
+      "kind": "item",
+      "unique": false,
+      "desc": "共鳴+4",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One smooth jagged rainbow glass shard, broad cyan, rosy gold and violet facets, a tiny ivory glow at its center. A loose usable magic fragment, no setting or chain.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "i_powder",
+      "name": "プリズムの粉",
+      "kind": "item",
+      "unique": false,
+      "desc": "2マス先までの一点を中心に、周り2マスを虹に染める",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One small open rounded glass jar of softly colored prism powder, ivory cloth ribbon at its neck, a few broad pastel crystal grains at the mouth. No glitter spray, label or letters.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "i_ward",
+      "name": "守りの香",
+      "kind": "item",
+      "unique": false,
+      "desc": "自分か隣の味方の守りを2ターン固める",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One squat bronze incense vessel with a cream lid slightly ajar and a SINGLE broad sage-green curl of protective smoke, simple shield-shaped ornament at the front.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "m_dust",
+      "name": "共鳴の砂",
+      "kind": "material",
+      "unique": false,
+      "desc": "技の基礎を磨く共通素材",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One small cream linen pouch opened to reveal smooth warm golden resonant sand, a tiny simple pearl bead on its drawstring. No gritty specks, glitter spray or text.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "m_teal",
+      "name": "潮の雫晶",
+      "kind": "material",
+      "unique": false,
+      "desc": "グランの技を強化する素材",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One LARGE cyan teardrop-shaped sea crystal with three broad smooth facets and a simple white wave engraving, loose gemstone without a bezel.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "m_green",
+      "name": "若葉の結晶",
+      "kind": "material",
+      "unique": false,
+      "desc": "アイビーの技を強化する素材",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One LARGE fresh-green leaf-shaped marquise crystal with a simple ivory leaf vein engraving and three broad smooth facets, loose gemstone without setting.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "m_gold",
+      "name": "金継ぎの欠片",
+      "kind": "material",
+      "unique": false,
+      "desc": "スピネルの技を強化する素材",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One LARGE warm ivory ceramic fragment repaired by a SINGLE bold branching golden kintsugi seam. A loose broken pottery piece, no jewels or tiny crack network.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "m_violet",
+      "name": "虹彩の結晶",
+      "kind": "material",
+      "unique": false,
+      "desc": "パレット王の技を強化する素材",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One LARGE lavender six-sided crystal prism with four broad rainbow-reflecting facets and one soft white central star glint. Loose raw gemstone without setting.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    },
+    {
+      "id": "m_core",
+      "name": "澄明の核",
+      "kind": "material",
+      "unique": false,
+      "desc": "+3への仕上げに使う希少素材",
+      "prompt": "Use case: stylized-concept. Asset type: one square production inventory icon for the Japanese fantasy RPG Color Resonance. Genuine transparent background. Subject: One rare clear ivory crystalline core: a smooth rounded hexagonal jewel surrounding a single soft luminous four-point star, faint pale violet and gold edge refraction. Loose crystal without chains or bezel.\nStyle: elegant Japanese fantasy storybook object illustration, softly hand-painted clean shading, legible generous silhouette and restrained ivory, teal, indigo and pale-gold accents appropriate to the object. Three-quarter front view, entire SINGLE object centered, occupying about 72 percent of square canvas with ample transparent margin. Readable at 48 pixels on a dark navy UI. Smooth cloth, glass and brushed metal surfaces. No scenery, people, hands, mannequin, display pedestal, shadow plane, UI border, text, letters, watermark, glitter spray or tiny repetitive decoration.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+      "transparent_background": true
+    }
+  ]
+}

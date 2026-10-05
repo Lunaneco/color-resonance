@@ -1748,7 +1748,7 @@ const Board = (() => {
     cmdMenu.classList.toggle('followup', followUp && sub !== 'facing');
     menuSub = sub || null;
     const it = [];
-    const btn = (k, label, opt = {}) => `<button class="cm-b" data-k="${k}" ${opt.a ? `data-a="${opt.a}"` : ''} ${opt.dis ? 'disabled' : ''} data-d="${opt.d || ''}">${label}${opt.cost != null ? `<em>${opt.cost}</em>` : ''}${opt.key ? `<kbd>${opt.key}</kbd>` : ''}</button>`;
+    const btn = (k, label, opt = {}) => `<button class="cm-b${opt.art ? ' cm-item' : ''}" data-k="${k}" ${opt.a ? `data-a="${opt.a}"` : ''} ${opt.dis ? 'disabled' : ''} data-d="${opt.d || ''}">${opt.art ? `<span>${InventoryArt.icon(opt.art)}<span>${label}</span>${opt.cost != null ? `<em>${opt.cost}</em>` : ''}</span>` : `${label}${opt.cost != null ? `<em>${opt.cost}</em>` : ''}`}${opt.key ? `<kbd>${opt.key}</kbd>` : ''}</button>`;
     if (sub === 'facing') {
       it.push(`<div class="cm-head">向きを選んで待機<small>${u.name}</small></div>`);
       it.push('<p class="cm-facing-help">選んだ方向が正面になります。背後からの攻撃に気をつけて。</p>');
@@ -1785,7 +1785,7 @@ const Board = (() => {
       it.push(btn('back', 'もどる'));
     } else if (sub === 'item') {
       it.push(`<div class="cm-head">道具<small>いくつ持っているか</small></div>`);
-      Object.keys(party.items).filter(k => party.items[k] > 0 && ITEMS[k]).forEach(k => it.push(btn('useitem', ITEMS[k].name, { a: k, cost: '×' + party.items[k], d: ITEMS[k].desc })));
+      Object.keys(party.items).filter(k => party.items[k] > 0 && ITEMS[k]).forEach(k => it.push(btn('useitem', ITEMS[k].name, { a: k, art: k, cost: '×' + party.items[k], d: ITEMS[k].desc })));
       it.push(btn('back', 'もどる', { d: '' }));
     } else {
       const atk = attackTargets(u).size > 0;
@@ -2105,11 +2105,11 @@ const Board = (() => {
       <div class="r-rank">${r}</div><div class="r-name">${RANK_NAME[r]}</div>
       <p class="r-difficulty">${Progression.difficulties[difficulty].name}・適正LV ${cfg.recommendedLv}</p>
       ${mlist}
-      ${Object.entries(stats.materialRewards || {}).filter(([, bag]) => Object.keys(bag).length).map(([kind, bag]) => `<div class="r-materials"><small>${{ clear: '戦闘クリア素材 · 毎回', mission: 'ミッション初達成の素材', mastery: '初S評価の素材' }[kind]}</small>${Object.entries(bag).map(([id, n]) => `${Progression.materials[id].name} +${n}`).join('・')}</div>`).join('')}
-      ${(stats.questItems || []).length ? `<p class="r-bond">この難易度の初回報酬：${stats.questItems.map(x => `${ITEMS[x.id].name} +${x.count}`).join('・')}</p>` : ''}
-      ${u ? `<div class="r-unique"><small>Sランク達成　ユニーク装備</small><b>${u.name}</b><span>${u.desc}</span></div>` : ''}
-      ${equipment ? `<div class="r-unique r-equipment"><small>ふつうのS評価　通常装備</small><b>${EQUIP[equipment].name}</b><span>${equipmentGold ? `所持済みのため ${equipmentGold}しずくに交換` : EQUIP[equipment].desc}</span></div>` : ''}
-      ${(stats.rankItems || []).length ? `<p class="r-bond">やさしいのS評価報酬：${stats.rankItems.map(x => `${ITEMS[x.id].name} +${x.count}`).join('・')}</p>` : ''}
+      ${Object.entries(stats.materialRewards || {}).filter(([, bag]) => Object.keys(bag).length).map(([kind, bag]) => `<div class="r-materials"><small>${{ clear: '戦闘クリア素材 · 毎回', mission: 'ミッション初達成の素材', mastery: '初S評価の素材' }[kind]}</small>${InventoryArt.chips(bag)}</div>`).join('')}
+      ${(stats.questItems || []).length ? `<p class="r-bond">この難易度の初回報酬：${InventoryArt.chips(Object.fromEntries(stats.questItems.map(x => [x.id, x.count])))}</p>` : ''}
+      ${u ? `<div class="r-unique"><small>Sランク達成　ユニーク装備</small>${InventoryArt.icon(unique)}<b>${u.name}</b><span>${u.desc}</span></div>` : ''}
+      ${equipment ? `<div class="r-unique r-equipment"><small>ふつうのS評価　通常装備</small>${InventoryArt.icon(equipment)}<b>${EQUIP[equipment].name}</b><span>${equipmentGold ? `所持済みのため ${equipmentGold}しずくに交換` : EQUIP[equipment].desc}</span></div>` : ''}
+      ${(stats.rankItems || []).length ? `<p class="r-bond">やさしいのS評価報酬：${InventoryArt.chips(Object.fromEntries(stats.rankItems.map(x => [x.id, x.count])))}</p>` : ''}
       <div class="r-stats"><div>${cfg.inverted ? '切り離した膜' : '切り分けた穢れ'}<b>${stats.kills}</b></div><div>ターン<b>${turn}</b></div><div>${floorNames()[0]}の床<b>${Math.round(stats.rainbowEnd * 100)}%</b></div><div>しずく<b>+${gold}</b></div></div>
       <div class="r-exp">アリア　LV <b>${ar.lv}</b>　<span class="r-expbar"><i style="width:${ar.lv >= MAX_LV ? 100 : ar.exp}%"></i></span>　${ar.lv >= MAX_LV ? '成長上限' : `EXP +${stats.expA}`}</div>
       ${lv ? `<div class="r-lvs">${lv}</div>` : ''}

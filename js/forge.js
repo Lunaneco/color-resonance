@@ -6,7 +6,7 @@ const SkillForge = (() => {
   function materialRows(party, cost) {
     return Object.entries(cost).map(([id, need]) => {
       const m = Progression.materials[id], have = party.materials[id] || 0;
-      return `<span class="sf-cost ${have < need ? 'short' : ''}" style="--material:${m.color}"><i aria-hidden="true">◆</i><span>${m.name}<b>${have} / ${need}</b></span><small>${have < need ? 'あと' + (need - have) : '揃っています'}</small></span>`;
+      return `<span class="sf-cost ${have < need ? 'short' : ''}" style="--material:${m.color}">${InventoryArt.icon(id)}<span>${m.name}<b>${have} / ${need}</b></span><small>${have < need ? 'あと' + (need - have) : '揃っています'}</small></span>`;
     }).join('');
   }
   function open(options = {}) {
@@ -45,7 +45,7 @@ const SkillForge = (() => {
       <div class="sf-progress"><span>${s.name} <b>熟練 ${points}</b></span><span>習得 ${list.filter(s => known.has(s.id)).length}/3 · 満開 ${list.filter(s => known.has(s.id) && Progression.skillLevel(party, s.id) === 3).length}/3</span></div>` : ''}
       <div class="sf-layout ${base ? '' : 'empty'}">${tree}${base ? detail(party, base, points, known.has(base.id), bloom) : ''}</div>
       ${nextLearn ? `<p class="sf-next-learn">次に灯る星 <b>${nextLearn.name}</b> · 熟練${nextLearn.at}で習得（あと${Math.max(0, nextLearn.at - points)}）</p>` : ''}
-      <details class="sf-bag" ${bagOpen ? 'open' : ''}><summary><span><i aria-hidden="true">◈</i> 素材袋</span><small>${Object.values(party.materials).reduce((n, v) => n + v, 0)}個 <i aria-hidden="true">⌄</i></small></summary><div class="sf-inventory">${Object.entries(Progression.materials).map(([id, m]) => `<div style="--material:${m.color}"><i class="sf-crystal" aria-hidden="true">◆</i><div><b>${m.name}<em>${party.materials[id] || 0}</em></b><small>${Progression.materialDescription(id, joined)}</small><span>${m.source}</span></div></div>`).join('')}</div><p class="sf-cap">各素材 ${Progression.MATERIAL_MAX}個まで保存できます。</p></details>
+      <details class="sf-bag" ${bagOpen ? 'open' : ''}><summary><span><i aria-hidden="true">◈</i> 素材袋</span><small>${Object.values(party.materials).reduce((n, v) => n + v, 0)}個 <i aria-hidden="true">⌄</i></small></summary><div class="sf-inventory">${Object.entries(Progression.materials).map(([id, m]) => `<div style="--material:${m.color}">${InventoryArt.icon(id, 'sf-crystal')}<div><b>${m.name}<em>${party.materials[id] || 0}</em></b><small>${Progression.materialDescription(id, joined)}</small><span>${m.source}</span></div></div>`).join('')}</div><p class="sf-cap">各素材 ${Progression.MATERIAL_MAX}個まで保存できます。</p></details>
       <details class="sf-guide"><summary>素材の集め方 <span aria-hidden="true">＋</span></summary><p>戦闘クリアの素材は毎回。ミッション達成は各難易度で初達成時、澄明の核は初S評価で受け取れます。遊びの素材も評価ごとに1回で、練習では獲得できません。一部の町の店でも購入できます。</p></details>
     </div>`);
     const body = Panel.body(); body.scrollTop = scroll;

@@ -356,10 +356,10 @@ const World = (() => {
       const got = rewards.sEquipment && party.owned.includes(rewards.sEquipment);
       body += `<div class="wp-info"><span>適正LV <b>${lv}</b></span><span>最高ランク <b class="r${record && record.best || 'none'}">${record && record.best || '—'}</b></span><span>クリア <b>${record?.clears || 0}</b>回</span></div>
         <div class="wp-sec">ミッション<small>${Progression.difficulties[key].name}の実績</small></div>${missionsHtml(conf, record)}
-        ${u ? `<div class="wp-unique ${got ? 'got' : ''}" data-reward-kind="${u.unique ? 'unique' : 'equipment'}"><small>${Progression.difficulties[key].name}のS評価 · ${u.unique ? 'ユニーク装備' : '通常装備'}${record?.sRewardClaimed ? ' · 受取済み' : ''}</small><b>${u.name}${got ? ' · 所持済み' : ''}</b><span>${u.desc}</span>${!u.unique && !record?.sRewardClaimed ? '<small>所持済みなら価格の半分をしずくで受け取れます</small>' : ''}</div>` : ''}
-        ${Object.keys(rewards.sItems).length ? `<div class="wp-unique ${record?.sRewardClaimed ? 'got' : ''}" data-reward-kind="items"><small>やさしいのS評価 · アイテム${record?.sRewardClaimed ? ' · 受取済み' : ''}</small><b>${Object.entries(rewards.sItems).map(([id, n]) => `${ITEMS[id].name} ×${n}`).join('・')}</b></div>` : ''}`;
+        ${u ? `<div class="wp-unique ${got ? 'got' : ''}" data-reward-kind="${u.unique ? 'unique' : 'equipment'}">${InventoryArt.icon(rewards.sEquipment)}<small>${Progression.difficulties[key].name}のS評価 · ${u.unique ? 'ユニーク装備' : '通常装備'}${record?.sRewardClaimed ? ' · 受取済み' : ''}</small><b>${u.name}${got ? ' · 所持済み' : ''}</b><span>${u.desc}</span>${!u.unique && !record?.sRewardClaimed ? '<small>所持済みなら価格の半分をしずくで受け取れます</small>' : ''}</div>` : ''}
+        ${Object.keys(rewards.sItems).length ? `<div class="wp-unique ${record?.sRewardClaimed ? 'got' : ''}" data-reward-kind="items"><small>やさしいのS評価 · アイテム${record?.sRewardClaimed ? ' · 受取済み' : ''}</small><b>${InventoryArt.chips(rewards.sItems, '×')}</b></div>` : ''}`;
       const clearMaterials = Progression.battleMaterials(conf, key), gem = Object.keys(clearMaterials).find(id => id !== 'm_dust');
-      body += `<div class="wp-sec">強化素材<small>素材袋に入ります</small></div><p class="wp-note">クリアで毎回：${Object.entries(clearMaterials).map(([id, n]) => `${Progression.materials[id].name} ×${n}`).join('・')}<br>各ミッションの初達成：共鳴の砂 ×1・${Progression.materials[gem].name} ×1<br>この難易度の初S評価：澄明の核 ×1${record?.materialMasteryClaimed ? ' · 受取済み' : ''}</p>`;
+      body += `<div class="wp-sec">強化素材<small>素材袋に入ります</small></div><p class="wp-note">クリアで毎回：${InventoryArt.chips(clearMaterials, '×')}<br>各ミッションの初達成：共鳴の砂 ×1・${Progression.materials[gem].name} ×1<br>この難易度の初S評価：澄明の核 ×1${record?.materialMasteryClaimed ? ' · 受取済み' : ''}</p>`;
       if (conf.reward) body += `<p class="wp-note">基本報酬 ${Math.round(conf.reward * Progression.difficulties[key].reward)}しずく＋撃破・ランク報酬</p>`;
       body += `<p class="wp-note">${record?.cleared ? '初回報酬は受取済み' : 'この難易度の初回報酬：' + Object.entries(rewards.firstItems).map(([id, v]) => `${ITEMS[id].name} ×${v}`).join('・')}<br>S評価報酬は各難易度で1回。ユニーク装備はハードのS評価のみ。道具の所持上限は各9個</p>`;
       if (!story) acts.push(`<button class="wb main" data-a="sortie">出撃</button>`);
@@ -443,7 +443,7 @@ const World = (() => {
         const cnt = it ? (party.items[id] || 0) : mat ? party.materials[id] : 0, cap = mat ? Progression.MATERIAL_MAX : ITEM_MAX;
         const dis = party.gold < x.price || owned || ((it || mat) && cnt >= cap);
         const tag = mat ? '素材' : it ? '道具' : SLOT_NAME[eq.slot];
-        return `<div class="sh-row"><span class="sh-tag ${eq ? eq.slot : 'item'}">${tag}</span><div class="sh-main"><b>${x.name}</b><small>${mat ? Progression.materialDescription(id, spiritsNow()) : x.desc}</small></div>
+        return `<div class="sh-row"><span class="sh-tag ${eq ? eq.slot : 'item'}">${tag}</span><div class="sh-main">${InventoryArt.icon(id)}<span class="sh-copy"><b>${x.name}</b><small>${mat ? Progression.materialDescription(id, spiritsNow()) : x.desc}</small></span></div>
           <span class="sh-own">${it || mat ? `${cnt}/${cap}` : owned ? (party.equip[eq.slot] === id ? '装備中' : '持っている') : ''}</span>
           <button class="sh-buy" data-id="${id}" ${dis ? 'disabled' : ''}>${x.price}<small>しずく</small></button></div>`;
       };
@@ -490,7 +490,7 @@ const World = (() => {
         const mine = party.owned.filter(id => EQUIP[id] && EQUIP[id].slot === s);
         const cur = party.equip[s];
         return `<div class="eq-slot"><div class="eq-sh">${SLOT_NAME[s]}<span>${cur ? EQUIP[cur].name : 'なし'}</span></div>
-          <div class="eq-list">${mine.length ? mine.map(id => `<button class="eq-it ${cur === id ? 'on' : ''} ${EQUIP[id].unique ? 'uq' : ''}" aria-pressed="${cur === id}" data-s="${s}" data-id="${id}"><b>${EQUIP[id].name}</b><small>${EQUIP[id].desc}</small>${comparison(s, id)}${EQUIP[id].lore ? `<em>${EQUIP[id].lore}</em>` : ''}</button>`).join('') : '<p class="eq-none">まだ持っていない</p>'}
+          <div class="eq-list">${mine.length ? mine.map(id => `<button class="eq-it ${cur === id ? 'on' : ''} ${EQUIP[id].unique ? 'uq' : ''}" aria-pressed="${cur === id}" data-s="${s}" data-id="${id}">${InventoryArt.icon(id)}<span class="eq-copy"><b>${EQUIP[id].name}</b><small>${EQUIP[id].desc}</small></span>${comparison(s, id)}${EQUIP[id].lore ? `<em>${EQUIP[id].lore}</em>` : ''}</button>`).join('') : '<p class="eq-none">まだ持っていない</p>'}
           ${cur ? `<button class="eq-off" data-s="${s}">はずす</button>` : ''}</div></div>`;
       };
       const sp = Object.keys(gb).filter(k => gb[k] && !['atk', 'def', 'hp'].includes(k)).reduce((o, k) => (o[k] = gb[k], o), {});
@@ -500,7 +500,7 @@ const World = (() => {
           <div class="eq-nums"><span>HP<b>${st.mhp}</b></span><span>攻撃<b>${st.atk}</b></span><span>守り<b>${st.def}</b></span><span>移動<b>${4 + gb.mov}</b></span></div>
           <div class="eq-sp">${fxText(sp) || '特別な力はまだない'}</div></div></div>
         ${['blade', 'cloth', 'charm'].map(slot).join('')}
-        <div class="eq-items"><div class="sh-sec">道具<small>戦いの中で「道具」から使う</small></div>${Object.keys(party.items).filter(k => party.items[k] > 0).map(k => `<div><b>${ITEMS[k].name}</b> ×${party.items[k]}<small>${ITEMS[k].desc}</small></div>`).join('') || '<p class="eq-none">持っていない</p>'}</div>
+        <div class="eq-items"><div class="sh-sec">道具<small>戦いの中で「道具」から使う</small></div>${Object.keys(party.items).filter(k => party.items[k] > 0 && ITEMS[k]).map(k => `<div data-item="${k}">${InventoryArt.icon(k)}<span><b>${ITEMS[k].name}</b> ×${party.items[k]}<small>${ITEMS[k].desc}</small></span></div>`).join('') || '<p class="eq-none">持っていない</p>'}</div>
       </div>`);
       const b = Panel.body();
       b.scrollTop = scroll;

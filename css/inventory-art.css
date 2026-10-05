@@ -1,0 +1,44 @@
+/* 装備・道具・素材の小さな標本箱。画像は飾り、名前と効果は文字で伝える。 */
+.inventory-art{display:inline-flex;align-items:center;justify-content:center;flex:none;width:48px;height:48px;box-sizing:border-box;padding:4px;border:1px solid #a5bac332;border-radius:8px 18px 8px 18px;background:radial-gradient(ellipse at 50% 35%,#7ea9b724,#11202f88);vertical-align:middle;overflow:hidden;pointer-events:none}
+.inventory-art>img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 3px #04101b70)}
+.inventory-art.inv-unique{border-color:#d6bf8377;background:radial-gradient(ellipse at 50% 35%,#dac18025,#11202f88)}
+.inventory-chips{display:inline-flex;flex-wrap:wrap;gap:6px 12px;max-width:100%;vertical-align:middle}
+.inventory-chip{display:inline-flex;align-items:center;gap:5px;min-width:0;text-align:left}
+.inventory-chip>.inventory-art{width:28px;height:28px;padding:2px;border-radius:5px 10px}
+.inventory-chip>span:last-child{font-size:11px;line-height:1.7}
+.shop .sh-main{display:grid;grid-template-columns:52px minmax(0,1fr);gap:10px;align-items:center}
+.shop .sh-copy{display:flex;flex-direction:column;min-width:0;gap:3px}
+.shop .sh-main .inventory-art{width:52px;height:52px}
+.equip .eq-it{display:grid;grid-template-columns:76px minmax(0,1fr);gap:10px 12px;align-items:start}
+.equip .eq-it>.inventory-art{width:76px;height:76px;padding:5px}
+.equip .eq-copy{display:flex;flex-direction:column;gap:6px;min-width:0;align-self:center}
+.equip .eq-it>.eq-compare,.equip .eq-it>em{grid-column:1/-1}
+.equip .eq-items>div[data-item]{display:flex;flex-wrap:nowrap;align-items:center;gap:12px}
+.equip .eq-items>div[data-item]>span:last-child{display:block;min-width:0}
+.equip .eq-items>div[data-item] small{display:block;margin-top:4px}
+.sf-cost>.inventory-art{width:36px;height:36px;flex:0 0 36px;padding:3px}
+.sf-inventory .inventory-art.sf-crystal{display:inline-flex;width:46px;height:46px;margin:0;filter:none;flex:none}
+.wp-unique:has(.inventory-art){display:grid;grid-template-columns:54px minmax(0,1fr);gap:2px 10px;align-items:center}
+.wp-unique>.inventory-art{grid-column:1;grid-row:1/5;width:54px;height:54px}
+.wp-unique>small,.wp-unique>b,.wp-unique>span:not(.inventory-art){grid-column:2}
+.r-unique>.inventory-art{display:flex;width:86px;height:86px;margin:8px auto 12px;padding:6px}
+.cm-b.cm-item{font-size:12px;letter-spacing:.02em;padding:7px}
+.cm-b.cm-item>span{display:flex;align-items:center;gap:7px;width:100%;min-width:0;text-align:left}
+.cm-b.cm-item>span>span:last-of-type{flex:1;min-width:0;line-height:1.5}
+.cm-b.cm-item>span>.inventory-art{width:38px;height:38px;padding:3px}
+.cm-b.cm-item>span>em{position:static;float:none;margin-left:auto;flex:none;font-size:11px;padding-left:0}
+#boardScreen.compact #cmdMenu.sheet:has(.cm-item){grid-template-columns:repeat(2,minmax(0,1fr))}
+#boardScreen.compact #cmdMenu.sheet .cm-item{min-height:58px;padding:6px}
+#boardScreen.compact #cmdMenu.sheet .cm-item .inventory-art{width:30px;height:30px;padding:2px}
+.mg-hard-prize>.inventory-art{width:38px;height:38px;float:left;margin:4px 10px 0 0}
+.mg-hard-award>.inventory-art{display:flex;width:62px;height:62px;margin:0 auto 10px}
+@media(max-width:600px){
+  .shop .sh-main{grid-template-columns:42px minmax(0,1fr);gap:8px}
+  .shop .sh-main .inventory-art{width:42px;height:42px;padding:3px}
+  .shop .sh-main b{font-size:12px;letter-spacing:.02em;overflow-wrap:anywhere}
+  .shop .sh-main small{font-size:10px}
+  .equip .eq-it{grid-template-columns:64px minmax(0,1fr);gap:9px}
+  .equip .eq-it>.inventory-art{width:64px;height:64px;padding:4px}
+  .equip .eq-items>div[data-item]{gap:9px}
+  .inventory-chip>span:last-child{font-size:10px}
+}

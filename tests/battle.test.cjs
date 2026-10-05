@@ -191,9 +191,13 @@ test('Prayer targets the selected character’s body and consumes resonance once
   assert.equal(s.sp,before.sp-2);assert.equal(aria(s).hp,10+Math.round(aria(s).mhp*.35));
 });
 
-test('A healing item is consumed once and saved',async()=>{
-  await boot();await fixture();await page.evaluate(()=>Board.__test.arrange([{kind:'aria',hp:10}]));
-  await openMenu();await page.locator('[data-k=item]').click();await page.locator('[data-k=useitem][data-a=i_tea]').click();await clickUnit(aria(await state()),true);
+for(const viewport of [{width:1440,height:900},{width:320,height:480},{width:667,height:375}])test(`Illustrated healing items are selectable, consumed once and saved at ${viewport.width} × ${viewport.height}`,async()=>{
+  await boot('cove',viewport,{cr_party:{aria:{lv:1,exp:0},items:{i_tea:2,i_water:1,i_shard:1,i_powder:1,i_ward:1}}});await fixture();await page.evaluate(()=>Board.__test.arrange([{kind:'aria',hp:10}]));
+  await openMenu();await page.locator('[data-k=item]').click();
+  const icons=page.locator('[data-k=useitem] .inventory-art img');assert.equal(await icons.count(),5);await icons.evaluateAll(async imgs=>{for(const i of imgs)i.loading='eager';await Promise.all(imgs.map(i=>i.decode()));});
+  for(const button of await page.locator('[data-k=useitem]').all()){await button.scrollIntoViewIfNeeded();const r=await button.boundingBox();assert(r.x>=0&&r.x+r.width<=viewport.width+1&&r.height>=44);}
+  await page.locator('[data-k=useitem][data-a=i_tea]').scrollIntoViewIfNeeded();await page.screenshot({path:`/tmp/cr-inventory-items-${viewport.width}.png`});
+  await page.locator('[data-k=useitem][data-a=i_tea]').click();await clickUnit(aria(await state()),true);
   await page.waitForFunction(()=>Board.__test.state().mode==='idle');
   assert(aria(await state()).hp>10);assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('cr_party')).items.i_tea),1);
 });
@@ -480,6 +484,12 @@ test('Real victories award easy S items, normal S equipment, and hard S unique g
       const result=await page.locator('.result').textContent();
       if(!attempt)assert.match(result,key==='gentle'?/やさしいのS評価報酬/:key==='normal'?/通常装備/:/ユニーク装備/);
       else assert.equal(await page.locator('.r-unique').count(),0,'A repeat S clear cannot award another rank reward');
+      if(!attempt){
+        const rewardId=key==='gentle'?'i_shard':key==='normal'?'e_glass':'u_quest_harbor';
+        assert(await page.locator(`.result [data-inventory=${rewardId}]`).count()>0);
+        assert(await page.locator('.result [data-inventory=m_core]').count()>0);
+        await page.locator('.result .inventory-art img').evaluateAll(async imgs=>{for(const i of imgs)i.loading='eager';await Promise.all(imgs.map(i=>i.decode()));});
+      }
       await page.locator('#resNext').click();
     }
   }

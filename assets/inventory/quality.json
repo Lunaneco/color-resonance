@@ -1,0 +1,990 @@
+{
+  "count": 49,
+  "size": [
+    256,
+    256
+  ],
+  "assets": {
+    "e_glass": {
+      "file": "e_glass.webp",
+      "source": "art-source/inventory/e_glass.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        281,
+        81,
+        1010,
+        1157
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 15256,
+      "sha256": "2a6a70065da7714fd6d84ee0a5d7de5c8b2dc5710ac36cbf3d7c7dacb9d042e4"
+    },
+    "e_tide": {
+      "file": "e_tide.webp",
+      "source": "art-source/inventory/e_tide.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        226,
+        52,
+        1079,
+        1183
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 19008,
+      "sha256": "b982cd53eff9a1f8245e400772ffd2654e94203725de468404b45ed9b08327b4"
+    },
+    "e_ash": {
+      "file": "e_ash.webp",
+      "source": "art-source/inventory/e_ash.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        149,
+        53,
+        1104,
+        1193
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 15926,
+      "sha256": "18b866ff201e32453d57a5c9b3f607b9a024b0e9ee31e431e6d59160b578e1f0"
+    },
+    "e_amber": {
+      "file": "e_amber.webp",
+      "source": "art-source/inventory/e_amber.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        331,
+        28,
+        1197,
+        1176
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 15776,
+      "sha256": "121eda98c14a5caf73926f592ca48fee6fd2d34c45180fa40811e293c404a124"
+    },
+    "e_prism": {
+      "file": "e_prism.webp",
+      "source": "art-source/inventory/e_prism.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        89,
+        64,
+        1165,
+        1193
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 20382,
+      "sha256": "7dfb28d4af62492dce16a0889dd68be5148d316ffc57f2e374bb56e6d2acd497"
+    },
+    "a_rain": {
+      "file": "a_rain.webp",
+      "source": "art-source/inventory/a_rain.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        131,
+        18,
+        1140,
+        1235
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 11972,
+      "sha256": "4fd1c4bfb3bfe83b2550dc29065fa8a3af8dcb1530f72d02edee45d3bdcacd81"
+    },
+    "a_wool": {
+      "file": "a_wool.webp",
+      "source": "art-source/inventory/a_wool.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        34,
+        95,
+        1226,
+        1135
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 14370,
+      "sha256": "e7e8b73066540f3e1856bc36fcfdf0e053fbb0372e74de7f6ae4b940b8106404"
+    },
+    "a_moss": {
+      "file": "a_moss.webp",
+      "source": "art-source/inventory/a_moss.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        44,
+        101,
+        1219,
+        1157
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 19840,
+      "sha256": "c3fe0f6369e207fba815dedae8725e8e349a647b5ac062d0bf170eccd0b7fcb4"
+    },
+    "a_gold": {
+      "file": "a_gold.webp",
+      "source": "art-source/inventory/a_gold.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        216,
+        46,
+        1047,
+        1215
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 15484,
+      "sha256": "ef59e3ac7372f218aa117363ae419b8d9214ae960fa26451e5dc390ff8f4bcae"
+    },
+    "a_star": {
+      "file": "a_star.webp",
+      "source": "art-source/inventory/a_star.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        69,
+        57,
+        1222,
+        1178
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 18908,
+      "sha256": "f9bce813ef6aa78977a66f62b3adbefddbfa91dcd06d7c825ce08089d68d3954"
+    },
+    "c_lens": {
+      "file": "c_lens.webp",
+      "source": "art-source/inventory/c_lens.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        346,
+        66,
+        946,
+        1111
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 11682,
+      "sha256": "3ce7cc025d43f57c5805ad493a47d5653b46130521dc1d23b9eb2091eab5b429"
+    },
+    "c_bell": {
+      "file": "c_bell.webp",
+      "source": "art-source/inventory/c_bell.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        59,
+        110,
+        1194,
+        1088
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 18058,
+      "sha256": "0767a9c372f1694e71277590e953d992e1382be6a1483a8817b928c3a76a9ea3"
+    },
+    "c_tea": {
+      "file": "c_tea.webp",
+      "source": "art-source/inventory/c_tea.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        148,
+        69,
+        1106,
+        1183
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 15746,
+      "sha256": "18bd35f875ffda2873aa7d9e96eca1641d750a56ffebc5f86dab96ae0390e42f"
+    },
+    "c_brush": {
+      "file": "c_brush.webp",
+      "source": "art-source/inventory/c_brush.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        232,
+        87,
+        1157,
+        1147
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 12522,
+      "sha256": "9cf234b2d9d2ead10f3f62d5cf84165aaff94965bccd8b60d6cc6d008117f698"
+    },
+    "c_feather": {
+      "file": "c_feather.webp",
+      "source": "art-source/inventory/c_feather.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        206,
+        77,
+        1133,
+        1192
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 10552,
+      "sha256": "a296d505408ad96b063e736e0184a44b0f65256966f4f63956163b8a89b902b7"
+    },
+    "u_knot": {
+      "file": "u_knot.webp",
+      "source": "art-source/inventory/u_knot.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        81,
+        59,
+        1185,
+        1205
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 19070,
+      "sha256": "8390b0203671bb07af3b017c088f1770a2ac3e017e2a36e98f4c3137bba74420"
+    },
+    "u_bell": {
+      "file": "u_bell.webp",
+      "source": "art-source/inventory/u_bell.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        193,
+        28,
+        1184,
+        1209
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 18764,
+      "sha256": "cc78da2ba40b0c675f2157ce1dceaa6c69ebc27915231712099daa4a1cfdb9b7"
+    },
+    "u_vine": {
+      "file": "u_vine.webp",
+      "source": "art-source/inventory/u_vine.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        15,
+        203,
+        1239,
+        1052
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 18884,
+      "sha256": "e49e62aaee072287e45b5bcb79114997a1a493af9bf6a80e9011c7c94cb02c0e"
+    },
+    "u_kintsugi": {
+      "file": "u_kintsugi.webp",
+      "source": "art-source/inventory/u_kintsugi.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        110,
+        32,
+        1144,
+        1224
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 18256,
+      "sha256": "1b3431c79ee10f9d72d61dcd69e170e0f5f37b635c0f16ac67d8465129356b91"
+    },
+    "u_palette": {
+      "file": "u_palette.webp",
+      "source": "art-source/inventory/u_palette.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        107,
+        87,
+        1187,
+        1156
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 19432,
+      "sha256": "4a635caac59b40725216ea64f699c169d16006c1f2db7afa4d4022c26ed00cdc"
+    },
+    "u_nightsky": {
+      "file": "u_nightsky.webp",
+      "source": "art-source/inventory/u_nightsky.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        177,
+        77,
+        1089,
+        1085
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 16888,
+      "sha256": "7a0f8eabce76c81d1cc74d20419f7850f91f11ebdf5594294098141886e3f4b0"
+    },
+    "u_mist": {
+      "file": "u_mist.webp",
+      "source": "art-source/inventory/u_mist.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        67,
+        112,
+        1230,
+        1188
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 17842,
+      "sha256": "d86e3c1d9821bb123da1a1ce817f0e769d10edbeb5b18518eee949b321739328"
+    },
+    "u_fruit": {
+      "file": "u_fruit.webp",
+      "source": "art-source/inventory/u_fruit.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        113,
+        118,
+        1111,
+        1095
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 20832,
+      "sha256": "22ff23105f5ebe41459b9c2584276cd314d39a969ede81651f8e4e37ed4c3abc"
+    },
+    "u_compass": {
+      "file": "u_compass.webp",
+      "source": "art-source/inventory/u_compass.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        157,
+        29,
+        1128,
+        1180
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 17172,
+      "sha256": "eef1a329b0101900a9f6dcbde14cf9f4ebc60d972f510042061a39b90faa309c"
+    },
+    "u_lens": {
+      "file": "u_lens.webp",
+      "source": "art-source/inventory/u_lens.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        175,
+        59,
+        1094,
+        1144
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 17900,
+      "sha256": "a9d63f671505f1df537fcac9723a85de05b77629d0c6233589b3240daf42c13b"
+    },
+    "u_sheath": {
+      "file": "u_sheath.webp",
+      "source": "art-source/inventory/u_sheath.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        228,
+        45,
+        1064,
+        1132
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 11924,
+      "sha256": "c9a96f00be620f1b6f043bcfc257dc2c6d08673bf19b29002bf778493a38c1fe"
+    },
+    "u_quest_harbor": {
+      "file": "u_quest_harbor.webp",
+      "source": "art-source/inventory/u_quest_harbor.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        283,
+        74,
+        1090,
+        1107
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 17382,
+      "sha256": "4b068c6e37b6fc2676b422c3eb792306183a99e96badcb849695c30534426fc0"
+    },
+    "u_quest_lantern": {
+      "file": "u_quest_lantern.webp",
+      "source": "art-source/inventory/u_quest_lantern.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        276,
+        51,
+        978,
+        1187
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 13494,
+      "sha256": "4454557d0d300e8af54718150c7b686bec16b171efbb0fc730f99896fc61e1f8"
+    },
+    "u_quest_tide": {
+      "file": "u_quest_tide.webp",
+      "source": "art-source/inventory/u_quest_tide.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        164,
+        80,
+        1121,
+        1162
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 20248,
+      "sha256": "5efd9a9932a8c158d76812ec896461c0764c04f9ba35f07e4b7f0965869d967d"
+    },
+    "u_quest_clock": {
+      "file": "u_quest_clock.webp",
+      "source": "art-source/inventory/u_quest_clock.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        200,
+        27,
+        1073,
+        1206
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 10844,
+      "sha256": "0d33559e51b898bd7107f7e110bb8b58b3e68402fe46458d25ed3d9cc2ec84a3"
+    },
+    "u_quest_orchard": {
+      "file": "u_quest_orchard.webp",
+      "source": "art-source/inventory/u_quest_orchard.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        30,
+        79,
+        1224,
+        1185
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 15070,
+      "sha256": "e3d1903d25e74d827a3ab4ede253dae5045aa5bb12950d2b74e9b11c8bfa5514"
+    },
+    "u_quest_thorns": {
+      "file": "u_quest_thorns.webp",
+      "source": "art-source/inventory/u_quest_thorns.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        179,
+        110,
+        1122,
+        1140
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 21228,
+      "sha256": "d9249a7cc4d4a53a7e46af6dc56926e2986b1f07622ea1399ab590732fd87160"
+    },
+    "u_quest_bloom": {
+      "file": "u_quest_bloom.webp",
+      "source": "art-source/inventory/u_quest_bloom.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        148,
+        61,
+        1095,
+        1209
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 16000,
+      "sha256": "e0e662116d336d383e12de65c8c5fe0bace117843c30d7a1b63f5fd732c9b63c"
+    },
+    "u_quest_bridge": {
+      "file": "u_quest_bridge.webp",
+      "source": "art-source/inventory/u_quest_bridge.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        61,
+        237,
+        1203,
+        1005
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 16026,
+      "sha256": "c05857f4abd43757c3f8a8a794639de3a84bf2f81e6a6f6321f0bc8a246a0076"
+    },
+    "u_quest_gold": {
+      "file": "u_quest_gold.webp",
+      "source": "art-source/inventory/u_quest_gold.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        248,
+        15,
+        1093,
+        1239
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 18726,
+      "sha256": "e7dabd916f7caca9631ca37b8094424c6638dfacb1d6aa3ca84796f16d1860d8"
+    },
+    "u_quest_palette": {
+      "file": "u_quest_palette.webp",
+      "source": "art-source/inventory/u_quest_palette.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        127,
+        48,
+        1180,
+        1191
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 12932,
+      "sha256": "ab91030ea5cdaeeca231b400f9c968a93d9853a3c7ada63c9dd8f66e8bec4940"
+    },
+    "u_quest_stargarden": {
+      "file": "u_quest_stargarden.webp",
+      "source": "art-source/inventory/u_quest_stargarden.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        32,
+        53,
+        1223,
+        1207
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 20648,
+      "sha256": "f8930d7f5101990451d40588e00fa5defa49b7966653ec3e431ab10bd5ab065e"
+    },
+    "u_quest_echo": {
+      "file": "u_quest_echo.webp",
+      "source": "art-source/inventory/u_quest_echo.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        37,
+        32,
+        1215,
+        1173
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 23110,
+      "sha256": "aa648e5da458716249c836f2c3a9c298e79670cde88b28115944de3a7a07085c"
+    },
+    "i_tea": {
+      "file": "i_tea.webp",
+      "source": "art-source/inventory/i_tea.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        83,
+        121,
+        1223,
+        1110
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 15628,
+      "sha256": "dc29056b5921eda9c1ee4f592b1575284e884aa6c0d6ae794a52c3ad2de92e3d"
+    },
+    "i_water": {
+      "file": "i_water.webp",
+      "source": "art-source/inventory/i_water.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        179,
+        115,
+        1028,
+        1143
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 18904,
+      "sha256": "015f8068d8fd9018d2509cfee9b4f54cd341c6f61dd7406343f9d3449b65a9f2"
+    },
+    "i_shard": {
+      "file": "i_shard.webp",
+      "source": "art-source/inventory/i_shard.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        315,
+        40,
+        978,
+        1193
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 11562,
+      "sha256": "3df216705c18f318fe5f2d7cc2c67624b33685c111493a1b30fb5b7e6d301808"
+    },
+    "i_powder": {
+      "file": "i_powder.webp",
+      "source": "art-source/inventory/i_powder.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        47,
+        154,
+        1127,
+        1108
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 20380,
+      "sha256": "30920fc9cd591811185d878fdb1a178b1d5c8cd2d8897441480399310d27af42"
+    },
+    "i_ward": {
+      "file": "i_ward.webp",
+      "source": "art-source/inventory/i_ward.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        70,
+        77,
+        1185,
+        1148
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 20178,
+      "sha256": "a5cde856e38d7766115f3197df1b57ff20d6613dc92a199c13e82b8a9fece01f"
+    },
+    "m_dust": {
+      "file": "m_dust.webp",
+      "source": "art-source/inventory/m_dust.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        111,
+        67,
+        1141,
+        1166
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 18488,
+      "sha256": "72e03290a6020414dd680f485a54da68491f0f5a9e230d73e2e448d2697e1adf"
+    },
+    "m_teal": {
+      "file": "m_teal.webp",
+      "source": "art-source/inventory/m_teal.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        219,
+        71,
+        1042,
+        1188
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 14818,
+      "sha256": "d8983c2adb9b66f2a1df729e169c429175bd8980b7deab2c3f10f9d601bcb52c"
+    },
+    "m_green": {
+      "file": "m_green.webp",
+      "source": "art-source/inventory/m_green.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        220,
+        49,
+        1068,
+        1189
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 14480,
+      "sha256": "4d62b23439b9e728946cf9804c53e1b7398b4e374b35951ce5b9d82a8a7af59d"
+    },
+    "m_gold": {
+      "file": "m_gold.webp",
+      "source": "art-source/inventory/m_gold.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        114,
+        84,
+        1195,
+        1177
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 15780,
+      "sha256": "8db25ffeb7e27eaec76a25f8834d0b028d3e868abdcd8416f5b8faff49737404"
+    },
+    "m_violet": {
+      "file": "m_violet.webp",
+      "source": "art-source/inventory/m_violet.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        234,
+        46,
+        1035,
+        1219
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 14200,
+      "sha256": "0015e1bb305327064e589c35e033c24d4e4d8a5c6b8d6386418f33954d0ad220"
+    },
+    "m_core": {
+      "file": "m_core.webp",
+      "source": "art-source/inventory/m_core.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "crop": [
+        199,
+        123,
+        1063,
+        1126
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "bytes": 14630,
+      "sha256": "2d8f76af88729a1b11106e57f4822fb131e2ba1f32e9c14d362e835dbc75ed46"
+    }
+  },
+  "deliveryBytes": 817202
+}
