@@ -1,0 +1,327 @@
+{
+  "generator": "built-in image_gen.imagegen",
+  "operations": "Mechanical copy, rectangular crop, uniform scaling and WebP encoding only",
+  "assets": [
+    {
+      "path": "voyage-cover.webp",
+      "source": "source/voyage.png",
+      "size": [
+        768,
+        512
+      ]
+    },
+    {
+      "path": "crystal-cover.webp",
+      "source": "source/crystal.png",
+      "size": [
+        768,
+        512
+      ]
+    },
+    {
+      "path": "lantern-cover.webp",
+      "source": "source/lantern.png",
+      "size": [
+        768,
+        512
+      ]
+    },
+    {
+      "path": "echo-cover.webp",
+      "source": "source/echo.png",
+      "size": [
+        768,
+        512
+      ]
+    },
+    {
+      "path": "ship.webp",
+      "source": "source/props.png",
+      "cell": [
+        0,
+        0,
+        362,
+        383
+      ],
+      "alphaBounds": [
+        81,
+        28,
+        347,
+        363
+      ],
+      "size": [
+        128,
+        128
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "treasure.webp",
+      "source": "source/props.png",
+      "cell": [
+        362,
+        0,
+        724,
+        383
+      ],
+      "alphaBounds": [
+        63,
+        74,
+        344,
+        365
+      ],
+      "size": [
+        128,
+        128
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "wind.webp",
+      "source": "source/props.png",
+      "cell": [
+        724,
+        0,
+        1086,
+        383
+      ],
+      "alphaBounds": [
+        99,
+        41,
+        294,
+        355
+      ],
+      "size": [
+        128,
+        128
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "heal.webp",
+      "source": "source/props.png",
+      "cell": [
+        1086,
+        0,
+        1448,
+        383
+      ],
+      "alphaBounds": [
+        59,
+        39,
+        277,
+        362
+      ],
+      "size": [
+        128,
+        128
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "reef.webp",
+      "source": "source/props.png",
+      "cell": [
+        0,
+        383,
+        362,
+        693
+      ],
+      "alphaBounds": [
+        60,
+        16,
+        357,
+        298
+      ],
+      "size": [
+        128,
+        128
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "tide.webp",
+      "source": "source/props.png",
+      "cell": [
+        362,
+        383,
+        724,
+        693
+      ],
+      "alphaBounds": [
+        93,
+        21,
+        289,
+        294
+      ],
+      "size": [
+        128,
+        128
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "leaf.webp",
+      "source": "source/props.png",
+      "cell": [
+        724,
+        383,
+        1086,
+        693
+      ],
+      "alphaBounds": [
+        97,
+        15,
+        270,
+        307
+      ],
+      "size": [
+        128,
+        128
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "gold.webp",
+      "source": "source/props.png",
+      "cell": [
+        1086,
+        383,
+        1448,
+        693
+      ],
+      "alphaBounds": [
+        43,
+        29,
+        306,
+        298
+      ],
+      "size": [
+        128,
+        128
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "prism.webp",
+      "source": "source/props.png",
+      "cell": [
+        0,
+        693,
+        362,
+        1086
+      ],
+      "alphaBounds": [
+        92,
+        50,
+        313,
+        319
+      ],
+      "size": [
+        128,
+        128
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "lantern-on.webp",
+      "source": "source/props.png",
+      "cell": [
+        362,
+        693,
+        724,
+        1086
+      ],
+      "alphaBounds": [
+        85,
+        5,
+        291,
+        341
+      ],
+      "size": [
+        128,
+        128
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "lantern-off.webp",
+      "source": "source/props.png",
+      "cell": [
+        724,
+        693,
+        1086,
+        1086
+      ],
+      "alphaBounds": [
+        84,
+        4,
+        290,
+        341
+      ],
+      "size": [
+        128,
+        128
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "nova.webp",
+      "source": "source/props.png",
+      "cell": [
+        1086,
+        693,
+        1448,
+        1086
+      ],
+      "alphaBounds": [
+        42,
+        29,
+        300,
+        336
+      ],
+      "size": [
+        128,
+        128
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    }
+  ],
+  "deliveryBytes": 405334
+}

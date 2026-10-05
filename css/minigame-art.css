@@ -1,0 +1,175 @@
+/* 遊びの絵本。生成画は風景と道具、操作や成否は読みやすい文字と形で伝える。 */
+.mg-prop{display:block;width:64px;height:64px;object-fit:contain;pointer-events:none;flex-shrink:0}
+.mg-card{overflow:hidden}
+.mg-cover{display:block;width:calc(100% + 36px);max-width:none;height:160px;object-fit:cover;object-position:center 62%;margin:-18px -18px 16px;border-bottom:1px solid #d9d3a15c}
+.mg-emblem{width:50px;height:50px;overflow:visible;border-color:#d4d5ac55;background:#15313b}
+.mg-emblem .mg-prop{width:44px;height:44px}
+.mg-card-top small{letter-spacing:.07em}
+.mg-scene-caption{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:2px 12px;color:#e9dfbd;font-size:11px;text-align:center;line-height:1.6;padding:0 0 10px}
+.mg-scene-caption b{font:15px var(--mincho)}
+.mg-scene-caption span{font-size:10px;color:#c0d1d1}
+.mg-voyage-scene{border-radius:36px 10px 10px 10px;background:linear-gradient(#102735e6,#102333eb),url('../assets/minigames/voyage-cover.webp') center/cover}
+.mg-sea-row{gap:7px}
+.mg-sea-tile{min-height:70px;gap:0;background:#0a233ad1;border:1px solid #91b5be19}
+.mg-sea-tile .mg-prop{width:48px;height:48px;filter:drop-shadow(0 2px 4px #06111a80)}
+.mg-sea-tile small{color:#d1e0df;font-size:9px}
+.mg-sea-tile.star{background:#353c299c}
+.mg-sea-tile.heart{background:#422f4399}
+.mg-sea-tile.reef{background:#4c323b99;border-color:#e3998766}
+.mg-sea-tile.charge{background:#23463b99}
+.mg-sea-tile.reachable{border-color:#d3d4a459}
+.mg-sea-tile.unreachable{opacity:.42}
+.mg-sea-row.will-travel{background:#d5dca710;border:1px solid #d9d5aa6b;border-radius:7px}
+.mg-sea-row.next .mg-sea-distance{color:#fff1b9;font-weight:700}
+.mg-ship-row{padding-top:5px}
+.mg-ship-row>div{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:80px}
+.mg-ship-row .mg-prop{width:66px;height:66px}
+.mg-ship-row b{font:10px var(--mincho);line-height:1.4;color:#f3e9b9;white-space:nowrap}
+.mg-ship-row .current:before{content:'↑';position:absolute;top:-9px;font:14px var(--latin);color:#dfe8bc}
+.mg-sea-legend{gap:4px 10px}
+.mg-sea-legend span{display:flex;align-items:center;gap:3px}
+.mg-sea-legend .mg-prop{width:21px;height:21px}
+.mg-lanes button{min-height:90px;gap:4px;padding-top:18px}
+.mg-lanes span{font-size:9px;line-height:1.4;text-align:center}
+.mg-lanes em{font-size:9px;color:#bee8cd;font-style:normal}
+.mg-lanes .danger{border-color:#dd9c8766;background:linear-gradient(155deg,#66414950,#172b3b)}
+.mg-lanes .danger em{color:#ffc3ad}
+.mg-lanes .aboard:after{content:'出発点';font-size:8px}
+.mg-crystal-scene{background:linear-gradient(#142b38eb,#142535f0),url('../assets/minigames/crystal-cover.webp') center/cover;border-radius:12px 35px 12px 12px}
+.mg-gem{border-radius:8px;background:linear-gradient(145deg,#314553c2,#102438df);gap:0;overflow:visible}
+.mg-gem>.mg-prop{width:75%;height:75%;max-height:60px;filter:drop-shadow(0 3px 3px #06142380)}
+.mg-gem>small{display:flex;align-items:center;justify-content:center;gap:3px;font-size:9px;color:var(--gem-color)}
+.mg-gem>small>span{font:10px var(--latin)}
+.mg-gem.selected{outline:3px solid #fff1c0;outline-offset:0;transform:none;background:#48686c80}
+.mg-gem.neighbor{border-color:#efdeb688;background:#354b54aa}
+.mg-swap-arrow{position:absolute;right:1px;top:1px;width:14px;height:14px;display:grid;place-items:center;background:#f1deaa;color:#17313b;border-radius:50%;font:12px/1 sans-serif;font-style:normal}
+.mg-gem.area-preview{background:#74675488;outline:2px solid #f6deb5;outline-offset:-2px}
+.mg-gem.nova{background:radial-gradient(ellipse,#b8985150,#1d3547);border-color:#ebd59e}
+.mg-gem.nova>small{color:var(--gem-color)}
+.mg-gem.hinted{outline:2px dashed #fff0bc}
+.mg-board-cue{font-size:11px;min-height:17px;justify-content:center}
+.rainbow-mode .mg-gem{cursor:crosshair;border-color:#dcc5ee66}
+.mg-cascade-feedback{margin-top:8px;min-height:26px}
+.mg-crystal-tools .mg-tool-short{display:none}
+.mg-lantern-wrap{position:relative;display:flex;flex-direction:column;padding:16px;max-width:400px;background:linear-gradient(#0e2938ed,#142334ee),url('../assets/minigames/lantern-cover.webp') center/cover;border-radius:28px 8px 28px 8px}
+.mg-lantern{gap:10px;max-width:300px}
+.mg-lamp{position:relative;border-radius:8px 20px 8px 20px;padding:4px;aspect-ratio:auto;height:clamp(48px,calc(300px / var(--mg-columns) - 10px),90px);background:#0b2032dd}
+.mg-lamp>.mg-prop{width:70%;height:70%;max-height:80px}
+.mg-lamp small{display:flex;align-items:center;gap:3px;font-size:10px;margin-top:0}
+.mg-lamp small span{font:10px sans-serif}
+.mg-lamp.affected{border:2px solid #f0dc9e;box-shadow:0 0 10px #d9d4a72b}
+.mg-lamp.preview-origin:after{content:'＋';position:absolute;right:3px;top:1px;color:#fff0b8;font-size:13px}
+.mg-lamp-preview{position:relative;display:grid;grid-template-columns:repeat(3,8px);grid-template-rows:repeat(3,8px);gap:2px;margin:13px 140px 0 0;color:#c2d1cc;align-items:center;font-size:9px}
+.mg-lamp-preview i{width:6px;height:6px;background:#a9caca19;border:1px solid #a9caca22;border-radius:2px;font-style:normal;font-size:7px;line-height:6px}
+.mg-lamp-preview i:nth-child(2),.mg-lamp-preview i:nth-child(4),.mg-lamp-preview i:nth-child(5),.mg-lamp-preview i:nth-child(6),.mg-lamp-preview i:nth-child(8){background:#e2d39555;border-color:#e2d395}
+.mg-lamp-preview span{position:absolute;left:36px;top:3px;white-space:nowrap}
+.mg-echo{position:relative;padding:14px;border-radius:28px 8px 28px 8px;border:1px solid #abc7c64a;background:linear-gradient(#142838ed,#142536f0),url('../assets/minigames/echo-cover.webp') center/cover;box-sizing:border-box}
+.mg-echo-turn{grid-column:1/-1;text-align:center;font-size:11px;color:#e6dab2;line-height:1.6}
+.mg-echo[data-phase=answer] .mg-echo-turn{color:#c9eddb}
+.mg-pad{gap:2px;padding:5px;border-radius:8px 24px 8px 24px;background:#102637c7}
+.mg-pad>.mg-prop{width:70%;height:70%;max-height:95px;filter:drop-shadow(0 4px 4px #05111d80)}
+.mg-pad b>span{font:13px sans-serif}
+.mg-pad.sounding .mg-prop{filter:drop-shadow(0 0 12px var(--pad-color));transform:scale(1.06)}
+.mg-pad.sounding:after{content:'♪';position:absolute;right:8px;top:5px;color:#fff1c1;font:15px var(--latin)}
+.mg-echo[data-phase=answer] .mg-pad{cursor:pointer;box-shadow:inset 0 -2px color-mix(in srgb,var(--pad-color) 28%,transparent)}
+@media(max-width:600px){
+  .mg-cover{width:calc(100% + 30px);margin:-15px -15px 13px;height:145px}
+  .mg-card>p{margin:10px 0}
+  .mg-emblem{width:44px;height:44px}.mg-emblem .mg-prop{width:40px;height:40px}
+  .mg-sea-tile{min-height:52px}.mg-sea-tile .mg-prop{width:35px;height:35px}
+  .mg-ship-row>div{min-height:38px}.mg-ship-row .mg-prop{width:29px;height:29px}
+  .mg-ship-row b{font-size:8px}.mg-ship-row .current:before{font-size:11px;top:-6px}
+  .mg-sea-legend{display:none}
+  .mg-sea-label{margin-bottom:5px}
+  .mg-voyage-controls .mg-journey-score{padding:6px 0}
+  .mg-voyage-controls .mg-journey-score small{font-size:8px}
+  .mg-lanes button{min-height:76px;gap:3px}.mg-lanes span{font-size:8px}.mg-lanes em{font-size:8px}
+  .mg-gem>.mg-prop{max-height:43px}.mg-gem>small{font-size:8px}
+  .mg-gem{height:52px;aspect-ratio:auto;padding:2px}
+  .mg-gem>small>span{font-size:8px}.mg-board-cue{font-size:10px;padding-bottom:6px}
+  .mg-lantern-wrap{padding:13px}.mg-lamp>.mg-prop{max-height:64px}
+  .mg-lamp{height:clamp(44px,calc(260px / var(--mg-columns) - 9px),74px)}
+  .mg-echo{padding:12px;gap:10px}
+  .mg-echo-turn{font-size:10px}.mg-pad b>span{font-size:11px}
+}
+@media(max-height:500px) and (min-width:601px){
+  #panel:has(.mg-play:is([data-id=lantern],[data-id=echo])) .pn-head{padding:8px 14px}
+  #panel:has(.mg-play:is([data-id=lantern],[data-id=echo])) .pn-body{padding:10px 14px}
+  .mg-sea-tile{min-height:42px;flex-direction:row;gap:2px}.mg-sea-tile .mg-prop{width:28px;height:28px}.mg-sea-tile small{font-size:8px}
+  .mg-ship-row>div{min-height:35px;height:35px;flex-direction:row;gap:2px}.mg-ship-row .mg-prop{width:32px;height:32px}.mg-ship-row b{font-size:8px}
+  .mg-lanes button{min-height:59px;gap:2px;padding:12px 3px 5px}.mg-lanes em,.mg-lanes span{font-size:8px}
+  .mg-crystal-scene .mg-scene-caption{font-size:9px;padding-bottom:5px;min-height:14px}
+  .mg-gem>.mg-prop{width:30px;height:30px}.mg-gem>small{font-size:8px;line-height:1}
+  .mg-gem>small>span{font-size:8px}.mg-cascade-feedback{margin-top:4px;min-height:16px}
+  .mg-lantern-wrap{padding:10px}.mg-lantern-wrap .mg-scene-caption{padding-bottom:6px}.mg-lamp>.mg-prop{max-height:45px}
+  .mg-echo{padding:7px;gap:5px}.mg-echo-turn{font-size:9px;line-height:1.4}
+  .mg-play[data-id=echo] .mg-pad>.mg-prop{width:37px;height:37px}
+  .mg-play[data-id=echo] .mg-pad b>span{font-size:9px}
+  .mg-play[data-id=echo]>.mg-keynote,.mg-play[data-id=echo]>.mg-footnote{display:none}
+  .mg-play[data-id=echo]>.mg-play-head{display:none}
+  .mg-play[data-id=echo]>.mg-instruction{grid-row:1;line-height:1.4;margin-bottom:4px;font-size:10px}
+  .mg-play[data-id=echo]>.mg-instruction b{display:inline;font-size:14px;margin-right:5px}
+  .mg-play[data-id=echo]>.mg-meter{grid-row:2}
+  .mg-play[data-id=echo]>.mg-echo,.mg-play[data-id=echo]>.mg-status{grid-row:3}
+  .mg-play[data-id=echo]>.mg-echo-progress,.mg-play[data-id=echo]>.mg-toolbar{grid-row:4}
+  .mg-play[data-id=echo]>.mg-tip{grid-column:1/-1;grid-row:5;font-size:9px;padding:5px;margin:0}
+  .mg-play[data-id=echo] .mg-toolbar button{min-height:44px}
+  .mg-play[data-id=lantern]{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px 12px}
+  .mg-play[data-id=lantern]>.mg-play-head,.mg-play[data-id=lantern]>.mg-keynote,.mg-play[data-id=lantern]>.mg-footnote{display:none}
+  .mg-play[data-id=lantern]>.mg-instruction{grid-column:1/-1;font-size:10px;margin:0;line-height:1.4}
+  .mg-play[data-id=lantern]>.mg-instruction b{font-size:15px;display:inline;margin-right:6px}
+  .mg-play[data-id=lantern]>.mg-meter{grid-column:2;grid-row:2;align-self:start;padding:5px;gap:8px;font-size:9px}
+  .mg-play[data-id=lantern]>.mg-meter b{font-size:16px}
+  .mg-play[data-id=lantern]>.mg-lantern-wrap{grid-column:1;grid-row:2/5;width:100%;box-sizing:border-box;margin:0;padding:7px}
+  .mg-play[data-id=lantern] .mg-lantern{gap:4px}
+  .mg-play[data-id=lantern] .mg-lamp{height:44px;aspect-ratio:auto;min-height:44px;padding:1px;border-radius:6px}
+  .mg-play[data-id=lantern] .mg-lamp>.mg-prop{width:30px;height:30px}
+  .mg-play[data-id=lantern] .mg-lamp small,.mg-play[data-id=lantern] .mg-lamp small span{font-size:8px;line-height:1}
+  .mg-play[data-id=lantern] .mg-scene-caption{font-size:9px;padding-bottom:6px}.mg-play[data-id=lantern] .mg-scene-caption b{font-size:12px}.mg-play[data-id=lantern] .mg-scene-caption span{font-size:8px}
+  .mg-play[data-id=lantern]>.mg-status{grid-column:2;grid-row:3;font-size:10px;min-height:30px;padding:6px;margin:0}
+  .mg-play[data-id=lantern]>.mg-toolbar{grid-column:2;grid-row:4;display:grid;gap:4px}
+  .mg-play[data-id=lantern]>.mg-toolbar button{font-size:10px;min-height:44px;padding:6px}
+  .mg-play[data-id=lantern]>.mg-tip{grid-column:1/-1;font-size:9px;padding:5px;margin:0}
+  .mg-play[data-id=lantern] .mg-lamp-preview{display:none}
+}
+@media(max-height:600px) and (max-width:600px){
+  .mg-sea-tile{min-height:36px;flex-direction:row;gap:1px}.mg-sea-tile .mg-prop{width:25px;height:25px}.mg-sea-tile small{font-size:7px;white-space:normal;max-width:28px;line-height:1.4}
+  .mg-ship-row{display:grid;padding-top:2px}.mg-ship-row>div{min-height:27px;height:27px;flex-direction:row;gap:0}.mg-ship-row .mg-prop{width:26px;height:26px}.mg-ship-row b{font-size:7px}.mg-ship-row .current:before{top:-6px;font-size:10px}
+  .mg-lanes button{min-height:59px;padding:11px 2px 4px;gap:2px}.mg-lanes em{font-size:8px}.mg-lanes span{font-size:7px}
+  .mg-crystal-scene .mg-scene-caption{font-size:9px;min-height:14px;padding-bottom:5px}
+  .mg-crystal-tools .mg-tool-detail{display:none}.mg-crystal-tools .mg-tool-short{display:block;margin-top:2px;line-height:1.4;white-space:nowrap}
+  .mg-crystal-tools b{line-height:1.4}
+  .mg-gem{height:44px;min-height:44px}
+  .mg-gem>.mg-prop{width:30px;height:30px}.mg-gem>small{font-size:8px;line-height:1}.mg-gem>small>span{font-size:8px}
+  .mg-cascade-feedback{margin-top:4px;min-height:16px}
+  .mg-echo{padding:7px;gap:6px}.mg-echo-turn{font-size:9px;line-height:1.4}
+  .mg-play[data-id=echo] .mg-pad>.mg-prop{width:36px;height:36px}
+  .mg-play[data-id=echo] .mg-pad b>span{font-size:9px}
+  #panel:has(.mg-play[data-id=echo]) .pn-box{max-height:96dvh}
+  #panel:has(.mg-play[data-id=echo]) .pn-head{padding:8px 12px}
+  #panel:has(.mg-play[data-id=echo]) .pn-body{padding:8px 12px}
+  .mg-play[data-id=echo]>.mg-play-head,.mg-play[data-id=echo]>.mg-keynote,.mg-play[data-id=echo]>.mg-footnote{display:none}
+  .mg-play[data-id=echo]>.mg-instruction{font-size:0;margin:0 0 5px}
+  .mg-play[data-id=echo]>.mg-instruction b{font-size:15px;margin:0}
+  .mg-lantern-wrap .mg-scene-caption{padding-bottom:6px;font-size:9px}
+  .mg-lantern-wrap .mg-scene-caption b{font-size:13px}.mg-lantern-wrap .mg-scene-caption span{font-size:8px}
+  #panel:has(.mg-play[data-id=lantern]) .pn-box{max-height:96dvh}
+  #panel:has(.mg-play[data-id=lantern]) .pn-head{padding:8px 12px}
+  #panel:has(.mg-play[data-id=lantern]) .pn-body{padding:8px 12px}
+  .mg-play[data-id=lantern]>.mg-play-head,.mg-play[data-id=lantern]>.mg-keynote,.mg-play[data-id=lantern]>.mg-footnote{display:none}
+  .mg-play[data-id=lantern]>.mg-instruction{font-size:0;margin:0 0 5px}
+  .mg-play[data-id=lantern]>.mg-instruction b{font-size:15px;margin:0}
+  .mg-play[data-id=lantern] .mg-meter{padding:4px;gap:8px;font-size:9px}.mg-play[data-id=lantern] .mg-meter b{font-size:16px}
+  .mg-play[data-id=lantern] .mg-lantern-wrap{padding:7px;margin:7px auto}
+  .mg-play[data-id=lantern] .mg-lantern{gap:4px}
+  .mg-play[data-id=lantern] .mg-lamp{height:44px;aspect-ratio:auto;min-height:44px;padding:1px;border-radius:6px}
+  .mg-play[data-id=lantern] .mg-lamp>.mg-prop{width:30px;height:30px}
+  .mg-play[data-id=lantern] .mg-lamp small,.mg-play[data-id=lantern] .mg-lamp small span{font-size:8px;line-height:1}
+  .mg-play[data-id=lantern] .mg-lamp-preview{display:none}
+  .mg-play[data-id=lantern] .mg-status{font-size:10px;line-height:1.5;min-height:25px;padding:5px;margin:6px 0}
+  .mg-play[data-id=lantern] .mg-toolbar{gap:4px;flex-wrap:nowrap}
+  .mg-play[data-id=lantern] .mg-toolbar button{font-size:9px;padding:4px;min-height:44px;flex:1;line-height:1.4}
+  .mg-play[data-id=lantern]>.mg-tip{font-size:9px;padding:5px;margin:0 0 5px}
+}
+@media(prefers-reduced-motion:reduce){.mg-pad.sounding .mg-prop{transform:none}}
+[data-motion=reduced] .mg-pad.sounding .mg-prop{transform:none}

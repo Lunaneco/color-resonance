@@ -1,0 +1,31 @@
+{
+  "generator": "built-in image_gen.imagegen",
+  "date": "2026-10-05",
+  "prompts": [
+    {
+      "id": "voyage-cover",
+      "alpha": false,
+      "prompt": "Use case: illustrated cover and subtle backdrop for a Japanese fantasy sailing puzzle. Landscape 3:2 image. A tiny ivory sailboat with teal hull sails toward a distant luminous harbor in a tranquil midnight indigo bay. Three broad clear channels in the foreground contain one golden star treasure in the left channel, a visible dark triangular reef in the right channel, a mint wind crystal near the center. The boat sails away from camera, shore and lighthouse in upper background. Delicate pale gold framing from cliffs, soft moonlight, restrained botanical fantasy storybook painting, smooth clean shading, legible silhouettes, teal/indigo/ivory/pale gold palette. No characters, no typography, no interface, no borders, no busy sparkles. The visual communicates navigation, treasure and hazards. 髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。"
+    },
+    {
+      "id": "props-atlas",
+      "alpha": true,
+      "prompt": "Use case: production sprite atlas for a fantasy browser minigame. One transparent landscape 4:3 PNG sheet with EXACTLY twelve separate isolated hand-painted game props, equal rectangular cells, FOUR columns and THREE rows, generous transparent space, each object centered within its cell occupying 70% of its cell. No grid lines, no text, no numbers, no opaque background, no ground planes or scenery. Consistent orthographic three-quarter front illustration, strong silhouette readable at 32px, simple clean edges, smooth restrained shading, subtle pale gold trim, no granular glitter.\nRow 1, left to right: (1) small ivory sailboat, teal hull, seen from front three-quarter, (2) a bright gold five-point star treasure held in a tiny open gold chest, (3) mint green wind crystal shaped like a curled feather, (4) rosy pink heart-shaped healing drop.\nRow 2: (5) dark plum triangular jagged rocky reef, (6) cyan teardrop gemstone with a simple white wave engraved on it, (7) green marquise leaf-shaped gemstone with a simple pale leaf engraving, (8) golden square diamond gemstone with a simple pale diamond engraving.\nRow 3: (9) violet hexagonal prism gemstone with a simple pale four-point sparkle engraving, (10) brass and cyan glass lantern visibly brightly lit with ivory golden flame, (11) the identical brass glass lantern but dark unlit opaque blue-gray interior, (12) luminous ivory and pale gold six-point star crystal.\nThe lit and unlit lanterns must clearly differ. Gemstones must differ in silhouette as well as color. Objects entirely isolated with genuine alpha around them. 髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。"
+    },
+    {
+      "id": "crystal-cover",
+      "alpha": false,
+      "prompt": "Use case: illustrated cover and subdued backdrop for a fantasy gem swapping browser puzzle. Landscape 3:2 painting. A moonlit forgotten glass conservatory opens onto an indigo garden. In the foreground a beautiful shallow pale gold stone basin holds a few LARGE smooth cyan teardrop, green marquise leaf, golden diamond and violet hexagonal gems. Three matching cyan teardrop gems aligned in a short row glow softly; a single ivory six-point star crystal above them hints at a chain reaction. The gems resemble little carved glass tiles with strong clean distinct silhouettes. Architectural arched windows and large soft botanical leaves in upper background; calm painterly Japanese fantasy storybook style, smooth restrained texture, teal / deep indigo / pale gold palette. Clear focal point in center foreground, ample dark space behind for interface overlay. No characters, no text, no interface, no gritty glitter, no busy gem pile. 髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。"
+    },
+    {
+      "id": "lantern-cover",
+      "alpha": false,
+      "prompt": "Use case: illustrated cover and subdued background for a fantasy light switching puzzle. Landscape 3:2 painting. A tall ivory stone lighthouse on a small rocky island, its warm beam lighting a teal midnight harbor. In the foreground on a curved brass stone table, five elegant brass and cyan glass lanterns form a simple CROSS shape, one in center and its four neighbors, three warmly lit and two clearly unlit blue-gray. The lanterns are large readable game objects, not tiny lights. A safe harbor and moonlit sailboat far away. Clean soft painterly Japanese fantasy storybook illustration, smooth materials, restrained botanical corners, indigo / teal / ivory / gold, no characters, no typography, no UI, no excessive tiny sparkles. Lantern puzzle in foreground is the visual focus and the distant lighthouse conveys the goal. 髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。"
+    },
+    {
+      "id": "echo-cover",
+      "alpha": false,
+      "prompt": "Use case: illustrated cover and atmospheric background for a fantasy memory/music browser game. Landscape 3:2 painting. A quiet indigo woodland sanctuary with a broad crescent stone altar. Four distinct large glowing magical stones suspended over the altar from left to right: cyan teardrop with a wave emblem, green marquise leaf-shaped gem with a leaf emblem, golden diamond with a diamond emblem, violet hexagonal prism with a four-point star emblem. Three broad curved pale gold sound ribbons weave softly from one stone to the next, suggesting a melody and response. A few large leaf silhouettes frame the corners and a faint moon above the ruined arch. No people or spirit characters, no text, no interface. Clean soft painterly Japanese fantasy storybook art, calm magical moonlight, smooth surfaces, strong legible silhouettes, indigo teal pale gold palette, no granular glitter or noisy repeated pattern. 髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\n\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。"
+    }
+  ]
+}

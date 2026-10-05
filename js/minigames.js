@@ -14,7 +14,10 @@ const Minigames = (() => {
       desc: '潮、芽、金、虹。四つの響きを覚えて返すと、小さな夜空に星がひらく。音を消しても遊べます。',
       lengths: { gentle: 3, normal: 5, hard: 7 }, story: '時計ばかりが鳴っていた街に、違う音が帰ってきた。ひとりの旋律が、誰かの返事を待っている。', ending: '響きに、返事を。', gems: ['m_green', 'm_violet'] },
   };
-  const pads = [{ name: '潮', symbol: '≈', color: '#8ae0ef' }, { name: '芽', symbol: '❧', color: '#a4e9b6' }, { name: '金', symbol: '◇', color: '#ffe099' }, { name: '虹', symbol: '✧', color: '#d1b3ff' }];
+  const pads = [{ name: '潮', symbol: '≈', art: 'tide', color: '#8ae0ef' }, { name: '芽', symbol: '❧', art: 'leaf', color: '#a4e9b6' }, { name: '金', symbol: '◇', art: 'gold', color: '#ffe099' }, { name: '虹', symbol: '✧', art: 'prism', color: '#d1b3ff' }];
+  const prop = name => `<img class="mg-prop" src="assets/minigames/${name}.webp" width="128" height="128" alt="" aria-hidden="true" decoding="async">`;
+  const seaArt = { star: 'treasure', charge: 'wind', heart: 'heal', reef: 'reef', harbor: 'lantern-on' };
+  const cover = (id, cls = 'mg-cover') => `<img class="${cls}" src="assets/minigames/${id}-cover.webp" width="768" height="512" alt="" aria-hidden="true" decoding="async">`;
   const rewards = { gentle: [20, 35, 50, 70], normal: [30, 50, 75, 100], hard: [40, 70, 100, 140] };
   const grade = score => score >= 95 ? 'S' : score >= 80 ? 'A' : score >= 60 ? 'B' : 'C';
   const entitled = (difficulty, score) => rewards[difficulty]['CBAS'.indexOf(grade(score))];
@@ -104,7 +107,7 @@ const Minigames = (() => {
       ${active && available(active.id) ? `<button class="mg-resume" data-resume><span>途中から続ける</span><b>${games[active.id].title} / ${names[active.difficulty]}</b></button>` : ''}
       <div class="mg-catalog">${Object.entries(games).map(([id, game]) => {
         const unlocked = available(id), preferred = party.minigames.preferred[id];
-        return `<article class="mg-card" style="--mg-color:${game.hue}" data-game="${id}"><div class="mg-card-top"><span class="mg-emblem" aria-hidden="true">${game.icon}</span><div><small>${game.label}</small><h4>${game.title}</h4></div>${allThree(id) ? '<span class="mg-seal">三つの灯り ✦</span>' : ''}</div><p>${game.desc}</p>
+        return `<article class="mg-card" style="--mg-color:${game.hue}" data-game="${id}">${cover(id)}<div class="mg-card-top"><span class="mg-emblem" aria-hidden="true">${prop({ voyage: 'ship', crystal: 'nova', lantern: 'lantern-on', echo: 'prism' }[id])}</span><div><small>${game.label}</small><h4>${game.title}</h4></div>${allThree(id) ? '<span class="mg-seal">三つの灯り ✦</span>' : ''}</div><p>${game.desc}</p>
           <div class="mg-difficulties" role="group" aria-label="${game.title}の難易度">${tiers.map(tier => { const r = party.minigames.records[id][tier]; return `<button data-tier="${tier}" aria-pressed="${tier === preferred}" ${unlocked ? '' : 'disabled'}><b>${names[tier]}</b><small>${r?.clears ? `最高 ${grade(r.best)} / ${r.best}点` : '未完成'}</small></button>`; }).join('')}</div>
           <div class="mg-hard-prize ${party.minigames.records[id].hard?.hardCoreClaimed === 2 ? 'claimed' : ''}"><span>✧ ハード初回の宝</span><b>澄明の核 ×${2 - (party.minigames.records[id].hard?.hardCoreClaimed || 0) || 2}</b><small>${party.minigames.records[id].hard?.hardCoreClaimed === 2 ? '受取済み' : '未受取 · 評価を問わず獲得'}</small></div>
           <div class="mg-card-actions"><button class="mg-primary" data-start ${unlocked ? '' : 'disabled'}>新しく遊ぶ</button><button class="mg-secondary" data-practice ${unlocked ? '' : 'disabled'}>練習する</button></div>${!unlocked ? `<p class="mg-note">${game.need === 'act1' ? '港へ旅立つと' : '第一幕を終えると'}遊べるようになります。</p>` : `<p class="mg-note">${game.gems.map(id => Progression.materials[id].name).join('・')}と共鳴の砂を、評価C・B・A・Sごとに1回。初Sで核×1を追加。${names[preferred]}のしずく上限 ${rewards[preferred][3]}。</p>`}
@@ -156,21 +159,34 @@ const Minigames = (() => {
   function lanternHtml(s) {
     const [rows, cols] = games.lantern.sizes[s.difficulty], n = rows * cols;
     const lit = bits(s.board);
-    return `<p class="mg-instruction"><b>すべての灯りを「点灯」に。</b>押した灯りと、その上下左右が切り替わります。もう一度押すと元に戻ります。</p>
+    return `<p class="mg-instruction"><b>すべての灯りを「点灯」に。</b>選ぶ灯りと、上下左右の灯りが反転します。</p>
       ${s.practice ? '<div class="mg-tip">まず上の真ん中を押してみよう。自分と、線でつながる隣の灯りが変わります。</div>' : ''}
       <div class="mg-meter"><span>灯り <b data-lit>${lit} / ${n}</b></span><span>手数 <b data-moves>${s.moves}</b></span><span>ヒント <b data-hints>${s.hints}</b></span></div>
-      <div class="mg-lantern-wrap"><div class="mg-lantern" role="group" aria-label="灯台の硝子盤" style="--mg-columns:${cols}">${Array.from({ length: n }, (_, i) => lampHtml(s, i)).join('')}</div></div>
+      <div class="mg-lantern-wrap"><div class="mg-scene-caption"><b>すべての炎を灯そう</b><span>選ぶ灯り ＋ 上下左右が反転</span></div><div class="mg-lantern" role="group" aria-label="灯台の硝子盤" style="--mg-columns:${cols}">${Array.from({ length: n }, (_, i) => lampHtml(s, i)).join('')}</div><div class="mg-lamp-preview" aria-hidden="true"><i></i><i></i><i></i><i></i><i>＋</i><i></i><i></i><i></i><i></i><span>金の枠が変わる灯り</span></div></div>
       <div class="mg-status" role="status" aria-live="polite">${s.message || '灯りを選んでみよう。何度でもやり直せます。'}</div>
       <div class="mg-toolbar"><button data-undo ${s.history.length ? '' : 'disabled'}>ひとつ戻す</button><button data-hint>ヒント</button><button data-reset>最初の盤面に戻す</button></div>
       <p class="mg-keynote">Tab / 矢印キーで選び、Enter / Spaceで切り替え。<br>点灯は「●」、消灯は「○」でも確認できます。ヒントと戻す操作は成績に含まれます。</p>`;
   }
   function lampHtml(s, i) {
     const on = !!(s.board & 1 << i), [rows, cols] = games.lantern.sizes[s.difficulty];
-    return `<button class="mg-lamp ${on ? 'lit' : ''}${s.hint === i ? ' hinted' : ''}" data-lamp="${i}" aria-pressed="${on}" aria-label="${Math.floor(i / cols) + 1}行${i % cols + 1}列 ${on ? '点灯' : '消灯'}${s.hint === i ? ' ヒントの灯り' : ''}" style="--lamp-hue:${185 + i / (rows * cols) * 145}"><span aria-hidden="true">${on ? '●' : '○'}</span><small>${on ? '点灯' : '消灯'}</small></button>`;
+    return `<button class="mg-lamp ${on ? 'lit' : ''}${s.hint === i ? ' hinted' : ''}" data-lamp="${i}" aria-pressed="${on}" aria-label="${Math.floor(i / cols) + 1}行${i % cols + 1}列 ${on ? '点灯' : '消灯'}${s.hint === i ? ' ヒントの灯り' : ''}" style="--lamp-hue:${185 + i / (rows * cols) * 145}">${prop(on ? 'lantern-on' : 'lantern-off')}<small><span aria-hidden="true">${on ? '●' : '○'}</span> ${on ? '点灯' : '消灯'}</small></button>`;
   }
   function bindLantern(body) {
     const s = session, [rows, cols] = games.lantern.sizes[s.difficulty], full = (1 << rows * cols) - 1;
+    const preview = index => {
+      const mask = crossMask(rows, cols, index);
+      body.querySelectorAll('[data-lamp]').forEach(lamp => {
+        const affected = !!(mask & 1 << +lamp.dataset.lamp);
+        lamp.classList.toggle('affected', affected);
+        lamp.classList.toggle('preview-origin', +lamp.dataset.lamp === index);
+      });
+    };
+    const clearPreview = () => body.querySelectorAll('[data-lamp]').forEach(lamp => lamp.classList.remove('affected', 'preview-origin'));
     body.querySelectorAll('[data-lamp]').forEach(button => {
+      button.onpointerenter = () => preview(+button.dataset.lamp);
+      button.onpointerleave = () => { const focused = body.querySelector('.mg-lamp:focus'); if (focused) preview(+focused.dataset.lamp); else clearPreview(); };
+      button.onfocus = () => preview(+button.dataset.lamp);
+      button.onblur = clearPreview;
       button.onclick = () => {
         const index = +button.dataset.lamp;
         s.board ^= crossMask(rows, cols, index); s.moves++; s.history.push(index); s.history = s.history.slice(-256); delete s.hint;
@@ -205,7 +221,7 @@ const Minigames = (() => {
     return `<p class="mg-instruction"><b>響いた順番を覚えて、返そう。</b>全3節。間違えても、その節から何度でも続けられます。</p>
       <div class="mg-meter"><span>節 <b>${s.round + 1} / 3</b></span><span>覚える音 <b>${length}</b></span><span>返した音 <b data-input>${s.input.length} / ${length}</b></span></div>
       ${s.practice ? '<div class="mg-tip">練習では「潮→芽→金」から始まります。お手本を見てから「順番を返す」を選ぼう。返す時は、次の響きに印がつきます。</div>' : ''}
-      <div class="mg-echo" role="group" aria-label="四つの響き">${pads.map((pad, i) => `<button class="mg-pad${s.practice && s.phase === 'answer' && s.sequence[s.input.length] === i ? ' practice-target' : ''}" data-pad="${i}" style="--pad-color:${pad.color}" aria-label="${i + 1} ${pad.name}${s.practice && s.phase === 'answer' && s.sequence[s.input.length] === i ? ' 次の響き' : ''}" ${s.phase !== 'answer' ? 'disabled' : ''}><kbd>${i + 1}</kbd><span aria-hidden="true">${pad.symbol}</span><b>${pad.name}</b></button>`).join('')}</div>
+      <div class="mg-echo" data-phase="${s.phase}" role="group" aria-label="四つの響き"><div class="mg-echo-turn" role="status">${s.phase === 'answer' ? `あなたの番 · あと${length - s.input.length}音` : s.phase === 'watch' || s.phase === 'manual' ? 'お手本 · 光った結晶を覚えよう' : '① お手本を見る → ② 同じ順で返す'}</div>${pads.map((pad, i) => `<button class="mg-pad${s.practice && s.phase === 'answer' && s.sequence[s.input.length] === i ? ' practice-target' : ''}" data-pad="${i}" style="--pad-color:${pad.color}" aria-label="${i + 1} ${pad.name}${s.practice && s.phase === 'answer' && s.sequence[s.input.length] === i ? ' 次の響き' : ''}" ${s.phase !== 'answer' ? 'disabled' : ''}><kbd>${i + 1}</kbd>${prop(pad.art)}<b><span aria-hidden="true">${pad.symbol}</span> ${pad.name}</b></button>`).join('')}</div>
       <div class="mg-echo-progress" aria-hidden="true">${Array.from({ length }, (_, i) => `<i class="${i < s.input.length ? 'done' : ''}"></i>`).join('')}</div>
       <div class="mg-status" role="status" aria-live="polite">${s.message || '「お手本を聴く」で、色と記号の順番を見てみよう。'}</div>
       <div class="mg-toolbar"><button data-listen>${s.phase === 'ready' ? 'お手本を聴く' : 'もう一度聴く'}</button><button data-step>一音ずつ見る</button><button data-answer ${s.phase === 'ready' ? 'disabled' : ''}>順番を返す</button></div>
@@ -263,23 +279,27 @@ const Minigames = (() => {
   const progressBar = (value, goal, label) => `<div class="mg-quest-progress" role="progressbar" aria-label="${label}" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="${Math.min(goal, value)}"><i style="width:${Math.min(100, value / goal * 100)}%"></i></div>`;
   function voyageHtml(s) {
     const rule = PlayCore.voyageRules[s.difficulty], mode = s.mode || 'sail', zone = Math.min(3, Math.floor(s.step / (rule.length / 3)) + 1);
+    const nextPort = Math.ceil((s.step + 1) / (rule.length / 3)) * (rule.length / 3);
+    const travel = mode === 'dash' ? Math.min(2, rule.length - s.step, nextPort - s.step) : 1;
     return `<div class="mg-adventure-title"><span>STAR TIDE VOYAGE</span><h3>星の宝を、あの港へ。</h3><p>先を見て、進む列を選ぼう。疾走なら宝も岩礁の傷も2倍。</p></div>
       <div class="mg-voyage-layout"><div class="mg-voyage-scene"><div class="mg-sea-label"><b>${['薄明の湾', '星降る海', '夜明けの岸'][zone - 1]}</b><span>${s.step} / ${rule.length} 航程</span></div>
       <div class="mg-route-map" role="group" aria-label="航路の先読み。下の行が次に進む区画">${[2, 1, 0].map(offset => {
         const row = s.map[s.step + offset];
-        return `<div class="mg-sea-row ${offset === 0 ? 'next' : ''}"><span class="mg-sea-distance">${row ? offset === 0 ? '次へ' : `${offset + 1}先` : '港'}</span>${[0, 1, 2].map(lane => {
+        return `<div class="mg-sea-row ${offset === 0 ? 'next' : ''}${offset < travel ? ' will-travel' : ''}" data-distance="${offset + 1}"><span class="mg-sea-distance">${row ? offset === 0 ? '次へ ↑' : `${offset + 1}先` : '港'}</span>${[0, 1, 2].map(lane => {
           const tile = row ? PlayCore.tiles[row[lane]] : { icon: '⚑', name: '到着の港', detail: '' };
-          return `<div class="mg-sea-tile ${row?.[lane] || 'harbor'}" aria-label="${['左', '中央', '右'][lane]} ${tile.name} ${tile.detail}"><strong aria-hidden="true">${tile.icon}</strong><small>${tile.name}</small></div>`;
+          const type = row?.[lane] || 'harbor', reachable = Math.abs(s.lane - lane) <= 1;
+          return `<div class="mg-sea-tile ${type}${offset < travel && reachable ? ' reachable' : ''}${offset < travel && !reachable ? ' unreachable' : ''}" data-sea-lane="${lane}" aria-label="${['左', '中央', '右'][lane]} ${tile.name} ${tile.detail}">${seaArt[type] ? prop(seaArt[type]) : '<strong aria-hidden="true">≈</strong>'}<small>${tile.name}</small></div>`;
         }).join('')}</div>`;
-      }).join('')}<div class="mg-ship-row">${[0, 1, 2].map(lane => `<div class="${lane === s.lane ? 'current' : ''}">${lane === s.lane ? '<svg viewBox="0 0 90 74" role="img" aria-label="あなたの船"><path d="M45 4v46M42 7 12 43h30ZM49 17v26h25Z" fill="#d0ebdf" stroke="#eaf2d4" stroke-width="2"/><path d="M8 52h72L65 65H24Z" fill="#9fc4c9" stroke="#e1d9a7" stroke-width="2"/><path d="M8 70q12-7 24 0t24 0t24 0" fill="none" stroke="#83c6d1"/></svg>' : '<span>≈</span>'}</div>`).join('')}</div></div>
-      <div class="mg-sea-legend"><span>✦ 宝</span><span>ϟ 風力</span><span>♡ 回復</span><span>▲ 岩礁</span></div></div>
+      }).join('')}<div class="mg-ship-row" role="group" aria-label="今いる列から、上の次へ進みます">${[0, 1, 2].map(lane => `<div class="${lane === s.lane ? 'current' : ''}" ${lane === s.lane ? 'aria-label="あなたの船の現在位置"' : ''}>${lane === s.lane ? prop('ship') + '<b>ここから ↑</b>' : '<span aria-hidden="true">・</span>'}</div>`).join('')}</div></div>
+      <div class="mg-sea-legend"><span>${prop('treasure')} 宝</span><span>${prop('wind')} 風力+1</span><span>${prop('heal')} 船体+1</span><span>${prop('reef')} 傷</span></div></div>
       <div class="mg-voyage-controls"><div class="mg-vitals"><span>船体 <b>${'♥'.repeat(s.hp)}${'♡'.repeat(rule.hp - s.hp)}</b></span><span>風力 <b>${s.charge} / 4</b></span><span>連続 <b>${s.combo}</b></span><span class="mg-compact-stat">宝 <b>${s.points}</b></span></div>
       <div class="mg-journey-score"><span>宝の輝き <b>${s.points}</b><small>Sの目安 ${rule.target} · 傷1回につき−3点</small></span>${progressBar(s.points, rule.target, '宝の輝き')}</div>
       ${s.camp ? `<div class="mg-camp"><span>✧ 小さな寄港地</span><h4>次の海に、何を持ち出す？</h4><p>一つだけ選べます。積んだ宝は、そのまま。</p><button data-camp="repair"><b>1 船を直す</b><small>船体を2回復</small></button><button data-camp="wind"><b>2 風を集める</b><small>風力を2補充</small></button><button data-camp="treasure"><b>3 秘蔵の宝を積む</b><small>宝の輝き+28</small></button></div>` : `<div class="mg-sail-modes" role="group" aria-label="進み方">${[['sail', '帆走', 0, '1区画進む'], ['guard', '護り', 1, '岩礁の傷を防ぐ'], ['dash', '疾走', 2, '2区画 / 宝と傷2倍']].map(([id, name, cost, desc]) => `<button data-mode="${id}" aria-pressed="${mode === id}" ${s.charge < cost ? 'disabled' : ''}><b>${name}<em>${cost ? `風${cost}` : '風0'}</em></b><small>${desc}</small></button>`).join('')}</div><div class="mg-lanes" role="group" aria-label="選んだ列へ進む">${[0, 1, 2].map(lane => {
-        const tile = s.map[s.step][lane];
-        return `<button data-lane="${lane}" ${lane === s.lane ? 'class="aboard" aria-current="location"' : ''} ${Math.abs(s.lane - lane) > 1 ? 'disabled' : ''}><kbd>${lane + 1}</kbd><b>${['左へ', '中央へ', '右へ'][lane]}</b><span>${PlayCore.tiles[tile].icon} ${PlayCore.tiles[tile].name}</span></button>`;
+        const path = Array.from({ length: travel }, (_, i) => s.map[s.step + i][lane]);
+        const damage = mode === 'guard' ? 0 : path.filter(tile => tile === 'reef').length * (mode === 'dash' ? 2 : 1);
+        return `<button data-lane="${lane}" class="${lane === s.lane ? 'aboard ' : ''}${damage ? 'danger' : 'safe'}" ${lane === s.lane ? 'aria-current="location"' : ''} ${Math.abs(s.lane - lane) > 1 ? 'disabled' : ''}><kbd>${lane + 1}</kbd><b>${['左へ', '中央へ', '右へ'][lane]}</b><span>${path.map(tile => PlayCore.tiles[tile].name).join(' → ')}</span><em>${Math.abs(s.lane - lane) > 1 ? '隣の列まで' : damage ? `岩礁 −${damage}` : path.includes('reef') ? '護りで安全' : '安全に進む'}</em></button>`;
       }).join('')}</div>`}
-      <div class="mg-status" role="status" aria-live="polite">${s.message || '3つの海を渡り切ればクリア。宝の連続取得で得点UP。疾走は先の2区画を確かめてから。'}</div>
+      <div class="mg-status" role="status" aria-live="polite">${s.message || '① 進み方 → ② 行き先。船は上の「次へ」に進みます。3つの海域を渡ればクリア。'}</div>
       ${s.practice ? '<p class="mg-tip">練習の海は毎回同じ。まず左の宝へ進み、寄港地では回復・風・宝を選んでみよう。</p>' : ''}<details class="mg-rules"><summary>航海のコツ・操作</summary><p>1〜3 / タップで列を選び、そのまま進みます。移動は隣の列まで。岩礁以外を選べば傷は付きません。宝を取るたびに連続数が増え、静かな海と岩礁で途切れます。風の結晶と回復の雫では連続数を保ちます。船体が0になると終了し、報酬は付きません。3つの海域を渡り切れば、宝の量に関係なくクリア。疾走は寄港地の手前で止まります。</p></details></div></div>`;
   }
   function bindVoyage(body) {
@@ -302,20 +322,35 @@ const Minigames = (() => {
   function crystalHtml(s) {
     const rule = PlayCore.crystalRules[s.difficulty], selected = s.selected ?? -1;
     return `<div class="mg-adventure-title"><span>CRYSTAL CASCADE</span><h3>一手から、光の連鎖へ。</h3><p>隣り合う結晶を選んで入れ替え、同じ色・記号を3つ以上そろえよう。</p></div>
-      <div class="mg-crystal-layout"><div class="mg-crystal-scene"><div class="mg-crystal-grid ${s.charge >= 12 ? 'fever-ready' : ''}${s.burstText ? ' cascade' : ''}" role="group" aria-label="5行5列の結晶盤">${s.board.map((n, i) => {
+      <div class="mg-crystal-layout"><div class="mg-crystal-scene"><div class="mg-scene-caption mg-board-cue" role="status">${s.mode === 'rainbow' ? '虹の一閃 · 消す横一列を選ぼう' : selected >= 0 ? '② 矢印のある隣を選んで交換' : '① 結晶を選ぶ → ② 隣と交換'}</div><div class="mg-crystal-grid ${s.charge >= 12 ? 'fever-ready' : ''}${s.burstText ? ' cascade' : ''}${s.mode === 'rainbow' ? ' rainbow-mode' : ''}" role="group" aria-label="5行5列の結晶盤">${s.board.map((n, i) => {
         const pad = pads[n % 4], nova = n >= 4;
-        return `<button class="mg-gem ${selected === i ? 'selected' : ''}${nova ? ' nova' : ''}${s.hint?.includes(i) ? ' hinted' : ''}" style="--gem-color:${pad.color}" data-gem="${i}" aria-pressed="${selected === i}" aria-label="${Math.floor(i / 5) + 1}行${i % 5 + 1}列 ${pad.name}${nova ? 'の星結晶。選ぶと周囲9マスを爆発' : 'の結晶'}"><span aria-hidden="true">${nova ? '✦' : pad.symbol}</span><small>${pad.name}</small></button>`;
+        const neighbor = selected >= 0 && Math.abs(Math.floor(i / 5) - Math.floor(selected / 5)) + Math.abs(i % 5 - selected % 5) === 1;
+        const arrow = neighbor ? i < selected ? i % 5 === selected % 5 ? '↓' : '→' : i % 5 === selected % 5 ? '↑' : '←' : '';
+        return `<button class="mg-gem ${selected === i ? 'selected' : ''}${neighbor ? ' neighbor' : ''}${nova ? ' nova' : ''}${s.hint?.includes(i) ? ' hinted' : ''}" style="--gem-color:${pad.color}" data-gem="${i}" aria-pressed="${selected === i}" aria-label="${Math.floor(i / 5) + 1}行${i % 5 + 1}列 ${pad.name}${nova ? 'の星結晶。選ぶと周囲9マスを爆発' : 'の結晶'}${neighbor ? '。選択した結晶の隣' : ''}">${prop(nova ? 'nova' : pad.art)}<small><span aria-hidden="true">${nova ? '✦' : pad.symbol}</span> ${pad.name}</small>${arrow ? `<i class="mg-swap-arrow" aria-hidden="true">${arrow}</i>` : ''}</button>`;
       }).join('')}</div><div class="mg-cascade-feedback ${s.burstText ? 'lit' : ''}" aria-hidden="true">${s.burstText || '同じ記号を3つ · 4つで星結晶'}</div></div>
       <div class="mg-crystal-controls"><div class="mg-vitals"><span>残り <b data-turns>${s.movesLeft}手</b></span><span class="mg-chain-stat">最大連鎖 <b>${s.maxChain}</b></span><span class="mg-compact-stat">彩り <b>${s.power}/${rule.target}</b></span><span class="mg-compact-stat">${s.charge >= 12 ? '✧ 次の一手2倍' : `光 ${s.charge}/12`}</span></div>
       <div class="mg-journey-score"><span>庭園の彩り <b data-power>${s.power} / ${rule.target}</b></span>${progressBar(s.power, rule.target, '庭園の彩り')}</div>
       <div class="mg-fever ${s.charge >= 12 ? 'ready' : ''}"><span>${s.charge >= 12 ? '✧ 次の一手はフィーバー！ 彩り2倍' : `フィーバーまで ${12 - s.charge} 個`}</span><div>${Array.from({ length: 12 }, (_, i) => `<i class="${i < s.charge ? 'lit' : ''}"></i>`).join('')}</div></div>
-      <div class="mg-crystal-tools"><button data-rainbow aria-pressed="${s.mode === 'rainbow'}" ${s.boostUsed ? 'disabled' : ''}><b>虹の一閃</b><small>${s.boostUsed ? 'この挑戦では使用済み' : s.mode === 'rainbow' ? '消したい行の結晶を選ぶ · 取消も可' : '1回だけ · 横一列を消す / 手数消費なし'}</small></button><button data-crystal-hint>つながる一手を見る</button></div>
+      <div class="mg-crystal-tools"><button data-rainbow aria-pressed="${s.mode === 'rainbow'}" ${s.boostUsed ? 'disabled' : ''}><b>虹の一閃</b><small class="mg-tool-detail">${s.boostUsed ? 'この挑戦では使用済み' : s.mode === 'rainbow' ? '消したい行の結晶を選ぶ · 取消も可' : '1回だけ · 横一列を消す / 手数消費なし'}</small><small class="mg-tool-short">${s.boostUsed ? '使用済み' : s.mode === 'rainbow' ? '消す行を選ぶ' : '横一列 / 手数なし'}</small></button><button data-crystal-hint>つながる一手を見る</button></div>
       <div class="mg-status" role="status" aria-live="polite">${s.message || '4つ以上そろえると、爆発する「星結晶」が生まれます。連鎖するほど彩りが増えます。'}</div>
       ${s.practice ? '<p class="mg-tip">練習は同じ盤面から。「つながる一手を見る」で二つの結晶に印が付きます。選んで入れ替え、連鎖を見てみよう。</p>' : ''}<details class="mg-rules"><summary>連鎖のコツ・操作</summary><p>クリック / タップで結晶を二つ選びます。矢印キーで移動、Enter / Spaceで選択。3つそろわない交換では手数は減りません。4つ以上で生まれた星結晶は、選ぶと周囲9マスを爆発させます（1手）。星結晶も連鎖に巻き込めます。消した個数×連鎖数が彩りになり、12個消すと次の一手が2倍。虹の一閃は手数を使わない切り札です。ヒントは無料。彩りが目標に達すればクリア。手数が尽きると終了します。交換できない盤面は自動で組み替えます。</p></details></div></div>`;
   }
   function bindCrystal(body) {
     const s = session;
+    const preview = index => {
+      const row = Math.floor(index / 5), col = index % 5;
+      body.querySelectorAll('[data-gem]').forEach(gem => {
+        const i = +gem.dataset.gem;
+        const affected = s.mode === 'rainbow' ? Math.floor(i / 5) === row : s.board[index] >= 4 && Math.abs(Math.floor(i / 5) - row) <= 1 && Math.abs(i % 5 - col) <= 1;
+        gem.classList.toggle('area-preview', !!affected);
+      });
+    };
+    const clearPreview = () => body.querySelectorAll('[data-gem]').forEach(gem => gem.classList.remove('area-preview'));
     body.querySelectorAll('[data-gem]').forEach(button => {
+      button.onpointerenter = () => preview(+button.dataset.gem);
+      button.onpointerleave = () => { const focused = body.querySelector('.mg-gem:focus'); if (focused) preview(+focused.dataset.gem); else clearPreview(); };
+      button.onfocus = () => preview(+button.dataset.gem);
+      button.onblur = clearPreview;
       button.onclick = () => gem(+button.dataset.gem);
       button.onkeydown = event => {
         const offsets = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -5, ArrowDown: 5 };
