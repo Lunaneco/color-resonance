@@ -1,0 +1,205 @@
+[
+  {
+    "id": "sea_mist_ring",
+    "name": "潮霧の輪・低く広がる霧環",
+    "category": "fx",
+    "source": "source/sea_mist_ring.png",
+    "references": [
+      "references/mist-wave-reference.png",
+      "references/mist-heal-reference.png",
+      "references/mist-gran-reference.png"
+    ],
+    "sourceGenerator": "GPT Image image_gen",
+    "revision": "r1",
+    "prompt": "Use case: illustration-story. Create ONE original registered transparent game VFX master for Color Resonance's learned summon-route spell 潮霧の輪 (gran_spray). Use the supplied actual game references for a shared cool turquoise / sapphire / pearl-white color identity and clean illustrated cel finish. Reference 1 is the broad crashing wave: keep only its water palette, not its curling wave, splash or droplets. Reference 2 is the healing bowl: keep only its simple broad water shading, not its bowl or separate drops. Reference 3 is Gran the ocean spirit: keep only his calm clear blue identity, no whale, city or body. This spell is a quiet LOW RING OF SEA MIST that spreads around a selected tactical ground cell and affects nearby enemies; it is not a healing bowl, shield, weapon slash, flood or large wall of water.\nOutput1536 x1024 true-transparent RGBA. Exactly one connected hollow horizontal ellipse of condensed turquoise sea mist, viewed from a slightly elevated isometric angle, centered at(768,512). Overall width about1100px, total height about430px; interior ellipse is completely clear, about760px wide and220px high. The band is robust and substantial, with soft rounded cloud-volume lobes that merge smoothly into ONE continuous contour around the whole ellipse. About3 broad gently uneven cloud bulges on the back edge and3 on the front edge; no small scallops or repeating fine waves. Front band lower in the image has slightly darker moderate teal under-edge for bright-floor contrast, pale aqua body, and ONE broad pearl-white lit area. Back band is quieter sapphire/aqua. Only3–4 broad clean cel shading zones; high opaque inner body with minimal clean edge antialiasing. Keep the hollow center alpha-zero and show no ground through painted pixels. Leave at least170px fully transparent margin on every side. Readable after reduction to about184px wide. No diffuse outside fog cloud, no external bloom haze, no detached droplets/specks or hairline outlines. This is one low rounded mist annulus, not thin mathematical circle strokes, concentric rings or a vertical shield. The dark teal contour is colored water, not a black silhouette.\nNo character, hair, face, hand, enemy, whale, literal sword, wound, black erasure, cloud of punishment, city, boat, landscape, floor painting, rainbow floor, platform, ground shadow, healing symbol, cross, spark, star, particle, bubble, shard, crystal facet, scales, filigree, fine foam dots, letters, text, rune, glyph, checkerboard, border, background or watermark. Exactly the single connected low oval mist ring, with a transparent hollow center and transparent surroundings.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "sourceSize": [
+      1536,
+      1024
+    ],
+    "sourceCropBoxPx": [
+      0,
+      0,
+      1536,
+      1024
+    ],
+    "sourceAnchorPx": [
+      768,
+      512
+    ],
+    "sourceCoreBox96Px": [
+      71,
+      292,
+      1477,
+      802
+    ],
+    "peakCoreWidthPx": 176,
+    "supersampleFactor": 4,
+    "pivotPx": [
+      128,
+      104
+    ],
+    "celScaleEnvelope": [
+      0.4,
+      0.6,
+      0.82,
+      1,
+      1,
+      0.96,
+      0.9,
+      0.8,
+      0.65,
+      0.45,
+      0.28,
+      0.18
+    ],
+    "celPngOpacities": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0.9,
+      0.8,
+      0.7,
+      0.6
+    ],
+    "preRollMs": 40,
+    "celDurationsMs": [
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      80,
+      100,
+      100,
+      100,
+      100
+    ],
+    "transparentTailMs": 400,
+    "direction": "ground-plane oval; fixed selected-cell pivot; no travel",
+    "techniques": [
+      "gran_spray"
+    ],
+    "trigger": "Once for a valid gran_spray selected cell in spiritSkill(a,skill,cell), after the skill banner and before the target loop; this is area-cast mist, not a confirmed individual damage-hit cue.",
+    "drawLayer": "ground after floor, before unit bodies; future integration",
+    "palette": "quiet turquoise/sapphire/aqua/pearl; one broad mist ring",
+    "integrationNote": "Replace generic gran_tide cast art only for gran_spray. Do not stack the generic wave or change cost, range, radius, sure-hit, damage, floor painting, upgrade behavior or empty-target handling. Place pivot at topOf(selectedCell). Current drawArtEffects stretches all art to tw*size by tw*size*1.2; use native 256x192 aspect and pivot-aware placement instead. This material is not connected to game code.",
+    "notFor": [
+      "gran_tide large wave",
+      "gran_mend or gran_ocean healing",
+      "gran_current self guard",
+      "spirit_departure",
+      "persistent status",
+      "enemy birth or death",
+      "individual confirmed hit or Chrome phase0 damage"
+    ],
+    "compatibilityCheckedCommit": "d8136b8467f93aed839261c5a02ca74728383792",
+    "originCheckedCommit": "d834eee855267bf8d9a08b6d40677d35a2ebc3cf",
+    "gameVersion": "1.5.0",
+    "continuousVisualPlayback": "NOT VERIFIED",
+    "actualGamePlacement": "NOT VERIFIED",
+    "sourceCropAlphaNote": {
+      "sourceAlphaExtrema": [
+        0,
+        254
+      ],
+      "fixedCropIsFullCanvas": true,
+      "omittedPixels": 0,
+      "leftCanvasAlphaMax": 1,
+      "leftCanvasNonzeroPixels": 6,
+      "note": "Keep the complete generated master unchanged, including six alpha1 pixels at the original left edge. No per-cel cleanup or noise deletion. Final cels must have alpha-zero24px padding."
+    },
+    "onsetNote": {
+      "firstVisibleAtMs": 40,
+      "initialScale": 0.4,
+      "note": "The mist ring appears at40% peak scale, not continuously from zero size.",
+      "firstGifWidthPx": 71,
+      "peakGifWidthPx": 176
+    },
+    "lateRasterTopology": {
+      "allVisibleGifCelsOneComponent": true,
+      "allVisibleGifCelsPivotHoleEnclosed": true,
+      "definition": "8-neighbor foreground components and4-neighbor flood fill of transparent(<96) background from fixed pivot; numeric raster topology, not motion playback",
+      "lastCel": 11,
+      "lastIntervalMs": [
+        980,
+        1080
+      ],
+      "lastGifBoxSizePx": [
+        32,
+        12
+      ],
+      "lastGifOpaquePixels": 192,
+      "note": "Numeric topology confirms one connected ring with an enclosed pivot hole in all12 visible GIF cels; does not establish motion readability."
+    },
+    "independentAudit": {
+      "verdict": "conditional material adoption PASS with notes",
+      "source": "parent-coordinated independent AI audit,delegated2026-10-05",
+      "confirmedNg": [],
+      "confirmed": {
+        "visibleGifCels": 12,
+        "allGifCelsOneComponent": true,
+        "allGifCelsCenterHoleRetained": true,
+        "oneShot": true,
+        "durationMs": 1480,
+        "fullyTransparentAfterMs": 1080,
+        "independentPngCelRgbaReconstructionMatches": 12,
+        "independentSheetRgbaReconstructionMatches": true,
+        "bothGifReconstructionByteMatches": true,
+        "singleGifMatchesZipEffectGif": true
+      },
+      "sheetVersusIndividualPngCels": {
+        "alphaMatches": true,
+        "visiblePixelsMatch": true,
+        "differencesRestrictedToHiddenRgbAtAlpha0": true
+      },
+      "notes": {
+        "pngMicroIslandsMaxAlpha": 4,
+        "notSeparateVisibleParticlesAtStaticDarkLightReview": true,
+        "png010PivotAlpha": 1,
+        "alphaScale": 255,
+        "brightFloorTailReadabilityWeak": true,
+        "initialScale": 0.4,
+        "initialAppearanceFromZero": false,
+        "visualInterpretation": "Condensed low water/mist ring with flowing broad color motifs; not diffuse atmospheric fog."
+      },
+      "continuousVisualPlayback": "NOT VERIFIED",
+      "actualGamePlacement": "NOT VERIFIED"
+    },
+    "compatibilityNote": "Publication rechecked against actual copied game1.5.0 and current origin d834eee. progression.js, board.js and art.js bytes match. gran_spray remains summon-route area spell, at8,cost3,range3,radius1,power0.9,paint1,sure:true. Upgrades0..+3 share this cast cue; original mechanics and all game/UI/CG work remain untouched.",
+    "renderingNote": "176px core width at tile80, about2.2tile widths. The oval is a stylized low mist cue, not an exact targeting-boundary overlay for the board th=tw*0.54. Future placement, overlap and bright-floor readability remain unverified.",
+    "pngPivotAlphaNote": {
+      "cel": 10,
+      "preOpacityAlpha": 1,
+      "alphaScale": 255,
+      "scope": "Lanczos resampling weak-AA at pivot; keep without pixel deletion. All GIF pivots must be fully transparent. Do not claim all PNG pivot alpha-zero."
+    },
+    "pngWeakAlphaIslands": {
+      "maxMinorComponentAlpha": 4,
+      "alphaScale": 255,
+      "cels": [
+        0,
+        2,
+        3,
+        4,
+        6,
+        7,
+        8
+      ],
+      "strictZeroIslands": false,
+      "note": "Weak AA islands retained; parent static dark/light audit found no separate visible particles. Do not claim strict zero islands."
+    },
+    "visualInterpretation": "Condensed low water/mist ring with flowing broad color motifs; not diffuse atmospheric fog.",
+    "sheetVsPngTransparencyNote": {
+      "alphaMatches": true,
+      "visiblePixelsMatch": true,
+      "differencesRestrictedToHiddenRgbAtAlpha0": true
+    }
+  }
+]

@@ -5896,5 +5896,407 @@
       "scope": "micro islands in weak-alpha antialias pixels",
       "strictZeroIslands": false
     }
+  },
+  "mistSet16": {
+    "assetCount": 1,
+    "checks": [
+      {
+        "id": "sea_mist_ring",
+        "pngCels": 12,
+        "uniquePngCels": 11,
+        "gifFrames": 14,
+        "durationMs": 1480,
+        "visibleEndMs": 1080,
+        "pngVisibleEndMs": 1080,
+        "loop": false,
+        "firstLastBlank": true,
+        "transparentTailMs": 400,
+        "pivotPx": [
+          128,
+          104
+        ],
+        "transparentClearancePx": 24,
+        "sourceRegistration": "one intended master center(768,512), confirmed hollow; no per-cel crop or centering",
+        "geometry": "one hollow master appears at 40% scale, grows then contracts at fixed selected-cell point; final GIF cel retains a small mist oval; topology measurement is separate",
+        "onsetNote": {
+          "firstVisibleAtMs": 40,
+          "initialScale": 0.4,
+          "note": "The mist ring appears at40% peak scale, not continuously from zero size.",
+          "firstGifWidthPx": 71,
+          "peakGifWidthPx": 176
+        },
+        "lateRasterTopology": {
+          "allVisibleGifCelsOneComponent": true,
+          "allVisibleGifCelsPivotHoleEnclosed": true,
+          "definition": "8-neighbor foreground components and4-neighbor flood fill of transparent(<96) background from fixed pivot; numeric raster topology, not motion playback",
+          "lastCel": 11,
+          "lastIntervalMs": [
+            980,
+            1080
+          ],
+          "lastGifBoxSizePx": [
+            32,
+            12
+          ],
+          "lastGifOpaquePixels": 192,
+          "note": "Numeric topology confirms one connected ring with an enclosed pivot hole in all12 visible GIF cels; does not establish motion readability."
+        },
+        "peakHold": {
+          "cels": [
+            3,
+            4
+          ],
+          "startMs": 280,
+          "endMs": 440
+        },
+        "pngPivotAlphas": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "gifPivotAlphaZeroAllCels": true,
+        "bodyOrDamageOrErasureDrawn": false,
+        "additionalParticleSystem": false,
+        "celRegistrations": [
+          {
+            "cel": 0,
+            "registeredCenterPx": [
+              128,
+              104
+            ],
+            "uniformScale": 0.05007112375533428,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              91,
+              90,
+              166,
+              121
+            ],
+            "pivotAlpha": 0
+          },
+          {
+            "cel": 1,
+            "registeredCenterPx": [
+              128,
+              104
+            ],
+            "uniformScale": 0.07510668563300142,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              73,
+              85,
+              184,
+              128
+            ],
+            "pivotAlpha": 0
+          },
+          {
+            "cel": 2,
+            "registeredCenterPx": [
+              128,
+              104
+            ],
+            "uniformScale": 0.10264580369843526,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              54,
+              79,
+              203,
+              136
+            ],
+            "pivotAlpha": 0
+          },
+          {
+            "cel": 3,
+            "registeredCenterPx": [
+              128,
+              104
+            ],
+            "uniformScale": 0.1251778093883357,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              38,
+              74,
+              219,
+              143
+            ],
+            "pivotAlpha": 0
+          },
+          {
+            "cel": 4,
+            "registeredCenterPx": [
+              128,
+              104
+            ],
+            "uniformScale": 0.1251778093883357,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              38,
+              74,
+              219,
+              143
+            ],
+            "pivotAlpha": 0
+          },
+          {
+            "cel": 5,
+            "registeredCenterPx": [
+              128,
+              104
+            ],
+            "uniformScale": 0.12017069701280227,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              42,
+              75,
+              216,
+              141
+            ],
+            "pivotAlpha": 0
+          },
+          {
+            "cel": 6,
+            "registeredCenterPx": [
+              128,
+              104
+            ],
+            "uniformScale": 0.11266002844950213,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              47,
+              77,
+              210,
+              139
+            ],
+            "pivotAlpha": 0
+          },
+          {
+            "cel": 7,
+            "registeredCenterPx": [
+              128,
+              104
+            ],
+            "uniformScale": 0.10014224751066857,
+            "pngOpacity": 1,
+            "alphaBoxPx": [
+              56,
+              79,
+              202,
+              136
+            ],
+            "pivotAlpha": 0
+          },
+          {
+            "cel": 8,
+            "registeredCenterPx": [
+              128,
+              104
+            ],
+            "uniformScale": 0.08136557610241821,
+            "pngOpacity": 0.9,
+            "alphaBoxPx": [
+              69,
+              83,
+              188,
+              130
+            ],
+            "pivotAlpha": 0
+          },
+          {
+            "cel": 9,
+            "registeredCenterPx": [
+              128,
+              104
+            ],
+            "uniformScale": 0.05633001422475106,
+            "pngOpacity": 0.8,
+            "alphaBoxPx": [
+              86,
+              89,
+              171,
+              123
+            ],
+            "pivotAlpha": 0
+          },
+          {
+            "cel": 10,
+            "registeredCenterPx": [
+              128,
+              104
+            ],
+            "uniformScale": 0.035049786628734,
+            "pngOpacity": 0.7,
+            "alphaBoxPx": [
+              101,
+              94,
+              155,
+              117
+            ],
+            "pivotAlpha": 1
+          },
+          {
+            "cel": 11,
+            "registeredCenterPx": [
+              128,
+              104
+            ],
+            "uniformScale": 0.022532005689900426,
+            "pngOpacity": 0.6,
+            "alphaBoxPx": [
+              110,
+              96,
+              147,
+              113
+            ],
+            "pivotAlpha": 0
+          }
+        ],
+        "gifOpaqueAreas": [
+          907,
+          2003,
+          3745,
+          5541,
+          5541,
+          5103,
+          4486,
+          3542,
+          2353,
+          1137,
+          446,
+          192
+        ],
+        "gifCoreComponentSizes": [
+          [
+            907
+          ],
+          [
+            2003
+          ],
+          [
+            3745
+          ],
+          [
+            5541
+          ],
+          [
+            5541
+          ],
+          [
+            5103
+          ],
+          [
+            4486
+          ],
+          [
+            3542
+          ],
+          [
+            2353
+          ],
+          [
+            1137
+          ],
+          [
+            446
+          ],
+          [
+            192
+          ]
+        ],
+        "gifVisibleComponents": 1,
+        "componentAdjacency": "8-neighbor; all 12 visible GIF cels",
+        "gifEndRgbMeans": [
+          170.0593568494121,
+          170.7985927880387,
+          171.9626307922272,
+          172.43055555555554
+        ],
+        "pngEndMethod": "uniform contraction and partial alpha",
+        "gifEndMethod": "contraction retaining source color; no RGB darkening",
+        "continuousVisualPlayback": "NOT VERIFIED",
+        "actualGamePlacement": "NOT VERIFIED"
+      }
+    ],
+    "sourceCropAlphaNote": {
+      "sourceAlphaExtrema": [
+        0,
+        254
+      ],
+      "fixedCropIsFullCanvas": true,
+      "omittedPixels": 0,
+      "leftCanvasAlphaMax": 1,
+      "leftCanvasNonzeroPixels": 6,
+      "note": "Keep the complete generated master unchanged, including six alpha1 pixels at the original left edge. No per-cel cleanup or noise deletion. Final cels must have alpha-zero24px padding."
+    },
+    "visualInterpretation": "Condensed low water/mist ring with flowing broad color motifs; not diffuse atmospheric fog.",
+    "sheetVsPngTransparencyNote": {
+      "alphaMatches": true,
+      "visiblePixelsMatch": true,
+      "differencesRestrictedToHiddenRgbAtAlpha0": true
+    },
+    "independentAudit": {
+      "verdict": "conditional material adoption PASS with notes",
+      "source": "parent-coordinated independent AI audit,delegated2026-10-05",
+      "confirmedNg": [],
+      "confirmed": {
+        "visibleGifCels": 12,
+        "allGifCelsOneComponent": true,
+        "allGifCelsCenterHoleRetained": true,
+        "oneShot": true,
+        "durationMs": 1480,
+        "fullyTransparentAfterMs": 1080,
+        "independentPngCelRgbaReconstructionMatches": 12,
+        "independentSheetRgbaReconstructionMatches": true,
+        "bothGifReconstructionByteMatches": true,
+        "singleGifMatchesZipEffectGif": true
+      },
+      "sheetVersusIndividualPngCels": {
+        "alphaMatches": true,
+        "visiblePixelsMatch": true,
+        "differencesRestrictedToHiddenRgbAtAlpha0": true
+      },
+      "notes": {
+        "pngMicroIslandsMaxAlpha": 4,
+        "notSeparateVisibleParticlesAtStaticDarkLightReview": true,
+        "png010PivotAlpha": 1,
+        "alphaScale": 255,
+        "brightFloorTailReadabilityWeak": true,
+        "initialScale": 0.4,
+        "initialAppearanceFromZero": false,
+        "visualInterpretation": "Condensed low water/mist ring with flowing broad color motifs; not diffuse atmospheric fog."
+      },
+      "continuousVisualPlayback": "NOT VERIFIED",
+      "actualGamePlacement": "NOT VERIFIED"
+    },
+    "pngWeakAlphaIslands": {
+      "maxMinorComponentAlpha": 4,
+      "alphaScale": 255,
+      "cels": [
+        0,
+        2,
+        3,
+        4,
+        6,
+        7,
+        8
+      ],
+      "strictZeroIslands": false,
+      "note": "Weak AA islands retained; parent static dark/light audit found no separate visible particles. Do not claim strict zero islands."
+    },
+    "pngPivotAlphaNote": {
+      "cel": 10,
+      "preOpacityAlpha": 1,
+      "alphaScale": 255,
+      "scope": "Lanczos resampling weak-AA at pivot; keep without pixel deletion. All GIF pivots must be fully transparent. Do not claim all PNG pivot alpha-zero."
+    }
   }
 }

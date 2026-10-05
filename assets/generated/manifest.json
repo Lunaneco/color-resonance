@@ -3,10 +3,10 @@
   "title": "Color Resonance ゲーム素材",
   "counts": {
     "characters": 18,
-    "effects": 36,
-    "sourceSheets": 54,
-    "pngCels": 532,
-    "gifs": 155
+    "effects": 37,
+    "sourceSheets": 55,
+    "pngCels": 544,
+    "gifs": 157
   },
   "production": {
     "generator": "built-in imagegen",
@@ -7791,6 +7791,136 @@
               "name": "剣光の縮退",
               "startMs": 260,
               "endMs": 500
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "sea_mist_ring",
+      "name": "潮霧の輪・低く広がる霧環",
+      "category": "fx",
+      "assetRole": "learned-area-sea-mist-cast",
+      "source": "source/sea_mist_ring.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "sheet": "sheets/sea_mist_ring.png",
+      "frames": [
+        "frames/sea_mist_ring/000.png",
+        "frames/sea_mist_ring/001.png",
+        "frames/sea_mist_ring/002.png",
+        "frames/sea_mist_ring/003.png",
+        "frames/sea_mist_ring/004.png",
+        "frames/sea_mist_ring/005.png",
+        "frames/sea_mist_ring/006.png",
+        "frames/sea_mist_ring/007.png",
+        "frames/sea_mist_ring/008.png",
+        "frames/sea_mist_ring/009.png",
+        "frames/sea_mist_ring/010.png",
+        "frames/sea_mist_ring/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          256,
+          192
+        ],
+        "order": "row-major"
+      },
+      "pivotPx": [
+        128,
+        104
+      ],
+      "scaleReferenceTileWidthPx": 80,
+      "direction": "ground-plane oval; fixed selected-cell pivot; no travel",
+      "triggerCondition": "Once for a valid gran_spray selected cell in spiritSkill(a,skill,cell), after the skill banner and before the target loop; this is area-cast mist, not a confirmed individual damage-hit cue.",
+      "techniques": [
+        "gran_spray"
+      ],
+      "productionSet": "mist-set-16",
+      "animations": {
+        "effect": {
+          "name": "潮霧の輪・低く広がる霧環",
+          "sequence": [
+            null,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            null
+          ],
+          "durationsMs": [
+            40,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            100,
+            100,
+            100,
+            100,
+            400
+          ],
+          "frameStartsMs": [
+            0,
+            40,
+            120,
+            200,
+            280,
+            360,
+            440,
+            520,
+            600,
+            680,
+            780,
+            880,
+            980,
+            1080
+          ],
+          "loop": false,
+          "gif": "gifs/sea_mist_ring/effect.gif",
+          "size": [
+            256,
+            192
+          ],
+          "gifFrameCount": 14,
+          "durationMs": 1480,
+          "gifRepeatsForPreview": false,
+          "gifAlphaThreshold": 96,
+          "previewGif": "gifs/sea_mist_ring/preview.gif",
+          "visibleEndMs": 1080,
+          "pngVisibleEndMs": 1080,
+          "gifTransparentTailMs": 400,
+          "phases": [
+            {
+              "name": "潮霧が現れ広がる",
+              "startMs": 40,
+              "endMs": 280
+            },
+            {
+              "name": "ピーク保持",
+              "startMs": 280,
+              "endMs": 440
+            },
+            {
+              "name": "選択地点に閉じる",
+              "startMs": 440,
+              "endMs": 1080
             }
           ]
         }
