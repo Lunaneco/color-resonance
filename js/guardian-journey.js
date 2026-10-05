@@ -6,7 +6,7 @@ const GuardianJourney = (() => {
     return Engine.unlocked().includes(chapter);
   }
   const pathDone=p=>!!(Board.party.stages[p.pathId]?.cleared||p.legacy&&Board.party.stages[p.bossId]?.cleared);
-  const mission=m=>({turns:`${m.n}ターン以内にクリア`,hp:`アリアのHP ${m.n}%以上`,rainbow:`虹の床 ${m.n}%以上`,dullMax:`くすみを一度も${m.n}%にしない`,enchantKill:`宿した心剣で${m.n}体倒す`,back:`背後から${m.n}回命中`,summonKill:`召喚した精霊で${m.n}体倒す`,bossLast:'ほかの影を払い、最後にボスの穢れをほどく',guardianVoice:'3段階の声を取り戻す'})[m.type]||'戦場のミッションを達成';
+  const mission=m=>({turns:`${m.n}ターン以内にクリア`,hp:`アリアのHP ${m.n}%以上`,rainbow:`虹の床 ${m.n}%以上`,dullMax:`くすみを${m.n}%未満に保つ`,enchantKill:`宿した心剣で${m.n}体倒す`,back:`背後から${m.n}回命中`,summonKill:`召喚した精霊で${m.n}体倒す`,bossLast:'ほかの影を払い、最後にボスの穢れをほどく',guardianVoice:'3段階の声を取り戻す',teamHP:`二人のHPをそれぞれ${m.n}%以上残す`,purify:`浄化を${m.n}回使う`})[m.type]||'戦場のミッションを達成';
   function history(records,id) {
     const p=GuardianCombat.profile(id);if(!p)return;
     Panel.open(p.name+'・戦場の声',`<div class="gj-voices"><header>${GameArt.portrait(p.art)}<div><small>切るのは穢れだけ</small><h2>${p.name}</h2><p>${p.counter}</p></div></header><p>「!」の予告は次の敵の手番に発動します。予告の床を虹にすると、床の侵食・傷・追加効果を防げます。HPが2/3・1/3になると、残った穢れが外へ広がり、行動と予告が変わります。</p>${records.map(rec=>`<section><h3>${rec.phase===3?'穢れをほどいた後':`${['Ⅰ','Ⅱ','Ⅲ'][rec.phase]} · ${GuardianCombat.phaseNames[rec.phase]}`}</h3>${rec.lines.map(([who,text])=>`<p><b>${who}</b><span>${text}</span></p>`).join('')}</section>`).join('')}</div>`);
@@ -29,7 +29,7 @@ const GuardianJourney = (() => {
     const key=Progression.selected(Board.party,id),reward=Progression.rewards(c,key);
     Panel.open(c.title,`<div class="gj-stage">${GameArt.portrait(p.art)}<small>${c.act} · ${c.guardian?'精霊ボス戦':'通常戦'}</small><h2>${c.title}</h2><p>${c.desc}</p><div class="gj-diff" role="group" aria-label="戦場の難易度">${Object.entries(Progression.difficulties).map(([d,value])=>`<button data-gj-diff="${d}" aria-pressed="${key===d}"><b>${value.name}</b><small>適正LV ${Progression.level(c,d)}</small></button>`).join('')}</div><p>${c.guardian?'穢れHPの2/3・1/3で理性が戻り、くすみが広がる。予告を避けるか、虹の床に戻して防ぐ。':'すべての影を払い、守り手への道を開く。'}${c.postgame?'アリアと人間クロムをそれぞれ操作できます。':''}</p><div class="gj-loot"><b>クリア素材</b>${InventoryArt.chips(Progression.battleMaterials(c,key),'×')}<b>${Progression.difficulties[key].name}の初S報酬</b>${reward.sEquipment?InventoryArt.icon(reward.sEquipment)+EQUIP[reward.sEquipment].name:InventoryArt.chips(reward.sItems,'×')}<small>各ミッション初達成でも素材。各難易度の初Sで澄明の核×1。</small></div><button id="gjBack">章の戦場へ戻る</button></div>`,{footer:'<button class="btn-main" id="gjSortie">この戦場へ出発</button>'});
     Panel.body().querySelectorAll('[data-gj-diff]').forEach(b=>b.onclick=()=>{Board.party.stageDifficulty[id]=b.dataset.gjDiff;Board.saveParty();stage(id);});
-    const missions=document.createElement('div');missions.className='gj-missions';missions.innerHTML='<b>S評価の条件</b><ul>'+c.missions.map(m=>'<li>'+mission(m)+'</li>').join('')+'</ul>';
+    const missions=document.createElement('div');missions.className='gj-missions';missions.innerHTML='<b>S評価の条件</b><ul>'+c.missions.map(m=>'<li>'+mission(m)+'</li>').join('')+'</ul>'+(c.missionGuide?`<p class="wp-note gj-mission-guide">${c.missionGuide}</p>`:'');
     Panel.body().querySelector('.gj-loot').before(missions);
     document.getElementById('gjBack').onclick=()=>open(p.chapter);
     document.getElementById('gjSortie').onclick=()=>{

@@ -62,11 +62,11 @@ RESTORATION_CHAPTERS.forEach((ch, i) => {
       [{ kind: 'boss', lv: ch.lv + 1 }, { kind: 'shade', lv: ch.lv, n: 3 }, { kind: 'lead', lv: ch.lv, n: 2 }, { kind: 'thorn', lv: ch.lv, n: 2 }],
       [{ kind: 'boss', lv: ch.lv + 1 }, { kind: 'lead', lv: ch.lv, n: 3 }, { kind: 'membrane', lv: ch.lv, n: 4 }],
     ][Math.min(i, 6)],
-    missions: [{ type: 'turns', n: 16 + Math.floor(i / 2) },
-      [{ type: 'teamHP', n: 40 }, { type: 'noItem' }, { type: 'back', n: 2 }, { type: 'enchantKill', n: 2 }, { type: 'noDown' }, { type: 'bossLast' }, { type: 'skillUse', n: 2 }][Math.min(i, 6)], { type: 'purify', n: 2 }],
+    missions: [{ type: 'turns', n: 14 + Math.floor(i / 2) },
+      [{ type: 'teamHP', n: 60 }, { type: 'noItem' }, { type: 'back', n: 3 }, { type: 'enchantKill', n: 3 }, { type: 'noDown' }, { type: 'bossLast' }, { type: 'skillUse', n: 3 }][Math.min(i, 6)], { type: 'purify', n: 3 }],
     ...(i === 7 ? { cols: 12, rows: 10, restoreBeacons: 3, bossShield: true, bossArt: 'achroma', bossName: '均彩の管理者アクロマ', bossSkill: '均彩の校正', bossHP: 1.6, spawnCap: 8,
       enemies: [{ kind: 'boss', lv: 34 }, { kind: 'membrane', lv: 30, n: 3 }, { kind: 'lead', lv: 30, n: 2 }, { kind: 'thorn', lv: 30, n: 2 }],
-      missions: [{ type: 'turns', n: 22 }, { type: 'teamHP', n: 40 }, { type: 'purify', n: 3 }] } : {}),
+      missions: [{ type: 'turns', n: 20 }, { type: 'teamHP', n: 65 }, { type: 'purify', n: 4 }] } : {}),
   });
   BOARDS[ch.key] = conf; RESTORATION_STAGES[ch.key] = conf;
 });
@@ -96,7 +96,7 @@ const LEGEND_QUESTS = [
   ['lg_night', '宙を織る断崖', '星見の崖', 'f_stars', 41, 'stars', 'u_legend_night', '夜そのものを消す白い膜。星が見える暗さを守り抜く。'],
 ].map(([id, title, district, town, lv, bg, unique, desc]) => restorationStage(id, title, lv, bg, { act: '伝説級クエスト', district, town, gate: 0, desc, unique, hardOnly: true, restoreBeacons: 3, bossShield: true, bossHP: 1.35, spawnCap: 9, cols: 12, rows: 11,
   enemies: [{ kind: 'boss', lv: lv + 3, armor: 2 }, { kind: 'lead', lv, n: 3 }, { kind: 'thorn', lv, n: 3 }, { kind: 'membrane', lv, n: 3 }],
-  missions: [{ type: 'turns', n: 22 }, { type: 'teamHP', n: 50 }, { type: 'noDown' }], difficulty: 'hard' }));
+  missions: [{ type: 'turns', n: 20 }, { type: 'teamHP', n: 65 }, { type: 'noDown' }], difficulty: 'hard' }));
 [...RESTORATION_REQUESTS, ...LEGEND_QUESTS].forEach(c => RESTORATION_STAGES[c.id] = c);
 // どちらも正解。選んだ先を修理簿と後の会話に残す。
 CHOICES.restorationPriority = { prompt: '明日の修理、どちらから始める？', options: [

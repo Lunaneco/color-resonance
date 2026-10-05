@@ -47,7 +47,7 @@ const BOARDS = {
     loseText: '黒いにじみが、入り江を覆った。',
   },
   gran: {
-    id: 'gran', missions: [{ type: 'turns', n: 11 }, { type: 'hp', n: 50 }, { type: 'guardianVoice', n: 3 }], unique: 'u_bell',
+    id: 'gran', missions: [{ type: 'turns', n: 11 }, { type: 'hp', n: 65 }, { type: 'back', n: 2 }], unique: 'u_bell',
     act: '第一幕', title: 'グラン・オーシャン', cols: 10, rows: 10, recLv: 2, par: 11, spStart: 3, dullStart: 0.1,
     map: { low: ['sea_flat', 'sea_calm', 'sea_wave1', 'sea_flat', 'sea_calm', 'sea_shallow', 'sea_wave2'], mid: ['land_flat'], high: ['land_high'], water: 'sea_deep', waterAmt: 0.08, hills: 0.24, obstacles: ['rocks'], obsAmt: 0.03 },
     enemies: [{ kind: 'boss', lv: 4 }, { kind: 'shade', lv: 2, n: 3 }, { kind: 'shade', lv: 3, n: 2 }],
@@ -65,7 +65,7 @@ const BOARDS = {
     loseText: '穢れが鯨を覆いきり、波がもう一度、立ち上がった。',
   },
   ivy: {
-    id: 'ivy', missions: [{ type: 'turns', n: 11 }, { type: 'enchantKill', n: 2 }, { type: 'back', n: 2 }], unique: 'u_vine',
+    id: 'ivy', missions: [{ type: 'turns', n: 11 }, { type: 'enchantKill', n: 2 }, { type: 'dullMax', n: 70 }], unique: 'u_vine',
     act: '第三幕', title: 'シルキー・アイビー', cols: 10, rows: 10, recLv: 5, par: 11, spStart: 4, dullStart: 0.12,
     map: { low: ['land_flat', 'land_flat', 'sea_shallow', 'land_flat'], mid: ['land_step', 'land_flat'], high: ['land_high'], water: 'sea_deep', waterAmt: 0.04, hills: 0.32, obstacles: ['mt_small', 'rocks'], obsAmt: 0.05 },
     enemies: [{ kind: 'boss', lv: 7 }, { kind: 'thorn', lv: 5, n: 3 }, { kind: 'shade', lv: 5, n: 2 }],
@@ -86,7 +86,7 @@ const BOARDS = {
     loseText: '茨の檻が閉じ、ルミナの光が消えかけた。',
   },
   spinel: {
-    id: 'spinel', missions: [{ type: 'turns', n: 12 }, { type: 'summonKill', n: 1 }, { type: 'hp', n: 40 }], unique: 'u_kintsugi',
+    id: 'spinel', missions: [{ type: 'turns', n: 12 }, { type: 'summonKill', n: 1 }, { type: 'dullMax', n: 75 }], unique: 'u_kintsugi',
     act: '第四幕', title: '鉛のドーム', cols: 10, rows: 10, recLv: 8, par: 12, spStart: 5, dullStart: 0.14,
     map: { low: ['land_flat', 'land_flat', 'land_flat', 'sea_shallow'], mid: ['land_step', 'land_flat'], high: ['land_high'], water: null, hills: 0.4, obstacles: ['mt_mid', 'rocks', 'mt_small'], obsAmt: 0.06 },
     enemies: [{ kind: 'boss', lv: 10, armor: 3 }, { kind: 'lead', lv: 8, n: 4 }, { kind: 'shade', lv: 8, n: 2 }],
@@ -106,7 +106,7 @@ const BOARDS = {
     loseText: '鉛のドームが、渓谷を呑みこんだ。',
   },
   king: {
-    id: 'king', missions: [{ type: 'turns', n: 13 }, { type: 'bossLast' }, { type: 'rainbow', n: 55 }], unique: 'u_palette',
+    id: 'king', missions: [{ type: 'turns', n: 13 }, { type: 'bossLast' }, { type: 'rainbow', n: 60 }], unique: 'u_palette',
     act: '第五幕', title: 'パレット王', cols: 11, rows: 11, recLv: 11, par: 13, spStart: 6, dullStart: 0.16,
     map: { low: ['land_flat', 'sea_flat', 'land_flat', 'sea_calm', 'sea_shallow'], mid: ['land_step', 'land_flat'], high: ['land_high'], water: 'sea_deep', waterAmt: 0.05, hills: 0.34, obstacles: ['mt_mid', 'mt_small', 'rocks'], obsAmt: 0.05 },
     enemies: [{ kind: 'boss', lv: 13, armor: 2 }, { kind: 'shade', lv: 11, n: 3 }, { kind: 'thorn', lv: 11, n: 2 }, { kind: 'lead', lv: 11, n: 2 }],
@@ -126,7 +126,7 @@ const BOARDS = {
     loseText: '漆黒が、玉座の間を塗りつぶした。',
   },
   chrome: {
-    id: 'chrome', missions: [{ type: 'turns', n: 10 }, { type: 'noDown' }, { type: 'rainbow', n: 50 }], unique: 'u_nightsky',
+    id: 'chrome', missions: [{ type: 'turns', n: 10 }, { type: 'noDown' }, { type: 'rainbow', n: 60 }], unique: 'u_nightsky',
     act: '終章', title: 'クロム', cols: 10, rows: 10, recLv: 14, par: 9, spStart: 6, inverted: true, phase0: true,
     map: { low: ['sea_flat', 'sea_calm', 'sea_flat', 'sea_shallow'], mid: ['land_flat'], high: ['land_high'], water: 'sea_deep', waterAmt: 0.05, hills: 0.25, obstacles: ['rocks'], obsAmt: 0.03 },
     enemies: [{ kind: 'chrome', lv: 15 }, { kind: 'membrane', lv: 13, n: 6, phase: 1 }],

@@ -335,7 +335,7 @@ const World = (() => {
       turns: `${m.n}ターン以内にクリア`, hp: `アリアのHPを${m.n}%以上残す`, back: `背後から${m.n}回攻撃する`, crit: `会心の一撃を${m.n}回出す`,
       summonKill: `召喚した精霊で${m.n}体倒す`, enchantKill: `精霊を宿した心剣で${m.n}体倒す`, flashMulti: '透明の一閃で2体を同時に斬る',
       noSpirit: '精霊の力を借りずにクリア', noItem: '道具を使わずにクリア', noDown: '召喚した精霊を倒させない',
-      rainbow: `クリア時に${f[0]}の床${m.n}%以上`, dullMax: `${f[1]}を一度も${m.n}%にしない`, bossLast: '核を最後に倒す', guardianVoice: '守り手の理性を3段階取り戻す',
+      rainbow: `クリア時に${f[0]}の床${m.n}%以上`, dullMax: `${f[1]}を${m.n}%未満に保つ`, bossLast: '核を最後に倒す', guardianVoice: '守り手の理性を3段階取り戻す',
       spiritUse: `${Progression.spirits[m.spirit]?.name}の力を${m.n}回使う`, skillUse: `${m.spirit ? Progression.spirits[m.spirit].name + 'から' : ''}覚えた技を${m.n}回使う`,
     })[m.type] || '';
   }
@@ -369,7 +369,7 @@ const World = (() => {
       const rewards = Progression.rewards(conf, key), u = EQUIP[rewards.sEquipment];
       const got = rewards.sEquipment && party.owned.includes(rewards.sEquipment);
       body += `<div class="wp-info"><span>適正LV <b>${lv}</b></span><span>最高ランク <b class="r${record && record.best || 'none'}">${record && record.best || '—'}</b></span><span>クリア <b>${record?.clears || 0}</b>回</span></div>
-        <div class="wp-sec">ミッション<small>${Progression.difficulties[key].name}の実績</small></div>${missionsHtml(conf, record)}
+        <div class="wp-sec">ミッション<small>${Progression.difficulties[key].name}の実績</small></div>${missionsHtml(conf, record)}${conf.missionGuide ? `<p class="wp-note wp-mission-guide">${conf.missionGuide}</p>` : ''}
         ${u ? `<div class="wp-unique ${got ? 'got' : ''}" data-reward-kind="${u.unique ? 'unique' : 'equipment'}">${InventoryArt.icon(rewards.sEquipment)}<small>${Progression.difficulties[key].name}のS評価 · ${u.unique ? 'ユニーク装備' : '通常装備'}${record?.sRewardClaimed ? ' · 受取済み' : ''}</small><b>${u.name}${got ? ' · 所持済み' : ''}</b><span>${u.desc}</span>${!u.unique && !record?.sRewardClaimed ? '<small>所持済みなら価格の半分をしずくで受け取れます</small>' : ''}</div>` : ''}
         ${Object.keys(rewards.sItems).length ? `<div class="wp-unique ${record?.sRewardClaimed ? 'got' : ''}" data-reward-kind="items"><small>やさしいのS評価 · アイテム${record?.sRewardClaimed ? ' · 受取済み' : ''}</small><b>${InventoryArt.chips(rewards.sItems, '×')}</b></div>` : ''}`;
       const clearMaterials = Progression.battleMaterials(conf, key), gem = Object.keys(clearMaterials).find(id => id !== 'm_dust');

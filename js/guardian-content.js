@@ -70,6 +70,35 @@ const GUARDIANS = [
     skills:['欠けた星目盛り','重なる星環','違う星の軌道'], counter:'星環の目盛りが順にずれる。虹にした床では共鳴を守れる。',
     lines:[[['アステル','……ゴサ、ゼロ……ゴサ……'],['ルノワール','測れなかった色も、そこにある。']], [['アステル','全部……違う。間違い、なの？'],['アリア','違うことは、間違いじゃない。']], [['アステル','次の星環がずれる。光っていない目盛りへ'],['クロム','その違う星を、消さずに行く。']]], freed:'僕は管理者の答えじゃない。違う星を、違うまま見ていく。' },
 ];
+// 広域・持続侵食はピーク制限を避け、局所侵食は対処する余地を残した上限にする。
+const GUARDIAN_BOSS_GOALS = {
+  tokinel: [{type:'turns',n:12},{type:'hp',n:60},{type:'enchantKill',n:2}],
+  nephra: [{type:'turns',n:14},{type:'hp',n:65},{type:'rainbow',n:45}],
+  farol: [{type:'turns',n:13},{type:'teamHP',n:65},{type:'back',n:3}],
+  rivela: [{type:'turns',n:13},{type:'teamHP',n:60},{type:'enchantKill',n:2}],
+  pomela: [{type:'turns',n:14},{type:'teamHP',n:60},{type:'dullMax',n:80}],
+  folio: [{type:'turns',n:14},{type:'teamHP',n:65},{type:'back',n:3}],
+  fiamma: [{type:'turns',n:14},{type:'teamHP',n:60},{type:'rainbow',n:50}],
+  lucerna: [{type:'turns',n:13},{type:'teamHP',n:65},{type:'back',n:3}],
+  coronel: [{type:'turns',n:14},{type:'teamHP',n:65},{type:'enchantKill',n:2}],
+  aster: [{type:'turns',n:14},{type:'teamHP',n:65},{type:'purify',n:3}],
+};
+const GUARDIAN_MISSION_GUIDES = {
+  gran:'潮線は広く侵食するため、くすみ上限はありません。背後から2回攻撃し、HP65%以上を守って穢れをほどこう。',
+  tokinel:'交互の目盛りから離れ、グランを宿した心剣で影を2体倒そう。共鳴を奪われる前に宿すのが鍵。',
+  ivy:'蔦の輪は局所的です。グランを宿した攻撃で床を澄ませ、くすみ70%未満を守りながら影を2体倒そう。',
+  spinel:'殻の環を虹に戻し、召喚した精霊で1体倒そう。段階変化の侵食を見越して、くすみ75%未満を守る。',
+  king:'斜めの光は広く侵食するため、途中のくすみ上限はありません。影を先に払い、虹の床60%以上で王の穢れをほどこう。',
+  nephra:'縁の侵食は途中の割合で判定しません。虹の道を45%以上残し、HP65%以上で夜を渡ろう。',
+  farol:'灯列の侵食量は判定しません。二人ともHP65%以上を保ち、潮線の横から背後攻撃を3回当てよう。',
+  rivela:'二本の水路から離れ、二人のHP60%以上を守ろう。宿した心剣か四響の剣で2体倒す。',
+  pomela:'小さな戦場の苗輪は、二人の浄化で抑えられます。くすみ80%未満・二人のHP60%以上を守ろう。',
+  folio:'頁の線から離れ、二人ともHP65%以上を保とう。守りに頼りすぎず、背後攻撃を3回当てる。',
+  fiamma:'持続する火床に途中のくすみ上限はありません。二人で浄化し、HP60%以上・虹の床50%以上を残そう。',
+  lucerna:'扇の外へ回り、背後から3回攻撃しよう。二人ともHP65%以上を保つ。',
+  coronel:'行進線を避け、二人のHP65%以上を守ろう。宿した心剣か四響の剣で2体倒し、殻を崩す。',
+  aster:'星環から離れ、二人のHP65%以上を守ろう。浄化を3回使い、予告の床を澄ませる。',
+};
 const GUARDIAN_STAGES = {};
 GUARDIANS.forEach((p, i) => {
   p.art = p.legacy ? p.id : 'guardian_' + p.id;
@@ -88,8 +117,9 @@ GUARDIANS.forEach((p, i) => {
     missions:[{type:'turns',n:12},{type:'hp',n:45},{type:'rainbow',n:30}], intro:{who:'アリア',text:'道をふさぐ影を切り分けよう。<small>通常戦のあと、土地の精霊へ声を届ける。</small>'} };
   let boss = { ...shared, id:p.bossId, title:p.name+'・穢れをほどく', desc:p.counter, guardian:p.id, bossArt:p.art, bossName:'汚染された'+p.name, bossHP:1.05, spawnCap:3,
     enemies:[{kind:'boss',lv:p.lv},{kind:'shade',lv:Math.max(1,p.lv-1),n:2}], unique:p.unique,
-    missions:[{type:'turns',n:16},{type:'hp',n:40},{type:'guardianVoice',n:3}], intro:{who:'戦場の声',text:p.lines[0].map(([who,text])=>`<b>${who}</b> ${text}`).join('<br>')+'<small>穢れHPの2/3・1/3で段階が変わる。予告の床を虹にすると、特殊攻撃を防げる。</small>'} };
+    missions:GUARDIAN_BOSS_GOALS[p.id], intro:{who:'戦場の声',text:p.lines[0].map(([who,text])=>`<b>${who}</b> ${text}`).join('<br>')+'<small>穢れHPの2/3・1/3で段階が変わる。予告の床を虹にすると、特殊攻撃を防げる。</small>'} };
   if(p.legacy){boss={...ref,guardian:p.id,guardianRoute:p.id,bossArt:p.art,bossName:'汚染された'+p.name,beats:[],desc:p.counter,intro:boss.intro,material:p.material,theme:shared.theme};}
+  boss.missionGuide=GUARDIAN_MISSION_GUIDES[p.id];
   GUARDIAN_STAGES[path.id]=path; GUARDIAN_STAGES[boss.id]=boss; BOARDS[path.id]=path; BOARDS[boss.id]=boss;
   const encounter=`\n@aura none\n${p.prelude}\n@board ${path.id}\n影の奥に、${p.name}がいた。口から出る声は、まだ言葉にならない。\nアリア「あなたの色を傷つけずに、絡みついたものをほどく」\n@board ${boss.id}\n${p.name}「${p.freed}」\n${p.returnLine}\n`;
   if(p.legacy){SCRIPT[p.chapter]=SCRIPT[p.chapter].replace('@pouch show','@pouch show\n'+p.prelude+'\n@board '+path.id+'\n'+p.returnLine+'\n');}

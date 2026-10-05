@@ -2228,7 +2228,7 @@ const Board = (() => {
       case 'noItem': return '道具を使わずにクリア';
       case 'noDown': return '召喚した精霊を倒させない';
       case 'rainbow': return `クリア時に${f[0]}の床${m.n}%以上`;
-      case 'dullMax': return `${f[1]}を一度も${m.n}%にしない`;
+      case 'dullMax': return `${f[1]}を${m.n}%未満に保つ`;
       case 'bossLast': return '核を最後に倒す';
       case 'spiritUse': return `${SPIRITS[m.spirit].name}の力を${m.n}回使う`;
       case 'skillUse': return `${m.spirit ? SPIRITS[m.spirit].name + 'から' : ''}覚えた技を${m.n}回使う`;

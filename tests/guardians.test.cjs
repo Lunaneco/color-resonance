@@ -25,14 +25,22 @@ test('Every HP threshold, armour phase and fourteen distinct forecasts use walka
  for(const p of checks){for(const plan of p.plans){assert(plan.length);assert.equal(new Set(plan.map(c=>c.r+','+c.c)).size,plan.length);assert(plan.every(c=>c.r>=0&&c.r<10&&c.c>=0&&c.c<10&&(c.r||c.c)));}assert(p.modes[2].power<p.modes[0].power);assert.equal(p.modes[2].rng[1],3);}
  assert.deepEqual(checks.find(p=>p.id==='spinel').modes.map(m=>m.armor),[3,2,0]);
 });
-test('Boss missions permit phase pollution without a permanent dullness failure',async()=>{
+test('Boss mission limits follow local hazards, available allies and active tactical goals',async()=>{
  const c=await content();vm.runInContext((await fs.readFile(path.join(root,'js/world.js'),'utf8')).split('const World =')[0],c);
  const boards=JSON.parse(vm.runInContext('JSON.stringify([...Object.values(BOARDS),...Object.values(SIDE_QUESTS),...Object.values(RESTORATION_STAGES),...Object.values(FREE_STAGES)])',c));
  const bosses=boards.filter(b=>b.enemies.some(e=>['boss','chrome'].includes(e.kind)));
  for(const id of ['gran','chrome','restore8','lg_night','q_echo','f_void'])assert(bosses.some(b=>b.id===id),id+' is audited');
- for(const b of bosses)assert(!b.missions.some(m=>m.type==='dullMax'),b.id+' must allow scripted pollution');
- const gran=boards.find(b=>b.id==='gran');assert.deepEqual(gran.missions.map(m=>m.type),['turns','hp','guardianVoice']);
- assert.equal(gran.missions[2].n,3);assert.equal(gran.unique,'u_bell');
+ const limits={ivy:70,spinel:75,gb_pomela:80};
+ for(const b of bosses)for(const m of b.missions.filter(m=>m.type==='dullMax'))assert.equal(m.n,limits[b.id],b.id+' has a justified local pollution limit');
+ for(const [id,n] of Object.entries(limits))assert(boards.find(b=>b.id===id).missions.some(m=>m.type==='dullMax'&&m.n===n));
+ const gran=boards.find(b=>b.id==='gran');assert.deepEqual(gran.missions.map(m=>m.type),['turns','hp','back']);assert.equal(gran.missions[1].n,65);assert.equal(gran.unique,'u_bell');
+ for(const b of boards.filter(b=>b.guardian)){
+  assert.equal(b.missions.length,3);assert(!b.missions.some(m=>['guardianVoice','crit'].includes(m.type)),b.id+' requires player tactics, not automatic phases or luck');
+  assert(b.missionGuide.length>20);assert(b.missions[0].n>=11&&b.missions[0].n<=14);
+  const enemies=b.enemies.reduce((n,e)=>n+(e.n||1),0);
+  for(const m of b.missions){if(['enchantKill','summonKill'].includes(m.type))assert(m.n<=enemies);if(m.type==='teamHP'||m.type==='purify')assert(b.postgame,'Two heroes and purification must be available');}
+ }
+ for(const b of boards.filter(b=>/^restore[1-8]$/.test(b.id))){assert(b.missions.some(m=>m.type==='purify'&&m.n>b.restoreBeacons),'S purification exceeds the required beacon count');}
 });
 test('All routes use valid illustrated rewards, original boss art and ten native transparent new sprites',async()=>{
  const c=await content(),manifest=JSON.parse(await fs.readFile(path.join(root,'assets/generated/manifest.json'),'utf8')),quality=JSON.parse(await fs.readFile(path.join(root,'assets/generated/quality-guardians.json'),'utf8'));
@@ -45,16 +53,17 @@ let server,base,browsers;
 const hook=`__guardianQA:{
  ready:()=>running&&!busy&&!paused&&!over,
  state(){return {turn,rotation:viewRotation,sp,over,cfg:cfg.id,difficulty,tw,stats:{...stats},history:guardianHistory,units:units.filter(u=>!u.hidden).map(u=>({id:u.id,kind:u.kind,side:u.side,name:u.name,art:u.artId||u.kind,guardian:u.guardian,phase:u.guardianPhase,hp:u.hp,mhp:u.mhp,atk:u.atk,armor:u.armor,guard:u.guard,root:u.root,r:u.r,c:u.c,dir:u.dir,dead:u.dead,moved:u.moved,acted:u.acted,intent:u.intent?[...u.intent.ids]:null,...toScreen(unitXY(u).x,unitXY(u).y-tw*u.hgt*.5)})),cells:cells.map(c=>({r:c.r,c:c.c,floor:c.floor,walk:c.walk,...toScreen(topOf(c).x,topOf(c).y)}))};},
- arrange(){Math.random=()=>.5;Object.assign(ariaU(),{r:5,c:4,dir:0,atk:9999,def:999,hp:1000,mhp:1000});const e=live().find(u=>u.guardian);Object.assign(e,{r:4,c:4,dir:2,hp:300,mhp:300,def:0});cells.forEach(c=>paint(c,'neutral'));guardianIntent(e);refreshHud();select(ariaU(),true);},
+ arrange(rear=false){Math.random=()=>.5;Object.assign(ariaU(),{r:5,c:4,dir:0,atk:9999,def:999,hp:1000,mhp:1000});const e=live().find(u=>u.guardian);Object.assign(e,{r:4,c:4,dir:rear?0:2,hp:300,mhp:300,def:0});cells.forEach(c=>paint(c,'neutral'));guardianIntent(e);refreshHud();select(ariaU(),true);},
  strike(){const e=live().find(u=>u.guardian);strike(ariaU(),e,{sure:true,noCrit:true});refreshHud();},
  heal(){const e=live().find(u=>u.guardian);e.hp=e.mhp;guardianTransition(e);refreshHud();},
  setIntent(safe){const e=live().find(u=>u.guardian);const a=ariaU();e.intent={turn,phase:e.guardianPhase,ids:new Set([idx(a.r,a.c)])};paint(cellOf(a),safe?'rainbow':'neutral');refreshHud();},
  resolve(){return runTask(guardianResolve(live().find(u=>u.guardian)));},
  next(){return runTask(playerPhase());},
  fall(){return runTask(defeat(ariaU()));},
- finish(){units.filter(u=>u.side==='enemy').forEach(u=>u.dead=true);stats.guardianVoices=3;stats.purify=3;stats.back=3;stats.dullMax=0;stats.enchantKills=3;stats.summonKills=3;cells.forEach(c=>paint(c,'rainbow'));win();},
+ finish(peak=0){units.filter(u=>u.side==='enemy').forEach(u=>u.dead=true);stats.guardianVoices=3;stats.purify=3;stats.back=3;stats.dullMax=peak/100;stats.enchantKills=3;stats.summonKills=3;cells.forEach(c=>paint(c,'rainbow'));win();},
  pollute(){cells.forEach(c=>paint(c,'dull'));refreshHud();},
  winPolluted(){units.filter(u=>u.side==='enemy').forEach(u=>u.dead=true);win();},
+ pollution(value){stats.dullMax=value/100;renderMissions();return (cfg.missions||[]).map(m=>missionState(m,true));},
  reach(){const seen=flood(cellOf(ariaU()));return {foes:live().filter(u=>u.side==='enemy').length,unreachable:live().filter(u=>!seen.has(cellOf(u))).length};}
 }, `;
 before(async()=>{
@@ -79,17 +88,17 @@ for(const engine of ['chromium','webkit']){
     Board.party.stages.gran={...old,difficulties:{hard:{...old}}};Board.party.stageDifficulty.gran='hard';Board.party.pos='belfry';Board.saveParty();World.open();
     Object.assign(BOARDS.gran,{cols:8,rows:8,map:{low:['land_flat'],mid:['land_flat'],high:['land_flat'],hills:0,obsAmt:0,waterAmt:0},enemies:[{kind:'boss',lv:1}],intro:null});
    });
-   assert.match(await page.locator('#wmPanel .wp-ms').textContent(),/理性を3段階/);
+   assert.match(await page.locator('#wmPanel .wp-ms').textContent(),/背後から2回/);
    assert(!/くすみ/.test(await page.locator('#wmPanel .wp-ms').textContent()));
    for(let attempt=0;attempt<2;attempt++){
     await page.locator('[data-w=guardians]').click();await page.locator('[data-gj-chapter=act1]').click();await page.locator('[data-gj-stage=gran]').click();
-    assert.match(await page.locator('.gj-missions').textContent(),/3段階の声/);
-    assert(!/くすみ/.test(await page.locator('.gj-missions').textContent()));
+    assert.match(await page.locator('.gj-missions').textContent(),/背後から2回/);
+    assert(!/くすみ/.test(await page.locator('.gj-missions ul').textContent()));
     await page.locator('#gjSortie').click();await ready(page);
     assert.equal((await state(page)).difficulty,'hard');
-    assert.match(await page.locator('#missionBox').textContent(),/理性を3段階/);
+    assert.match(await page.locator('#missionBox').textContent(),/HPを65%/);
     const before=await page.evaluate(()=>({...Board.party.materials}));
-    await page.evaluate(()=>{Board.__guardianQA.arrange();Board.__guardianQA.pollute();Board.__guardianQA.strike();Board.__guardianQA.strike();});
+    await page.evaluate(()=>{Board.__guardianQA.arrange(true);Board.__guardianQA.pollute();Board.__guardianQA.strike();Board.__guardianQA.strike();});
     const s=await state(page);assert.equal(s.stats.guardianVoices,3);assert(s.stats.dullMax>=.9);assert(s.cells.filter(c=>c.floor==='dull').length>s.cells.length*.5);
     await page.evaluate(()=>Board.__guardianQA.winPolluted());await page.locator('#resNext').waitFor();
     assert.equal(await page.locator('.r-rank').textContent(),'S');assert.equal(await page.locator('.r-ms .ng').count(),0);
@@ -102,6 +111,24 @@ for(const engine of ['chromium','webkit']){
     await page.locator('#resNext').click();await page.locator('.gj-book').waitFor();await page.locator('.pn-close').click();
    }
   },{started:false,progress:0});
+ });
+ test(`${engine}: Ivy local pollution boundary is shown consistently and determines the earned rank`,async()=>{
+  await session(engine,{width:390,height:844},async page=>{
+   await page.evaluate(()=>{Board.party.stages.ivy={cleared:true};Board.party.stageDifficulty.ivy='hard';Board.party.pos='thorn';Board.saveParty();World.open();});
+   assert.match(await page.locator('#wmPanel .wp-ms').textContent(),/くすみを70%未満/);assert.match(await page.locator('.wp-mission-guide').textContent(),/グラン/);
+   await page.locator('[data-w=guardians]').click();await page.locator('[data-gj-chapter=act3]').click();await page.locator('[data-gj-stage=ivy]').click();
+   assert.match(await page.locator('.gj-missions').textContent(),/くすみを70%未満/);assert.match(await page.locator('.gj-mission-guide').textContent(),/局所的/);
+   for(const [peak,rank] of [[69,'S'],[70,'A']]){
+    await battle(page,'ivy');const states=await page.evaluate(peak=>Board.__guardianQA.pollution(peak),peak);assert.equal(states[2].ok,peak<70);
+    assert.match(await page.locator('#missionBox').textContent(),new RegExp('最大'+peak+'%'));
+    await page.evaluate(peak=>Board.__guardianQA.finish(peak),peak);await page.locator('#resNext').waitFor();
+    assert.equal(await page.locator('.r-rank').textContent(),rank);assert.equal(await page.locator('.r-ms .ng').count(),rank==='S'?0:1);
+    assert.equal(await page.locator('.r-unique:not(.r-equipment)').count(),rank==='S'?1:0);
+    assert.equal(await page.evaluate(()=>Board.party.stages.ivy.difficulties.hard.best),'S','A later failure preserves the earned S record');
+    await page.screenshot({path:`/tmp/cr-boss-tactics-${engine}-ivy-${peak}.png`});
+    await page.locator('#resNext').click();await page.locator('#world').waitFor({state:'visible'});
+   }
+  });
  });
  test(`${engine}: pollution visibly clears on all four original sprites while preserving every alpha pixel`,async()=>{
   await session(engine,{width:390,height:844},async page=>{for(const id of ['gran','ivy','spinel','king']){await battle(page,id);const report=await page.evaluate(id=>{
