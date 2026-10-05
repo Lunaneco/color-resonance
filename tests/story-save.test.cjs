@@ -7,7 +7,7 @@ const party=gold=>({aria:{lv:8,exp:20},spirits:{gran:{lv:7,exp:30,bond:20}},gold
 async function saveContext(){
   const data=new Map();let failKey=null,removeKey=null;
   const c=vm.createContext({localStorage:{getItem:k=>data.get(k)??null,setItem:(k,v)=>{if(k===failKey)throw Error('quota');data.set(k,String(v));},removeItem:k=>{if(k===removeKey)throw Error('storage unavailable');data.delete(k);}},Date,Intl});
-  for(const name of ['progression','save'])vm.runInContext(await fs.readFile(path.join(root,'js/'+name+'.js'),'utf8'),c);
+  for(const name of ['play-core','progression','save'])vm.runInContext(await fs.readFile(path.join(root,'js/'+name+'.js'),'utf8'),c);
   vm.runInContext('globalThis.Save=SaveData',c);
   return {data,api:c.Save,fail:key=>failKey=key,failRemove:key=>removeKey=key};
 }

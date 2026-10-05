@@ -35,7 +35,7 @@ test('Rewards pay only the increase in achieved rank and remain capped across re
   assert.equal(M.record(party, 'lantern', 'gentle', 80, 8).gold, 0);
   assert.equal(party.gold, 170); assert.equal(party.minigames.records.lantern.gentle.bestMoves, 5);
   for (const id of Object.keys(M.games)) for (const difficulty of M.tiers) for (let i = 0; i < 10; i++) M.record(party, id, difficulty, 100);
-  assert.equal(party.gold, 720); assert.equal(party.minigames.records.echo.hard.paid, 140);
+  assert.equal(party.gold, 1340); assert.equal(party.minigames.records.echo.hard.paid, 140);
   assert.throws(() => M.record(party, 'unknown', 'gentle', 100), /Invalid/);
   assert.throws(() => M.record(party, 'echo', 'expert', 100), /Invalid/);
 });
@@ -92,7 +92,8 @@ for (const viewport of [{ width: 320, height: 480 }, { width: 390, height: 844 }
     for (let i = 0; i < 16; i++) if (solution & 1 << i) await page.locator(`[data-lamp="${i}"]`).tap();
     assert.equal((await saved()).minigames.records.lantern.hard.best, 100);
     assert.equal((await saved()).gold, 140); assert.equal(await page.locator('#wmGold').textContent(), '140');
-    await page.locator('[data-retry]').tap(); await solveVisible(); assert.equal((await saved()).gold, 140);
+    assert.equal((await saved()).materials.m_core, 3);assert.equal((await saved()).minigames.records.lantern.hard.hardCoreClaimed, 2);
+    await page.locator('[data-retry]').tap(); await solveVisible(); assert.equal((await saved()).gold, 140);assert.equal((await saved()).materials.m_core, 3);
     await page.locator('[data-home]').tap(); assert((await page.locator('[data-game="lantern"]').textContent()).includes('最高 S / 100点'));
   });
 }

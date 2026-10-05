@@ -45,6 +45,7 @@ const Journal = (() => {
       { title: '四つの声', desc: '4精霊と旅をする', now: friends, total: 4 },
       { title: '響きを継ぐ', desc: '二つの系統から24種類の技を覚える', now: learned, total: 24 },
       { title: '六つの灯り', desc: '2種類の遊びを全3難易度で完成', now: lights, total: 6 },
+      { title: '星の冒険者', desc: '航路と結晶の連鎖を全3難易度で完成', now: ['voyage', 'crystal'].flatMap(id => Object.values(mini[id] || {})).filter(r => r.clears > 0).length, total: 6 },
       { title: 'もう一杯', desc: '物語の最後まで読む', now: +unlocked.includes('done'), total: 1 },
     ];
   }

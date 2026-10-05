@@ -150,11 +150,19 @@ const Progression = (() => {
     const reached = Math.max(0, 'CBAS'.indexOf(grade) + 1), prior = count(record.materialGrades, 0, 4), bag = {};
     for (let n = prior + 1; n <= reached; n++) {
       bag.m_dust = (bag.m_dust || 0) + { gentle: 2, normal: 3, hard: 4 }[key];
-      for (const gem of id === 'lantern' ? ['m_teal', 'm_gold'] : ['m_green', 'm_violet']) bag[gem] = (bag[gem] || 0) + (key === 'hard' ? 2 : 1);
+      for (const gem of { lantern: ['m_teal', 'm_gold'], echo: ['m_green', 'm_violet'], voyage: ['m_teal', 'm_green'], crystal: ['m_gold', 'm_violet'] }[id] || []) bag[gem] = (bag[gem] || 0) + (key === 'hard' ? 2 : 1);
       if (n === 4) bag.m_core = 1;
     }
     record.materialGrades = Math.max(prior, reached);
     return awardMaterials(party, bag);
+  }
+  function leisureHardBonus(party, key, record) {
+    if (key !== 'hard') return {};
+    const prior = count(record.hardCoreClaimed, 0, 2);
+    const awarded = awardMaterials(party, { m_core: 2 - prior });
+    // 満杯で入らなかった分は次のクリアで受け取れる。評価の報酬とは独立。
+    record.hardCoreClaimed = prior + (awarded.m_core || 0);
+    return awarded;
   }
   const training = (party, id, route) => count(party.spirits?.[id]?.training?.[route], 0);
   function practice(party, id, route, amount) {
@@ -223,16 +231,17 @@ const Progression = (() => {
     }
     const leisure = isRecord(party.minigames) ? party.minigames : {};
     const records = isRecord(leisure.records) ? leisure.records : {};
-    party.minigames = { version: 1, records: {}, preferred: {}, active: null };
-    for (const id of ['lantern', 'echo']) {
+    party.minigames = { version: 2, records: {}, preferred: {}, active: null };
+    for (const id of ['lantern', 'echo', 'voyage', 'crystal']) {
       party.minigames.records[id] = {};
       for (const [difficulty, cap] of [['gentle', 70], ['normal', 100], ['hard', 140]]) {
         const r = records[id]?.[difficulty];
-        if (isRecord(r)) party.minigames.records[id][difficulty] = { plays: count(r.plays), clears: count(r.clears), best: count(r.best, 0, 100), paid: count(r.paid, 0, cap), bestMoves: r.bestMoves == null ? null : count(r.bestMoves, 0, 9999), materialGrades: count(r.materialGrades, 0, 4) };
+        if (isRecord(r)) party.minigames.records[id][difficulty] = { plays: count(r.plays), clears: count(r.clears), best: count(r.best, 0, 100), paid: count(r.paid, 0, cap), bestMoves: r.bestMoves == null ? null : count(r.bestMoves, 0, 9999), materialGrades: count(r.materialGrades, 0, 4), hardCoreClaimed: difficulty === 'hard' ? count(r.hardCoreClaimed, 0, 2) : 0 };
       }
       const preferred = leisure.preferred?.[id];
       party.minigames.preferred[id] = ['gentle', 'normal', 'hard'].includes(preferred) ? preferred : 'gentle';
     }
+    if (typeof PlayCore !== 'undefined' && ['voyage', 'crystal'].includes(leisure.active?.id)) party.minigames.active = PlayCore.restore(leisure.active);
     // 未完の遊びは復元前に個別ルールも確認する。破損した途中記録は実績と切り離す。
     if (isRecord(leisure.active) && ['lantern', 'echo'].includes(leisure.active.id) && ['gentle', 'normal', 'hard'].includes(leisure.active.difficulty)) {
       const a = leisure.active;
@@ -261,5 +270,5 @@ const Progression = (() => {
     return copy;
   }
   return { difficulties, spirits, routes, skills, thresholds, normalize, selected, level, rank, learned, training, practice, rewards, migrate, prepare,
-    companions, materialDescription, materials, MATERIAL_MAX, skillLevel, skill, enhancement, recipe, upgrade, awardMaterials, battleMaterials, collectBattleMaterials, leisureMaterials };
+    companions, materialDescription, materials, MATERIAL_MAX, skillLevel, skill, enhancement, recipe, upgrade, awardMaterials, battleMaterials, collectBattleMaterials, leisureMaterials, leisureHardBonus };
 })();

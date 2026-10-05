@@ -68,7 +68,8 @@ test('Leisure materials reward newly reached grades and preserve old money claim
   assert.deepEqual(plain(M.record(p, 'lantern', 'gentle', 20).materials), {});
   out = M.record(p, 'lantern', 'gentle', 100); assert.deepEqual(plain(out.materials), { m_dust: 6, m_teal: 3, m_gold: 3, m_core: 1 });
   assert.equal(out.record.materialGrades, 4); assert.deepEqual(plain(M.record(p, 'lantern', 'gentle', 88).materials), {});
-  out = M.record(p, 'echo', 'hard', 100); assert.deepEqual(plain(out.materials), { m_dust: 16, m_green: 8, m_violet: 8, m_core: 1 });
+  out = M.record(p, 'echo', 'hard', 100); assert.deepEqual(plain(out.materials), { m_dust: 16, m_green: 8, m_violet: 8, m_core: 3 });
+  assert.deepEqual(plain(out.hardMaterials), { m_core: 2 });
   assert.equal(p.minigames.records.lantern.gentle.paid, 70);
 });
 
