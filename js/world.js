@@ -166,7 +166,18 @@ const World = (() => {
   const nodesEl = document.getElementById('wmNodes');
   const ariaEl = document.getElementById('wmAria');
   const panel = document.getElementById('wmPanel');
+  const topEl = document.getElementById('wmTop');
   let party = null, current = null, isOpen = false, moving = false, visit = 0, arrivalTimer = null;
+  function dismissPanel() {
+    panel.classList.add('hidden');
+    nodesEl.querySelector(`[data-node="${panel.dataset.node}"]`)?.focus({ preventScroll: true });
+  }
+  function fitPanel() {
+    if (!isOpen || panel.classList.contains('hidden')) return;
+    const gap = topEl.getBoundingClientRect().bottom - el.getBoundingClientRect().top;
+    const bottom = parseFloat(getComputedStyle(panel).bottom) || 0;
+    panel.style.setProperty('--wm-panel-clearance', Math.max(0, el.clientHeight - gap - bottom - 8) + 'px');
+  }
   function reload(readSave = false) {
     party = readSave ? Board.reloadParty() : Board.party;
     // Unknown/removed equipment is harmless in battle but must not break the wardrobe UI.
@@ -337,7 +348,7 @@ const World = (() => {
     const sid = conf ? conf.id : null;
     const rec = sid ? stageRec(sid) : null;
     const typeName = { town: '町', stage: '戦場', free: 'フリーステージ', story: '物語', quest: 'サブクエスト' }[n.type];
-    let body = `<div class="wp-head"><span class="wp-type t-${n.type}">${typeName}</span><div class="wp-name">${n.name}</div><div class="wp-sub">${n.sub || ''}</div></div>
+    let body = `<div class="wp-closebar"><button type="button" class="wp-dismiss" data-a="dismiss" aria-label="${n.type === 'town' ? '町の案内' : 'ステージ説明'}を閉じる">×</button></div><div class="wp-head"><span class="wp-type t-${n.type}">${typeName}</span><div class="wp-name">${n.name}</div><div class="wp-sub">${n.sub || ''}</div><span class="wp-dismiss-note">説明をタップで閉じる</span></div>
       <p class="wp-desc">${n.desc || (conf && conf.desc) || ''}</p>`;
     const acts = [];
     if (conf) {
@@ -393,6 +404,7 @@ const World = (() => {
     acts.push(`<button class="wb" data-a="equip">装備</button>`);
     panel.innerHTML = body + `<div class="wp-acts">${acts.join('')}</div>`;
     panel.classList.remove('hidden');
+    fitPanel();
     if (changed) panel.scrollTop = 0;
     bindQuests(panel);
     panel.querySelectorAll('[data-diff]').forEach(b => b.onclick = e => {
@@ -402,7 +414,8 @@ const World = (() => {
     panel.querySelectorAll('[data-a]').forEach(b => b.onclick = (e) => {
       e.stopPropagation(); Audio2.sfx.choose();
       const a = b.dataset.a;
-      if (a === 'story') playStory(story);
+      if (a === 'dismiss') dismissPanel();
+      else if (a === 'story') playStory(story);
       else if (a === 'sortie') sortie(n);
       else if (a === 'shop') openShop(n);
       else if (a === 'games') Minigames.open(n.id);
@@ -591,5 +604,11 @@ const World = (() => {
     else if (w === 'title') { close(); Main.toTitle(); }
   }));
   el.addEventListener('click', e => { if (e.target === el || e.target === mapEl || e.target.closest('svg')) panel.classList.add('hidden'); });
+  panel.addEventListener('click', e => {
+    if (e.target.closest('button,a,input,select,textarea,label,summary,[role="button"]')) return;
+    e.stopPropagation(); dismissPanel();
+  });
+  addEventListener('resize', fitPanel);
+  new ResizeObserver(fitPanel).observe(topEl);
   return { open, close, get isOpen() { return isOpen; }, refresh() { if (isOpen) { reload(); updateTop(); drawNodes(); } } };
 })();

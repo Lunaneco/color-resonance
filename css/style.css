@@ -595,9 +595,14 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .wm-btns{display:flex;gap:6px}
 .wm-btns button{padding:7px 14px;border-radius:999px;font-family:var(--mincho);font-size:13px;letter-spacing:.14em;background:var(--glass);border:1px solid var(--line)}
 .wm-btns button:hover{border-color:#cfe0ff;color:#fff}
-#wmPanel{position:absolute;right:16px;bottom:16px;width:min(340px,92vw);max-height:calc(100vh - 90px);overflow:auto;padding:16px 18px;border-radius:16px;background:linear-gradient(180deg,rgba(18,28,56,.94),rgba(8,12,28,.96));border:1px solid var(--line);box-shadow:0 20px 50px rgba(0,0,0,.55);animation:cmIn .2s ease-out;z-index:3}
+#wmPanel{position:absolute;right:16px;bottom:16px;width:min(340px,92vw);max-height:min(calc(100vh - 90px),var(--wm-panel-clearance,100vh));overflow:auto;padding:16px 18px;border-radius:16px;background:linear-gradient(180deg,rgba(18,28,56,.94),rgba(8,12,28,.96));border:1px solid var(--line);box-shadow:0 20px 50px rgba(0,0,0,.55);animation:cmIn .2s ease-out;z-index:3}
 #wmPanel::before{content:"";position:absolute;left:16px;right:16px;top:0;height:1px;background:var(--prism);opacity:.7}
-.wp-head{display:flex;flex-direction:column;gap:2px}
+.wp-head{position:relative;display:flex;flex-direction:column;gap:2px;padding-right:48px}
+.wp-closebar{position:sticky;top:0;height:0;z-index:2}
+.wp-dismiss{position:absolute;right:0;top:0;width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.05);color:var(--ink);font-size:22px;line-height:1}
+.wp-dismiss:hover,.wp-dismiss:focus-visible{outline:2px solid #cfe0ff;outline-offset:2px;background:rgba(255,255,255,.12)}
+.wp-dismiss-note{margin-top:4px;font-size:10.5px;color:var(--ink-faint);letter-spacing:.03em}
+#wmPanel{cursor:pointer}
 .wp-type{align-self:flex-start;padding:1px 9px;border-radius:99px;font-size:10.5px;letter-spacing:.2em;border:1px solid var(--line);color:var(--ink-dim)}
 .wp-type.t-town{border-color:#e9c98a;color:#ffe9b8}.wp-type.t-free{border-color:#c9b6ff;color:#e3d8ff}
 .wp-name{font-family:var(--mincho);font-size:21px;font-weight:600;letter-spacing:.14em}
@@ -676,7 +681,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 }
 @media(max-width:820px) and (max-height:500px) and (orientation:landscape){
   #wmViewport{top:70px;bottom:0}
-  #world #wmPanel{left:auto;width:min(340px,50vw);max-height:calc(100vh - 90px)}
+  #world #wmPanel{left:auto;width:min(340px,50vw);max-height:min(calc(100vh - 90px),var(--wm-panel-clearance,100vh))}
   .wm-pan-note{top:55px}
 }
 #toast{max-width:calc(100vw - 24px);white-space:normal;text-align:center}
@@ -738,7 +743,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   .wn-dot{width:24px;height:24px;font-size:11px}
   .wn-name{font-size:10px;letter-spacing:.04em}
   .wl-label{font-size:13px}
-  #wmPanel{left:8px;right:8px;bottom:8px;width:auto;max-height:46vh}
+  #wmPanel{left:8px;right:8px;bottom:8px;width:auto;max-height:min(46vh,var(--wm-panel-clearance,100vh))}
   .sh-row{grid-template-columns:1fr auto;}
   .sh-tag,.sh-own{display:none}
 }
@@ -962,7 +967,7 @@ kbd{display:inline-block;font-family:var(--gothic);font-size:11px;padding:1px 5p
   #wmViewport{top:134px;bottom:0;transition:bottom .2s ease}
   #world:has(#wmPanel:not(.hidden)) #wmViewport{bottom:48vh}
   .wm-pan-note{top:116px;font-size:10px;left:12px;color:#bbc9df}
-  #world #wmPanel{max-height:46vh;padding:14px 15px}
+  #world #wmPanel{max-height:min(46vh,var(--wm-panel-clearance,100vh));padding:14px 15px}
   #textbox{bottom:max(14px,env(safe-area-inset-bottom));width:calc(100% - 20px);padding:28px 18px 24px;border-radius:14px}
   #namePlate{left:14px;font-size:14px;padding:5px 14px 5px 10px;max-width:calc(100% - 30px)}
   #text{font-size:16px;line-height:1.85;letter-spacing:.035em;min-height:3.7em}
@@ -1023,7 +1028,7 @@ kbd{display:inline-block;font-family:var(--gothic);font-size:11px;padding:1px 5p
   .wm-btns button{padding:6px 8px;font-size:10px;min-height:36px;flex:none}
   #wmViewport,#world:has(#wmPanel:not(.hidden)) #wmViewport{top:78px;bottom:0}
   .wm-pan-note{top:60px;font-size:9px}
-  #world #wmPanel{max-height:calc(100dvh - 86px);width:min(340px,50vw);left:auto;padding:11px 13px}
+  #world #wmPanel{max-height:min(calc(100dvh - 86px),var(--wm-panel-clearance,100dvh));width:min(340px,50vw);left:auto;padding:11px 13px}
   .pn-box{max-height:calc(100dvh - 24px)}
   .pn-head{padding:6px 16px}
   .pn-title{font-size:16px}

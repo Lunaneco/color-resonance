@@ -103,3 +103,37 @@ test('A direct battle link retains its return to title',async()=>{
     await page.locator('#title').waitFor({state:'visible'});assert(!await page.evaluate(()=>Board.running||Panel.isOpen()||World.isOpen));
   },'#board=cove');
 });
+
+for(const engine of ['chromium','webkit'])for(const viewport of [{width:1440,height:900},{width:846,height:784},{width:320,height:480},{width:667,height:375}]){
+  test(`${engine}: map stage descriptions dismiss by tap without changing progress at ${viewport.width} × ${viewport.height}`,async()=>{
+    await session(engine,viewport,async page=>{
+      const node=page.locator('#wmNodes [data-node=cove]'),card=page.locator('#wmPanel[data-node=cove]');
+      const activate=locator=>viewport.width<900?locator.tap():locator.click();
+      await activate(node);await card.waitFor({state:'visible'});
+      await activate(card.locator('[data-diff=hard]'));
+      assert(await card.isVisible(),'Difficulty controls must not dismiss the description');
+      assert.equal(await card.locator('[data-diff=hard]').getAttribute('aria-pressed'),'true');
+      const bounds=await card.boundingBox(),header=await page.locator('#wmTop').boundingBox();
+      assert(bounds.y>=header.y+header.height,'The map header must not cover the close control');
+      const close=card.locator('[data-a=dismiss]'),button=await close.boundingBox();
+      assert(button.width>=44&&button.height>=44);
+      assert(await close.evaluate(el=>{const r=el.getBoundingClientRect();return el.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));}));
+      const record=()=>page.evaluate(()=>({story:localStorage.getItem('cr_save'),party:localStorage.getItem('cr_party'),running:Board.running}));
+      const before=await record();
+      await page.screenshot({path:`/tmp/cr-stage-dismiss-${engine}-${viewport.width}-open.png`});
+      await activate(card.locator('.wp-desc'));await card.waitFor({state:'hidden'});
+      assert.deepEqual(await record(),before,'Dismissing text cannot move, battle, spend or change the journey');
+      assert.equal(await page.locator(':focus').getAttribute('data-node'),'cove');
+      await page.screenshot({path:`/tmp/cr-stage-dismiss-${engine}-${viewport.width}-hidden.png`});
+      await activate(node);await card.waitFor({state:'visible'});
+      await activate(card.locator('[data-a=dismiss]'));await card.waitFor({state:'hidden'});
+      assert.deepEqual(await record(),before);
+      await activate(node);await card.waitFor({state:'visible'});
+      await activate(card.locator('.wp-info'));await card.waitFor({state:'hidden'});
+      assert.deepEqual(await record(),before,'Tapping nested information must also be safe');
+      await activate(node);await card.waitFor({state:'visible'});
+      await activate(card.locator('[data-a=sortie]'));await ready(page);
+      assert(await page.evaluate(()=>Board.running&&!World.isOpen),'Sortie must still start the battle');
+    });
+  });
+}
