@@ -241,6 +241,16 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
     await boot(viewport, { ...fullJourney, cr_speed: '0', cr_settings: JSON.stringify({ reduceMotion: true, textSize: 'large' }) });
     await page.locator('[data-m=chapters]').click();
     await page.locator('.chap[data-k=act1]').click();
+    await page.waitForFunction(() => document.getElementById('text').textContent.startsWith('鐘楼へ上がる階段'), {}, { timeout: 15000 });
+    // Chapter entry now includes a playable approach battle. The guardian suite
+    // verifies that route; begin this layout check at the existing story scene.
+    const sceneIndex = await page.evaluate(() => {
+      const lines = SCRIPT.act1.split('\n').map(line => line.trim()).filter(line => line && !line.startsWith('#'));
+      const index = lines.findIndex(line => line.startsWith('鐘楼の屋根'));
+      if (index >= 0) Engine.play('act1', index);
+      return index;
+    });
+    assert(sceneIndex >= 0, 'The original bell-tower scene must remain in chapter one');
     await page.waitForFunction(() => document.getElementById('text').textContent.startsWith('鐘楼の屋根'), {}, { timeout: 15000 });
     for (let i = 0; i < 4; i++) {
       await page.waitForFunction(() => document.getElementById('nextMark').classList.contains('show'));
