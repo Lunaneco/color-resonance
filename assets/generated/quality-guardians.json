@@ -1,0 +1,136 @@
+{
+  "generator": "built-in imagegen",
+  "processing": "fixed grid; transparent pad; native alpha; no repaint",
+  "assets": {
+    "guardian_tokinel": {
+      "atlas": "atlas-main.png",
+      "cell": 1,
+      "alphaRange": [
+        0,
+        255
+      ],
+      "size": [
+        444,
+        444
+      ],
+      "sha256": "27d5875477ad2dd017661c2607be86d6c5c51df62b1a69347bebebfb0dcee03e"
+    },
+    "guardian_nephra": {
+      "atlas": "atlas-main.png",
+      "cell": 5,
+      "alphaRange": [
+        0,
+        255
+      ],
+      "size": [
+        444,
+        444
+      ],
+      "sha256": "a87eed4657e9de5b220ee4488ddfe5b7526059318431b16166705d22db5825fb"
+    },
+    "guardian_farol": {
+      "atlas": "atlas-main.png",
+      "cell": 6,
+      "alphaRange": [
+        0,
+        255
+      ],
+      "size": [
+        444,
+        444
+      ],
+      "sha256": "49575fd148c42189cc7fcbd0fca6a1b47a9f7e0d635b6877b0e0e5407460b8f2"
+    },
+    "guardian_rivela": {
+      "atlas": "atlas-main.png",
+      "cell": 7,
+      "alphaRange": [
+        0,
+        255
+      ],
+      "size": [
+        444,
+        444
+      ],
+      "sha256": "9a63e8f3214bd0993387bc5d29eca6c2219f8e4597c4f41734f15c06410fdcad"
+    },
+    "guardian_pomela": {
+      "atlas": "atlas-restoration.png",
+      "cell": 0,
+      "alphaRange": [
+        0,
+        254
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "sha256": "6c63efbed0442a6414f75b02140e0f68f82b5cbb5cba523227b62351408b0652"
+    },
+    "guardian_folio": {
+      "atlas": "atlas-restoration.png",
+      "cell": 1,
+      "alphaRange": [
+        0,
+        253
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "sha256": "4fd82f5982c1acee17a6ebaac580abc8c6d86f5e4e247464cfdab53c8d576de7"
+    },
+    "guardian_fiamma": {
+      "atlas": "atlas-restoration.png",
+      "cell": 2,
+      "alphaRange": [
+        0,
+        254
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "sha256": "e9a1690fb42c94e4043f61f958eded0f9f80c8d3dc0dca7a58481d2d4277acd5"
+    },
+    "guardian_lucerna": {
+      "atlas": "atlas-restoration.png",
+      "cell": 3,
+      "alphaRange": [
+        0,
+        254
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "sha256": "09b68de1d4cd89537ec89a16db939a2bf584190c950d72948d671481f99fb8ba"
+    },
+    "guardian_coronel": {
+      "atlas": "atlas-restoration.png",
+      "cell": 4,
+      "alphaRange": [
+        0,
+        254
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "sha256": "ad037bbf48de6a2a5f940916be07bd8c79b6a98d3818d495418bf7f9b8d17754"
+    },
+    "guardian_aster": {
+      "atlas": "atlas-restoration.png",
+      "cell": 5,
+      "alphaRange": [
+        0,
+        253
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "sha256": "7fd779d70e865b9059013337d2f0adfb1d156043836e76ef809b55239b2a0422"
+    }
+  }
+}

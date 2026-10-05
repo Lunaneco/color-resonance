@@ -131,7 +131,7 @@ const Progression = (() => {
   function battleMaterials(conf, key) {
     const groups = { gran: ['cove', 'gran', 'f_mist', 'q_harbor', 'q_lantern', 'q_tide'], ivy: ['ivy', 'f_fruit', 'f_maze', 'q_orchard', 'q_thorns', 'q_bloom'], spinel: ['spinel', 'q_clock', 'q_bridge', 'q_gold'] };
     const spirit = Object.keys(groups).find(id => groups[id].includes(conf.id)) || 'king', n = { gentle: 1, normal: 2, hard: 3 }[normalize(key)];
-    return { m_dust: n + 1, [spiritMaterial[spirit]]: n };
+    return { m_dust: n + 1, [materials[conf.material] ? conf.material : spiritMaterial[spirit]]: n };
   }
   function collectBattleMaterials(party, conf, key, res, rank, record) {
     const clear = awardMaterials(party, battleMaterials(conf, key)), missionBag = {}, gem = Object.keys(battleMaterials(conf, key)).find(id => id !== 'm_dust');

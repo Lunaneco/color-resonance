@@ -54,6 +54,9 @@ const Restoration = (() => {
     }
     Panel.open('プリズム王国の復興', `<div class="re-book"><header class="re-hero"><small>AFTER THE NIGHT · CRYSTALIA</small><h2>今日の色で、明日の道へ。</h2><p>アリアとクロム、ルノワールの剣が辿る復興の旅。</p><div class="re-progress"><span>王国の復興 ${Math.round(count / 8 * 100)}%</span><progress value="${count}" max="8" aria-label="王国の復興"></progress><small>本編 ${count}/8戦 · 復興依頼12戦 · 伝説5戦</small></div></header><nav class="re-tabs" aria-label="復興のページ">${Object.entries({ journey: '復興の地図', requests: '復興依頼', legends: '王国外の伝説' }).map(([id, label]) => `<button data-re-tab="${id}" aria-pressed="${tab === id}">${label}</button>`).join('')}</nav>${body}</div>`);
     const root = Panel.body();
+    if(joined()&&tab==='journey'){
+      const b=document.createElement('button');b.className='gj-recall';b.textContent='この章の通常戦・精霊ボス戦';b.onclick=()=>GuardianJourney.open(RESTORATION_CHAPTERS[Math.min(count,7)].key);root.querySelector('.re-book').append(b);
+    }
     root.querySelectorAll('[data-re-tab]').forEach(b => b.onclick = () => open(b.dataset.reTab));
     root.querySelectorAll('[data-re-story]').forEach(b => b.onclick = () => { if (b.dataset.reStory === 'resume') { Panel.close(); Engine.cont(); } else begin(b.dataset.reStory); });
     root.querySelectorAll('[data-re-stage]').forEach(b => b.onclick = () => stage(b.dataset.reStage, tab));

@@ -411,7 +411,8 @@ const Engine = (() => {
           Board.enterPhase1({ skyCharges: Renoir.state.colors.length || 4, say: { who: 'アリア', text: '白い膜だけを、切り分ける。<br><small>メニューの「小さな夜空」で、ルノワールの夜空が床を取り戻してくれる</small>' } });
         };
       }
-      Board.start({ ...conf, resultLabel: '物語をつづける' }, () => { res(); });
+      const difficulty=conf.difficultyFrom?Progression.selected(Board.party,conf.difficultyFrom):Progression.selected(Board.party,key);
+      Board.start({ ...conf, difficulty, resultLabel: '物語をつづける' }, () => { res(); });
     }).then(() => { if (mine === token && scene.aura !== 'none') setAura(scene.aura); });
   }
 
@@ -528,13 +529,22 @@ const Engine = (() => {
       for (let i = 0; i < chapterLines.length; i++) if (lineId(chapterLines[i]) === s.cursor.id && n++ === s.cursor.n) return i;
     }
     let at = s.idx;
+    // 数値位置だけの旧セーブも、追加前の同じ台詞・命令へ戻す。
+    if ((!s.scriptVersion || s.scriptVersion < 3) && typeof GUARDIAN_LEGACY_SCRIPTS !== 'undefined' && GUARDIAN_LEGACY_SCRIPTS[s.chapter] !== SCRIPT[s.chapter]) {
+      const oldLines = parse(GUARDIAN_LEGACY_SCRIPTS[s.chapter]), old = oldLines[at];
+      if (old) {
+        const id=lineId(old), occurrence=oldLines.slice(0,at).filter(l=>lineId(l)===id).length;
+        let n=0;
+        for(let i=0;i<chapterLines.length;i++)if(lineId(chapterLines[i])===id&&n++===occurrence)return i;
+      }
+    }
     // この版で増えた序章のCG命令2行を、以前の数値位置へ足す。
     if (!s.scriptVersion && s.chapter === 'prologue' && at >= 106) at += at >= 109 ? 2 : 1;
     return Math.max(0, Math.min(chapterLines.length - 1, at));
   }
   function save() {
     try {
-      localStorage.setItem('cr_save', JSON.stringify({ chapter, idx, cursor: cursorAt(idx), scriptVersion: 2, scene, colors: Renoir.state.colors, sky: Renoir.state.sky, shavings: prog.shavings, tints, at: Date.now() }));
+      localStorage.setItem('cr_save', JSON.stringify({ chapter, idx, cursor: cursorAt(idx), scriptVersion: 3, scene, colors: Renoir.state.colors, sky: Renoir.state.sky, shavings: prog.shavings, tints, at: Date.now() }));
     } catch (e) {}
   }
   function load() { try { const value = SaveData.story(JSON.parse(localStorage.getItem('cr_save') || 'null')); return Object.hasOwn(SCRIPT, value.chapter) ? value : null; } catch (e) { return null; } }

@@ -17,6 +17,9 @@ const Board = (() => {
   const endBtn = $id('endTurn');
   const phaseLabel = $id('phaseLabel');
   const spiritBox = $id('skills');
+  const guardianHud = document.createElement('div');
+  guardianHud.id = 'guardianHud'; guardianHud.className = 'hidden'; screen.append(guardianHud);
+  guardianHud.addEventListener('click', e => { e.stopPropagation(); if (!busy && !over) GuardianJourney.history(guardianHistory, cfg.guardian); });
 
   // ---------- 画像 ----------
   const IMG = {}; let META = null;
@@ -152,6 +155,7 @@ const Board = (() => {
   let sp = 0, skyCharges = 0, enchantUsed = false, renoirUsed = false;
   let stats = null, difficulty = 'normal', tierA = 0, tierE = 0, ratioA = 0, ratioE = 0, kegIdx = 0, colorIdx = 0, totalFoes = 0;
   let hudReady = false;
+  let guardianHistory = [];
 
   // 終了・やり直しをまたいで、古い戦闘の演出や行動を続けない。
   const cancelled = Symbol('battle cancelled');
@@ -307,7 +311,7 @@ const Board = (() => {
     const short = narrow && H <= 500 && W > H;
     screen.classList.toggle('compact', narrow);
     screen.classList.toggle('short', short);
-    const top = narrow ? (short ? 74 : 128) : 96, bottom = narrow ? (short ? 70 : 200) : 84;
+    const top = (narrow ? (short ? 74 : 128) : 96) + (cfg.guardian && !short ? 44 : 0), bottom = narrow ? (short ? 70 : cfg.guardian && H<600?180:200) : 84;
     const availW = Math.max(80, narrow ? W - (short ? 340 : 12) : W - 60);
     const availH = Math.max(60, H - top - bottom);
     const span = (cols + rows) / 2;
@@ -553,6 +557,13 @@ const Board = (() => {
     if (area && area.has(id)) tint(x, y, '255,245,200', 0.28, 0.9);
     if (path && path.has(id)) { g.save(); g.fillStyle = 'rgba(230,245,255,.9)'; g.shadowColor = '#bfe3ff'; g.shadowBlur = 8; g.beginPath(); g.arc(x, y, Math.max(2.5, tw * 0.05), 0, 6.29); g.fill(); g.restore(); }
     if (hover === c && !busy && !over) { g.save(); diamond(x, y, tw * 0.96, th * 0.96); g.shadowColor = 'rgba(230,240,255,1)'; g.shadowBlur = 14; g.strokeStyle = 'rgba(235,245,255,.9)'; g.lineWidth = 2; g.stroke(); g.restore(); }
+    const warning = units.some(u => !u.dead && u.guardian && u.intent?.ids.has(id));
+    if (warning) {
+      const safe = c.floor === 'rainbow';
+      g.save(); diamond(x, y, tw * .9, th * .9); g.fillStyle = safe ? 'rgba(107,230,193,.1)' : 'rgba(240,137,131,.22)'; g.fill();
+      g.strokeStyle = safe ? '#83edca' : '#ffbb9c'; g.lineWidth = 1.8; g.setLineDash([4,3]); g.stroke(); g.setLineDash([]);
+      g.font = `bold ${Math.max(8,tw*.18)}px sans-serif`; g.textAlign = 'center'; g.fillStyle = safe ? '#b1ffde' : '#ffe1c7'; g.fillText(safe ? '◇' : '!',x,y+tw*.055); g.restore();
+    }
   }
   function tint(x, y, col, a, sa, glow) {
     g.save(); diamond(x, y, tw * 0.9, th * 0.9);
@@ -613,6 +624,10 @@ const Board = (() => {
     }
     if (u.root) { g.strokeStyle = 'rgba(120,230,140,.8)'; g.lineWidth = 2; for (let i = 0; i < 3; i++) { g.beginPath(); g.ellipse(p.x, p.y - tw * 0.1 * i - 4, tw * (0.26 - i * 0.03), th * (0.22 - i * 0.03), Math.sin(t + i) * 0.2, 0.3, 5.9); g.stroke(); } }
     if (u.guard) { g.strokeStyle = `rgba(255,220,130,${0.5 + 0.3 * Math.sin(t * 3)})`; g.lineWidth = 2; g.beginPath(); g.ellipse(p.x, p.y - tw * 0.45, tw * 0.32, tw * 0.55, 0, 0, 6.29); g.stroke(); }
+    if (u.guardian) {
+      g.strokeStyle = ['#8c769e','#bfa5da','#a1e5d6'][u.guardianPhase]; g.lineWidth = 2;
+      g.beginPath(); g.ellipse(p.x,p.y,tw*.36,th*.36,0,0,Math.PI*2); g.stroke();
+    }
     if (done) g.globalAlpha = alpha * 0.6;
     const flash = u.flash > now ? (u.flash - now) / 220 : 0;
     if (GameArt.available(u.artId || u.kind)) drawGenerated(u, p, now, flash);
@@ -640,9 +655,12 @@ const Board = (() => {
       g.strokeStyle = s.color; g.lineWidth = 2; g.beginPath(); g.ellipse(p.x, p.y, tw * .3, th * .3, 0, now / 500, now / 500 + 4.5); g.stroke();
     }
     const dir = viewDir(u.dir);
-    const flip = u.kind === 'gran' ? dir === 0 || dir === 1 : dir === 2 || dir === 3;
-    const height = tw * u.hgt, width = tw * (u.kind === 'gran' ? 1.25 : .98);
-    GameArt.drawMotion(g, artId, action, elapsed, p.x, p.y + th * .08, height, width, { flip });
+    const flip = artId === 'gran' ? dir === 0 || dir === 1 : dir === 2 || dir === 3;
+    const height = tw * u.hgt, width = tw * (artId === 'gran' ? (u.guardian?1.6:1.25) : .98);
+    g.save();
+    if (u.guardian) g.filter = `brightness(${.65+u.guardianPhase*.17}) saturate(${.18+u.guardianPhase*.41})`;
+    const bob = u.guardian && !reducedMotion() ? Math.sin(now/680+u.id)*tw*.025 : 0;
+    GameArt.drawMotion(g, artId, action, elapsed, p.x, p.y + th * .08 + bob, height, width, { flip }); g.restore();
     if (flash > 0) {
       g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha *= flash;
       GameArt.drawMotion(g, artId, action, elapsed, p.x, p.y + th * .08, height, width, { flip }); g.restore();
@@ -1116,11 +1134,13 @@ const Board = (() => {
     fxp.push({ k: 'slash', x: pd.x, y: pd.y - tw * d.hgt * 0.5, rot: -0.6 + (Math.random() - .5) * 0.5, life: 0, max: 0.42, col, len: crit ? 1.8 : 1.3 });
     if (miss) { popNum(pd.x, pd.y - tw * d.hgt * 0.6, 'MISS', 'miss'); Audio2.sfx.miss(); d.knock = { t0: performance.now(), dx: tw * 0.25, dy: 0 }; return { miss: true }; }
     let dmg = res.dmg; if (crit) dmg = Math.round(dmg * 1.5);
+    if (d.guardian) dmg = GuardianCombat.damage(d.hp,d.mhp,d.guardianPhase,dmg);
     if (crit) { FX.flash('255,255,255', 0.55); shake(11); Audio2.sfx.crit(); popNum(pd.x, pd.y - tw * d.hgt - 26, 'CRITICAL!', 'critw'); }
     else { Audio2.sfx.hit(); shake(4); }
     if (a.side === 'ally' && res.side !== 'front' && !opt.quiet) floatText(pd.x, pd.y - tw * d.hgt - 34, res.side === 'back' ? '背後から！' : '側面から', 'sys');
     if (res.dh > 0 && a.side === 'ally' && !opt.quiet) floatText(pd.x + tw * 0.4, pd.y - tw * d.hgt - 14, '高所', 'sys');
     d.hp = Math.max(0, d.hp - dmg);
+    if (d.guardian && d.hp > 0) guardianTransition(d);
     playMotion(d, 'hurt', 1.5, 260);
     d.flash = performance.now() + 220;
     const pa = unitXY(a), L = Math.hypot(pd.x - pa.x, pd.y - pa.y) || 1;
@@ -1231,6 +1251,12 @@ const Board = (() => {
     const p = unitXY(d), dc = cellOf(d);
     const inv = cfg.inverted;
     if (d.side === 'enemy') {
+      if (d.guardian) {
+        const p = GuardianCombat.profile(d.guardian);
+        const lines = [[p.name,p.freed],['アリア','穢れだけ、切り分けられた。あなたの色は残ってる。']];
+        guardianHistory.push({phase:3,lines}); say('戻ってきた声',lines.map(([who,text])=>`<b>${who}</b> ${text}`).join('<br>'),9000);
+        d.intent = null;
+      }
       stats.kills++;
       stats.gold += 8 + d.lv * 2;
       if (killer && killer.until) stats.summonKills++;
@@ -1509,7 +1535,8 @@ const Board = (() => {
       const ar = ariaU(); if (ar && GB.regen && ar.hp < ar.mhp) heal(ar, Math.round(ar.mhp * GB.regen / 100));
       if (T.regen) live().filter(u => u.side === 'ally' && u.hp < u.mhp).forEach(u => heal(u, Math.round(u.mhp * T.regen)));
     }
-    live().filter(u => u.side === 'ally').forEach(u => { u.moved = false; u.acted = false; u.normalAttacks = 0; u.undo = null; });
+    live().filter(u => u.side === 'ally').forEach(u => { u.moved = false; u.acted = false; u.normalAttacks = 0; u.undo = null; if (u.hazardRootUntil != null && turn > u.hazardRootUntil) { u.root = 0; u.hazardRootUntil = null; } });
+    live().filter(u=>u.guardian).forEach(e=>guardianIntent(e));
     refreshHud();
     await showBanner('player', 'PLAYER PHASE', `TURN ${turn}　—　${floorNames()[0]}の手番`);
     if (my !== sess || over) return;
@@ -1561,6 +1588,7 @@ const Board = (() => {
     const my = sess;
     if (e.kind === 'chrome' && stage === 1) return;
     const ec = cellOf(e);
+    if (e.guardian) { await guardianResolve(e); if (my !== sess || over || !running) return; }
     // 侵食：まわりの床をくすませる
     if (e.kind !== 'chrome') {
       const n = e.kind === 'boss' ? 2 : 1;
@@ -1569,7 +1597,7 @@ const Board = (() => {
       if (cand.length) refreshHud();
     }
     // 核は言葉を産む
-    if (e.kind === 'boss' && turn % 3 === 0 && live().filter(u => u.side === 'enemy').length < (cfg.spawnCap || 5)) {
+    if (e.kind === 'boss' && !e.guardian && turn % 3 === 0 && live().filter(u => u.side === 'enemy').length < (cfg.spawnCap || 5)) {
       const free = shuffle(nb4(ec).filter(c => c.walk && !unitAt(c)));
       if (free.length) {
         const words = cfg.kegWords || [];
@@ -1604,7 +1632,7 @@ const Board = (() => {
       focus(p.x, p.y - tw * 0.4, 1.06);
       if (best.id !== rch.start) await moveAlong(e, pathTo(rch, best.id), false);
       if (my !== sess || !running) return;
-      await attack(e, best.a, { col: cfg.inverted ? '235,240,255' : '170,110,220', skill: e.kind === 'boss' && Math.random() < 0.5 ? (cfg.bossSkill || '黒い言葉') : e.kind === 'chrome' ? '漆黒の波' : null, color: '#c9a8ff' });
+      await attack(e, best.a, { col: cfg.inverted ? '235,240,255' : '170,110,220', skill: e.guardian ? GuardianCombat.profile(e.guardian).skills[e.guardianPhase] : e.kind === 'boss' && Math.random() < 0.5 ? (cfg.bossSkill || '黒い言葉') : e.kind === 'chrome' ? '漆黒の波' : null, color: '#c9a8ff' });
     } else if (!e.root) {
       const f = distField(e, allies);
       let pickId = null, bestV = f.has(rch.start) ? f.get(rch.start) : 999;
@@ -1620,6 +1648,55 @@ const Board = (() => {
     if (e.dead) return;
     e.root = Math.max(0, e.root - 1);
     if (e.kind !== 'chrome' && paint(cellOf(e), 'dull')) refreshHud();
+  }
+
+  function guardianIntent(e) {
+    if (e.dead) return;
+    const p = GuardianCombat.profile(e.guardian);
+    const forecast = GuardianCombat.plan(p,e.guardianPhase,e,live().filter(u=>u.side==='ally'),cells,turn);
+    e.intent = {turn,phase:e.guardianPhase,ids:new Set(forecast.map(c=>idx(c.r,c.c)))};
+  }
+  function guardianTransition(e, initial=false) {
+    const next = Math.max(e.guardianPhase || 0,GuardianCombat.phase(e.hp,e.mhp));
+    if (!initial && next === e.guardianPhase) return;
+    e.guardianPhase = next;
+    const p = GuardianCombat.profile(e.guardian), m = GuardianCombat.mode(p,next);
+    e.atk = Math.round(e.guardianAtk*m.power); e.mov=m.mov; e.rng=m.rng; e.armor=m.armor;
+    guardianHistory.push({phase:next,lines:p.lines[next]});
+    if (stats) stats.guardianVoices=next+1;
+    if (!initial) {
+      areaCells(cellOf(e),next+2).filter(c=>c.floor!=='dull').sort((a,b)=>dist(a,e)-dist(b,e)).slice(0,8+next*6).forEach((c,i)=>paint(c,'dull',i*25));
+      const q=unitXY(e); fxp.push({k:'ring',x:q.x,y:q.y,r:tw*.3,grow:tw*3,col:next===1?'170,140,205':'145,230,210',life:0,max:1.1}); Audio2.sfx.expose();
+      guardianIntent(e);
+      say('戦場の声',p.lines[next].map(([who,text])=>`<b>${who}</b> ${text}`).join('<br>')+'<small>穢れが外へ流れ出した。予告の床を虹にして防ごう。</small>',10000);
+    }
+  }
+  async function guardianResolve(e) {
+    const p=GuardianCombat.profile(e.guardian), intent=e.intent;
+    if (!intent || intent.turn !== turn) return;
+    e.guard=0;
+    const danger = [...intent.ids].map(id=>cells[id]).filter(c=>c.floor!=='rainbow');
+    const ids = new Set(danger.map(c=>idx(c.r,c.c)));
+    const hit = live().filter(u=>u.side==='ally'&&ids.has(idx(u.r,u.c)));
+    await skillBanner(p.skills[intent.phase],p.colour);
+    danger.forEach((c,i)=>paint(c,'dull',i*12));
+    const q=unitXY(e); artEffect(GameArt.spiritEffects[p.material==='m_teal'?'gran':p.material==='m_green'?'ivy':p.material==='m_gold'?'spinel':'king'],cellOf(e),2.4);
+    fxp.push({k:'ring',x:q.x,y:q.y,r:tw*.3,grow:tw*2,col:'210,155,200',life:0,max:1});
+    for (const u of hit) {
+      const damage=Math.max(1,Math.round(Math.min(u.mhp*(.08+intent.phase*.02),e.atk*.7)*(difficulty==='gentle'?.6:1)*(u.guard?.65:1)));
+      u.hp=Math.max(0,u.hp-damage);stats.taken+=damage; const t=unitXY(u);popNum(t.x,t.y-tw*u.hgt,damage,'hurt');playMotion(u,'hurt');
+      if (p.effect==='root') {u.root=1;u.hazardRootUntil=turn+1;}
+      if (p.effect==='unguard') u.guard=0;
+      if (p.effect==='push') {
+        const dr=Math.sign(u.r-e.r),dc=Math.sign(u.c-e.c),n=cellAt(u.r+(Math.abs(u.r-e.r)>=Math.abs(u.c-e.c)?dr:0),u.c+(Math.abs(u.r-e.r)<Math.abs(u.c-e.c)?dc:0));
+        if(n?.walk&&!unitAt(n)&&Math.abs(n.h-cellOf(u).h)<=1){u.r=n.r;u.c=n.c;}
+      }
+    }
+    if (p.effect==='sp'&&hit.length) sp=Math.max(0,sp-1);
+    if (p.effect==='guard'&&danger.length) e.guard=1;
+    if (p.effect==='ember') danger.forEach(c=>nb4(c).forEach(n=>{if(n.floor!=='rainbow')paint(n,'dull');}));
+    e.intent=null;refreshHud();await wait(420);
+    for (const u of hit) if(u.hp<=0&&!u.dead){await defeat(u);if(over)return;}
   }
 
   // ---------- 選択と命令 ----------
@@ -1956,7 +2033,7 @@ const Board = (() => {
     let left = !okL ? R : !okR ? L : (cover(L) < cover(R) ? L : cover(R) < cover(L) ? R : (p.x < W / 2 ? L : R));
     if (cover(left) && W >= 820) { const alt = p.y - tw * 1.35 - mh - 10 > 70 ? p.y - tw * 1.35 - mh : p.y + th; const c0 = cover(left); top = alt; if (cover(left) >= c0) top = p.y - tw * 1.35; }
     // 情報窓・精霊の札と重ならないように
-    const boxes = [unitInfo, spiritBox, hintEl.classList.contains('show') ? hintEl : null].filter(b => b && !b.classList.contains('hidden') && b.offsetParent).map(b => b.getBoundingClientRect());
+    const boxes = [unitInfo, spiritBox, guardianHud, hintEl.classList.contains('show') ? hintEl : null].filter(b => b && !b.classList.contains('hidden') && b.offsetParent).map(b => b.getBoundingClientRect());
     const hit = (l, t) => boxes.find(b => l < b.right && l + mw > b.left && t < b.bottom && t + mh > b.top);
     top = Math.max(70, Math.min(H - mh - 70, top));
     let b = hit(left, top);
@@ -1973,7 +2050,7 @@ const Board = (() => {
     if (!u) { unitInfo.classList.add('hidden'); infoU = null; return; }
     infoU = u;
     const ally = u.side === 'ally', s = SPIRITS[u.kind];
-    const port = GameArt.available(u.kind) ? `<div class="ui-port generated">${GameArt.portrait(u.kind)}</div>` : u.kind === 'aria' ? `<div class="ui-port"><img src="assets/img/aria.png"></div>`
+    const port = GameArt.available(u.artId||u.kind) ? `<div class="ui-port generated">${GameArt.portrait(u.artId||u.kind)}</div>` : u.kind === 'aria' ? `<div class="ui-port"><img src="assets/img/aria.png"></div>`
       : s ? `<div class="ui-port orb" style="--c:${s.color}"></div>`
         : `<div class="ui-port foe ${u.kind}"></div>`;
     const r = ally ? rec(u.kind) : null;
@@ -1996,7 +2073,7 @@ const Board = (() => {
       <div class="ui-top"><span class="ui-name">${u.name}</span>${neutral ? '' : `<span class="ui-lv">LV<b>${u.lv}</b></span>`}</div>
       ${facing ? `<div class="ui-facing" data-dir="${u.dir}" data-view-dir="${viewDir(u.dir)}"><b>${facing.arrow}</b><span>正面：${facing.name}</span></div>${side ? `<div class="ui-approach ${side}" data-side="${side}">${APPROACH[side]}</div>` : ''}` : ''}
       ${u.word ? `<div class="ui-word">「${u.word}」</div>` : ''}
-      ${neutral ? '<div class="ui-word">——その人の色は、切らない</div>' : `<div class="ui-bar hp"><i style="width:${unknown ? 100 : Math.round(u.hp / u.mhp * 100)}%"></i><span>HP ${unknown ? '？？？' : `${u.hp} / ${u.mhp}`}</span></div>`}
+      ${neutral ? '<div class="ui-word">——その人の色は、切らない</div>' : `<div class="ui-bar hp"><i style="width:${unknown ? 100 : Math.round(u.hp / u.mhp * 100)}%"></i><span>${u.guardian?'穢れHP':'HP'} ${unknown ? '？？？' : `${u.hp} / ${u.mhp}`}</span></div>`}
       ${r ? `<div class="ui-bar exp"><i style="width:${r.lv >= MAX_LV ? 100 : r.exp}%"></i><span>${r.lv >= MAX_LV ? 'EXP MAX · 成長上限' : `EXP ${r.exp} / 100`}</span></div>` : ''}
       ${neutral ? '' : `<div class="ui-st"><span>攻<b>${u.atk}</b></span><span>防<b>${unknown ? '?' : u.def}</b></span><span>移<b>${u.mov}</b></span><span>射<b>${rng[0] === rng[1] ? rng[0] : rng[0] + '-' + rng[1]}</b></span></div>`}
       <div class="ui-tags">${ft}${st.join('')}</div></div>`;
@@ -2066,8 +2143,17 @@ const Board = (() => {
     if (cfg.rainLink) FX.intensity('rain', 0.2 + D * 1.2);
     renderSpirits();
     renderMissions();
+    renderGuardianHud();
     if (infoU && !infoU.dead) showInfo(infoU);
     if (sel && !cmdMenu.classList.contains('hidden') && !busy) showMenu(sel, menuSub);
+  }
+  function renderGuardianHud() {
+    const e=live().find(u=>u.guardian);
+    guardianHud.classList.toggle('hidden',!e);
+    if (!e) return;
+    const p=GuardianCombat.profile(e.guardian);
+    guardianHud.dataset.phase=String(e.guardianPhase+1);
+    guardianHud.innerHTML=`${GameArt.portrait(p.art)}<div class="gh-copy"><b>${p.name}<small>${['Ⅰ','Ⅱ','Ⅲ'][e.guardianPhase]} ${GuardianCombat.phaseNames[e.guardianPhase]}</small></b><div class="gh-hp" role="meter" aria-label="精霊に貼りついた穢れHP" aria-valuemin="0" aria-valuemax="${e.mhp}" aria-valuenow="${e.hp}"><i style="width:${e.hp/e.mhp*100}%"></i><em></em><em></em><span>穢れHP ${e.hp}/${e.mhp}</span></div><small class="gh-intent">予告：${p.skills[e.intent?.phase??e.guardianPhase]} · 虹で防ぐ</small></div><button type="button" aria-label="ボスの行動と戦場の会話を読む" ${busy?'disabled':''}>声</button>`;
   }
 
   // ---------- 盤の主（グランなど） ----------
@@ -2116,6 +2202,7 @@ const Board = (() => {
     const f = floorNames();
     switch (m.type) {
       case 'purify': return `浄化を${m.n}回使う`;
+      case 'guardianVoice': return '守り手の理性を3段階取り戻す';
       case 'teamHP': return `二人のHPをそれぞれ${m.n}%以上残す`;
       case 'turns': return `${m.n}ターン以内にクリア`;
       case 'hp': return `アリアのHPを${m.n}%以上残す`;
@@ -2142,6 +2229,7 @@ const Board = (() => {
     const never = (v) => ({ ok: v ? false : fin ? true : null, prog: '' });
     switch (m.type) {
       case 'purify': return count(stats.purify || 0);
+      case 'guardianVoice': return count(stats.guardianVoices || 0);
       case 'teamHP': { const heroes = units.filter(u => ['aria', 'chrome_human'].includes(u.kind)); const v = Math.min(...heroes.map(u => u.dead ? 0 : Math.round(u.hp / u.mhp * 100))); return { ok: fin ? heroes.length === 2 && v >= n : null, prog: v + '%' }; }
       case 'turns': return { ok: turn > n ? false : fin ? true : null, prog: `${turn}/${n}` };
       case 'hp': { const k = a && !a.dead ? Math.round(a.hp / a.mhp * 100) : 0; return { ok: fin ? k >= n : null, prog: k + '%' }; }
@@ -2362,6 +2450,7 @@ const Board = (() => {
 
   // ---------- 開始・終了 ----------
   function start(conf, done) {
+    if (conf.chapterGate && !GuardianJourney.available(conf)) { Engine.toast('物語でこの土地の道を開いてください'); World.open(); return Promise.resolve(false); }
     if (conf.postgame && !Restoration.joined()) { Engine.toast('復興編の物語から旅を始めてください'); World.open(); return Promise.resolve(false); }
     stop();
     if (World.isOpen) World.close();
@@ -2379,6 +2468,8 @@ const Board = (() => {
     cancelPending();
     cfg = Progression.prepare(baseCfg, baseCfg.difficulty);
     cfg.onPhase0 = baseCfg.onPhase0;
+    guardianHistory = [];
+    screen.classList.toggle('guardian-battle',!!cfg.guardian);
     cols = cfg.cols; rows = cfg.rows;
     viewRotation = 0; defeatedSpirits.clear(); renoirUsed = false;
     $id('boardView').setAttribute('aria-label', '戦闘マップの視点 · 表示角度0度');
@@ -2405,8 +2496,9 @@ const Board = (() => {
     plan.enemies.forEach(({ spec, cell }) => {
       const u = makeUnit(spec.kind, 'enemy', spec.lv || 1, cell, { hidden: spec.phase === 1 });
       if (spec.armor) u.armor = spec.armor;
-      if (spec.kind === 'boss' && cfg.bossArt) u.artId = cfg.bossArt;
+      if (spec.kind === 'boss' && cfg.bossArt) { u.artId = cfg.bossArt; if(cfg.guardian)u.hgt=cfg.bossArt==='gran'?1.35:1.5; }
       if (spec.kind === 'boss' && cfg.bossHP) { u.hp = u.mhp = Math.round(u.mhp * cfg.bossHP); }
+      if (spec.kind === 'boss' && cfg.guardian) { u.guardian=cfg.guardian;u.guardianPhase=0;u.guardianAtk=u.atk; }
       u.word = spec.kind === 'boss' ? (cfg.rootWord || '') : spec.kind === 'chrome' ? '' : (words[kegIdx++ % Math.max(1, words.length)] || '');
       if (spec.kind === 'boss' && cfg.bossName) u.name = cfg.bossName;
       units.push(u);
@@ -2418,6 +2510,7 @@ const Board = (() => {
     sel = null; mode = 'idle'; moveInfo = null; targets = null; targetCmd = null; hover = null; threat = null; menuSub = null; infoU = null;
     sp = Math.min(spCap(), (cfg.spStart != null ? cfg.spStart : 3) + GB.spStart); skyCharges = 0; enchantUsed = false;
     stats = { purify: 0, kills: 0, taken: 0, down: 0, start: performance.now(), levelUps: [], expA: 0, phase0: 0, back: 0, crit: 0, items: 0, spiritUses: 0, summonKills: 0, enchantKills: 0, flashMulti: 0, dullMax: 0, lastBoss: false, bossEarly: false, gold: 0, bondUses: {}, bondGains: {}, trainingGains: {}, learned: [], skillUses: 0, skillBySpirit: {} };
+    units.filter(u=>u.guardian).forEach(u=>guardianTransition(u,true));
     learnedRoute = 'enchant';
     fxp.length = 0; floatLayer.innerHTML = '';
     cam.z = cam.tz = 1;
@@ -2431,7 +2524,7 @@ const Board = (() => {
     bannerEl.className = ''; cutinEl.className = ''; skillEl.className = '';
     buildSubject();
     layout();
-    missionOpen = !screen.classList.contains('short');
+    missionOpen = !screen.classList.contains('short') && !(cfg.guardian && screen.classList.contains('compact'));
     hudReady = false; refreshHud(); hudReady = true;
     showInfo(units[0]);
     if (cfg.tutorial) { tut = { steps: cfg.tutorial, i: 0 }; const s = tut.steps[0]; say(s.who, s.text); }
@@ -2466,6 +2559,7 @@ const Board = (() => {
     cancelAnimationFrame(renderFrame); renderFrame = null;
     cancelPending();
     screen.classList.add('hidden'); hideSay(); floatLayer.innerHTML = ''; hideMenu();
+    guardianHud.classList.add('hidden');guardianHistory=[];
     cutinEl.className = ''; bannerEl.className = ''; skillEl.className = '';
   }
   function end(won) {
@@ -2475,6 +2569,7 @@ const Board = (() => {
     cancelAnimationFrame(renderFrame); renderFrame = null;
     cancelPending();
     running = false; screen.classList.add('hidden'); hideSay(); floatLayer.innerHTML = ''; hideMenu();
+    guardianHud.classList.add('hidden');guardianHistory=[];
     document.getElementById('pouch').style.visibility = '';
     const cb = onDone; onDone = null;
     if (cb) cb(won); else World.open();

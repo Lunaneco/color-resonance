@@ -2,10 +2,10 @@
   "version": 1,
   "title": "Color Resonance ゲーム素材",
   "counts": {
-    "characters": 20,
+    "characters": 30,
     "effects": 37,
-    "sourceSheets": 57,
-    "pngCels": 552,
+    "sourceSheets": 67,
+    "pngCels": 562,
     "gifs": 157
   },
   "production": {
@@ -8155,6 +8155,656 @@
           ],
           "loop": false,
           "durationMs": 1300
+        }
+      }
+    },
+    {
+      "id": "guardian_tokinel",
+      "name": "時針のトキネル",
+      "category": "enemy",
+      "source": "source/guardian_tokinel.png",
+      "sheet": "sheets/guardian_tokinel.png",
+      "frames": [
+        "frames/guardian_tokinel/000.png"
+      ],
+      "grid": {
+        "columns": 1,
+        "rows": 1,
+        "cellSize": [
+          444,
+          444
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": true
+        },
+        "attack": {
+          "name": "特殊行動",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "guardian_nephra",
+      "name": "夜渡りのネフラ",
+      "category": "enemy",
+      "source": "source/guardian_nephra.png",
+      "sheet": "sheets/guardian_nephra.png",
+      "frames": [
+        "frames/guardian_nephra/000.png"
+      ],
+      "grid": {
+        "columns": 1,
+        "rows": 1,
+        "cellSize": [
+          444,
+          444
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": true
+        },
+        "attack": {
+          "name": "特殊行動",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "guardian_farol",
+      "name": "港灯のファロル",
+      "category": "enemy",
+      "source": "source/guardian_farol.png",
+      "sheet": "sheets/guardian_farol.png",
+      "frames": [
+        "frames/guardian_farol/000.png"
+      ],
+      "grid": {
+        "columns": 1,
+        "rows": 1,
+        "cellSize": [
+          444,
+          444
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": true
+        },
+        "attack": {
+          "name": "特殊行動",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "guardian_rivela",
+      "name": "水紐のリヴェラ",
+      "category": "enemy",
+      "source": "source/guardian_rivela.png",
+      "sheet": "sheets/guardian_rivela.png",
+      "frames": [
+        "frames/guardian_rivela/000.png"
+      ],
+      "grid": {
+        "columns": 1,
+        "rows": 1,
+        "cellSize": [
+          444,
+          444
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": true
+        },
+        "attack": {
+          "name": "特殊行動",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "guardian_pomela",
+      "name": "苗耳のポメラ",
+      "category": "enemy",
+      "source": "source/guardian_pomela.png",
+      "sheet": "sheets/guardian_pomela.png",
+      "frames": [
+        "frames/guardian_pomela/000.png"
+      ],
+      "grid": {
+        "columns": 1,
+        "rows": 1,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": true
+        },
+        "attack": {
+          "name": "特殊行動",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "guardian_folio",
+      "name": "紙翼のフォリオ",
+      "category": "enemy",
+      "source": "source/guardian_folio.png",
+      "sheet": "sheets/guardian_folio.png",
+      "frames": [
+        "frames/guardian_folio/000.png"
+      ],
+      "grid": {
+        "columns": 1,
+        "rows": 1,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": true
+        },
+        "attack": {
+          "name": "特殊行動",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "guardian_fiamma",
+      "name": "炉火のフィアンマ",
+      "category": "enemy",
+      "source": "source/guardian_fiamma.png",
+      "sheet": "sheets/guardian_fiamma.png",
+      "frames": [
+        "frames/guardian_fiamma/000.png"
+      ],
+      "grid": {
+        "columns": 1,
+        "rows": 1,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": true
+        },
+        "attack": {
+          "name": "特殊行動",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "guardian_lucerna",
+      "name": "灯翅のルチェルナ",
+      "category": "enemy",
+      "source": "source/guardian_lucerna.png",
+      "sheet": "sheets/guardian_lucerna.png",
+      "frames": [
+        "frames/guardian_lucerna/000.png"
+      ],
+      "grid": {
+        "columns": 1,
+        "rows": 1,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": true
+        },
+        "attack": {
+          "name": "特殊行動",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "guardian_coronel",
+      "name": "冠枝のコロネル",
+      "category": "enemy",
+      "source": "source/guardian_coronel.png",
+      "sheet": "sheets/guardian_coronel.png",
+      "frames": [
+        "frames/guardian_coronel/000.png"
+      ],
+      "grid": {
+        "columns": 1,
+        "rows": 1,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": true
+        },
+        "attack": {
+          "name": "特殊行動",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "guardian_aster",
+      "name": "星璃のアステル",
+      "category": "enemy",
+      "source": "source/guardian_aster.png",
+      "sheet": "sheets/guardian_aster.png",
+      "frames": [
+        "frames/guardian_aster/000.png"
+      ],
+      "grid": {
+        "columns": 1,
+        "rows": 1,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": true
+        },
+        "attack": {
+          "name": "特殊行動",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0
+          ],
+          "durationsMs": [
+            900
+          ],
+          "durationMs": 900,
+          "loop": false
         }
       }
     }

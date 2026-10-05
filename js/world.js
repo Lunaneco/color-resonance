@@ -381,6 +381,8 @@ const World = (() => {
       body += `<div class="wp-sec">町の余白<small>戦わずに遊べる</small></div><p class="wp-note">${townNote} 制限時間のないパズルと記憶あそびで、ひと休みできます。</p>`;
     }
     if (n.type === 'town' && questsAt(n.id).length) body += `<div class="wp-sec">町の依頼<small>${questsAt(n.id).length}件</small></div>${questList(n.id)}`;
+    const guardianRoute=GUARDIANS.find(p=>!p.chapter.startsWith('restore')&&p.town===n.id&&GuardianJourney.available(GUARDIAN_STAGES['gp_'+p.id]));
+    if(guardianRoute){body+=`<div class="wp-sec">章の戦場<small>通常戦と精霊ボス戦</small></div><p class="wp-note">${guardianRoute.name} · 適正LV ${guardianRoute.lv}〜${guardianRoute.lv+3}。${guardianRoute.counter}</p>`;acts.push(`<button class="wb" data-a="guardians" data-chapter="${guardianRoute.chapter}">この章の戦場を選ぶ</button>`);}
     if (Restoration.joined()) {
       const legend = LEGEND_QUESTS.find(q => q.town === n.id);
       if (legend) {
@@ -407,6 +409,7 @@ const World = (() => {
       else if (a === 'forge') SkillForge.open();
       else if (a === 'equip') openEquip();
       else if (a === 'legend') Restoration.stage(b.dataset.legend, 'legends');
+      else if (a === 'guardians') GuardianJourney.open(b.dataset.chapter);
     });
   }
 
@@ -583,6 +586,7 @@ const World = (() => {
     else if (w === 'journal') Journal.open();
     else if (w === 'quests') openQuests();
     else if (w === 'restoration') Restoration.open();
+    else if (w === 'guardians') GuardianJourney.open(Engine.load()?.chapter);
     else if (w === 'party') openParty();
     else if (w === 'title') { close(); Main.toTitle(); }
   }));

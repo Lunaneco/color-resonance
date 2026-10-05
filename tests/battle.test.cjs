@@ -73,7 +73,7 @@ const idle=()=>page.waitForFunction(()=>Board.__test.state().running&&!Board.__t
 const aria=s=>s.units.find(u=>u.kind==='aria');
 const enemy=s=>s.units.find(u=>u.side==='enemy'&&!u.dead&&!u.hidden);
 async function fixture(id='cove', extra={}) {
-  await page.evaluate(({id,extra})=>Board.start({...BOARDS[id],map:{low:['land_flat'],mid:['land_flat'],high:['land_flat'],hills:0,obsAmt:0,water:null},enemies:[{kind:'shade',lv:1}],intro:null,tutorial:null,beats:[],...extra}),{id,extra});
+  await page.evaluate(({id,extra})=>Board.start({...BOARDS[id],guardian:null,bossArt:null,map:{low:['land_flat'],mid:['land_flat'],high:['land_flat'],hills:0,obsAmt:0,water:null},enemies:[{kind:'shade',lv:1}],intro:null,tutorial:null,beats:[],...extra}),{id,extra});
   await idle();
   await page.evaluate(()=>{Math.random=()=>0.5;Board.__test.arrange([{kind:'aria',r:5,c:4,dir:0,atk:999},{kind:'shade',r:4,c:4,dir:2,hp:1}]);});
 }

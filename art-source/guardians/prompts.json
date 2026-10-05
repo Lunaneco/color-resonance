@@ -1,0 +1,27 @@
+{
+  "prompts": [
+    "Use case: stylized-concept. Create one production-ready transparent sprite atlas for the Japanese fantasy tactical game Color Resonance. Exact uniform 4 columns by 2 rows, eight DIFFERENT small guardian spirits, one full-body idle pose per cell, same relative scale, facing front-three-quarter toward bottom-right, entire silhouette within each cell with 15% transparent safe margin, feet aligned at 85% of cell height. No scenery, no text, no labels, no grid lines, true RGBA transparent background. Readable delicate Japanese storybook-anime rendering, smooth clean flat cel shading, muted jewel colours, graceful rounded silhouettes, clear eyes, distinct shapes, thin clean outlines, no particle haze outside the silhouette. Row 1 left to right: (1) teal sea-fox bell spirit with a tiny bronze bell collar and fin ears; (2) silver clockwork owl spirit with a single clock disk on chest and folded wings; (3) green ivy fawn spirit with soft leafy antlers and a little ribbon; (4) gold quartz armadillo spirit with a broad three-piece smooth golden shell. Row 2 left to right: (5) violet prism butterfly spirit with four broad stained-glass wings; (6) navy night-cat spirit with crescent forehead, silver tail tip and short cloak; (7) white and turquoise lighthouse gull spirit standing with a little lantern; (8) pale blue carp water spirit upright hovering with a ribbon-like tail. All are living friendly spiritual creatures, visually different from the game's human heroes, each intended to begin corrupted then regain their own colours through play; do NOT bake black pollution into the image. No weapons or blood. 髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする。intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "Use case: stylized-concept. Create one production-ready sprite atlas of six guardian spirits for Japanese fantasy tactical game Color Resonance. Exact regular 3-column, 2-row grid, one DIFFERENT full-body idle spirit per cell, equal scale and aligned feet, full silhouettes with 15% transparent margin, facing front-three-quarter toward bottom-right. Absolutely no words, numbers, borders or scenery. Genuine transparent background. Smooth clean Japanese storybook-anime cel shading, thin clean outlines, gentle jewel colours, graceful readable creature silhouettes, restrained highlights matching the previous sea-fox, owl, fawn and night-cat guardian atlas. These creatures start corrupted in gameplay then recover their own colour; draw their healthy forms, no baked smoke or black veil. First row from left: (1) green orchard rabbit spirit with two broad leaf ears and a tiny apricot pendant; (2) ivory origami crane spirit with pale violet folded wings and one scroll ribbon, round living eyes; (3) orange hearth-flame fox spirit with smooth flame ears, soft pale muzzle and a small cup-shaped collar. Second row from left: (4) amber lantern moth spirit with four broad clear wings and one glowing lantern-shaped chest; (5) elegant white-blue crown stag spirit with three smooth crown-like antler tips and a midnight short cape; (6) a small nonhuman starglass guardian spirit, a rounded turquoise crystal body, four broad floating wing segments, deep blue eyes and a single gold halo, visually kind and readable. All six fit fully inside their own cell and no limbs cross cells. No human characters, no gore, no micro-sparkles. 髪は全て透過せず、下位レイヤーを描写しない。髪の不透明度は100％とする。intricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。"
+  ],
+  "sources": [
+    "exec-d20ce7d1-ca71-4dc5-a7bd-4e97538f8664.png",
+    "exec-ad4f3fb5-2036-4d60-a77e-363429ee2954.png"
+  ],
+  "adopted": {
+    "atlas-main.png": {
+      "1": "guardian_tokinel",
+      "5": "guardian_nephra",
+      "6": "guardian_farol",
+      "7": "guardian_rivela"
+    },
+    "atlas-restoration.png": {
+      "0": "guardian_pomela",
+      "1": "guardian_folio",
+      "2": "guardian_fiamma",
+      "3": "guardian_lucerna",
+      "4": "guardian_coronel",
+      "5": "guardian_aster"
+    }
+  },
+  "unused": "Main-atlas cells 0, 2, 3 and 4 are not deployed. The story bosses use Gran, Ivy, Spinel and Palette King themselves."
+}
