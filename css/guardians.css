@@ -23,3 +23,4 @@
 @media(prefers-reduced-motion:reduce){.gh-hp>i{transition:none}}
 @media(max-width:600px) and (max-height:600px){#boardScreen.guardian-battle.compact #unitInfo,#boardScreen.guardian-battle.compact #skills{max-height:68px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}#boardScreen.guardian-battle.compact #skills .skill{flex-shrink:0}}
 html[data-motion=reduced] .gh-hp>i{transition:none}
+#guardianHud[data-phase="1"] img{filter:brightness(.65) saturate(.18)}#guardianHud[data-phase="2"] img{filter:brightness(.82) saturate(.59)}#guardianHud[data-phase="3"] img{filter:brightness(.99) saturate(1)}

@@ -4,7 +4,7 @@ const GameArt = (() => {
   const assets = new Map(), cache = new Map(), mounts = new WeakMap();
   const spiritEffects = { gran: 'gran_tide', ivy: 'ivy_vines', spinel: 'spinel_shield', king: 'king_prism' };
   const speakers = { アリア: 'aria', リラ: 'lila', 老漁師: 'fisher', ルミナ: 'lumina', 石の子: 'stone_child', 馨: 'kaoru', マリー: 'mari', グラン: 'gran', アイビー: 'ivy', スピネル: 'spinel', パレット王: 'king', クロム: 'chrome', ルノワール: 'renoir', アクロマ: 'achroma' };
-  const ready = fetch(ROOT + 'manifest.json?v=20261006-guardians1', { signal: AbortSignal.timeout(8000) })
+  const ready = fetch(ROOT + 'manifest.json?v=20261006-guardians2', { signal: AbortSignal.timeout(8000) })
     .then(r => { if (!r.ok) throw new Error('art manifest'); return r.json(); })
     .then(m => m.assets.forEach(a => assets.set(a.id, a))).catch(() => {});
 
@@ -29,7 +29,7 @@ const GameArt = (() => {
     return Promise.all([...new Set(ids.filter(Boolean))].map(id => {
       if (cache.has(id)) return cache.get(id).promise;
       const a = assets.get(id); if (!a) return null;
-      const entry = { image: null, bounds: null };
+      const entry = { image: null, bounds: null, tones: new Map() };
       entry.promise = new Promise(resolve => {
         const im = new Image(); let settled = false;
         const finish = ok => {
@@ -45,6 +45,21 @@ const GameArt = (() => {
     }));
   }
   const available = id => !!cache.get(id)?.image;
+  function toneImage(id, phase) {
+    const e=cache.get(id); if(!e?.image)return null;
+    phase=Math.max(0,Math.min(2,Math.floor(phase)));
+    if(e.tones.has(phase))return e.tones.get(phase);
+    // Canvasのfilterに未対応のブラウザでも、穢れの3段階を同じ色で描く。
+    // RGBだけを変え、原画の透過と髪の不透明度を保つ。各段階は一度だけ計算する。
+    const cv=document.createElement('canvas');cv.width=e.image.naturalWidth;cv.height=e.image.naturalHeight;
+    const c=cv.getContext('2d',{willReadFrequently:true});c.drawImage(e.image,0,0);
+    const data=c.getImageData(0,0,cv.width,cv.height),pixels=data.data;
+    const brightness=[.65,.82,.99][phase],saturation=[.18,.59,1][phase];
+    for(let i=0;i<pixels.length;i+=4){if(!pixels[i+3])continue;const r=pixels[i],g=pixels[i+1],b=pixels[i+2],grey=r*.2126+g*.7152+b*.0722;
+      pixels[i]=brightness*(grey+(r-grey)*saturation);pixels[i+1]=brightness*(grey+(g-grey)*saturation);pixels[i+2]=brightness*(grey+(b-grey)*saturation);
+    }
+    c.putImageData(data,0,0);e.tones.set(phase,cv);return cv;
+  }
   const animation = (id, action) => assets.get(id)?.animations[action];
   function sample(id, action, elapsed) {
     const a = animation(id, action); if (!a) return null;
@@ -61,7 +76,8 @@ const GameArt = (() => {
     const scale = Math.min(height / b.height, maxWidth / b.width);
     const ax = (b.left + b.right) / 2, ay = opt.center ? (b.top + b.bottom) / 2 : b.bottom;
     c.save(); c.translate(x, y); if (opt.flip) c.scale(-1, 1);
-    c.drawImage(e.image, cel % a.grid.columns * w, Math.floor(cel / a.grid.columns) * h, w, h, -ax * scale, -ay * scale, w * scale, h * scale);
+    const source=opt.tone!=null?toneImage(id,opt.tone):e.image;
+    c.drawImage(source, cel % a.grid.columns * w, Math.floor(cel / a.grid.columns) * h, w, h, -ax * scale, -ay * scale, w * scale, h * scale);
     c.restore(); return true;
   }
   function drawMotion(c, id, action, elapsed, x, y, height, maxWidth, opt) {

@@ -61,6 +61,14 @@ const state=page=>page.evaluate(()=>Board.__guardianQA.state()),ready=page=>page
 async function battle(page,id,{flat=true}={}){await page.evaluate(({id,flat})=>{Panel.close();World.close();const c=BOARDS[id];Board.start({...c,...(flat?{cols:8,rows:8,map:{low:['land_flat'],mid:['land_flat'],high:['land_flat'],hills:0,obsAmt:0,waterAmt:0},enemies:[{kind:'boss',lv:1}]}:{}),intro:null,tutorial:null},()=>World.open());},{id,flat});await ready(page);}
 const boss=s=>s.units.find(u=>u.guardian&&!u.dead),hero=s=>s.units.find(u=>u.kind==='aria');
 for(const engine of ['chromium','webkit']){
+ test(`${engine}: pollution visibly clears on all four original sprites while preserving every alpha pixel`,async()=>{
+  await session(engine,{width:390,height:844},async page=>{for(const id of ['gran','ivy','spinel','king']){await battle(page,id);const report=await page.evaluate(id=>{
+    const render=tone=>{const cv=document.createElement('canvas');cv.width=cv.height=512;const c=cv.getContext('2d',{willReadFrequently:true});GameArt.draw(c,id,0,256,490,400,400,tone==null?{}:{tone});return c.getImageData(0,0,512,512).data;};
+    const original=render(null),stages=[0,1,2].map(render);let alphaChanges=0,count=0;const sums=[0,0,0,0];
+    for(let i=0;i<original.length;i+=4){if(stages.some(s=>s[i+3]!==original[i+3]))alphaChanges++;if(original[i+3]>100){count++;[original,...stages].forEach((s,n)=>sums[n]+=(s[i]+s[i+1]+s[i+2])/3);}}
+    return {count,alphaChanges,brightness:sums.map(s=>s/count)};
+  },id);assert(report.count>1000,id);assert.equal(report.alphaChanges,0,id);const [original,a,b,c]=report.brightness;assert(a+10<b&&b+10<c,id+' '+JSON.stringify(report));assert(Math.abs(original-c)<original*.05,id+' returns to its own colours');}});
+ });
  test(`${engine}: all four original bosses draw their own identity and advance through every conversation and invasion phase`,async()=>{
   await session(engine,{width:390,height:844},async page=>{
    for(const id of ['gran','ivy','spinel','king']){

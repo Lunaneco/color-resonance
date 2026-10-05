@@ -658,12 +658,12 @@ const Board = (() => {
     const flip = artId === 'gran' ? dir === 0 || dir === 1 : dir === 2 || dir === 3;
     const height = tw * u.hgt, width = tw * (artId === 'gran' ? (u.guardian?1.6:1.25) : .98);
     g.save();
-    if (u.guardian) g.filter = `brightness(${.65+u.guardianPhase*.17}) saturate(${.18+u.guardianPhase*.41})`;
     const bob = u.guardian && !reducedMotion() ? Math.sin(now/680+u.id)*tw*.025 : 0;
-    GameArt.drawMotion(g, artId, action, elapsed, p.x, p.y + th * .08 + bob, height, width, { flip }); g.restore();
+    const artOptions={flip,...(u.guardian?{tone:u.guardianPhase}:{})};
+    GameArt.drawMotion(g, artId, action, elapsed, p.x, p.y + th * .08 + bob, height, width, artOptions); g.restore();
     if (flash > 0) {
       g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha *= flash;
-      GameArt.drawMotion(g, artId, action, elapsed, p.x, p.y + th * .08, height, width, { flip }); g.restore();
+      GameArt.drawMotion(g, artId, action, elapsed, p.x, p.y + th * .08, height, width, artOptions); g.restore();
     }
     if (u.armor > 0) { g.strokeStyle = 'rgba(200,210,225,.8)'; g.lineWidth = 2; g.beginPath(); g.ellipse(p.x, p.y - tw * .28, tw * .29, th * .3, 0, 0, 6.29); g.stroke(); }
   }
