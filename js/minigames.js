@@ -78,7 +78,8 @@ const Minigames = (() => {
     if (Number.isInteger(moves) && moves >= 0) r.bestMoves = r.bestMoves == null ? moves : Math.min(r.bestMoves, moves);
     const gold = Math.max(0, entitled(difficulty, r.best) - r.paid);
     r.paid += gold; party.gold = Math.min(9999999, party.gold + gold); party.minigames.active = null;
-    return { gold, improved, record: r, grade: grade(score) };
+    const materials = Progression.leisureMaterials(party, id, difficulty, grade(score), r);
+    return { gold, materials, improved, record: r, grade: grade(score) };
   }
   function persist() {
     if (!session || session.practice || session.completed) return;
@@ -99,7 +100,7 @@ const Minigames = (() => {
         const unlocked = available(id), preferred = party.minigames.preferred[id];
         return `<article class="mg-card" style="--mg-color:${game.hue}" data-game="${id}"><div class="mg-card-top"><span class="mg-emblem" aria-hidden="true">${game.icon}</span><div><small>${game.label}</small><h4>${game.title}</h4></div>${allThree(id) ? '<span class="mg-seal">三つの灯り ✦</span>' : ''}</div><p>${game.desc}</p>
           <div class="mg-difficulties" role="group" aria-label="${game.title}の難易度">${tiers.map(tier => { const r = party.minigames.records[id][tier]; return `<button data-tier="${tier}" aria-pressed="${tier === preferred}" ${unlocked ? '' : 'disabled'}><b>${names[tier]}</b><small>${r?.clears ? `最高 ${grade(r.best)} / ${r.best}点` : '未完成'}</small></button>`; }).join('')}</div>
-          <div class="mg-card-actions"><button class="mg-primary" data-start ${unlocked ? '' : 'disabled'}>新しく遊ぶ</button><button class="mg-secondary" data-practice ${unlocked ? '' : 'disabled'}>練習する</button></div>${!unlocked ? `<p class="mg-note">${id === 'lantern' ? '港へ旅立つと' : '第一幕を終えると'}遊べるようになります。</p>` : `<p class="mg-note">報酬は上達した分だけ。${names[preferred]}の合計上限 ${rewards[preferred][3]}しずく。</p>`}
+          <div class="mg-card-actions"><button class="mg-primary" data-start ${unlocked ? '' : 'disabled'}>新しく遊ぶ</button><button class="mg-secondary" data-practice ${unlocked ? '' : 'disabled'}>練習する</button></div>${!unlocked ? `<p class="mg-note">${id === 'lantern' ? '港へ旅立つと' : '第一幕を終えると'}遊べるようになります。</p>` : `<p class="mg-note">しずくと素材は評価C・B・A・Sごとに1回。${id === 'lantern' ? '潮の雫晶・金継ぎの欠片' : '若葉の結晶・虹彩の結晶'}と共鳴の砂、初Sで澄明の核。${names[preferred]}のしずく上限 ${rewards[preferred][3]}。</p>`}
           ${allThree(id) ? `<p class="mg-afterword">${game.story}</p>` : ''}</article>`;
       }).join('')}</div><p class="mg-footnote">練習は記録・報酬に含みません。新しく始めると、途中の記録は置き換わります。獲得した成績は残ります。</p>`), { onClose: () => { stopPulse(); session = null; } });
     const body = Panel.body();
@@ -266,7 +267,7 @@ const Minigames = (() => {
     const result = s.practice ? null : record(load(), s.id, s.difficulty, score, s.id === 'lantern' ? s.moves : null);
     if (!s.practice) { Board.saveParty(); World.refresh(); }
     Audio2.sfx.win();
-    Panel.open('小さな光がともった', shell(`<div class="mg-result"><span class="mg-eyebrow">${games[s.id].title} / ${s.practice ? '練習' : names[s.difficulty]}</span><div class="mg-result-rank">${grade(score)}</div><h3>${s.id === 'lantern' ? '帰る船に、灯りを。' : '響きに、返事を。'}</h3><p>${description}</p><div class="mg-result-numbers"><span>今回 <b>${score}</b> 点</span>${result ? `<span>最高 <b>${result.record.best}</b> 点</span><span>報酬 <b>+${result.gold}</b> しずく</span>` : '<span>練習なので記録と報酬はありません</span>'}</div><p class="mg-afterword">${games[s.id].story}</p><p class="mg-note">${result ? result.gold ? '上達した分のしずくを受け取りました。' : 'この成績までの報酬は受取済み。繰り返し遊んでもしずくは減りません。' : '練習で覚えたら、本番にも挑戦してみよう。'}</p><div class="mg-card-actions"><button class="mg-primary" data-retry>もう一度遊ぶ</button><button class="mg-secondary" data-home>休憩所へ</button></div></div>`), { onClose: () => { stopPulse(); session = null; } });
+    Panel.open('小さな光がともった', shell(`<div class="mg-result"><span class="mg-eyebrow">${games[s.id].title} / ${s.practice ? '練習' : names[s.difficulty]}</span><div class="mg-result-rank">${grade(score)}</div><h3>${s.id === 'lantern' ? '帰る船に、灯りを。' : '響きに、返事を。'}</h3><p>${description}</p><div class="mg-result-numbers"><span>今回 <b>${score}</b> 点</span>${result ? `<span>最高 <b>${result.record.best}</b> 点</span><span>報酬 <b>+${result.gold}</b> しずく</span>` : '<span>練習なので記録と報酬はありません</span>'}</div>${result ? `<div class="r-materials"><small>今回の素材 · 評価ごとに1回</small>${Object.keys(result.materials).length ? Object.entries(result.materials).map(([id, n]) => `${Progression.materials[id].name} +${n}`).join('・') : 'この評価までの素材は受取済みです'}</div>` : ''}<p class="mg-afterword">${games[s.id].story}</p><p class="mg-note">${result ? result.gold ? '上達した分のしずくを受け取りました。' : 'この成績までの報酬は受取済み。繰り返し遊んでもしずくは減りません。' : '練習で覚えたら、本番にも挑戦してみよう。'}</p><div class="mg-card-actions"><button class="mg-primary" data-retry>もう一度遊ぶ</button><button class="mg-secondary" data-home>休憩所へ</button></div></div>`), { onClose: () => { stopPulse(); session = null; } });
     Panel.body().querySelector('[data-retry]').onclick = () => start(s.id, s.difficulty, s.practice);
     Panel.body().querySelector('[data-home]').onclick = () => open();
   }

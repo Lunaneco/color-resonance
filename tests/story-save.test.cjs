@@ -36,6 +36,15 @@ test('Portable saves preserve separate skill routes and claimed rewards while co
   assert.equal(saved.stageDifficulty.cove,'hard');assert.equal(b.data.get('cr_diff'),'hard');
   assert.equal(b.api.previewText(b.api.exportText()).ok,true);
 });
+test('Portable saves preserve skill upgrades, material inventory and all one-time ingredient claims',async()=>{
+  const a=await saveContext(),b=await saveContext(),p=party(123);
+  p.aria.skills=['gran_wave'];p.aria.skillLevels={gran_wave:3};p.materials={m_dust:38,m_teal:19,m_core:2};
+  p.stages.cove.difficulties={hard:{cleared:true,best:'S',materialMissions:[true,false,true],materialMasteryClaimed:true}};
+  p.minigames={records:{lantern:{hard:{best:100,materialGrades:4,plays:1,clears:1,paid:140}}}};
+  a.data.set('cr_party',JSON.stringify(p));assert(b.api.importText(a.api.exportText()).ok);
+  const saved=JSON.parse(b.data.get('cr_party'));assert.equal(saved.aria.skillLevels.gran_wave,3);assert.equal(saved.materials.m_dust,38);assert.equal(saved.materials.m_teal,19);assert.equal(saved.materials.m_core,2);
+  assert.deepEqual(saved.stages.cove.difficulties.hard.materialMissions,[true,false,true]);assert(saved.stages.cove.difficulties.hard.materialMasteryClaimed);assert.equal(saved.minigames.records.lantern.hard.materialGrades,4);
+});
 test('Invalid and unrelated save files cannot replace the current journey',async()=>{
   const s=await saveContext();s.data.set('cr_party',JSON.stringify(party(50)));
   const before=s.data.get('cr_party');

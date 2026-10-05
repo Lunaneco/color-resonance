@@ -471,6 +471,10 @@ test('Real victories award easy S items, normal S equipment, and hard S unique g
       await attack();await page.locator('#resNext').waitFor({timeout:12000});
       const p=await page.evaluate(()=>Board.reloadParty());
       assert(p.stages.q_harbor.difficulties[key].sRewardClaimed);
+      assert(p.stages.q_harbor.difficulties[key].materialMasteryClaimed);
+      assert.equal(p.materials.m_core,['gentle','normal','hard'].indexOf(key)+1);
+      assert.equal(await page.locator('.r-materials').count(),attempt?1:2);
+      assert.match(await page.locator('.r-materials').first().textContent(),/戦闘クリア素材/);
       assert.equal(p.items.i_shard,1);assert.equal(p.items.i_powder,1);
       assert.deepEqual(p.owned,key==='gentle'?[]:key==='normal'?['e_glass']:['e_glass','u_quest_harbor']);
       const result=await page.locator('.result').textContent();
@@ -938,5 +942,32 @@ test('Actual summon hit, kill, and arrival experience cap a spirit at LV99 and p
     const exported=await page.evaluate(()=>{const text=SaveData.exportText();return {result:SaveData.previewText(text),party:JSON.parse(JSON.parse(text).data.cr_party)};});
     assert(exported.result.ok,exported.result.message);assert.equal(exported.party.spirits.gran.lv,99);assert.equal(exported.party.spirits.gran.exp,0);
     await page.locator('#resNext').click();
+  }
+});
+
+
+test('A material-upgraded attack deals more actual damage while keeping its resonance cost',async()=>{
+  await boot('cove',{width:1440,height:900},{cr_party:partyWithTraining(40)});
+  const damage=[];
+  for(const level of [0,3]) {
+    await page.evaluate(level=>{Board.party.aria.skillLevels.gran_wave=level;Board.saveParty();},level);
+    await fixture('cove',{spStart:12});await page.evaluate(()=>{Board.__test.arrange([{kind:'aria',atk:40,hp:1000,mhp:1000},{kind:'shade',hp:5000,mhp:5000,atk:1,def:0}]);Board.__test.addAlly('ivy',2,2);});
+    await openMenu();await page.locator('[data-k=learned]').click();await page.locator('[data-k=learnedroute][data-a=enchant]').click();
+    assert.match(await page.locator('[data-k=skill][data-a=gran_wave]').textContent(),level?/水鏡の矢 \+3/:/水鏡の矢/);
+    await page.locator('[data-k=skill][data-a=gran_wave]').click();await clickUnit(enemy(await state()),true);
+    await page.waitForFunction(()=>Board.__test.state().skillUses===1&&!Board.__test.state().busy);
+    damage.push(5000-enemy(await state()).hp);assert.equal((await state()).sp,10);
+  }
+  assert(damage[1]>damage[0]*1.25,JSON.stringify(damage));
+});
+
+test('A material-upgraded support skill applies its displayed healing and extra guard turn',async()=>{
+  await boot('cove',{width:1440,height:900},{cr_party:partyWithTraining(40)});
+  for(const level of [0,2]) {
+    await page.evaluate(level=>{Board.party.aria.skillLevels.gran_current=level;Board.saveParty();},level);
+    await fixture('cove',{spStart:12});await page.evaluate(()=>{Board.__test.arrange([{kind:'aria',hp:20,mhp:100},{kind:'shade',hp:5000,mhp:5000,atk:1}]);Board.__test.addAlly('ivy',2,2);});
+    await openMenu();await chooseLearned('gran_current');await clickUnit(aria(await state()),true);
+    await page.waitForFunction(()=>Board.__test.state().skillUses===1&&!Board.__test.state().busy);
+    assert.equal(aria(await state()).hp,level?70:59);assert.equal(aria(await state()).guard,level?2:1);assert.equal((await state()).sp,9);
   }
 });

@@ -74,6 +74,12 @@ const SHOPS = {
   rainbow: ['i_tea', 'i_water', 'i_shard', 'i_powder', 'i_ward', 'e_amber', 'e_prism', 'a_gold', 'a_star', 'c_lens', 'c_bell', 'c_tea', 'c_brush', 'c_feather'],
 };
 
+const MATERIAL_SHOPS = {
+  grey: ['m_dust', 'm_teal', 'm_green'],
+  stone: ['m_dust', 'm_gold'],
+  rainbow: Object.keys(Progression.materials),
+};
+
 // ---------- フリーステージ ----------
 const FREE_WORDS = ['迷い', 'ためいき', '言えなかったこと', '置き忘れた色', '冷たい雨', 'ひとりぼっち', 'どうせ', '見ないふり', '遅すぎた', 'ごめんね'];
 const FREE_STAGES = {
@@ -307,7 +313,7 @@ const World = (() => {
     showPanel(n);
   }
   function missionsHtml(conf, rec) {
-    return `<div class="wp-ms">${(conf.missions || []).map((m, i) => `<div class="${rec && rec.missions && rec.missions[i] ? 'ok' : ''}"><i></i>${missionLabel(m, conf)}</div>`).join('')}</div>`;
+    return `<div class="wp-ms">${(conf.missions || []).map((m, i) => `<div class="${rec && rec.missions && rec.missions[i] ? 'ok' : ''}"><i></i>${missionLabel(m, conf)}${rec?.materialMissions?.[i] ? '<small class="wp-material-claimed">素材受取済み</small>' : ''}</div>`).join('')}</div>`;
   }
   function missionLabel(m, conf) {
     const f = conf.inverted ? ['夜空', '白い膜'] : ['虹', 'くすみ'];
@@ -352,6 +358,8 @@ const World = (() => {
         <div class="wp-sec">ミッション<small>${Progression.difficulties[key].name}の実績</small></div>${missionsHtml(conf, record)}
         ${u ? `<div class="wp-unique ${got ? 'got' : ''}" data-reward-kind="${u.unique ? 'unique' : 'equipment'}"><small>${Progression.difficulties[key].name}のS評価 · ${u.unique ? 'ユニーク装備' : '通常装備'}${record?.sRewardClaimed ? ' · 受取済み' : ''}</small><b>${u.name}${got ? ' · 所持済み' : ''}</b><span>${u.desc}</span>${!u.unique && !record?.sRewardClaimed ? '<small>所持済みなら価格の半分をしずくで受け取れます</small>' : ''}</div>` : ''}
         ${Object.keys(rewards.sItems).length ? `<div class="wp-unique ${record?.sRewardClaimed ? 'got' : ''}" data-reward-kind="items"><small>やさしいのS評価 · アイテム${record?.sRewardClaimed ? ' · 受取済み' : ''}</small><b>${Object.entries(rewards.sItems).map(([id, n]) => `${ITEMS[id].name} ×${n}`).join('・')}</b></div>` : ''}`;
+      const clearMaterials = Progression.battleMaterials(conf, key), gem = Object.keys(clearMaterials).find(id => id !== 'm_dust');
+      body += `<div class="wp-sec">強化素材<small>素材袋に入ります</small></div><p class="wp-note">クリアで毎回：${Object.entries(clearMaterials).map(([id, n]) => `${Progression.materials[id].name} ×${n}`).join('・')}<br>各ミッションの初達成：共鳴の砂 ×1・${Progression.materials[gem].name} ×1<br>この難易度の初S評価：澄明の核 ×1${record?.materialMasteryClaimed ? ' · 受取済み' : ''}</p>`;
       if (conf.reward) body += `<p class="wp-note">基本報酬 ${Math.round(conf.reward * Progression.difficulties[key].reward)}しずく＋撃破・ランク報酬</p>`;
       body += `<p class="wp-note">${record?.cleared ? '初回報酬は受取済み' : 'この難易度の初回報酬：' + Object.entries(rewards.firstItems).map(([id, v]) => `${ITEMS[id].name} ×${v}`).join('・')}<br>S評価報酬は各難易度で1回。ユニーク装備はハードのS評価のみ。道具の所持上限は各9個</p>`;
       if (!story) acts.push(`<button class="wb main" data-a="sortie">出撃</button>`);
@@ -365,6 +373,7 @@ const World = (() => {
     if (n.type === 'town') {
       acts.push(`<button class="wb main" data-a="shop">店に入る</button>`);
       acts.push(`<button class="wb" data-a="games">色と音の休憩所</button>`);
+      acts.push(`<button class="wb" data-a="forge">スキル強化</button>`);
       const townNote = { aquamist: '港の硝子盤に灯りを戻す、灯台守の小さな遊び。', grey: '時計の音のあいだに、精霊のこだまが帰ってきた。', stone: '金継ぎの硝子盤と、谷に響く四つの音。', rainbow: '祭りのあとも、色と音は広場で遊んでいる。' }[n.id];
       body += `<div class="wp-sec">町の余白<small>戦わずに遊べる</small></div><p class="wp-note">${townNote} 制限時間のないパズルと記憶あそびで、ひと休みできます。</p>`;
     }
@@ -385,6 +394,7 @@ const World = (() => {
       else if (a === 'sortie') sortie(n);
       else if (a === 'shop') openShop(n);
       else if (a === 'games') Minigames.open(n.id);
+      else if (a === 'forge') SkillForge.open();
       else if (a === 'equip') openEquip();
     });
   }
@@ -426,37 +436,40 @@ const World = (() => {
   function openShop(n) {
     const render = () => {
       reload();
-      const list = SHOPS[n.shop] || [];
+      const list = [...(SHOPS[n.shop] || []), ...(MATERIAL_SHOPS[n.shop] || [])];
       const row = (id) => {
-        const it = ITEMS[id], eq = EQUIP[id], x = it || eq;
+        const it = ITEMS[id], eq = EQUIP[id], mat = Progression.materials[id], x = it || eq || mat;
         const owned = eq ? party.owned.includes(id) : false;
-        const cnt = it ? (party.items[id] || 0) : 0;
-        const dis = party.gold < x.price || owned || (it && cnt >= ITEM_MAX);
-        const tag = it ? '道具' : SLOT_NAME[eq.slot];
+        const cnt = it ? (party.items[id] || 0) : mat ? party.materials[id] : 0, cap = mat ? Progression.MATERIAL_MAX : ITEM_MAX;
+        const dis = party.gold < x.price || owned || ((it || mat) && cnt >= cap);
+        const tag = mat ? '素材' : it ? '道具' : SLOT_NAME[eq.slot];
         return `<div class="sh-row"><span class="sh-tag ${eq ? eq.slot : 'item'}">${tag}</span><div class="sh-main"><b>${x.name}</b><small>${x.desc}</small></div>
-          <span class="sh-own">${it ? `${cnt}/${ITEM_MAX}` : owned ? (party.equip[eq.slot] === id ? '装備中' : '持っている') : ''}</span>
+          <span class="sh-own">${it || mat ? `${cnt}/${cap}` : owned ? (party.equip[eq.slot] === id ? '装備中' : '持っている') : ''}</span>
           <button class="sh-buy" data-id="${id}" ${dis ? 'disabled' : ''}>${x.price}<small>しずく</small></button></div>`;
       };
       Panel.open(`${n.name}の店`, `<div class="shop"><div class="sh-gold">しずく <b>${party.gold}</b><small>戦いで手に入る「色のしずく」で買いものができます</small></div>
         <div class="sh-sec">道具</div>${list.filter(id => ITEMS[id]).map(row).join('')}
         <div class="sh-sec">装備</div>${list.filter(id => EQUIP[id]).map(row).join('')}
+        ${list.some(id => Progression.materials[id]) ? `<div class="sh-sec">強化素材<small>習得済みの技を磨く・各${Progression.MATERIAL_MAX}個まで</small></div>${list.filter(id => Progression.materials[id]).map(row).join('')}<button class="sf-upgrade" id="shForge">スキル強化へ</button>` : ''}
         <div style="text-align:center"><button class="btn-main" id="shEquip">装備を整える</button></div></div>`);
       const b = Panel.body();
-      b.querySelectorAll('.sh-buy').forEach(x => x.onclick = () => buy(x.dataset.id, render));
+      b.querySelectorAll('.sh-buy').forEach(x => x.onclick = () => buy(x.dataset.id, render, n.shop));
       b.querySelector('#shEquip').onclick = () => openEquip();
+      b.querySelector('#shForge')?.addEventListener('click', () => SkillForge.open());
     };
     render();
   }
-  function buy(id, rerender) {
+  function buy(id, rerender, shop) {
     reload();
-    const it = ITEMS[id], eq = EQUIP[id], x = it || eq;
-    if (!x || !Number.isFinite(x.price) || party.gold < x.price) return;
+    const it = ITEMS[id], eq = EQUIP[id], mat = Progression.materials[id], x = it || eq || mat;
+    if (!x || !Number.isFinite(x.price) || party.gold < x.price || mat && !(MATERIAL_SHOPS[shop] || []).includes(id)) return;
     if (it) { if ((party.items[id] || 0) >= ITEM_MAX) return; party.items[id] = (party.items[id] || 0) + 1; }
+    else if (mat) { if (party.materials[id] >= Progression.MATERIAL_MAX) return; Progression.awardMaterials(party, { [id]: 1 }); }
     else { if (party.owned.includes(id)) return; party.owned.push(id); }
     party.gold -= x.price;
     Board.saveParty();
     Audio2.sfx.star(3);
-    Engine.toast(eq ? `「${eq.name}」を買った。装備から身につけられます` : `「${it.name}」を買った`);
+    Engine.toast(eq ? `「${eq.name}」を買った。装備から身につけられます` : `「${x.name}」を買った${mat ? '。素材袋に入りました' : ''}`);
     updateTop();
     rerender();
   }
@@ -496,6 +509,7 @@ const World = (() => {
     Panel.open('仲間', `<div class="pt">
       <div class="pt-row"><span class="pt-name">${GameArt.portrait('aria', 'pt-art')}<b>アリア</b></span><span>LV ${party.aria.lv}</span><span class="pt-exp"><i style="width:${party.aria.exp}%"></i></span></div>
       <p class="wp-note">絆は共通で育ち、精霊と技の力が強くなります。技の習得は「エンチャント」「召喚」の熟練度を別々に育て、各8・20・40で3種類ずつ。覚えた技の使用は絆+2で、系統の熟練には入りません。以前覚えた技はそのまま使えます。</p>
+      <button class="sf-upgrade" id="ptForge">素材でスキルを強化する</button>
       ${sp.map(id => {
         const r = party.spirits[id] || { lv: party.aria.lv, exp: 0, bond: 0, uses: 0 }, rank = Progression.rank(r.bond), next = Progression.thresholds[rank];
         const from = Progression.thresholds[rank - 1], percent = next ? (r.bond - from) / (next - from) * 100 : 100;
@@ -503,12 +517,13 @@ const World = (() => {
           <div class="bond-info"><b>絆${rank}</b><span>${r.bond}${next ? ' / ' + next : '・最大ランク'}　使用${r.uses}回</span></div><div class="pt-exp bond-bar"><i style="width:${percent}%"></i></div>
           <p class="wp-note">精霊：HP +${(rank - 1) * 5}%・攻撃 +${(rank - 1) * 4}%・守り +${(rank - 1) * 2}%<br>宿した心剣・攻撃技の威力 +${(rank - 1) * 3}%</p>
           ${Object.entries(Progression.routes).map(([route, info]) => {
-            const points = Progression.training(party, id, route), list = Progression.skills.filter(s => s.spirit === id && s.route === route).sort((a, b) => a.at - b.at);
+            const points = Progression.training(party, id, route), list = Progression.skills.filter(s => s.spirit === id && s.route === route).sort((a, b) => a.at - b.at).map(s => Progression.skill(party, s.id));
             return `<section class="bond-route" data-route="${route}"><h4>${info.name}<small>熟練 ${points} · 習得 ${Progression.learned(party, id, route).length}/3</small></h4><p>${info.desc}</p>${list.map(s => `<div class="bond-skill ${party.aria.skills.includes(s.id) ? 'known' : ''}"><b>${party.aria.skills.includes(s.id) ? '✓' : '◇'} ${s.name}</b><small>${s.type}・${party.aria.skills.includes(s.id) ? '習得済み / 共鳴' + s.cost : '熟練' + s.at + 'で習得（あと' + Math.max(0, s.at - points) + '）'}</small><span>${s.desc}</span></div>`).join('')}</section>`;
           }).join('')}</div>`;
       }).join('') || '<p>まだ精霊の仲間はいない</p>'}
       <div class="sh-sec">ユニーク装備<small>${uniq.filter(k => party.owned.includes(k)).length} / ${uniq.length}</small></div>
       <div class="pt-uq">${uniq.map(k => `<span class="${party.owned.includes(k) ? 'on' : ''}">${party.owned.includes(k) ? EQUIP[k].name : '？？？'}</span>`).join('')}</div></div>`);
+    Panel.body().querySelector('#ptForge').onclick = () => SkillForge.open();
   }
 
   // ---------- 開閉 ----------
@@ -540,6 +555,7 @@ const World = (() => {
     const w = b.dataset.w;
     if (w === 'equip') openEquip();
     else if (w === 'games') Minigames.open(current);
+    else if (w === 'forge') SkillForge.open();
     else if (w === 'journal') Journal.open();
     else if (w === 'quests') openQuests();
     else if (w === 'party') openParty();

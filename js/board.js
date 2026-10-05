@@ -2072,6 +2072,7 @@ const Board = (() => {
         record.clears = (record.clears || 0) + 1;
       }
       const reward = Progression.rewards(cfg, difficulty);
+      stats.materialRewards = Progression.collectBattleMaterials(party, cfg, difficulty, res, r, dr);
       stats.questItems = []; stats.rankItems = [];
       const awardItems = (items, result) => { for (const [id, count] of Object.entries(items)) {
         if (!ITEMS[id]) continue;
@@ -2104,6 +2105,7 @@ const Board = (() => {
       <div class="r-rank">${r}</div><div class="r-name">${RANK_NAME[r]}</div>
       <p class="r-difficulty">${Progression.difficulties[difficulty].name}・適正LV ${cfg.recommendedLv}</p>
       ${mlist}
+      ${Object.entries(stats.materialRewards || {}).filter(([, bag]) => Object.keys(bag).length).map(([kind, bag]) => `<div class="r-materials"><small>${{ clear: '戦闘クリア素材 · 毎回', mission: 'ミッション初達成の素材', mastery: '初S評価の素材' }[kind]}</small>${Object.entries(bag).map(([id, n]) => `${Progression.materials[id].name} +${n}`).join('・')}</div>`).join('')}
       ${(stats.questItems || []).length ? `<p class="r-bond">この難易度の初回報酬：${stats.questItems.map(x => `${ITEMS[x.id].name} +${x.count}`).join('・')}</p>` : ''}
       ${u ? `<div class="r-unique"><small>Sランク達成　ユニーク装備</small><b>${u.name}</b><span>${u.desc}</span></div>` : ''}
       ${equipment ? `<div class="r-unique r-equipment"><small>ふつうのS評価　通常装備</small><b>${EQUIP[equipment].name}</b><span>${equipmentGold ? `所持済みのため ${equipmentGold}しずくに交換` : EQUIP[equipment].desc}</span></div>` : ''}

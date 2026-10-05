@@ -51,7 +51,7 @@ test('Twelve quests have chapter gates, distinct objectives, repeatable difficul
 
 test('Malformed party fields are repaired without creating unavailable skills, items or rewards', () => {
   const party = P.migrate({ aria: { lv: -4, exp: 'broken', skills: ['ivy_bind', 'invented', 'ivy_bind'] }, spirits: { gran: { lv: Infinity, exp: 200, bond: Infinity, uses: -5 }, evil: {} }, gold: 'bad', owned: 'u_knot', equip: { charm: 'u_knot' }, items: { i_tea: 20, i_water: -4, evil: 99 }, stages: { cove: null, ivy: { cleared: true, best: 'unknown', missions: 'bad', difficulties: { expert: { cleared: true, clears: Infinity }, evil: {} } } }, stageDifficulty: ['expert'] });
-  assert.deepEqual(plain(party.aria), { lv: 1, exp: 0, skills: ['ivy_bind'] });
+  assert.deepEqual(plain(party.aria), { lv: 1, exp: 0, skills: ['ivy_bind'], skillLevels: {} });
   assert.equal(party.gold, 0); assert.deepEqual(plain(party.owned), []);
   assert.equal(party.equip.charm, null); assert.deepEqual(plain(party.items), { i_tea: 9, i_water: 0 });
   assert.deepEqual(Object.keys(party.spirits), ['gran']); assert.equal(party.spirits.gran.lv, 1); assert.equal(party.spirits.gran.bond, 0);
@@ -103,5 +103,5 @@ test('Minigame migration bounds rewards and preserves only usable partial sessio
   assert.equal(party.minigames.preferred.lantern, 'hard'); assert.equal(party.minigames.preferred.echo, 'gentle');
   assert.deepEqual(plain(party.minigames.active.input), [0, 1]);
   party.minigames.active.sequence = [99]; P.migrate(party); assert.equal(party.minigames.active, null);
-  assert.deepEqual(plain(P.migrate(null).aria), { lv: 1, exp: 0, skills: [] });
+  assert.deepEqual(plain(P.migrate(null).aria), { lv: 1, exp: 0, skills: [], skillLevels: {} });
 });
