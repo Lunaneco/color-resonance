@@ -5,7 +5,7 @@ const GuardianJourney = (() => {
     if (chapter === 'mari_return') return typeof MariReturn !== 'undefined' && MariReturn.available();
     if (chapter === 'fury') return typeof Fury !== 'undefined' && Fury.available();
     if (chapter.startsWith('restore')) return Restoration.joined() && Board.party.postgame.progress>=Number(chapter.slice(7))-1;
-    return Engine.unlocked().includes(chapter);
+    return Engine.unlocked().includes(chapter) && !Progression.journeyGate(chapter,Engine.unlocked(),Engine.load()?.colors);
   }
   const pathDone=p=>!!(Board.party.stages[p.pathId]?.cleared||p.legacy&&Board.party.stages[p.bossId]?.cleared);
   const mission=m=>({turns:`${m.n}ターン以内にクリア`,hp:`アリアのHP ${m.n}%以上`,rainbow:`虹の床 ${m.n}%以上`,dullMax:`くすみを${m.n}%未満に保つ`,enchantKill:`宿した心剣で${m.n}体倒す`,back:`背後から${m.n}回命中`,summonKill:`召喚した精霊で${m.n}体倒す`,bossLast:'ほかの影を払い、最後にボスの穢れをほどく',guardianVoice:'3段階の声を取り戻す',teamHP:`二人のHPをそれぞれ${m.n}%以上残す`,purify:`浄化を${m.n}回使う`})[m.type]||'戦場のミッションを達成';

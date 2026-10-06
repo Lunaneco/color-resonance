@@ -18,6 +18,17 @@ test('Fury rises with missing HP, falls with healing, and is independent from Sp
  const c=await content();const r=JSON.parse(vm.runInContext(`JSON.stringify([100,50,1,0,150].map(h=>Progression.furyPower(h,100)))`,c));assert.deepEqual(r,[1.15,1.3499999999999999,1.5459999999999998,1.5499999999999998,1.15]);
  const s=JSON.parse(vm.runInContext(`JSON.stringify(Progression.skills.find(s=>s.id==='spinel_guard'))`,c));assert.equal(s.guard,3);assert.equal(s.heal,.25);assert(!s.power);
 });
+test('Both orders share one meeting; Ivy remembers Marii before the restoration reunion',async()=>{
+ const c=await content();vm.runInContext(`globalThis.journeyKeys=['act3'];globalThis.Engine={unlocked:()=>journeyKeys,load:()=>({colors:['teal']})}`,c);
+ assert.equal(vm.runInContext(`Fury.chat('forest_before')`,c),'');
+ vm.runInContext(`journeyKeys=['act3','vardbond']`,c);assert.match(vm.runInContext(`Fury.chat('forest_before')`,c),/葉を折らず/);
+ assert.equal(vm.runInContext(`Fury.chat('forest_meeting')`,c),'');const vardFirst=vm.runInContext(`Fury.chat('forest_after')`,c);
+ vm.runInContext(`journeyKeys=['act4','vardbond']`,c);assert.equal(vm.runInContext(`Fury.chat('forest_meeting')`,c),vardFirst);
+ assert.match(vm.runInContext(`SCRIPT.act3`,c),/この葉っぱの話を聞いてる/);assert.match(vm.runInContext(`SCRIPT.act4`,c),/君も、盾の後ろへ帰ってきて/);
+ assert.match(vm.runInContext(`SCRIPT.act5`,c),/アイビー。ヴァルド。スピネル/);
+ vm.runInContext(await fs.readFile(path.join(root,'js/mari-return.js'),'utf8'),c);assert.match(vm.runInContext(`MariReturn.chat('friends')`,c),/目印だけは枯らさなかった/);
+ assert(!vm.runInContext(`SCRIPT.act3`,c).includes('@maribond'));
+});
 let server,base,browsers;
 const hook=`__furyQA:{
  ready:()=>running&&!busy&&!paused&&!over,
@@ -36,16 +47,59 @@ before(async()=>{
 });
 after(async()=>{for(const b of Object.values(browsers||{}))await b.close();if(server)await new Promise(r=>server.close(r));});
 const checkpoint={chapter:'act4',idx:0,map:true,at:12345};
-async function session(engine,run,{joined=false,unlocked=['prologue','act1','act2','act3','act4'],oldClear=false}={}){
+async function session(engine,run,{joined=false,unlocked=['prologue','act1','act2','act3','act4'],oldClear=false,checkpoint:storyCheckpoint=checkpoint}={}){
  const ctx=await browsers[engine].newContext({viewport:{width:390,height:844},hasTouch:true}),page=await ctx.newPage(),errors=[];page.setDefaultTimeout(15000);page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.url().startsWith(base)&&r.status()>=400)errors.push(r.status()+' '+r.url());});
- await ctx.addInitScript(({unlocked,joined,oldClear,checkpoint})=>{if(localStorage.cr_fury_seed)return;localStorage.cr_fury_seed='1';localStorage.cr_unlocked=JSON.stringify([...unlocked,...(joined?['vardbond']:[])]);localStorage.cr_settings=JSON.stringify({reduceMotion:true,textSize:'normal'});localStorage.cr_speed='0';localStorage.cr_save=JSON.stringify(checkpoint);localStorage.cr_party=JSON.stringify({aria:{lv:16,exp:0},gold:400,pos:'f_fruit',spirits:{vard:{lv:16,bond:80,training:{enchant:40,summon:40}}},stages:oldClear?{f_fruit:{cleared:true,best:'S',clears:3}}:{}});},{unlocked,joined,oldClear,checkpoint});
+ await ctx.addInitScript(({unlocked,joined,oldClear,checkpoint})=>{if(localStorage.cr_fury_seed)return;localStorage.cr_fury_seed='1';localStorage.cr_unlocked=JSON.stringify([...unlocked,...(joined?['vardbond']:[])]);localStorage.cr_settings=JSON.stringify({reduceMotion:true,textSize:'normal'});localStorage.cr_speed='0';localStorage.cr_save=JSON.stringify(checkpoint);localStorage.cr_party=JSON.stringify({aria:{lv:16,exp:0},gold:400,pos:'f_fruit',spirits:{vard:{lv:16,bond:80,training:{enchant:40,summon:40}}},stages:oldClear?{f_fruit:{cleared:true,best:'S',clears:3}}:{}});},{unlocked,joined,oldClear,checkpoint:storyCheckpoint});
  const source=await fs.readFile(path.join(root,'js/board.js'),'utf8');await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:source.replace('    start, enterPhase1, help, stop,',hook+'    start, enterPhase1, help, stop,')}));await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({contentType:'text/css',body:''}));
  try{await page.goto(base+'#world',{waitUntil:'networkidle'});await page.locator('#gate').click();await page.locator('#world').waitFor({state:'visible'});if(await page.evaluate(()=>Fury.available())){await page.evaluate(()=>World.open({at:'f_fruit'}));await page.locator('[data-a=fury]').waitFor();}try{await run(page);}catch(e){e.message+='; runtime errors: '+JSON.stringify(errors);await page.screenshot({path:'/tmp/cr-vard-failure-'+engine+'.png'});throw e;}assert.deepEqual(errors,[]);}finally{await ctx.close();}
 }
 async function advance(page,predicate){for(let i=0;i<240;i++){if(await page.evaluate(predicate))return;if(await page.locator('#chapterCard:not(.hidden):not(.out)').count())await page.locator('#chapterCard').click();else if(await page.locator('#textbox:not(.hidden),#centerText.show').count()){await page.evaluate(()=>document.activeElement?.blur());await page.keyboard.press('Enter');}await page.waitForTimeout(60);}assert.fail('Story did not advance: '+JSON.stringify(await page.evaluate(()=>({text:document.getElementById('text').textContent,save:Engine.load(),world:World.isOpen,board:Board.running,errors:document.getElementById('hintText').textContent}))));}
 const ready=page=>page.waitForFunction(()=>Board.__furyQA.ready(),null,{timeout:20000});
 async function win(page){await page.evaluate(()=>Board.__furyQA.finish());await page.locator('#resNext').waitFor();await page.locator('#resNext').click();}
+async function storyBattles(page,chapter,path,boss,next){
+ await page.evaluate(ch=>Engine.play(ch),chapter);
+ await advance(page,()=>Board.running);await ready(page);assert.equal(await page.evaluate(()=>Board.__furyQA.state().cfg),path);await win(page);
+ await advance(page,()=>Board.running);await ready(page);assert.equal(await page.evaluate(()=>Board.__furyQA.state().cfg),boss);await win(page);
+ await advance(page,()=>World.isOpen);assert.equal(await page.evaluate(()=>Engine.load().chapter),next);
+}
 for(const engine of ['chromium','webkit']){
+ for(const first of ['ivy','vard'])test(`${engine}: ${first} first reaches the same party before Spinel and the king`,async()=>{
+  await session(engine,async page=>{
+   assert.equal(await page.evaluate(()=>Progression.journeyGate('act3',Engine.unlocked())),null);
+   if(first==='ivy'){
+    await storyBattles(page,'act3','gp_ivy','ivy','act4');
+    const before=await page.evaluate(()=>localStorage.cr_save);await page.evaluate(()=>Engine.play('act4'));
+    assert(await page.evaluate(()=>World.isOpen&&!Board.running));assert.equal(await page.evaluate(()=>localStorage.cr_save),before);
+    assert.equal(await page.evaluate(()=>GuardianJourney.available(BOARDS.gp_spinel)),false);
+    await storyBattles(page,'fury','gp_vard','f_fruit','act4');
+   }else{
+    await storyBattles(page,'fury','gp_vard','f_fruit','act3');
+    assert.equal(await page.evaluate(()=>Fury.reunionReady()),false);assert.equal(await page.locator('[data-a=furychat]').count(),0);
+    await storyBattles(page,'act3','gp_ivy','ivy','act4');
+   }
+   assert(await page.evaluate(()=>Fury.reunionReady()));
+   assert.equal(await page.evaluate(()=>Progression.journeyGate('act4',Engine.unlocked())),null);
+   assert(await page.evaluate(()=>GuardianJourney.available(BOARDS.gp_spinel)));
+   const log=await page.evaluate(()=>document.getElementById('text').textContent);assert(log!==undefined);
+   await storyBattles(page,'act4','gp_spinel','spinel','act5');
+   assert.deepEqual(await page.evaluate(()=>Progression.companions(Engine.unlocked())),['gran','ivy','spinel','vard']);
+   assert.equal(await page.evaluate(()=>Progression.journeyGate('act5',Engine.unlocked())),null);
+   await page.evaluate(()=>Engine.play('act5'));await advance(page,()=>Board.running);await ready(page);
+   assert.equal(await page.evaluate(()=>Board.__furyQA.state().cfg),'gp_king');assert((await page.evaluate(()=>Board.__furyQA.state().spirits)).includes('vard'));
+  },{unlocked:['prologue','act1','act2','act3'],checkpoint:{chapter:'act3',idx:0,map:true,at:12345}});
+ });
+ test(`${engine}: an old king checkpoint requires Vard in both story and stage menus`,async()=>{
+  await session(engine,async page=>{
+   await page.evaluate(()=>World.open({at:'spire'}));await page.locator('[data-a=journey]').waitFor();
+   assert.equal(await page.locator('[data-a=story]').count(),0);assert.equal(await page.locator('[data-a=sortie]').count(),0);
+   assert.equal(await page.evaluate(()=>GuardianJourney.available(BOARDS.gp_king)),false);
+   const before=await page.evaluate(()=>localStorage.cr_save);await page.evaluate(()=>Engine.play('act5'));
+   assert.equal(await page.evaluate(()=>localStorage.cr_save),before);assert(await page.evaluate(()=>World.isOpen&&!Board.running));
+   await page.screenshot({path:`/tmp/cr-journey-gate-${engine}.png`});
+   await storyBattles(page,'fury','gp_vard','f_fruit','act5');
+   assert(await page.evaluate(()=>GuardianJourney.available(BOARDS.gp_king)));
+  },{unlocked:['prologue','act1','act2','act3','act4','act5'],checkpoint:{chapter:'act5',idx:0,map:true,at:12345},oldClear:true});
+ });
  test(`${engine}: old fruit clears do not recruit Vard; two story battles and reload preserve the main checkpoint`,async()=>{
   await session(engine,async page=>{
    assert(!await page.evaluate(()=>Fury.joined()));await page.evaluate(()=>SkillForge.open());assert.equal(await page.locator('[data-forge-spirit=vard]').count(),0);await page.evaluate(()=>Panel.close());assert.equal(await page.locator('[data-a=furychat]').count(),0);await page.evaluate(()=>World.open({at:'f_fruit'}));await page.locator('[data-a=fury]').click();await advance(page,()=>Board.running&&Board.__furyQA.state().cfg==='gp_vard');await ready(page);assert(!(await page.evaluate(()=>Board.__furyQA.state().spirits)).includes('vard'));await win(page);

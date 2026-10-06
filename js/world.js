@@ -193,6 +193,7 @@ const World = (() => {
   const save = () => Engine.load();
   function nextChapter() { const s = save(); return s && SCRIPT[s.chapter] ? s : null; }
   function visible(n) {
+    if (n.id==='f_fruit') return Fury.available();
     if (n.chapter) return has(n.chapter);
     return has(n.need);
   }
@@ -212,7 +213,7 @@ const World = (() => {
   function storyHere(n) { const s = nextChapter(); return s && n.chapter && n.chapter === s.chapter ? s : null; }
   // 精霊になった仲間（物語の進み具合で決まる）
   function spiritsNow() { return Progression.companions(unlocked(), Engine.load()?.colors); }
-  const replayable = (n, rec) => !!(rec?.cleared || n.type === 'free' || (n.type === 'quest' && bondReady(SIDE_QUESTS[n.quest])) || (n.clearedBy && has(n.clearedBy)));
+  const replayable = (n, rec) => !Progression.journeyGate(n.chapter,unlocked(),Engine.load()?.colors) && !!(rec?.cleared || n.type === 'free' || (n.type === 'quest' && bondReady(SIDE_QUESTS[n.quest])) || (n.clearedBy && has(n.clearedBy)));
   function stageConf(n) {
     if (n.board) {
       const c = JSON.parse(JSON.stringify(BOARDS[n.board]));
@@ -345,6 +346,7 @@ const World = (() => {
     const changed = panel.dataset.node !== n.id;
     panel.dataset.node = n.id;
     const story = storyHere(n);
+    const journeyGate = Progression.journeyGate(n.chapter,unlocked(),Engine.load()?.colors);
     const conf = confOf(n);
     const sid = conf ? conf.id : null;
     const rec = sid ? stageRec(sid) : null;
@@ -363,7 +365,8 @@ const World = (() => {
     if (story) {
       const ch = CHAPTERS.find(c => c.key === story.chapter);
       body += `<div class="wp-story"><small>次の物語</small><b>${ch ? ch.act + '　' + ch.title : ''}</b></div>`;
-      acts.push(`<button class="wb main" data-a="story">物語を進める</button>`);
+      if (journeyGate) { body += `<p class="wp-note">${journeyGate.message}</p>`; acts.push(`<button class="wb main" data-a="journey" data-node="${journeyGate.node}">${WORLD_NODES.find(v=>v.id===journeyGate.node).name}へ向かう</button>`); }
+      else acts.push(`<button class="wb main" data-a="story">物語を進める</button>`);
     }
     if (conf && replayable(n, rec)) {
       const key = chosen(conf), record = diffRec(conf, key), lv = Progression.level(conf, key);
@@ -395,7 +398,7 @@ const World = (() => {
     if (n.type === 'town' && questsAt(n.id).length) body += `<div class="wp-sec">町の依頼<small>${questsAt(n.id).length}件</small></div>${questList(n.id)}`;
     if(n.id==='f_fruit' && Fury.available()){
       body+=`<div class="wp-sec">紅角の精霊<small>憤怒を攻撃力へ</small></div><p class="wp-note">影を払う通常戦と、汚染された猛牛のボス戦。物語の結末でヴァルドが仲間になります。</p>`;
-      if(Fury.joined())acts.push('<button class="wb" data-a="furychat">精霊たちの語らい</button>');
+      if(Fury.reunionReady())acts.push('<button class="wb" data-a="furychat">精霊たちの語らい</button>');
       acts.push(`<button class="wb main" data-a="fury">${Fury.joined()?'紅角の物語を振り返る':'紅角のヴァルドに会う'}</button>`);
     }
     const guardianRoute=GUARDIANS.find(p=>!p.chapter.startsWith('restore')&&p.town===n.id&&GuardianJourney.available(GUARDIAN_STAGES['gp_'+p.id]));
@@ -423,6 +426,7 @@ const World = (() => {
       if (a === 'dismiss') dismissPanel();
       else if (a === 'furychat') Fury.start(true);
       else if (a === 'fury') Fury.start();
+      else if (a === 'journey') go(b.dataset.node);
       else if (a === 'story') playStory(story);
       else if (a === 'sortie') sortie(n);
       else if (a === 'shop') openShop(n);

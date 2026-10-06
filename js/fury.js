@@ -1,7 +1,7 @@
-// 赤い果実の丘の寄り道。本編の帰還先はEngineがセーブに一緒に持つ。
+// 森と順不同で通る赤い果実の丘。本編の帰還先はEngineがセーブに一緒に持つ。
 const Fury = (() => {
   const p = {
-    id:'vard', name:'ヴァルド', art:'vard', chapter:'fury', act:'寄り道・紅角の丘', town:'f_fruit', place:'赤い果実の丘',
+    id:'vard', name:'ヴァルド', art:'vard', chapter:'fury', act:'第三幕・紅角の丘', town:'f_fruit', place:'赤い果実の丘',
     pathId:'gp_vard', bossId:'f_fruit', lv:8, colour:'#f57965', material:'m_gold', pattern:'charge', effect:'push',
     counter:'怒りを攻撃力へ変える猛牛。HPが減るほど攻撃が強まる。突進の予告線を避け、虹に戻した床から側面へ回ろう。',
     skills:['盲目の紅角','二筋の憤怒','選び取る突進'],
@@ -78,6 +78,7 @@ const Fury = (() => {
 グラン「私の潮で道を開く。おまえの角で、影を払おう」
 ヴァルド「頼んだぞ、潮の友」
 @vardbond
+@furychat forest_meeting
 アリア「丘の木も、旅の帰り道も、また見に来よう」
 幼い果樹に、赤い実が一つ残っていた。ヴァルドは、それには触れなかった。
 @sideend
@@ -97,10 +98,18 @@ const Fury = (() => {
 アリア「違う力だから、一緒に歩ける。次も、この木の下で」
 @sideend
 `;
-  const available=()=>Engine.unlocked().includes('act3');
+  const available=()=>Engine.unlocked().some(key=>['act3','act4','act5','finale','epilogue','done'].includes(key));
   const joined=()=>Engine.unlocked().includes('vardbond');
-  function start(reunion=false){if(!available()||reunion&&!joined())return;Panel.close();Engine.play(reunion?'fury_reunion':'fury');}
+  const reunionReady=()=>joined()&&Progression.companions(Engine.unlocked(),Engine.load()?.colors).includes('ivy');
+  function start(reunion=false){if(!available()||reunion&&!reunionReady())return;Panel.close();Engine.play(reunion?'fury_reunion':'fury');}
   function chat(id){
+    const meeting=`アイビー「森の蔦を結び直してきたわ。丘へ来る道も、マリーに残した目印と同じにする」
+ヴァルド「目印を残すのは、おまえだったのか。あいつは丘へ来ると、森で昼寝した話から始めた」
+アイビー「木の枝を直した角の話も、聞いたわ。今度は、私たちで道の続きを作りましょう」
+グランは潮をひと筋、蔦の下へ通した。ヴァルドが畝を起こすと、アイビーはその端へ若葉を植えた。`;
+    if(id==='forest_before')return joined()?'ヴァルドは、森の入口で角を上げた。枝に触れる前に、グランへ道幅を尋ねた。\nヴァルド「ここで待つ。葉を折らずに通る道を、見つけてくれ」':'';
+    if(id==='forest_after')return joined()?meeting:'グラン「赤い丘へ寄ろう。マリーが行き来した道を、いまの私たちで歩いてみたい」';
+    if(id==='forest_meeting')return Progression.companions(Engine.unlocked(),Engine.load()?.colors).includes('ivy')?meeting:'';
     if(id==='mari_news')return typeof MariReturn!=='undefined'&&MariReturn.joined()?'グラン「マリーは帰り道の嵐で闇に飲まれた。別れだと思っていた声の先で、あの子は帰る時を待っていた。今は、精霊として私たちと旅をしている」':'グラン「マリーは帰り道の嵐から戻らなかった。最後に届いた声だけが、鐘楼に残った。私は、あれが別れだと思っていた」';
     const friends=Progression.companions(Engine.unlocked(),Engine.load()?.colors);
     if(id!=='ending'&&!friends.includes(id))return '';
@@ -126,5 +135,5 @@ const Fury = (() => {
 二人が先に立つと、荷車の人たちは安心して歩き出した。`:`果樹園を離れる前に、グランが根へ水を注ぎ、ヴァルドが踏まれた土を起こした。`,
     };return lines[id]||'';
   }
-  return {available,joined,start,chat};
+  return {available,joined,reunionReady,start,chat};
 })();

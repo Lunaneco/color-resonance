@@ -485,8 +485,10 @@ const Engine = (() => {
   }
   function play(key, from = 0, restore) {
     if (!Object.hasOwn(SCRIPT, key)) return;
+    const gate = Progression.journeyGate(key, unlocked(), load()?.colors);
+    if (gate) { resetStage(); World.open({at:gate.node}); toast(gate.message); return; }
     if(SIDE_STORIES.includes(key)){
-      if(key.startsWith('fury')?(!Fury.available()||key==='fury_reunion'&&!Fury.joined()):(!MariReturn.available()||key==='mari_reunion'&&!MariReturn.joined()))return;
+      if(key.startsWith('fury')?(!Fury.available()||key==='fury_reunion'&&!Fury.reunionReady()):(!MariReturn.available()||key==='mari_reunion'&&!MariReturn.joined()))return;
       const bookmark=restore?.returnStory || load()?.returnStory || load() || {chapter:'act3',idx:0,map:true};
       restore={...bookmark,...restore,returnStory:bookmark};unlock(key);
     }

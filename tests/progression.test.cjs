@@ -9,6 +9,18 @@ vm.runInContext('globalThis.P = Progression; globalThis.Q = SIDE_QUESTS; globalT
 const { P, Q, B } = context;
 const plain = value => JSON.parse(JSON.stringify(value));
 
+test('The forest and red hill are interchangeable; both precede Spinel and all four precede the king', () => {
+  assert.equal(P.journeyGate('act3',['act3']),null);
+  assert.deepEqual(plain(P.journeyGate('act4',['act4']).missing),['vard']);
+  assert.deepEqual(plain(P.journeyGate('act4',['act3','vardbond']).missing),['ivy']);
+  assert.equal(P.journeyGate('act4',['act4','vardbond']),null);
+  assert.deepEqual(plain(P.journeyGate('act5',['act4','vardbond']).missing),['spinel']);
+  const legacy=P.journeyGate('act5',['act5']);
+  assert.deepEqual(plain(legacy.missing),['vard']);assert.equal(legacy.node,'f_fruit');
+  assert.equal(P.journeyGate('act5',['act5','vardbond']),null);
+  assert.equal(P.journeyGate('restore4',['done','maribond']),null);
+});
+
 test('Old saves preserve inventory and clears; migration restores learned skills and is idempotent', () => {
   const party = { aria: { lv: 8, exp: 25 }, spirits: { gran: { lv: 7, exp: 42 }, ivy: { lv: 6, exp: 0, bond: 40 } }, stages: { cove: { cleared: true, best: 'S', missions: [true, false], clears: 3 } }, gold: 123, items: { i_tea: 2 }, owned: ['u_knot'] };
   P.migrate(party);

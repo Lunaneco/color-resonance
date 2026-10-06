@@ -31,6 +31,14 @@ const Progression = (() => {
       return chapter >= 0 ? reached >= chapter || held.includes(spiritColors[id]) : Array.isArray(unlocked) && unlocked.includes(joinedAt[id]);
     });
   }
+  // グラン → 森と赤い丘（順不同）→ スピネル → 王。加入は戦績ではなく物語で決まる。
+  function journeyGate(chapter, unlocked = [], colors = []) {
+    const required = { act4: ['gran','ivy','vard'], act5: ['gran','ivy','vard','spinel'] }[chapter] || [];
+    const joined = companions(unlocked, colors), missing = required.filter(id => !joined.includes(id));
+    if (!missing.length) return null;
+    const id = missing[0], node = {gran:'belfry',ivy:'thorn',vard:'f_fruit',spinel:'canyon'}[id];
+    return { missing, node, message: `${spirits[id].name}と旅の約束を結んでから、${chapter==='act5'?'虹の尖塔':'黄金の渓谷'}へ進もう。${id==='vard'?'赤い果実の丘で、紅角の物語を最後まで進めてください。':''}` };
+  }
   function materialDescription(id, joined) {
     const m = materials[id];
     if (id === 'm_violet' && joined.includes('mari')) return '七色の光や羽の技を磨く強化素材';
@@ -323,5 +331,5 @@ const Progression = (() => {
     return copy;
   }
   return { furyPower, difficulties, spirits, routes, skills, thresholds, normalize, selected, level, rank, learned, training, practice, rewards, isBossStage, ordinaryEquipment, reconcileRewards, migrate, prepare,
-    companions, materialDescription, materials, MATERIAL_MAX, skillLevel, skill, enhancement, recipe, upgrade, awardMaterials, battleMaterials, collectBattleMaterials, leisureMaterials, leisureHardBonus };
+    companions, journeyGate, materialDescription, materials, MATERIAL_MAX, skillLevel, skill, enhancement, recipe, upgrade, awardMaterials, battleMaterials, collectBattleMaterials, leisureMaterials, leisureHardBonus };
 })();
