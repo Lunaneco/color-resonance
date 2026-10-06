@@ -146,7 +146,7 @@ for(const viewport of [{width:1440,height:900},{width:390,height:844},{width:320
   const b=await page.locator('#textbox').boundingBox(),text=await page.locator('#text').boundingBox();assert(b.y>=0&&b.y+b.height<=viewport.height);assert(text.y>=b.y&&text.y+text.height<=b.y+b.height);
   for(const action of ['log','auto','skip','menu']){const r=await page.locator(`[data-act=${action}]`).boundingBox();assert(r.x>=0&&r.y>=0&&r.x+r.width<=viewport.width+1&&r.y+r.height<=viewport.height+1);}
 });
-test('Every original story chapter reaches its next map or ending with exportable scene records',async()=>{
+test('The complete main journey includes the red hill and exports every scene through the ending',async()=>{
   await boot();await page.evaluate(()=>{
     document.documentElement.dataset.motion='reduced';window.storyRecordErrors=[];window.seenChapters=[];
     const schedule=window.setTimeout.bind(window);window.setTimeout=(fn,ms,...args)=>schedule(fn,Math.min(ms,1),...args);
@@ -157,6 +157,11 @@ test('Every original story chapter reaches its next map or ending with exportabl
   });
   await page.locator('[data-act=auto]').click();
   for(const [key,next]of [['prologue','act1'],['act1','act2'],['act2','act3'],['act3','act4'],['act4','act5'],['act5','finale'],['finale','epilogue']]){
+    if(key==='act4'){
+      await page.evaluate(()=>Engine.play('fury'));
+      await page.waitForFunction(()=>World.isOpen&&Fury.joined()&&Engine.load()?.chapter==='act4',null,{timeout:15000});
+      assert.equal(await page.evaluate(()=>Progression.journeyGate('act4',Engine.unlocked())),null);
+    }
     if(key!=='prologue')await page.evaluate(key=>Engine.play(key),key);
     await page.waitForFunction(next=>Engine.load()?.map&&Engine.load().chapter===next,next,{timeout:15000});assert((await page.evaluate(()=>Engine.unlocked())).includes(next));
   }
