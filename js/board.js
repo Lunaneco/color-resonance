@@ -2497,7 +2497,8 @@ const Board = (() => {
     if (World.isOpen) World.close();
     party = loadParty();
     const joined = Progression.companions(Engine.unlocked(),Engine.load()?.colors), extra=['vard','mari'].filter(id=>joined.includes(id));
-    conf = { ...conf, spirits:[...new Set([...(conf.spirits||[]).filter(id=>!['vard','mari'].includes(id)||joined.includes(id)),...extra])] };
+    const baseSpirits = conf.chapterGate==='fury' ? joined : conf.spirits||[];
+    conf = { ...conf, spirits:[...new Set([...baseSpirits.filter(id=>!['vard','mari'].includes(id)||joined.includes(id)),...extra])] };
     const key = conf.hardOnly ? 'hard' : Progression.normalize(conf.difficulty || Progression.selected(party, conf.id));
     baseCfg = { ...conf, difficulty: key }; onDone = done;
     const my = sess;

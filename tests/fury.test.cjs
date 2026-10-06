@@ -63,6 +63,17 @@ async function storyBattles(page,chapter,path,boss,next){
  await advance(page,()=>World.isOpen);assert.equal(await page.evaluate(()=>Engine.load().chapter),next);
 }
 for(const engine of ['chromium','webkit']){
+ test(`${engine}: Ivy joins the red hill battle only after the forest story`,async()=>{
+  await session(engine,async page=>{
+   await page.evaluate(()=>{World.close();Board.start({...BOARDS.f_fruit,intro:null,beats:[]});});await ready(page);
+   assert.deepEqual(await page.evaluate(()=>Board.__furyQA.state().spirits),['gran']);
+   await page.evaluate(()=>{Board.stop();localStorage.cr_unlocked=JSON.stringify([...Engine.unlocked(),'act4']);Board.start({...BOARDS.f_fruit,intro:null,beats:[]});});await ready(page);
+   assert.deepEqual(await page.evaluate(()=>Board.__furyQA.state().spirits),['gran','ivy']);
+   await page.evaluate(()=>Board.__furyQA.fixture());await page.locator('#actHere').click();await page.locator('[data-k=spirit]').click();
+   assert(await page.locator('[data-k=enchant][data-a=ivy]').isEnabled());await page.locator('[data-k=enchant][data-a=ivy]').click();await ready(page);
+   assert.equal(await page.evaluate(()=>Board.__furyQA.state().sp),9);
+  },{unlocked:['prologue','act1','act2','act3'],checkpoint:{chapter:'act3',idx:0,map:true,at:12345}});
+ });
  for(const first of ['ivy','vard'])test(`${engine}: ${first} first reaches the same party before Spinel and the king`,async()=>{
   await session(engine,async page=>{
    assert.equal(await page.evaluate(()=>Progression.journeyGate('act3',Engine.unlocked())),null);
