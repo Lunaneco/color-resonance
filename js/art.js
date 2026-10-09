@@ -4,7 +4,7 @@ const GameArt = (() => {
   const assets = new Map(), cache = new Map(), mounts = new WeakMap();
   const spiritEffects = { gran: 'gran_tide', ivy: 'ivy_vines', spinel: 'spinel_shield', king: 'king_prism', vard: 'crystal_slash', mari:'pray_heal' };
   const speakers = { アリア: 'aria', リラ: 'lila', 老漁師: 'fisher', ルミナ: 'lumina', 石の子: 'stone_child', 馨: 'kaoru', マリー: 'mari', グラン: 'gran', アイビー: 'ivy', スピネル: 'spinel', パレット王: 'king', クロム: 'chrome', ルノワール: 'renoir', アクロマ: 'achroma', ヴァルド: 'vard', 紅角のヴァルド: 'vard' };
-  const ready = fetch(ROOT + 'manifest.json?v=20261009-kaoru4', { signal: AbortSignal.timeout(8000) })
+  const ready = fetch(ROOT + 'manifest.json?v=20261010-regions1', { signal: AbortSignal.timeout(8000) })
     .then(r => { if (!r.ok) throw new Error('art manifest'); return r.json(); })
     .then(m => m.assets.forEach(a => assets.set(a.id, a))).catch(() => {});
 
@@ -29,7 +29,7 @@ const GameArt = (() => {
     return Promise.all([...new Set(ids.filter(Boolean))].map(id => {
       if (cache.has(id)) return cache.get(id).promise;
       const a = assets.get(id); if (!a) return null;
-      const entry = { image: null, bounds: null, tones: new Map() };
+      const entry = { image: null, bounds: null, tones: new Map(), tints: new Map() };
       entry.promise = new Promise(resolve => {
         const im = new Image(); let settled = false;
         const finish = ok => {
@@ -60,6 +60,25 @@ const GameArt = (() => {
     }
     c.putImageData(data,0,0);e.tones.set(phase,cv);return cv;
   }
+  // 土地の色へ染めた敵の絵。色相を回し、暗い部分にその土地の色を少し足す。透過は保ち、種類ごとに一度だけ計算する。
+  function tintedImage(id, tint) {
+    const e = cache.get(id); if (!e?.image || !tint) return null;
+    if (e.tints.has(tint.key)) return e.tints.get(tint.key);
+    const cv = document.createElement('canvas'); cv.width = e.image.naturalWidth; cv.height = e.image.naturalHeight;
+    const c = cv.getContext('2d', { willReadFrequently: true }); c.drawImage(e.image, 0, 0);
+    const data = c.getImageData(0, 0, cv.width, cv.height), px = data.data;
+    const th = -tint.hue * Math.PI / 180, cos = Math.cos(th), sin = Math.sin(th), [tr, tg, tb] = tint.rgb;
+    for (let i = 0; i < px.length; i += 4) {
+      if (!px[i + 3]) continue;
+      const r = px[i], g = px[i + 1], b = px[i + 2];
+      const y = .299 * r + .587 * g + .114 * b, ii = (.596 * r - .274 * g - .322 * b) * tint.sat, q = (.211 * r - .523 * g + .312 * b) * tint.sat;
+      const i2 = ii * cos - q * sin, q2 = ii * sin + q * cos, k = (1 - y / 255) * tint.glow;
+      px[i] = Math.max(0, Math.min(255, y + .956 * i2 + .621 * q2 + tr * k));
+      px[i + 1] = Math.max(0, Math.min(255, y - .272 * i2 - .647 * q2 + tg * k));
+      px[i + 2] = Math.max(0, Math.min(255, y - 1.106 * i2 + 1.703 * q2 + tb * k));
+    }
+    c.putImageData(data, 0, 0); e.tints.set(tint.key, cv); return cv;
+  }
   const animation = (id, action) => assets.get(id)?.animations[action];
   function sample(id, action, elapsed) {
     const a = animation(id, action); if (!a) return null;
@@ -76,7 +95,7 @@ const GameArt = (() => {
     const scale = Math.min(height / b.height, maxWidth / b.width);
     const ax = (b.left + b.right) / 2, ay = opt.center ? (b.top + b.bottom) / 2 : b.bottom;
     c.save(); c.translate(x, y); if (opt.flip) c.scale(-1, 1);
-    const source=opt.tone!=null?toneImage(id,opt.tone):e.image;
+    const source=opt.tone!=null?toneImage(id,opt.tone):opt.tint?(tintedImage(id,opt.tint)||e.image):e.image;
     c.drawImage(source, cel % a.grid.columns * w, Math.floor(cel / a.grid.columns) * h, w, h, -ax * scale, -ay * scale, w * scale, h * scale);
     c.restore(); return true;
   }

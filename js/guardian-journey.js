@@ -11,7 +11,7 @@ const GuardianJourney = (() => {
   const mission=m=>({turns:`${m.n}ターン以内にクリア`,hp:`アリアのHP ${m.n}%以上`,rainbow:`虹の床 ${m.n}%以上`,dullMax:`くすみを${m.n}%未満に保つ`,enchantKill:`宿した心剣で${m.n}体倒す`,back:`背後から${m.n}回命中`,summonKill:`召喚した精霊で${m.n}体倒す`,bossLast:'ほかの影を払い、最後にボスの穢れをほどく',guardianVoice:'3段階の声を取り戻す',teamHP:`二人のHPをそれぞれ${m.n}%以上残す`,purify:`浄化を${m.n}回使う`})[m.type]||'戦場のミッションを達成';
   function history(records,id) {
     const p=GuardianCombat.profile(id);if(!p)return;
-    Panel.open(p.name+'・戦場の声',`<div class="gj-voices"><header>${GameArt.portrait(p.art)}<div><small>切るのは穢れだけ</small><h2>${p.name}</h2><p>${p.counter}</p></div></header><p>「!」の予告は次の敵の手番に発動します。予告の床を虹にすると、床の侵食・傷・追加効果を防げます。HPが2/3・1/3になると、残った穢れが外へ広がり、行動と予告が変わります。</p>${records.map(rec=>`<section><h3>${rec.phase===3?'穢れをほどいた後':`${['Ⅰ','Ⅱ','Ⅲ'][rec.phase]} · ${GuardianCombat.phaseNames[rec.phase]}`}</h3>${rec.lines.map(([who,text])=>`<p><b>${who}</b><span>${text}</span></p>`).join('')}</section>`).join('')}</div>`);
+    Panel.open(p.name+'・戦場の声',`<div class="gj-voices"><header>${GameArt.portrait(p.art)}<div><small>${p.id==='chrome'?'切るのは白い膜だけ':'切るのは穢れだけ'}</small><h2>${p.name}</h2><p>${p.counter}</p></div></header><p>${p.id==='chrome'?'「!」の予告は次の敵の手番に発動します。予告の床を夜空にすると、波は止まります。白い膜のHPが2/3・1/3になると、膜が貼り直されて、行動と予告が変わります。':'「!」の予告は次の敵の手番に発動します。予告の床を虹にすると、床の侵食・傷・追加効果を防げます。HPが2/3・1/3になると、残った穢れが外へ広がり、行動と予告が変わります。'}</p>${records.map(rec=>`<section><h3>${rec.phase===3?'穢れをほどいた後':`${['Ⅰ','Ⅱ','Ⅲ'][rec.phase]} · ${(p.phaseNames||GuardianCombat.phaseNames)[rec.phase]}`}</h3>${rec.lines.map(([who,text])=>`<p><b>${who}</b><span>${text}</span></p>`).join('')}</section>`).join('')}</div>`);
   }
   function open(chapter) {
     const choices=GUARDIANS.filter(p=>available(GUARDIAN_STAGES['gp_'+p.id]));

@@ -26,7 +26,7 @@ test(`${engine}: six spirits, the mission list and resonance never overlap at ${
       return {vw:innerWidth,vh:innerHeight,cards:[...document.querySelectorAll('#skills .skill.spirit')].map(rect),mission:rect(document.getElementById('missionBox')),resonance:rect(document.getElementById('resonance')),skills:rect(document.getElementById('skills')),count:document.querySelectorAll('#skills .skill.spirit').length,sk:document.getElementById('skills').className,screen:document.getElementById('boardScreen').className,scroll:document.getElementById('skills').scrollHeight>document.getElementById('skills').clientHeight+1};});
     assert.equal(r.count,6);
     for(const [i,c] of r.cards.entries()){
-      assert(!overlap(c,r.mission),`card ${i} must not cover the mission list`);assert(!overlap(c,r.resonance),`card ${i} must not cover the resonance counter`);
+      assert(!overlap(c,r.mission),`card ${i} must not cover the mission list: ${JSON.stringify({card:c,mission:r.mission,sk:r.sk,screen:r.screen,vh:r.vh})}`);assert(!overlap(c,r.resonance),`card ${i} must not cover the resonance counter`);
       if(!r.scroll){assert(c.left>=0&&c.right<=r.vw+1&&c.top>=0&&c.bottom<=r.vh+1,`card ${i} stays on screen`);}
     }
     assert(!overlap(r.skills,r.mission),'the spirit column stays clear of the mission list');

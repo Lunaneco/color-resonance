@@ -51,7 +51,7 @@ const BOARDS = {
     id: 'gran', missions: [{ type: 'turns', n: 11 }, { type: 'hp', n: 65 }, { type: 'back', n: 2 }], unique: 'u_bell',
     act: '第一幕', title: 'グラン・オーシャン', cols: 10, rows: 10, recLv: 2, par: 11, spStart: 3, dullStart: 0.1,
     map: { low: ['sea_flat', 'sea_calm', 'sea_wave1', 'sea_flat', 'sea_calm', 'sea_shallow', 'sea_wave2'], mid: ['land_flat'], high: ['land_high'], water: 'sea_deep', waterAmt: 0.08, hills: 0.24, obstacles: ['rocks'], obsAmt: 0.03 },
-    enemies: [{ kind: 'boss', lv: 4 }, { kind: 'shade', lv: 2, n: 3 }, { kind: 'shade', lv: 3, n: 2 }],
+    enemies: [{ kind: 'boss', lv: 4 }, { kind: 'shade', lv: 2, n: 3 }, { kind: 'shade', lv: 3, n: 1 }],
     bossName: '泣き声の核', bossSkill: '壊れた鐘の繰り返し',
     decor: ['rocks', 'mt_small', 'mt_mid'], hue: '#3fb4c9', wordHue: '#8fe0f0', rainLink: true, subject: 'gran',
     kegWords: ['おまえのせいだ', '絶対に許さない', '私の罪だ', '守れなかった', '雨を止めるな', '許されてはならない', '独りにしないで', '泣き続けなければならない'],
@@ -90,7 +90,7 @@ const BOARDS = {
     id: 'spinel', missions: [{ type: 'turns', n: 12 }, { type: 'summonKill', n: 1 }, { type: 'dullMax', n: 75 }], unique: 'u_kintsugi',
     act: '第四幕', title: '鉛のドーム', cols: 10, rows: 10, recLv: 8, par: 12, spStart: 5, dullStart: 0.14,
     map: { low: ['land_flat', 'land_flat', 'land_flat', 'sea_shallow'], mid: ['land_step', 'land_flat'], high: ['land_high'], water: null, hills: 0.4, obstacles: ['mt_mid', 'rocks', 'mt_small'], obsAmt: 0.06 },
-    enemies: [{ kind: 'boss', lv: 10, armor: 3 }, { kind: 'lead', lv: 8, n: 4 }, { kind: 'shade', lv: 8, n: 2 }],
+    enemies: [{ kind: 'boss', lv: 10, armor: 3 }, { kind: 'lead', lv: 8, n: 3 }, { kind: 'shade', lv: 8, n: 1 }],
     bossName: '鉛の核', bossSkill: '出ていけ', spawnKind: 'lead',
     spirits: ['gran', 'ivy'],
     decor: ['mt_big', 'mt_mid', 'rocks'], hue: '#ffd25e', wordHue: '#ffe7a3',
@@ -110,7 +110,7 @@ const BOARDS = {
     id: 'king', missions: [{ type: 'turns', n: 13 }, { type: 'bossLast' }, { type: 'rainbow', n: 60 }], unique: 'u_palette',
     act: '第五幕', title: 'パレット王', cols: 11, rows: 11, recLv: 11, par: 13, spStart: 6, dullStart: 0.16,
     map: { low: ['land_flat', 'sea_flat', 'land_flat', 'sea_calm', 'sea_shallow'], mid: ['land_step', 'land_flat'], high: ['land_high'], water: 'sea_deep', waterAmt: 0.05, hills: 0.34, obstacles: ['mt_mid', 'mt_small', 'rocks'], obsAmt: 0.05 },
-    enemies: [{ kind: 'boss', lv: 13, armor: 2 }, { kind: 'shade', lv: 11, n: 3 }, { kind: 'thorn', lv: 11, n: 2 }, { kind: 'lead', lv: 11, n: 2 }],
+    enemies: [{ kind: 'boss', lv: 13, armor: 2 }, { kind: 'shade', lv: 11, n: 3 }, { kind: 'thorn', lv: 11, n: 2 }, { kind: 'lead', lv: 11, n: 1 }],
     bossName: '漆黒の核', bossSkill: '世界を、黒で満たせ', spawnCap: 6,
     spirits: ['gran', 'ivy', 'spinel'],
     decor: ['mt_big', 'mt_mid', 'mt_small', 'rocks'], hue: '#b48cff', wordHue: '#d8c6ff',
@@ -127,8 +127,8 @@ const BOARDS = {
     loseText: '漆黒が、玉座の間を塗りつぶした。',
   },
   chrome: {
-    id: 'chrome', missions: [{ type: 'turns', n: 10 }, { type: 'noDown' }, { type: 'rainbow', n: 60 }], unique: 'u_nightsky',
-    act: '終章', title: 'クロム', cols: 10, rows: 10, recLv: 14, par: 9, spStart: 6, inverted: true, phase0: true,
+    id: 'chrome', missions: [{ type: 'turns', n: 14 }, { type: 'noDown' }, { type: 'rainbow', n: 50 }], unique: 'u_nightsky',
+    act: '終章', title: 'クロム', cols: 10, rows: 10, recLv: 14, par: 12, spStart: 6, inverted: true, finale: true,
     map: { low: ['sea_flat', 'sea_calm', 'sea_flat', 'sea_shallow'], mid: ['land_flat'], high: ['land_high'], water: 'sea_deep', waterAmt: 0.05, hills: 0.25, obstacles: ['rocks'], obsAmt: 0.03 },
     enemies: [{ kind: 'chrome', lv: 15 }, { kind: 'membrane', lv: 13, n: 6, phase: 1 }],
     spirits: ['gran', 'ivy', 'spinel', 'king'],
@@ -137,7 +137,7 @@ const BOARDS = {
     kegWords: ['そんな汚い色を見てないで', 'もっと明るいものを見なさい', '染み', '汚い色', '明るくしなさい', '黒は、だめ', 'そんなもの、見ないで', '光を通さない子', 'もっと明るく'],
     rootWord: 'そんな汚い色を見てないで',
     colorWords: ['夜が、好き', '星が、ひとつずつ灯っていく', '静かで、何もなくて', '見上げていると、胸が落ち着いた', '夜空の黒', '星が光るための黒'],
-    intro: { who: 'クロム', text: '斬ればいい。僕から黒を取ったら、何も残らない。<br><small>（クロムに近づき、心剣を振るう）</small>' },
+    intro: { who: 'クロム', text: 'ここでは、君の剣は届かないよ。<br><small>黒い波の予告の外へ動こう。いまは耐えるしかない——夜が戻るまで</small>' },
     beats: [
       { at: 2, who: '', text: '白い膜が一枚剥がれるたびに、漆黒の奥で、子どもの声が近くなる。' },
       { at: 4, who: 'アリア', text: '黒は、汚い色なんかじゃない。あなたのお母さんが、間違ってたの' },
@@ -1082,28 +1082,12 @@ SCRIPT.finale = `
 クロムの漆黒が、波になってアリアに押し寄せた。グランの潮が砕け、スピネルの盾がきしんだ。
 ヴァルドは盾の横へ踏みとどまり、押し寄せる影だけを角で払った。アイビーの蔦が、その足を仲間のいる床へ引き戻した。
 ヴァルド「怒りは残ってる。だが、誰を踏むかまで、おまえに決めさせはしない」
-その前に、小さな黒いものが転がり出た。
-@cg night
-ルノワールだった。
-小さな体が、主人の闇とアリアのあいだに立ちはだかった。漆黒の波がぶつかり、ルノワールの体が大きくたわんだ。
-クロム「ルノワール……おまえ、裏切るのか」
-ルノワールは震えていた。それでも、動かなかった。
-@sky
-漆黒を受けとめた体が、内側から光りはじめた。旅のあいだ、送らずにしまっていた色が、一斉に灯った。グランの碧。アイビーの緑。スピネルの金。パレット王の紫。
-黒い体いっぱいに、小さな色の粒がちりばめられていた。
-> 小さな、夜空だった。
-クロムは、それを見ていた。
-クロム「……なんで。なんで、おまえの中に、星が」
-@cg off
-@show aria
-@sfx sword
-アリアは、右の掌を開いた。心剣が、闇の中で透明に伸びた。光を通して、向こうがそのまま見える剣。
-クロム「斬ればいい」
-乾いた声だった。
-クロム「僕から黒を取ったら、何も残らない」
-@hide aria
+それでも、漆黒は止まらなかった。波は砕けても、すぐ次の波になった。そのたびに、足元から色が剥がれていった。
+アリアは心剣を握りなおした。ここでは、その透明さえ、闇に溶けた。
 @aura none
 @board chrome
+最後の白い膜が、はがれ落ちた。
+クロムは、立ったまま動かなかった。漆黒は、もう波ではなかった。ただ静かな夜の色が、彼のまわりに満ちていた。
 アリアの頬を、何かが伝った。
 @cg tear
 リラを失った夜から、一度も出なかったものだった。あたたかくて、透明な涙だった。
@@ -1239,8 +1223,29 @@ SCRIPT.epilogue = `
 @end
 `;
 
-// 終章：剣が黒を通り抜けたあと
-const FINALE_PHASE0 = `
+// 終章：戦闘の中で起こる場面（Board が cfg.onEvent で呼ぶ）。戦闘の画面の上に重ねて読む。
+const FINALE_EVENTS = {
+  // 絶望の2ターン目のおわり：ルノワールが飛び出す
+  rescue1: `
+漆黒の波が、また押し寄せた。心剣は何も切れず、グランの潮も、アイビーの光も、数歩先で消えた。
+膝をついたアリアの前に、小さな黒いものが転がり出た。
+ルノワールだった。
+小さな体が、主人の闇とアリアのあいだに立ちはだかった。
+クロム「ルノワール……おまえ、裏切るのか」
+ルノワールは震えていた。それでも、動かなかった。
+`,
+  // 夜空が灯る
+  rescue2: `
+漆黒を受けとめた体が、内側から光りはじめた。旅のあいだ、送らずにしまっていた色が、一斉に灯った。グランの碧。アイビーの緑。スピネルの金。パレット王の紫。
+黒い体いっぱいに、小さな色の粒がちりばめられていた。
+> 小さな、夜空だった。
+夜空は、アリアの足元へ流れた。白く貼りついていた床が、ひとつずつ、静かな黒に、星の灯る色に戻っていく。
+クロム「……なんで。なんで、おまえの中に、星が」
+`,
+  // 夜が戻ってから：刃が黒を通り抜ける
+  realize: `
+アリアは、右の掌を開いた。心剣が、夜の中で透明に伸びた。光を通して、向こうがそのまま見える剣。
+クロム「斬ればいい。僕から黒を取ったら、何も残らない」
 刃は、黒を通り抜けた。何も、切れなかった。
 アリア「……切れない」
 アリアは、刃を見つめた。
@@ -1251,4 +1256,5 @@ const FINALE_PHASE0 = `
 > 穢れは、黒ではなかった。<br>黒を汚いと言った、その一言だった。
 アリア「わたしは、あなたの黒を塗り替えたりしない」
 アリアは、刃の角度を変えた。
-`;
+`,
+};

@@ -29,10 +29,28 @@ const GuardianCombat = (() => {
       lantern:c=>ring(c)<=3+index&&(dr*(c.r-br)+dc*(c.c-bc))>0&&Math.abs(dc*(c.r-br)-dr*(c.c-bc))<=index+1,
       crown:c=>c.c===bc-gap||c.c===bc+gap||index===2&&c.r===hr,
       starglass:c=>ring(c)>=1&&ring(c)<=3+index&&(c.r*2+c.c+turn)%(index+3)===0,
+      // 終章：絶望の黒。足場がほとんどなく、安全な帯だけが毎ターンずれる
+      despair:c=>(ring(c)+turn)%3!==0||c.r===hr,
+      // 終章：クロムの波。夜空にした床だけが波を止める
+      blackwave:c=>index===0?ring(c)%3===turn%3:index===1?ring(c)%3===turn%3||c.r===hr:(ring(c)+turn)%2===0||c.r===hr||c.c===hc,
     }[profile.pattern];
     return cells.filter(c=>c.walk&&pattern(c)).map(c=>({r:c.r,c:c.c}));
   }
   function mode(profile,index) { return {mov:index?2:1,rng:[1,index+1],power:(profile.id==='vard'?[.65,.8,.9]:[.75,.7,.6])[index],armor:profile.effect==='armor'?(profile.id==='spinel'?[3,2,0]:[2,1,0])[index]:0}; }
-  const profile=id=>GUARDIANS.find(p=>p.id===id);
+  // 終章のクロム。精霊の守護者ではないので GUARDIANS には入れず、ここだけで持つ。
+  const CHROME={
+    id:'chrome', name:'クロム', art:'chrome', pattern:'blackwave', effect:'sp', colour:'#cfd8ff',
+    phaseNames:['黒を塗る声','ほどける膜','夜空の黒'],
+    skills:['漆黒の波','白く貼りつく声','夜空へ還る黒'],
+    counter:'波の予告は毎ターンずれる。夜空にした床の上なら波は止まる。HPは、クロムではなく貼りついた白い膜の厚さ。',
+    lines:[
+      [['クロム','もっと明るくしなさい。……そう言われた。黒は、だめなんだって'],['アリア','それはあなたの声じゃない。上に貼りついた膜の声だよ']],
+      [['クロム','夜は、好きだった。静かで、星がひとつずつ灯って'],['アリア','覚えてる。リラも言ってた。星がきれいに見える黒だって']],
+      [['クロム','見ないで。……いや、見てほしい。ひとりに、しないで'],['アリア','見てる。あなたの黒は切らない。膜だけ、切り分ける']],
+    ],
+    freed:'……星が、見える。黒いままで、ちゃんと。',
+  };
+  const CHROME_DESPAIR={...CHROME, pattern:'despair', effect:'drain', phaseNames:['すべてを呑む黒','',''], skills:['すべてを呑む黒','','']};
+  const profile=id=>id==='chrome'?CHROME:id==='chrome_despair'?CHROME_DESPAIR:GUARDIANS.find(p=>p.id===id);
   return {phaseNames,phase,damage,plan,mode,profile};
 })();

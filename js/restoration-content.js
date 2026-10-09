@@ -39,7 +39,7 @@ function restorationStage(id, title, lv, bg, extra = {}) {
   return { id, title, lv, cols: 10, rows: 10, companion: true, postgame: true, reward: 250 + lv * 15, spStart: 6,
     spirits: ['gran', 'ivy', 'spinel', 'king'], map: RESTORATION_MAPS[bg], hue: '#c9b6f5', decor: ['rocks', 'mt_small'],
     theme: { bg, preset: 'night', fx: 'stars:.2', bgm: 'forest' },
-    enemies: [{ kind: 'boss', lv: lv + 1 }, { kind: 'shade', lv, n: 3 }, { kind: 'thorn', lv, n: 2 }, { kind: 'lead', lv, n: 1 }],
+    enemies: [{ kind: 'boss', lv: lv + 1 }, { kind: 'shade', lv, n: lv < 19 ? 2 : 3 }, { kind: 'thorn', lv, n: lv < 26 ? 2 : 3 }, { kind: 'lead', lv, n: 1 }],
     bossName: '校正の結び目', spawnCap: 6, restoreBeacons: 2,
     missions: [{ type: 'turns', n: 16 }, { type: 'teamHP', n: 40 }, { type: 'purify', n: 2 }],
     firstItems: { i_water: 1, i_shard: 1 }, ordinaryReward: 'a_star',
@@ -57,10 +57,10 @@ RESTORATION_CHAPTERS.forEach((ch, i) => {
       [{ kind: 'boss', lv: ch.lv + 1 }, { kind: 'shade', lv: ch.lv, n: 3 }, { kind: 'lead', lv: ch.lv, n: 2 }],
       [{ kind: 'boss', lv: ch.lv + 1 }, { kind: 'membrane', lv: ch.lv, n: 3 }, { kind: 'shade', lv: ch.lv, n: 3 }],
       [{ kind: 'boss', lv: ch.lv + 1 }, { kind: 'thorn', lv: ch.lv, n: 4 }, { kind: 'shade', lv: ch.lv, n: 2 }],
-      [{ kind: 'boss', lv: ch.lv + 1 }, { kind: 'lead', lv: ch.lv, n: 3 }, { kind: 'membrane', lv: ch.lv, n: 3 }],
+      [{ kind: 'boss', lv: ch.lv + 1 }, { kind: 'lead', lv: ch.lv, n: 3 }, { kind: 'membrane', lv: ch.lv, n: 2 }],
       [{ kind: 'boss', lv: ch.lv + 1 }, { kind: 'membrane', lv: ch.lv, n: 3 }, { kind: 'thorn', lv: ch.lv, n: 3 }],
-      [{ kind: 'boss', lv: ch.lv + 1 }, { kind: 'shade', lv: ch.lv, n: 3 }, { kind: 'lead', lv: ch.lv, n: 2 }, { kind: 'thorn', lv: ch.lv, n: 2 }],
-      [{ kind: 'boss', lv: ch.lv + 1 }, { kind: 'lead', lv: ch.lv, n: 3 }, { kind: 'membrane', lv: ch.lv, n: 4 }],
+      [{ kind: 'boss', lv: ch.lv + 1 }, { kind: 'shade', lv: ch.lv, n: 2 }, { kind: 'lead', lv: ch.lv, n: 1 }, { kind: 'thorn', lv: ch.lv, n: 3 }],
+      [{ kind: 'boss', lv: ch.lv + 1 }, { kind: 'lead', lv: ch.lv, n: 3 }, { kind: 'membrane', lv: ch.lv, n: 3 }],
     ][Math.min(i, 6)],
     missions: [{ type: 'turns', n: 14 + Math.floor(i / 2) },
       [{ type: 'teamHP', n: 60 }, { type: 'noItem' }, { type: 'back', n: 3 }, { type: 'enchantKill', n: 3 }, { type: 'noDown' }, { type: 'bossLast' }, { type: 'skillUse', n: 3 }][Math.min(i, 6)], { type: 'purify', n: 3 }],
@@ -95,7 +95,7 @@ const LEGEND_QUESTS = [
   ['lg_prism', '七針の天廊', 'パレット・パレス郊外', 'rainbow', 38, 'glass', 'u_legend_prism', '同じ方角を強いる七色の結界。異なる岸へ帰る道を開く。'],
   ['lg_night', '宙を織る断崖', '星見の崖', 'f_stars', 41, 'stars', 'u_legend_night', '夜そのものを消す白い膜。星が見える暗さを守り抜く。'],
 ].map(([id, title, district, town, lv, bg, unique, desc]) => restorationStage(id, title, lv, bg, { act: '伝説級クエスト', district, town, gate: 0, desc, unique, hardOnly: true, restoreBeacons: 3, bossShield: true, bossHP: 1.35, spawnCap: 9, cols: 12, rows: 11,
-  enemies: [{ kind: 'boss', lv: lv + 3, armor: 2 }, { kind: 'lead', lv, n: 3 }, { kind: 'thorn', lv, n: 3 }, { kind: 'membrane', lv, n: 3 }],
+  enemies: [{ kind: 'boss', lv: lv + 3, armor: 2 }, { kind: 'lead', lv, n: 2 }, { kind: 'thorn', lv, n: 3 }, { kind: 'membrane', lv, n: 2 }],
   missions: [{ type: 'turns', n: 20 }, { type: 'teamHP', n: 65 }, { type: 'noDown' }], difficulty: 'hard' }));
 [...RESTORATION_REQUESTS, ...LEGEND_QUESTS].forEach(c => RESTORATION_STAGES[c.id] = c);
 // どちらも正解。選んだ先を修理簿と後の会話に残す。

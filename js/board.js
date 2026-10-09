@@ -19,7 +19,7 @@ const Board = (() => {
   const spiritBox = $id('skills');
   const guardianHud = document.createElement('div');
   guardianHud.id = 'guardianHud'; guardianHud.className = 'hidden'; screen.append(guardianHud);
-  guardianHud.addEventListener('click', e => { e.stopPropagation(); if (!busy && !over) GuardianJourney.history(guardianHistory, cfg.guardian); });
+  guardianHud.addEventListener('click', e => { e.stopPropagation(); if (!busy && !over) GuardianJourney.history(guardianHistory, cfg.guardian || (cfg.finale ? 'chrome' : undefined)); });
 
   // ---------- 画像 ----------
   const IMG = {}; let META = null;
@@ -55,7 +55,7 @@ const Board = (() => {
     lead: { hp: [22, 5], atk: [9, 2.3], def: [5, 1.8], mov: 2, jump: 1, rng: [1, 1], armor: 2, h: 0.82 },
     boss: { hp: [60, 14], atk: [12, 3], def: [5, 1.8], mov: 2, jump: 1, rng: [1, 2], h: 1.1 },
     membrane: { hp: [20, 5], atk: [9, 2.4], def: [3, 1.2], mov: 3, jump: 1, rng: [1, 2], h: 0.82 },
-    chrome: { hp: [999, 0], atk: [14, 2.6], def: [99, 0], mov: 2, jump: 2, rng: [1, 2], h: 1.3 },
+    chrome: { hp: [60, 24], atk: [14, 2.6], def: [4, 1.6], mov: 2, jump: 2, rng: [1, 2], h: 1.3 },
   };
   const KIND_NAME = { aria: 'アリア', chrome_human: 'クロム', shade: '穢れの影', thorn: '茨の影', lead: '鉛の殻', boss: '穢れの核', membrane: '白い膜', chrome: 'クロム' };
   const SPIRITS = {
@@ -169,6 +169,8 @@ const Board = (() => {
   let turn = 0, phase = 'player', stage = 1, busy = false, over = false, paused = false;
   let sel = null, mode = 'idle', moveInfo = null, targets = null, targetCmd = null, hover = null, threat = null, menuSub = null, infoU = null;
   let sp = 0, skyCharges = 0, enchantUsed = false, renoirUsed = false;
+  let region = null, drained = 0; // 国の色：敵のバリエーションと特性（regions.js）
+  let rescueTurn = 0, awakened = 0; // 終章：ルノワールの救援が入ったターンと、夜空に還った精霊の数
   let stats = null, difficulty = 'normal', tierA = 0, tierE = 0, ratioA = 0, ratioE = 0, kegIdx = 0, colorIdx = 0, totalFoes = 0;
   let hudReady = false;
   let guardianHistory = [];
@@ -224,6 +226,8 @@ const Board = (() => {
   const pickOf = (arr) => arr[(Math.random() * arr.length) | 0];
   const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const ariaU = () => units.find(u => u.kind === 'aria' && !u.dead);
+  // 終章：夜が戻るまで、クロムには刃が届かない
+  const veiled = u => !!cfg?.finale && u.kind === 'chrome' && stage < 2;
   const foe = (a, b) => (a.side === 'ally' && b.side === 'enemy') || (a.side === 'enemy' && b.side === 'ally');
   const areaCells = (center, rad) => cells.filter(c => dist(c, center) <= rad);
 
@@ -288,6 +292,8 @@ const Board = (() => {
   }
   function initFloors(plan) {
     cells.forEach(c => { c.floor = c.prev = c.walk ? 'neutral' : 'none'; c.flipT = 0; });
+    // 終章：はじめは盤のすべてが白い膜。夜空はルノワールが連れてくる。
+    if (cfg.finale) { cells.forEach(c => { if (c.walk) c.floor = c.prev = 'dull'; }); return; }
     const set = (c, f) => { if (c.walk) c.floor = c.prev = f; };
     areaCells(plan.aria, 2).forEach(c => set(c, 'rainbow'));
     plan.enemies.forEach(p => { if (p.spec.kind === 'chrome' || p.spec.phase === 1) return; areaCells(p.cell, p.spec.kind === 'boss' ? 2 : 1).forEach(c => set(c, 'dull')); });
@@ -328,7 +334,7 @@ const Board = (() => {
     const short = narrow && H <= 500 && W > H;
     screen.classList.toggle('compact', narrow);
     screen.classList.toggle('short', short);
-    const top = (narrow ? (short ? 74 : 128) : 96) + (cfg.guardian && !short ? 44 : 0), bottom = narrow ? (short ? 70 : cfg.guardian && H<600?180:200) : 84;
+    const top = (narrow ? (short ? 74 : 128) : 96) + ((cfg.guardian || cfg.finale) && !short ? 44 : 0), bottom = narrow ? (short ? 70 : (cfg.guardian || cfg.finale) && H<600?180:200) : 84;
     const availW = Math.max(80, narrow ? W - (short ? 340 : 12) : W - 60);
     const availH = Math.max(60, H - top - bottom);
     const span = (cols + rows) / 2;
@@ -676,7 +682,7 @@ const Board = (() => {
     const height = tw * u.hgt, width = tw * (artId === 'gran' ? (u.guardian?1.6:1.25) : artId==='vard'?1.3:.98);
     g.save();
     const bob = u.guardian && !reducedMotion() ? Math.sin(now/680+u.id)*tw*.025 : 0;
-    const artOptions={flip,...(u.guardian?{tone:u.guardianPhase}:{})};
+    const artOptions={flip,...(u.guardian && u.kind !== 'chrome'?{tone:u.guardianPhase}:u.variant?{tint:u.variant.tint}:{})};
     GameArt.drawMotion(g, artId, action, elapsed, p.x, p.y + th * .08 + bob, height, width, artOptions); g.restore();
     if (flash > 0) {
       g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha *= flash;
@@ -789,7 +795,7 @@ const Board = (() => {
   }
   function drawChrome(u, x, y, t, flash) {
     const Hh = tw * 1.25, cy = y - Hh * 0.5 + Math.sin(t * 1.4) * 2;
-    const calm = stage === 1;
+    const calm = stage >= 1;
     // コート
     g.beginPath(); g.moveTo(x, y - Hh); g.bezierCurveTo(x + tw * 0.32, y - Hh * 0.85, x + tw * 0.34, y - Hh * 0.2, x + tw * 0.3, y); g.lineTo(x - tw * 0.3, y); g.bezierCurveTo(x - tw * 0.34, y - Hh * 0.2, x - tw * 0.32, y - Hh * 0.85, x, y - Hh); g.closePath();
     const gr = g.createLinearGradient(x, y - Hh, x, y); gr.addColorStop(0, '#15131c'); gr.addColorStop(1, '#020205');
@@ -807,7 +813,7 @@ const Board = (() => {
     const w = tw * 0.5, h = Math.max(3, tw * 0.045), top = y - tw * u.hgt - 4;
     g.save();
     g.fillStyle = 'rgba(0,0,0,.65)'; g.fillRect(x - w / 2 - 1, top - 1, w + 2, h + 2);
-    if (u.kind === 'chrome' && stage === 0) { g.fillStyle = '#222'; g.fillRect(x - w / 2, top, w, h); }
+    if (veiled(u)) { g.fillStyle = '#222'; g.fillRect(x - w / 2, top, w, h); }
     else if (u.side !== 'neutral') {
       const k = Math.max(0, u.hp / u.mhp);
       g.fillStyle = u.side === 'ally' ? (k > 0.5 ? '#8fe8ff' : k > 0.25 ? '#ffe08a' : '#ff8a8a') : (cfg.inverted ? '#e8eeff' : '#c58cff');
@@ -1127,10 +1133,11 @@ const Board = (() => {
   }
   function makeUnit(kind, side, lv, cell, extra = {}) {
     const G = GROW[kind], s = statsFor(kind, lv), ar = kind === 'aria';
-    if (side === 'enemy' && cfg.enemyBoost) { if (kind !== 'chrome') s.mhp = Math.round(s.mhp * cfg.enemyBoost.hp); s.atk = Math.round(s.atk * cfg.enemyBoost.atk); }
+    const v = side === 'enemy' && region && typeof Regions !== 'undefined' ? Regions.variant(region, kind) : null;
+    if (side === 'enemy' && cfg.enemyBoost) { s.mhp = Math.round(s.mhp * cfg.enemyBoost.hp); s.atk = Math.round(s.atk * cfg.enemyBoost.atk); }
     return Object.assign({
       id: uid++, kind, side, lv, r: cell.r, c: cell.c, hp: s.mhp, mhp: s.mhp, atk: s.atk, def: s.def, mov: G.mov + (ar ? GB.mov : 0), jump: G.jump + (ar ? GB.jump : 0), rng: G.rng, fly: !!G.fly, armor: G.armor || 0, hgt: G.h,
-      dir: side === 'ally' ? 0 : 2, moved: false, acted: false, normalAttacks: 0, root: 0, guard: 0, enchant: null, summon: 0, name: KIND_NAME[kind] || (SPIRITS[kind] && SPIRITS[kind].name) || kind, word: '',
+      dir: side === 'ally' ? 0 : 2, moved: false, acted: false, normalAttacks: 0, root: 0, guard: 0, enchant: null, summon: 0, name: (v && v.name) || KIND_NAME[kind] || (SPIRITS[kind] && SPIRITS[kind].name) || kind, word: '', variant: v, trait: v ? v.trait : null,
       flash: 0, lunge: null, knock: null, mv: null, dk: null, dieT: 0, bornT: performance.now(), hidden: false, dead: false,
     }, extra);
   }
@@ -1138,7 +1145,7 @@ const Board = (() => {
   // 一撃を当てる（演出の中心）
   function strike(a, d, opt = {}) {
     const pd = unitXY(d);
-    if (d.kind === 'chrome' && stage === 0) {
+    if (veiled(d)) {
       stats.phase0 = (stats.phase0 || 0) + 1;
       Audio2.sfx.miss();
       fxp.push({ k: 'slash', x: pd.x, y: pd.y - tw * 0.6, life: 0, max: 0.5, col: '230,236,255', len: 1.6 });
@@ -1150,13 +1157,14 @@ const Board = (() => {
       Audio2.sfx.miss(); return { pass: true };
     }
     const res = calcDamage(a, d, opt);
-    const miss = !opt.sure && res.side !== 'back' && Math.random() < 0.05 + (d.kind === 'aria' ? GB.evade / 100 : 0);
+    const miss = !opt.sure && res.side !== 'back' && Math.random() < 0.05 + (d.kind === 'aria' ? GB.evade / 100 : 0) + (d.trait === 'mist' ? 0.12 : 0);
     const crit = !miss && !opt.noCrit && Math.random() < (res.side === 'back' ? 0.18 : 0.08) + (a.kind === 'aria' ? GB.crit / 100 : 0);
     if (a.side === 'ally' && !miss) { if (res.side === 'back') stats.back++; if (crit) stats.crit++; }
     const col = opt.col || '220,235,255';
     fxp.push({ k: 'slash', x: pd.x, y: pd.y - tw * d.hgt * 0.5, rot: -0.6 + (Math.random() - .5) * 0.5, life: 0, max: 0.42, col, len: crit ? 1.8 : 1.3 });
     if (miss) { popNum(pd.x, pd.y - tw * d.hgt * 0.6, 'MISS', 'miss'); Audio2.sfx.miss(); d.knock = { t0: performance.now(), dx: tw * 0.25, dy: 0 }; return { miss: true }; }
     let dmg = res.dmg; if (crit) dmg = Math.round(dmg * 1.5);
+    if (d.trait === 'plate' && !d.plateUsed) { d.plateUsed = true; dmg = Math.max(1, Math.round(dmg * 0.5)); floatText(pd.x, pd.y - tw * d.hgt * 1.2, '金の被膜', 'sys'); }
     if (d.guardian) dmg = GuardianCombat.damage(d.hp,d.mhp,d.guardianPhase,dmg);
     if (crit) { FX.flash('255,255,255', 0.55); shake(11); Audio2.sfx.crit(); popNum(pd.x, pd.y - tw * d.hgt - 26, 'CRITICAL!', 'critw'); }
     else { Audio2.sfx.hit(); shake(4); }
@@ -1222,6 +1230,7 @@ const Board = (() => {
     }
     if (r.crit) { focus(pd.x, pd.y - tw * 0.5, 1.32); await wait(110); }
     if (!r.miss && opt.normal && (a.enchant || a.resonance)) await enchantEffect(a, d, r.dmg);
+    if (!r.miss && a.side === 'enemy' && a.trait && d.side === 'ally') await applyTrait(a, d);
     refreshHud();
     await wait(420);
     if (my !== sess) return;
@@ -1230,6 +1239,29 @@ const Board = (() => {
     await wait(180);
   }
 
+  // 国の色の敵の特性（regions.js）。ボスと守護者には付けない。
+  async function applyTrait(a, d) {
+    if (d.dead || d.hp <= 0) return;
+    const dc = cellOf(d), p = unitXY(d);
+    if (a.trait === 'push') {
+      const dr = Math.sign(d.r - a.r), dcc = Math.sign(d.c - a.c), v = Math.abs(d.r - a.r) >= Math.abs(d.c - a.c) ? [dr, 0] : [0, dcc];
+      const n = cellAt(d.r + v[0], d.c + v[1]);
+      if (n && n.walk && !unitAt(n) && Math.abs(n.h - dc.h) <= 1) {
+        const from = topOf(dc), to = topOf(n);
+        d.dk = viewDepth(n) >= viewDepth(dc) ? idx(n.r, n.c) : idx(dc.r, dc.c);
+        await tween(180, k => { d.mv = { x: from.x + (to.x - from.x) * k, y: from.y + (to.y - from.y) * k }; });
+        d.r = n.r; d.c = n.c; d.mv = null; d.dk = null;
+        floatText(to.x, to.y - tw, '押し流された', 'sys');
+      }
+    } else if (a.trait === 'ember') {
+      nb4(dc).forEach((c, i) => paint(c, 'dull', i * 60));
+      floatText(p.x, p.y - tw * 1.2, '燠火が、床をくすませた', 'sys');
+    } else if (a.trait === 'root') {
+      if (Math.random() < 0.5) { d.root = 1; d.hazardRootUntil = turn + 1; floatText(p.x, p.y - tw * 1.2, '蔦が、絡みついた', 'sys'); }
+    } else if (a.trait === 'drain') {
+      if (sp > 0 && drained < 2) { sp--; drained++; floatText(p.x, p.y - tw * 1.2, '共鳴を、吸われた', 'sys'); }
+    }
+  }
   async function enchantEffect(a, d, dmg) {
     const id = a.enchant?.id, all = !!a.resonance, dc = cellOf(d), p = unitXY(d);
     if (all || id === 'gran') {
@@ -1275,9 +1307,11 @@ const Board = (() => {
     const p = unitXY(d), dc = cellOf(d);
     const inv = cfg.inverted;
     if (d.side === 'enemy') {
+      // クロムの膜が剥がれきったら、貼りついていた白い膜も一緒にほどける
+      if (d.kind === 'chrome') live().filter(m => m.kind === 'membrane').forEach(m => { m.dead = true; m.dieT = performance.now(); const q = unitXY(m); smoke(q.x, q.y - tw * 0.4, 12, '245,248,255'); });
       if (d.guardian) {
         const p = GuardianCombat.profile(d.guardian);
-        const lines = [[p.name,p.freed],['アリア','穢れだけ、切り分けられた。あなたの色は残ってる。']];
+        const lines = [[p.name,p.freed],['アリア',d.kind==='chrome'?'白い膜だけ、切り分けられた。あなたの黒は、残ってる。':'穢れだけ、切り分けられた。あなたの色は残ってる。']];
         guardianHistory.push({phase:3,lines}); say('戻ってきた声',lines.map(([who,text])=>`<b>${who}</b> ${text}`).join('<br>'),9000);
         d.intent = null;
       }
@@ -1308,7 +1342,7 @@ const Board = (() => {
       tutorialStep('kill');
       refreshHud();
       await wait(450);
-      if (stage === 1 && !live().some(u => u.side === 'enemy')) win();
+      if (stage >= (cfg.finale ? 2 : 1) && !live().some(u => u.side === 'enemy')) win();
     } else if (d.kind === 'aria' || d.kind === 'chrome_human') {
       smoke(p.x, p.y - tw * 0.5, 20, '20,10,30');
       lose();
@@ -1446,7 +1480,7 @@ const Board = (() => {
     Audio2.sfx.star(3); Renoir.skyCast();
     for (let i = 0; i < 16; i++) fxp.push({ k: 'starburst', x: p.x, y: p.y - tw * 0.3, vx: Math.cos(i * 0.39) * 1.6, vy: Math.sin(i * 0.39) * 0.9, life: 0, max: 1.5 });
     paintArea(cell, 2, 'rainbow', 80);
-    const hit = live().filter(o => foe(a, o) && dist(cellOf(o), cell) <= 2);
+    const hit = live().filter(o => foe(a, o) && !veiled(o) && dist(cellOf(o), cell) <= 2);
     await wait(300);
     for (const o of hit) { strike(a, o, { power: 0.9, sure: true, col: '200,215,255', quiet: true }); await wait(120); }
     await wait(450);
@@ -1568,6 +1602,7 @@ const Board = (() => {
       if (T.regen) live().filter(u => u.side === 'ally' && u.hp < u.mhp).forEach(u => heal(u, Math.round(u.mhp * T.regen)));
     }
     live().filter(u => u.side === 'ally').forEach(u => { u.moved = false; u.acted = false; u.normalAttacks = 0; u.undo = null; if (u.hazardRootUntil != null && turn > u.hazardRootUntil) { u.root = 0; u.hazardRootUntil = null; } });
+    if (cfg.finale && stage === 1 && turn > rescueTurn + 1 && awakened < (cfg.spirits || []).length) awaken();
     live().filter(u=>u.guardian).forEach(e=>guardianIntent(e));
     refreshHud();
     await showBanner('player', 'PLAYER PHASE', `TURN ${turn}　—　${floorNames()[0]}の手番`);
@@ -1588,6 +1623,8 @@ const Board = (() => {
     phaseLabel.textContent = '';
     await enemyPhase();
     if (my !== sess || over) return;
+    if (cfg.finale && stage === 0 && rescueDue()) { await rescue(); if (my !== sess || over) return; }
+    else if (cfg.finale && stage === 1 && turn >= rescueTurn + 4) { await realize(); return; }
     await playerPhase();
   })()); }
   async function enemyPhase() {
@@ -1595,6 +1632,7 @@ const Board = (() => {
     phase = 'enemy';
     await showBanner('enemy', 'ENEMY PHASE', cfg.inverted ? '白い膜の手番' : '穢れの手番');
     if (my !== sess || over) return;
+    drained = 0;
     const T = TIER[tierE];
     if (T.regen) live().filter(u => u.side === 'enemy' && u.hp < u.mhp).forEach(u => heal(u, Math.round(u.mhp * T.regen)));
     const nearest = (e) => Math.min(99, ...live().filter(u => u.side === 'ally').map(u => dist(u, e)));
@@ -1618,7 +1656,7 @@ const Board = (() => {
   }
   async function enemyAct(e) {
     const my = sess;
-    if (e.kind === 'chrome' && stage === 1) return;
+    if (veiled(e)) { if (e.guardian) await guardianResolve(e); return; }
     const ec = cellOf(e);
     if (e.guardian) { await guardianResolve(e); if (my !== sess || over || !running) return; }
     // 侵食：まわりの床をくすませる
@@ -1682,9 +1720,11 @@ const Board = (() => {
     if (e.kind !== 'chrome' && paint(cellOf(e), 'dull')) refreshHud();
   }
 
+  // 終章のクロムは、救援が入るまで（stage 0）だけ「絶望」の予告を使う
+  const gProfile = e => GuardianCombat.profile(e.kind === 'chrome' && stage === 0 ? 'chrome_despair' : e.guardian);
   function guardianIntent(e) {
     if (e.dead) return;
-    const p = GuardianCombat.profile(e.guardian);
+    const p = gProfile(e);
     const forecast = GuardianCombat.plan(p,e.guardianPhase,e,live().filter(u=>u.side==='ally'),cells,turn);
     e.intent = {turn,phase:e.guardianPhase,ids:new Set(forecast.map(c=>idx(c.r,c.c)))};
   }
@@ -1694,18 +1734,19 @@ const Board = (() => {
     e.guardianPhase = next;
     const p = GuardianCombat.profile(e.guardian), m = GuardianCombat.mode(p,next);
     e.atk = Math.round(e.guardianAtk*m.power); e.mov=m.mov; e.rng=m.rng; e.armor=m.armor;
-    guardianHistory.push({phase:next,lines:p.lines[next]});
+    if (!(initial && e.kind === 'chrome')) guardianHistory.push({phase:next,lines:p.lines[next]});
     if (stats) stats.guardianVoices=next+1;
     if (!initial) {
       areaCells(cellOf(e),next+2).filter(c=>c.floor!=='dull').sort((a,b)=>dist(a,e)-dist(b,e)).slice(0,8+next*6).forEach((c,i)=>paint(c,'dull',i*25));
       const q=unitXY(e); fxp.push({k:'ring',x:q.x,y:q.y,r:tw*.3,grow:tw*3,col:next===1?'170,140,205':'145,230,210',life:0,max:1.1}); Audio2.sfx.expose();
+      if (e.kind === 'chrome') spawnMembranes(3);
       guardianIntent(e);
       guardianVoicePending = true;
-      say('戦場の声',p.lines[next].map(([who,text])=>`<b>${who}</b> ${text}`).join('<br>')+'<small>穢れが外へ流れ出した。予告の床を虹にして防ごう。</small>',0);
+      say('戦場の声',p.lines[next].map(([who,text])=>`<b>${who}</b> ${text}`).join('<br>')+(e.kind==='chrome'?'<small>白い膜が貼り直された。予告の床を夜空にして防ごう。</small>':'<small>穢れが外へ流れ出した。予告の床を虹にして防ごう。</small>'),0);
     }
   }
   async function guardianResolve(e) {
-    const p=GuardianCombat.profile(e.guardian), intent=e.intent;
+    const p=gProfile(e), intent=e.intent;
     if (!intent || intent.turn !== turn) return;
     e.guard=0;
     const danger = [...intent.ids].map(id=>cells[id]).filter(c=>c.floor!=='rainbow');
@@ -1714,10 +1755,13 @@ const Board = (() => {
     await skillBanner(p.skills[intent.phase],p.colour);
     danger.forEach((c,i)=>paint(c,'dull',i*12));
     if(p.id==='vard')playMotion(e,'attack');
-    const q=unitXY(e); artEffect(GameArt.spiritEffects[p.id==='vard'?'vard':p.material==='m_teal'?'gran':p.material==='m_green'?'ivy':p.material==='m_gold'?'spinel':'king'],cellOf(e),2.4);
-    fxp.push({k:'ring',x:q.x,y:q.y,r:tw*.3,grow:tw*2,col:p.id==='vard'?'245,121,101':'210,155,200',life:0,max:1});
+    if(p.id==='chrome')playMotion(e,'wave',2.5);
+    const q=unitXY(e); artEffect(p.id==='chrome'?'chrome_wave':GameArt.spiritEffects[p.id==='vard'?'vard':p.material==='m_teal'?'gran':p.material==='m_green'?'ivy':p.material==='m_gold'?'spinel':'king'],cellOf(e),2.4);
+    fxp.push({k:'ring',x:q.x,y:q.y,r:tw*.3,grow:tw*2,col:p.id==='vard'?'245,121,101':p.id==='chrome'?'225,232,255':'210,155,200',life:0,max:1});
     for (const u of hit) {
-      const damage=Math.max(1,Math.round(Math.min(u.mhp*(.08+intent.phase*.02),e.atk*.7)*(difficulty==='gentle'?.6:1)*(u.guard?.65:1)));
+      let damage=Math.max(1,Math.round(Math.min(u.mhp*(.08+intent.phase*.02),e.atk*.7)*(difficulty==='gentle'?.6:1)*(u.guard?.65:1)));
+      // 絶望の黒は倒しきらない。HPは1で止まり、共鳴だけが吸われる
+      if(p.effect==='drain')damage=Math.min(Math.round(u.mhp*(difficulty==='gentle'?.2:.3)*(u.guard?.65:1)),Math.max(0,u.hp-1));
       u.hp=Math.max(0,u.hp-damage);stats.taken+=damage; const t=unitXY(u);popNum(t.x,t.y-tw*u.hgt,damage,'hurt');playMotion(u,'hurt');
       if (p.effect==='root') {u.root=1;u.hazardRootUntil=turn+1;}
       if (p.effect==='unguard') u.guard=0;
@@ -1727,6 +1771,7 @@ const Board = (() => {
       }
     }
     if (p.effect==='sp'&&hit.length) sp=Math.max(0,sp-1);
+    if (p.effect==='drain'&&hit.length) sp=0;
     if (p.effect==='guard'&&danger.length) e.guard=1;
     if (p.effect==='ember') danger.forEach(c=>nb4(c).forEach(n=>{if(n.floor!=='rainbow')paint(n,'dull');}));
     e.intent=null;refreshHud();await wait(420);
@@ -1734,6 +1779,8 @@ const Board = (() => {
   }
 
   // ---------- 選択と命令 ----------
+  // 終章の前半は、精霊が一人ずつ夜空へ還ってくる
+  const spiritPool = () => stage === 0 ? [] : cfg.finale && stage === 1 ? (cfg.spirits || []).slice(0, awakened) : (cfg.spirits || []);
   const normalAttackLimit = u => stage && (u.resonance || u.kind === 'aria' && u.enchant) ? 2 : 1;
   const followUpPending = u => u && !u.acted && u.normalAttacks > 0 && u.normalAttacks < normalAttackLimit(u);
   const selectionPrompt = u => followUpPending(u) ? 'あと1回攻撃できます／待機で向きを選んで終了' : u.moved ? '行動を選んでください' : '光る床へ移動／本人に触れて、その場で行動';
@@ -1796,13 +1843,9 @@ const Board = (() => {
     deselect();
     refreshHud();
     tutorialStep('attack');
-    if (stage === 0 && (stats.phase0 || 0) >= 2 && !paused) {
+    if (cfg.finale && stage === 1 && r === 'phase0' && !paused) {
       paused = true; busy = true; endBtn.disabled = true;
-      later(() => {
-        if (my !== sess || !running) return;
-        if (cfg.onPhase0) cfg.onPhase0();
-        else enterPhase1({ skyCharges: 4, say: { who: 'アリア', text: 'あなたの黒は、穢れじゃない。<br>白い膜だけを、切り分ける。' } });
-      }, 1400);
+      later(() => { if (my === sess && running) runTask(realize()); }, 1400);
       return;
     }
     void r;
@@ -1876,8 +1919,8 @@ const Board = (() => {
       enterTarget('item:' + arg, s);
     }
     else if (k === 'back') { if (mode === 'facing') closeFacing(); else showMenu(u); }
-    else if (k === 'summon') { if (u.kind !== 'aria' || !stage || !(cfg.spirits || []).includes(arg) || defeatedSpirits.has(arg) || sp < COST_SUMMON || u.enchant || live().some(x => x.until && x.kind === arg)) return; enterTarget('summon:' + arg, summonCells(u)); }
-    else if (k === 'enchant') { if (u.kind !== 'aria' || !stage || !(cfg.spirits || []).includes(arg) || defeatedSpirits.has(arg) || enchantUsed || sp < COST_ENCHANT || u.enchant?.id === arg || live().some(x => x.until)) return; doEnchant(u, arg); }
+    else if (k === 'summon') { if (u.kind !== 'aria' || !stage || !spiritPool().includes(arg) || defeatedSpirits.has(arg) || sp < COST_SUMMON || u.enchant?.id === arg || live().some(x => x.until && x.kind === arg)) return; enterTarget('summon:' + arg, summonCells(u)); }
+    else if (k === 'enchant') { if (u.kind !== 'aria' || !stage || !spiritPool().includes(arg) || defeatedSpirits.has(arg) || enchantUsed || sp < COST_ENCHANT || u.enchant?.id === arg || live().some(x => x.until && x.kind === arg)) return; doEnchant(u, arg); }
     else if (k === 'sky') { const s = new Set(); cells.forEach(c => { if (c.walk && dist(c, u) <= 4) s.add(idx(c.r, c.c)); }); enterTarget('sky', s); }
     else if (k === 'wait') openFacing(u);
     else if (k === 'facewait') finishWait(u, Number(arg));
@@ -1994,15 +2037,14 @@ const Board = (() => {
       it.push('<div class="cm-note cm-spirit-choice"><b>召喚 6</b>：登場の大技＋精霊が別行動<br><b>宿す 3</b>：アリアの通常攻撃が毎ターン2回</div>');
       const summoned = live().find(x => x.until);
       const enchanted = u.enchant;
-      if (summoned) it.push(`<div class="cm-note">${live().filter(x => x.until).map(x => x.name).join('・')}を召喚している間は、心剣に宿せない。ほかの精霊は、続けて召喚できる</div>`);
-      else if (enchanted) it.push(`<div class="cm-note">${SPIRITS[enchanted.id].name}が心剣に宿っている間は、召喚できない</div>`);
-      (cfg.spirits || []).forEach(id => {
+      if (summoned || enchanted) it.push(`<div class="cm-note">${[enchanted ? `${SPIRITS[enchanted.id].name}が心剣に宿っている` : '', summoned ? `${live().filter(x => x.until).map(x => x.name).join('・')}を召喚している` : ''].filter(Boolean).join('。')}。宿しも召喚も、ほかの精霊なら続けて使える（同じ精霊は同時に1つまで）</div>`);
+      spiritPool().forEach(id => {
         const s = SPIRITS[id];
         const fallen = defeatedSpirits.has(id);
-        const out = live().some(x => x.until && x.kind === id), canSum = !fallen && !out && !enchanted && sp >= COST_SUMMON && summonCells(u).size > 0;
-        const canEn = !fallen && !summoned && !enchantUsed && sp >= COST_ENCHANT && !(enchanted && enchanted.id === id);
-        const why = (k) => fallen ? '（戦闘不能：この戦闘中は使えない）' : k === 'summon' ? (out ? '（すでに召喚中）' : enchanted ? '（宿している間は召喚できない）' : sp < COST_SUMMON ? '（共鳴が足りない）' : '')
-          : (summoned ? '（召喚している間は宿せない）' : enchantUsed ? '（このターンはもう宿した）' : sp < COST_ENCHANT ? '（共鳴が足りない）' : '');
+        const out = live().some(x => x.until && x.kind === id), inSword = enchanted && enchanted.id === id, canSum = !fallen && !out && !inSword && sp >= COST_SUMMON && summonCells(u).size > 0;
+        const canEn = !fallen && !out && !enchantUsed && sp >= COST_ENCHANT && !inSword;
+        const why = (k) => fallen ? '（戦闘不能：この戦闘中は使えない）' : k === 'summon' ? (out ? '（すでに召喚中）' : inSword ? '（心剣に宿っている間は召喚できない）' : sp < COST_SUMMON ? '（共鳴が足りない）' : '')
+          : (out ? '（召喚している間は宿せない）' : inSword ? '（すでに宿っている）' : enchantUsed ? '（このターンはもう宿した）' : sp < COST_ENCHANT ? '（共鳴が足りない）' : '');
         it.push(`<div class="cm-sp${fallen ? ' fallen' : ''}" style="--sc:${s.color}"><div class="cm-spn">${s.name}<small>${fallen ? '戦闘不能 · この戦闘中は使用不可' : `Lv${rec(id).lv}・絆${bondRank(id)}`}</small></div>
           <button class="cm-s" data-k="summon" data-a="${id}" ${canSum ? '' : 'disabled'} data-d="【召喚】${s.summon.name}：${s.summon.desc}。${3 + GB.summonTurns}ターン共に戦う（行動を使う）${why('summon')}">召喚<em>${COST_SUMMON}</em></button>
           <button class="cm-s" data-k="enchant" data-a="${id}" ${canEn ? '' : 'disabled'} data-d="【心剣に宿す】${s.enchant.name}：${s.enchant.desc}。${3 + GB.enchantTurns}ターン、通常攻撃が毎ターン2回（移動は1回・技や道具は1回）。宿す行動は消費なし・1ターンに1度${why('enchant')}">宿す<em>${COST_ENCHANT}</em></button></div>`);
@@ -2038,7 +2080,7 @@ const Board = (() => {
       if (u.kind === 'aria' && !followUp) {
         if (stage) it.push(btn('flash', '透明の一閃', { cost: flashCost(), dis: sp < flashCost(), d: '前方2マスを貫く一閃。必中・威力1.35倍、通り道を虹に染める' }));
         it.push(btn('pray', '凪の祈り', { cost: COST_PRAY, dis: sp < COST_PRAY, d: '自分か隣の味方のHPを35%癒し、周りを虹に染める' }));
-        if (stage && (cfg.spirits || []).length) it.push(btn('spirit', '精霊 ▸', { d: '召喚6：大技＋精霊の別行動／宿す3：通常攻撃が毎ターン2回（どちらか一方だけ）' }));
+        if (stage && spiritPool().length) it.push(btn('spirit', '精霊 ▸', { d: '召喚6：大技＋精霊の別行動／宿す3：通常攻撃が毎ターン2回（宿しながら、ほかの精霊を召喚できる）' }));
         if (stage && learnedForBattle().length) it.push(btn('learned', '覚えた技 ▸', { d: 'エンチャントと召喚、それぞれの熟練で覚えた技。習得後は宿しや召喚なしでも使える' }));
         const nItems = Object.keys(party.items).filter(k => party.items[k] > 0 && typeof ITEMS !== 'undefined' && ITEMS[k]).length;
         it.push(btn('item', '道具 ▸', { dis: !nItems, d: nItems ? '道具を使う（行動を使う）' : '道具を持っていない' }));
@@ -2089,7 +2131,7 @@ const Board = (() => {
     if (!u) { unitInfo.classList.add('hidden'); infoU = null; return; }
     infoU = u;
     const ally = u.side === 'ally', s = SPIRITS[u.kind];
-    const port = GameArt.available(u.artId||u.kind) ? `<div class="ui-port generated">${GameArt.portrait(u.artId||u.kind)}</div>` : u.kind === 'aria' ? `<div class="ui-port"><img src="assets/img/aria.png"></div>`
+    const port = GameArt.available(u.artId||u.kind) ? `<div class="ui-port generated"${u.variant && !u.guardian ? ` style="filter:hue-rotate(${u.variant.tint.hue}deg) saturate(${u.variant.tint.sat})"` : ''}>${GameArt.portrait(u.artId||u.kind)}</div>` : u.kind === 'aria' ? `<div class="ui-port"><img src="assets/img/aria.png"></div>`
       : s ? `<div class="ui-port orb" style="--c:${s.color}"></div>`
         : `<div class="ui-port foe ${u.kind}"></div>`;
     const r = ally ? rec(u.kind) : null;
@@ -2103,7 +2145,7 @@ const Board = (() => {
     const f = cellOf(u).floor, fn = floorNames();
     const ft = f === 'rainbow' ? `<span class="ft rainbow">${fn[0]}の床</span>` : f === 'dull' ? `<span class="ft dull">${fn[1]}の床</span>` : '<span class="ft">素の床</span>';
     const rng = effRng(u);
-    const unknown = u.kind === 'chrome' && stage === 0;
+    const unknown = veiled(u);
     const neutral = u.side === 'neutral';
     const facing = neutral ? null : facingOf(u.dir);
     const side = u.side === 'enemy' && sel && !sel.dead && sel.side === 'ally' ? attackSide(cellOf(sel), u) : null;
@@ -2112,40 +2154,52 @@ const Board = (() => {
       <div class="ui-top"><span class="ui-name">${u.name}</span>${neutral ? '' : `<span class="ui-lv">LV<b>${u.lv}</b></span>`}</div>
       ${facing ? `<div class="ui-facing" data-dir="${u.dir}" data-view-dir="${viewDir(u.dir)}"><b>${facing.arrow}</b><span>正面：${facing.name}</span></div>${side ? `<div class="ui-approach ${side}" data-side="${side}">${APPROACH[side]}</div>` : ''}` : ''}
       ${u.word ? `<div class="ui-word">「${u.word}」</div>` : ''}
-      ${neutral ? '<div class="ui-word">——その人の色は、切らない</div>' : `<div class="ui-bar hp"><i style="width:${unknown ? 100 : Math.round(u.hp / u.mhp * 100)}%"></i><span>${u.guardian?'穢れHP':'HP'} ${unknown ? '？？？' : `${u.hp} / ${u.mhp}`}</span></div>`}
+      ${neutral ? '<div class="ui-word">——その人の色は、切らない</div>' : `<div class="ui-bar hp"><i style="width:${unknown ? 100 : Math.round(u.hp / u.mhp * 100)}%"></i><span>${u.kind==='chrome'?'白い膜HP':u.guardian?'穢れHP':'HP'} ${unknown ? '？？？' : `${u.hp} / ${u.mhp}`}</span></div>`}
       ${r ? `<div class="ui-bar exp"><i style="width:${r.lv >= MAX_LV ? 100 : r.exp}%"></i><span>${r.lv >= MAX_LV ? 'EXP MAX · 成長上限' : `EXP ${r.exp} / 100`}</span></div>` : ''}
       ${neutral ? '' : `<div class="ui-st"><span>攻<b>${u.atk}</b></span><span>防<b>${unknown ? '?' : u.def}</b></span><span>移<b>${effMov(u)}</b></span><span>射<b>${rng[0] === rng[1] ? rng[0] : rng[0] + '-' + rng[1]}</b></span></div>`}
+      ${u.trait && typeof Regions !== 'undefined' ? `<div class="ui-trait" style="--c:${Regions.REGIONS[region].color}">特性・${Regions.TRAITS[u.trait].name}<small>${Regions.TRAITS[u.trait].desc}</small></div>` : ''}
       ${u.windTurns>0?`<div class="ui-word">追い風 · 移動+1 · 残り${u.windTurns}ターン</div>`:''}
       ${furyBonus(u)>1?`<div class="ui-fury">憤怒 · 攻撃+${Math.round((furyBonus(u)-1)*100)}%<small>失ったHPを攻撃力へ変える</small></div>`:''}
       <div class="ui-tags">${ft}${st.join('')}</div></div>`;
   }
   // 精霊が増えても、右側のミッション欄と重ならないようにする。
   // 余白が足りなければ、ルノワールを小さく → 精霊の札を一行に → それでも足りなければ札の中だけ縦にスクロール。
-  let fitQueued = false;
+  let fitQueued = false, fitTimers = [];
   function fitSide() {
+    // 文字や画像の読み込みで高さが変わることがあるので、少し遅れてもう一度測る。
+    fitTimers.forEach(clearTimeout); fitTimers = [350, 1200].map(ms => setTimeout(fitNow, ms));
+    fitNow();
+  }
+  if (document.fonts?.ready) document.fonts.ready.then(() => { if (running) fitNow(); });
+  function fitNow() {
     if (fitQueued) return; fitQueued = true;
     requestAnimationFrame(() => {
       fitQueued = false;
       if (!running || !cfg) return;
       const box = spiritBox, side = $id('boardSide');
-      box.classList.remove('dense'); screen.classList.remove('crowded'); box.style.maxHeight = '';
-      if (screen.classList.contains('compact') || box.style.display === 'none' || !box.children.length) return;
-      const gap = 4, free = () => {
-        const sideBottom = side.getBoundingClientRect().bottom, boxBottom = box.getBoundingClientRect().bottom;
-        return boxBottom - sideBottom - gap;     // 札に使える高さ
-      };
-      const need = () => box.scrollHeight;
-      if (need() <= free()) return;
-      screen.classList.add('crowded');
-      if (need() <= free()) return;
-      box.classList.add('dense');
-      if (need() <= free()) return;
-      box.style.maxHeight = Math.max(80, free()) + 'px';
+      // 札の高さが動きながら変わる途中を測らないよう、測っている間だけ動きを止める。
+      screen.classList.add('fitting');
+      try { fitMeasure(box, side); } finally { screen.classList.remove('fitting'); }
     });
+  }
+  function fitMeasure(box, side) {
+    box.classList.remove('dense'); screen.classList.remove('crowded'); box.style.maxHeight = '';
+    if (screen.classList.contains('compact') || box.style.display === 'none' || !box.children.length) return;
+    // 札の実測は、直前の状態によって数pxぶれる（WebKit）。決めるのは札の数から出した高さで、実測は「足りないとき」だけ使う。
+    const n = box.children.length, armed = box.querySelectorAll('.armed, .fallen').length;
+    const boxBottom = box.getBoundingClientRect().bottom;
+    const free = () => boxBottom - side.getBoundingClientRect().bottom - 4;     // 札に使える高さ
+    const full = n * 80 + (n - 1) * 8, dense = n * 40 + (n - 1) * 4 + armed * 18;
+    if (full <= free() && box.scrollHeight <= free()) return;
+    screen.classList.add('crowded');
+    if (full <= free() && box.scrollHeight <= free()) return;
+    box.classList.add('dense');
+    if (dense <= free() && box.scrollHeight <= free()) return;
+    box.style.maxHeight = Math.max(80, free()) + 'px';
   }
   addEventListener('resize', () => { if (running) fitSide(); });
   function renderSpirits() {
-    const list = stage ? (cfg.spirits || []) : [];
+    const list = spiritPool();
     spiritBox.innerHTML = '';
     if (!list.length) { spiritBox.style.display = 'none'; return; }
     spiritBox.style.display = '';
@@ -2166,7 +2220,7 @@ const Board = (() => {
       const anySum = live().some(u => u.until), en = a && a.enchant;
       const fallen = defeatedSpirits.has(id);
       const state = fallen ? '戦闘不能 · この戦闘中は使用不可' : su ? (su.summon > 0 ? `召喚中・あと${su.summon}ターン` : '召喚中・このターンまで') : (en && en.id === id) ? `通常攻撃2回・あと${en.turns}ターン`
-        : followUpPending(a) ? '追撃か待機を選択' : anySum ? (sp >= COST_SUMMON ? '召喚できる（召喚中は宿せない）' : '召喚中は宿せない') : en ? (enchantUsed ? 'このターンは宿し済み' : sp >= COST_ENCHANT ? '宿し替えできる' : '宿し中は召喚できない')  : sp >= COST_SUMMON ? '召喚・宿しができる' : sp >= COST_ENCHANT ? '宿せる' : '共鳴を待つ';
+        : followUpPending(a) ? '追撃か待機を選択' : (en && enchantUsed) ? 'このターンは宿し済み' : sp >= COST_SUMMON ? '召喚・宿しができる' : sp >= COST_ENCHANT ? (en ? '宿し替えできる' : '宿せる') : '共鳴を待つ';
       const b = document.createElement('button');
       b.className = 'skill spirit' + (fallen ? ' fallen' : '') + (su || (a && a.enchant && a.enchant.id === id) ? ' armed' : '');
       b.disabled = fallen;
@@ -2203,7 +2257,7 @@ const Board = (() => {
     fb.querySelector('.fb-ba').innerHTML = nA ? `<i>${fn[0]}の加護${ROMAN[nA]}</i>${desc(TIER[nA])}` : `<i class="off">${fn[0]}${TIER_AT[0] * 100}%で加護</i>`;
     fb.querySelector('.fb-be').innerHTML = nE ? `<i>${fn[1]}${ROMAN[nE]}</i>敵 ${desc(TIER[nE])}` : '';
     const n = live().filter(u => u.side === 'enemy').length;
-    $id('kegareCount').innerHTML = `TURN<b>${turn}</b>　${cfg.inverted ? '白い膜' : '穢れ'}<b>${stage === 0 ? '?' : n}</b>`;
+    $id('kegareCount').innerHTML = `TURN<b>${turn}</b>　${cfg.inverted ? '白い膜' : '穢れ'}<b>${stage < 2 && cfg.finale ? '?' : n}</b>`;
     if (cfg.restoreBeacons) $id('kegareCount').insertAdjacentHTML('beforeend', `　灯<b>${cells.filter(c => c.beaconOn).length}/${cfg.restoreBeacons}</b>`);
     document.querySelector('#resonance .rs-val').textContent = sp;
     vignette.style.opacity = 0.15 + D * 0.7;
@@ -2218,9 +2272,12 @@ const Board = (() => {
     const e=live().find(u=>u.guardian);
     guardianHud.classList.toggle('hidden',!e);
     if (!e) return;
-    const p=GuardianCombat.profile(e.guardian);
+    const p=gProfile(e), real=GuardianCombat.profile(e.guardian), chrome=e.kind==='chrome', unknown=chrome&&stage<2;
+    const names=real.phaseNames||GuardianCombat.phaseNames, label=chrome?'白い膜HP':'穢れHP';
+    const phaseText=unknown?(stage===0?'絶望 · 刃が届かない':'夜が戻る · 黒の奥の声を探す'):`${['Ⅰ','Ⅱ','Ⅲ'][e.guardianPhase]} ${names[e.guardianPhase]}`;
+    const hint=chrome&&stage===0?'予告の床の外へ逃げる':`${chrome?'夜空':'虹'}で防ぐ`;
     guardianHud.dataset.phase=String(e.guardianPhase+1);
-    guardianHud.innerHTML=`${GameArt.portrait(p.art)}<div class="gh-copy"><b>${p.name}<small>${['Ⅰ','Ⅱ','Ⅲ'][e.guardianPhase]} ${GuardianCombat.phaseNames[e.guardianPhase]}</small></b><div class="gh-hp" role="meter" aria-label="精霊に貼りついた穢れHP" aria-valuemin="0" aria-valuemax="${e.mhp}" aria-valuenow="${e.hp}"><i style="width:${e.hp/e.mhp*100}%"></i><em></em><em></em><span>穢れHP ${e.hp}/${e.mhp}</span></div><small class="gh-intent">予告：${p.skills[e.intent?.phase??e.guardianPhase]} · 虹で防ぐ</small></div><button type="button" aria-label="ボスの行動と戦場の会話を読む" ${busy?'disabled':''}>声</button>`;
+    guardianHud.innerHTML=`${GameArt.portrait(real.art)}<div class="gh-copy"><b>${real.name}<small>${phaseText}</small></b><div class="gh-hp" role="meter" aria-label="${chrome?'クロムに貼りついた白い膜のHP':'精霊に貼りついた穢れHP'}" aria-valuemin="0" aria-valuemax="${e.mhp}" aria-valuenow="${unknown?e.mhp:e.hp}"><i style="width:${unknown?100:e.hp/e.mhp*100}%"></i><em></em><em></em><span>${label} ${unknown?'？？？':`${e.hp}/${e.mhp}`}</span></div><small class="gh-intent">予告：${p.skills[e.intent?.phase??e.guardianPhase]} · ${hint}</small></div><button type="button" aria-label="ボスの行動と戦場の会話を読む" ${busy?'disabled':''}>声</button>`;
   }
 
   // ---------- 盤の主（グランなど） ----------
@@ -2357,7 +2414,7 @@ const Board = (() => {
     if (ms.length) r = n >= ms.length ? 'S' : n === ms.length - 1 ? 'A' : n >= 1 ? 'B' : 'C';
     else { const par = cfg.par || totalFoes + 3; r = turn <= par ? 'S' : turn <= par + 2 ? 'A' : turn <= par + 5 ? 'B' : 'C'; }
     // しずく（お金）
-    const lvs = units.filter(u => u.side !== 'ally' && u.kind !== 'chrome').map(u => u.lv);
+    const lvs = units.filter(u => u.side !== 'ally').map(u => u.lv);
     const avg = lvs.length ? lvs.reduce((a, b) => a + b, 0) / lvs.length : 1;
     const clear = cfg.reward || Math.round(30 + avg * 10);
     const mult = { S: 1.5, A: 1.25, B: 1.1, C: 1 }[r];
@@ -2507,12 +2564,13 @@ const Board = (() => {
       <div class="tip-tiles"><div><span class="tip-rainbow-floor${cfg.inverted ? ' night' : ''}"><img src="assets/tiles/dark_land_flat.png" alt=""></span>${floorNames()[0]}の床（味方）</div><div><img src="assets/tiles/dark_land_flat.png" alt="">${floorNames()[1]}の床（穢れ）</div></div>
       <h4>床の割合と加護</h4>味方が歩いた床・攻撃した床は<b>虹色</b>に、穢れが立つ床は<b>くすみ</b>ます。盤全体の割合が<b>25%・45%・65%</b>を超えるたびに、その側の攻撃・守り・共鳴が強くなります（65%で毎ターン回復）。<br>自分の色の床に立つと攻撃+10%、相手の色の床では守り-10%。
       <h4>位置どり</h4>敵の足元の<b style="color:#ffd07a">橙の矢印が正面</b>、<b style="color:#81e7ff">青の二本線が背後</b>です。HPの横にも正面を向く矢印が表示されます。敵の情報欄では、選んだ味方の現在位置が正面・側面・背後のどれかを確認できます。<br>高い場所から打つと+15%。敵の<b>背後</b>から+25%（会心も出やすい）、側面から+10%。
-      <h4>精霊</h4>仲間になった精霊は、<b>共鳴</b>を使って力を貸してくれます。<br>・<b>召喚</b>（共鳴6）：盤に降り立ち、登場の大技のあと3ターン共に戦う。<br>・<b>心剣に宿す</b>（共鳴3）：3ターンのあいだ、精霊の力をまとった<b>通常攻撃が毎ターン2回</b>に。同じ敵にも別の敵にも追撃でき、空振りも1回に数えます。移動は最初の1回だけで、技・魔法・道具を選ぶと行動は終了します。宿すときは行動を使わず、1ターンに1度。<br>召喚と宿しは同時にはできません。召喚している間は宿せず、宿している間は召喚できません。
+      <h4>精霊</h4>仲間になった精霊は、<b>共鳴</b>を使って力を貸してくれます。<br>・<b>召喚</b>（共鳴6）：盤に降り立ち、登場の大技のあと3ターン共に戦う。<br>・<b>心剣に宿す</b>（共鳴3）：3ターンのあいだ、精霊の力をまとった<b>通常攻撃が毎ターン2回</b>に。同じ敵にも別の敵にも追撃でき、空振りも1回に数えます。移動は最初の1回だけで、技・魔法・道具を選ぶと行動は終了します。宿すときは行動を使わず、1ターンに1度。<br>宿しと召喚は重ねられます。宿しながら、ほかの精霊を召喚できます。ただし、同じ精霊を同時に宿して召喚することはできません。
       <p><b>召喚した精霊が倒されたら、その戦闘中は再召喚も心剣に宿すこともできません。</b>他の精霊は使えます。召喚の期限で帰還した精霊は再び使え、再挑戦・次の戦闘では戦闘不能の制限を解除します。</p>
       <h4>道具とミッション</h4>町で買った道具は、メニューの「道具」から使えます（行動を使う）。<br>右上のミッションをすべて達成するとSランク。S評価の報酬は難易度別。<b>ハードのボス戦はユニーク装備、通常戦は通常装備。ふつう・やさしいはアイテム</b>です。各難易度で1回ずつ受け取れ、所持済みの通常装備は価格の半分のしずくになります。
       <h4>LV</h4>攻撃と撃破で経験値が入り、100たまるとLVが上がります。精霊は、召喚や宿しで育ちます。
       <h4>精霊との絆・覚えた技</h4>召喚で絆+3、心剣に宿すと+2。召喚した精霊の攻撃や、宿した心剣が命中すると+1、覚えた技を使うと+2。絆は精霊と技の強さを育てます。<b>習得はエンチャントと召喚の熟練を別々に判定</b>し、それぞれ8・20・40で3種ずつ、全24種。宿すとエンチャント熟練+2、宿した通常攻撃の命中で+1。召喚すると召喚熟練+3、精霊の命中で+1。覚えた技の使用は熟練に入りません。<br>習得後は「覚えた技」から、召喚や宿しをせずに使えます。絆が深まるほど精霊のHP・攻撃・守りと、宿した心剣・覚えた技の効果が育ちます。負けても絆と習得は残ります。
       <h4>ルノワールの四響エンチャント</h4>クロムだけが使う切り札です。共鳴6・1戦闘に1回。3ターン、4精霊のエンチャント効果をまとめて宿し、通常攻撃が毎ターン2回になります。宿す行動は消費しません。吸収して身につけたルノワール自身の能力なので、他の精霊の召喚中・戦闘不能でも使えます。クロム自身に精霊の召喚能力はありません。再挑戦・次の戦闘で使用回数は戻ります。<h4>復興の灯</h4>復興編は敵の全滅と、番号のついた灯をすべて点けることが目的です。アリアとクロムの<b>「浄化」（共鳴2）</b>で2マス以内の灯そのものを選んでください。周り2マスも虹に戻ります。防壁を持つ核は、灯が全部点くまで攻撃が届きません。<h4>難易度・依頼</h4>マップの戦場や依頼でやさしい・ふつう・ハードの3段階の難易度を選べます。適正LV・報酬・ミッション実績は難易度ごとに表示されます。戦闘開始後は再挑戦も同じ難易度です。町の「依頼」でサブクエストを探せます。
+      <h4>国の色の敵</h4>敵は、戦う土地の色に染まっています。名前と色がちがい、<b>特性</b>を一つ持つ種類がいます（押し流し・燠火・絡め取り・金の被膜・色吸い・霞）。敵を選ぶと、特性の内容が見られます。
       <p style="margin-top:12px;color:#ffd98a">「切るのは穢れだけ。その人の色は、一滴も切らない」</p>`);
   }
 
@@ -2538,9 +2596,10 @@ const Board = (() => {
     artEffects.length = 0; cutinCancel?.(); cutinCancel = null;
     cancelPending();
     cfg = Progression.prepare(baseCfg, baseCfg.difficulty);
-    cfg.onPhase0 = baseCfg.onPhase0;
+    cfg.onEvent = baseCfg.onEvent;
+    region = typeof Regions !== 'undefined' ? Regions.of(cfg) : null; drained = 0;
     guardianHistory = [];
-    screen.classList.toggle('guardian-battle',!!cfg.guardian);
+    screen.classList.toggle('guardian-battle',!!(cfg.guardian || cfg.finale));
     cols = cfg.cols; rows = cfg.rows;
     viewRotation = 0; defeatedSpirits.clear(); renoirUsed = false;
     $id('boardView').setAttribute('aria-label', '戦闘マップの視点 · 表示角度0度');
@@ -2550,7 +2609,7 @@ const Board = (() => {
     if (cfg.recLv) party.aria.lv = Math.max(party.aria.lv, cfg.recLv);
     (cfg.spirits || []).forEach(id => { const r = rec(id); r.lv = Math.max(r.lv, (cfg.recLv || 1) - 1); });
     saveParty();
-    stage = cfg.phase0 ? 0 : 1;
+    stage = cfg.finale ? 0 : 1; rescueTurn = 0; awakened = 0;
     uid = 1;
     const plan = genMap();
     initFloors(plan);
@@ -2570,10 +2629,11 @@ const Board = (() => {
       if (spec.kind === 'boss' && cfg.bossArt) { u.artId = cfg.bossArt; if(cfg.guardian)u.hgt=cfg.bossArt==='gran'?1.35:1.5; }
       if (spec.kind === 'boss' && cfg.bossHP) { u.hp = u.mhp = Math.round(u.mhp * cfg.bossHP); }
       if (spec.kind === 'boss' && cfg.guardian) { u.guardian=cfg.guardian;u.guardianPhase=0;u.guardianAtk=u.atk; }
+      if (spec.kind === 'chrome') { u.guardian='chrome';u.guardianPhase=0;u.guardianAtk=u.atk; }
       u.word = spec.kind === 'boss' ? (cfg.rootWord || '') : spec.kind === 'chrome' ? '' : (words[kegIdx++ % Math.max(1, words.length)] || '');
       if (spec.kind === 'boss' && cfg.bossName) u.name = cfg.bossName;
       units.push(u);
-      if (!u.hidden && spec.kind !== 'chrome') totalFoes++;
+      if (!u.hidden) totalFoes++;
     });
     makeDecor();
     orderCells();
@@ -2595,7 +2655,7 @@ const Board = (() => {
     bannerEl.className = ''; cutinEl.className = ''; skillEl.className = '';
     buildSubject();
     layout();
-    missionOpen = !screen.classList.contains('short') && !(cfg.guardian && screen.classList.contains('compact'));
+    missionOpen = !screen.classList.contains('short') && !((cfg.guardian || cfg.finale) && screen.classList.contains('compact'));
     hudReady = false; refreshHud(); hudReady = true;
     showInfo(units[0]);
     if (cfg.tutorial) { tut = { steps: cfg.tutorial, i: 0 }; const s = tut.steps[0]; say(s.who, s.text); }
@@ -2603,26 +2663,114 @@ const Board = (() => {
     if (!running) { running = true; t0 = performance.now(); renderFrame = requestAnimationFrame(render); }
     runTask(playerPhase());
   }
-  // 終章：第二段へ
-  function enterPhase1(opt = {}) { return runTask((async () => {
+  // ---------- 終章：クロム戦の流れ ----------
+  // 0 絶望（刃は届かない・盤は白い膜）→ ルノワールの救援 → 1 夜が戻る（精霊が一人ずつ還る）
+  //   → 刃が黒を通り抜ける → 2 クロムに貼りついた白い膜を切り分ける本戦（3フェーズ）
+  const rescueDue = () => { const a = ariaU(); return turn >= 2 || !!a && a.hp / a.mhp <= 0.45; };
+  // 物語の場面（Engine）が無いとき（ワールドマップからの再戦）は、短い一言で代える
+  async function playEvent(name, fallback) {
+    if (cfg.onEvent && await cfg.onEvent(name)) return;
+    if (fallback) { say(fallback.who, fallback.text, 5000); await wait(2400); }
+  }
+  async function rescue() {
     const my = sess;
-    stage = 1; paused = false;
+    paused = true; busy = true; endBtn.disabled = true; hideMenu(); deselect(); hideSay();
+    const a = ariaU();
+    if (a) { const q = topOf(cellOf(a)); focus(q.x, q.y - tw * 0.4, 1.25); }
+    await wait(500);
+    if (my !== sess || over) return;
+    await playEvent('rescue1', { who: '', text: '膝をついたアリアの前に、小さな黒いものが転がり出た。' });
+    if (my !== sess || over) return;
+    // ルノワールの夜空
+    if (a) {
+      const q = topOf(cellOf(a));
+      artEffect('night_sky', cellOf(a), 3.4);
+      for (let i = 0; i < 24; i++) fxp.push({ k: 'starburst', x: q.x, y: q.y - tw * 0.3, vx: Math.cos(i * 0.26) * 1.8, vy: Math.sin(i * 0.26) * 1.0, life: 0, max: 1.6 });
+    }
+    Renoir.skyCast(); Audio2.sfx.star(3); FX.flash('220,230,255', 0.6);
+    await wait(900);
+    if (my !== sess || over) return;
+    stage = 1; rescueTurn = turn;
+    const c0 = a ? cellOf(a) : cells[0];
+    // 近くは夜空、遠くは白い膜がほどけて素の床へ
+    cells.forEach(c => { if (c.walk && c.floor === 'dull') paint(c, dist(c, c0) <= 3 ? 'rainbow' : 'neutral', dist(c, c0) * 70); });
+    live().filter(u => u.side === 'ally').forEach(u => heal(u, Math.round(u.mhp * 0.4)));
+    sp = Math.min(spCap(), sp + 4);
+    skyCharges = Renoir.state.colors.length || 4;
+    awaken();
+    refreshHud();
+    await playEvent('rescue2', { who: 'クロム', text: '……なんで。なんで、おまえの中に、星が' });
+    if (my !== sess || over) return;
+    paused = false;
+    say('アリア', 'ルノワールの夜空が、床を取り戻していく。<br><small>夜空にした床の上なら、クロムの波は止まる。精霊の色が、ターンごとに一つずつ還ってくる</small>', 9000);
+    unfocus();
+    await wait(500);
+  }
+  // 夜空に精霊の色がひとつ灯り、その精霊が戦えるようになる
+  function awaken() {
+    const ids = cfg.spirits || [];
+    if (awakened >= ids.length) return;
+    const id = ids[awakened++], s = SPIRITS[id], a = ariaU();
+    if (a) {
+      paintArea(cellOf(a), awakened > 2 ? 3 : 2, 'rainbow', 70);
+      const q = topOf(cellOf(a));
+      floatText(q.x, q.y - tw * 1.9, `${s.name}の色が、夜空に灯った`, 'color', s.color);
+      fxp.push({ k: 'beam', x: q.x, y: q.y, col: s.rgb, w: 0.5, life: 0, max: 1.1 });
+    }
+    sp = Math.min(spCap(), sp + 1);
+    Audio2.sfx.star(awakened);
+    refreshHud();
+  }
+  // 刃が黒を通り抜けて、膜と黒がちがうものだと気づく
+  async function realize() {
+    const my = sess;
+    paused = true; busy = true; endBtn.disabled = true; hideMenu(); deselect(); hideSay();
+    await playEvent('realize', { who: 'アリア', text: 'あなたの黒は、穢れじゃない。<br>白い膜だけを、切り分ける。' });
+    if (my !== sess || over) return;
+    await revealBoss();
+  }
+  // クロムの膜が貼り直される。本戦のあいだは3回まで、膜の影が戻ってくる
+  function spawnMembranes(n) {
+    const ch = units.find(u => u.kind === 'chrome' && !u.dead);
+    if (!ch) return;
+    const free = shuffle(cells.filter(c => c.walk && !unitAt(c) && dist(c, ch) >= 2 && dist(c, ch) <= 5));
+    const words = cfg.kegWords || [];
+    const room = Math.max(0, 6 - live().filter(u => u.kind === 'membrane').length);
+    for (let i = 0; i < Math.min(n, room, free.length); i++) {
+      const u = makeUnit('membrane', 'enemy', Math.max(1, ch.lv - 2), free[i], { word: words[kegIdx++ % Math.max(1, words.length)] || '' });
+      units.push(u); totalFoes++; paintArea(free[i], 1, 'dull', 60);
+      const q = topOf(free[i]); smoke(q.x, q.y - tw * 0.3, 10, '245,248,255');
+    }
+    const q = unitXY(ch); floatText(q.x, q.y - tw * 1.6, '白い膜が、貼り直された', 'sys');
+  }
+  async function revealBoss(opt = {}) {
+    const my = sess;
+    stage = 2; paused = false;
     const ch = units.find(u => u.kind === 'chrome');
-    if (ch) { ch.side = 'neutral'; ch.word = ''; }
-    skyCharges = opt.skyCharges || 0;
+    if (ch) ch.word = '';
+    if (opt.skyCharges != null) skyCharges = opt.skyCharges;
+    // ルノワールの夜空が、波で貼り直された白い膜をほどく。膜の影は、そのあとで自分の足元だけを塗る
+    cells.forEach(c => { if (c.walk && c.floor === 'dull') paint(c, 'neutral', Math.random() * 300); });
     units.filter(u => u.hidden).forEach(u => {
       // 第一段のあいだに誰かが立っていたら、近くの空いた床へ
       if (unitAt(cellOf(u))) { const free = cells.filter(c => c.walk && !unitAt(c)).sort((a, b) => dist(a, u) - dist(b, u))[0]; if (free) { u.r = free.r; u.c = free.c; } }
-      u.hidden = false; u.bornT = performance.now(); totalFoes++; paintArea(cellOf(u), 1, 'dull', 80);
+      u.hidden = false; u.bornT = performance.now(); paintArea(cellOf(u), 1, 'dull', 80);
     });
     FX.flash('235,240,255', 0.5);
     Audio2.sfx.expose();
+    if (ch) {
+      const lines = GuardianCombat.profile('chrome').lines[0];
+      guardianHistory.push({ phase: 0, lines });
+      if (!opt.say) say('戦場の声', lines.map(([who, text]) => `<b>${who}</b> ${text}`).join('<br>') + '<small>HPは、クロムではなく貼りついた白い膜の厚さ。膜を切り分けよう</small>', 9000);
+    }
     refreshHud();
     if (opt.say) say(opt.say.who, opt.say.text, 8000);
     await wait(1000);
     if (my !== sess) return;
     await playerPhase();
-  })()); }
+  }
+  // テストと旧い呼び出しのために残す：本戦へ直接入る
+  const enterPhase1 = (opt = {}) => runTask(revealBoss(opt));
   function stop() {
     sess++; running = false; over = true;
     shakeAnimation?.cancel(); shakeAnimation = null;

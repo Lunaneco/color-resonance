@@ -73,7 +73,7 @@ const idle=()=>page.waitForFunction(()=>Board.__test.state().running&&!Board.__t
 const aria=s=>s.units.find(u=>u.kind==='aria');
 const enemy=s=>s.units.find(u=>u.side==='enemy'&&!u.dead&&!u.hidden);
 async function fixture(id='cove', extra={}) {
-  await page.evaluate(({id,extra})=>Board.start({...BOARDS[id],guardian:null,bossArt:null,map:{low:['land_flat'],mid:['land_flat'],high:['land_flat'],hills:0,obsAmt:0,water:null},enemies:[{kind:'shade',lv:1}],intro:null,tutorial:null,beats:[],...extra}),{id,extra});
+  await page.evaluate(({id,extra})=>Board.start({...BOARDS[id],region:false,guardian:null,bossArt:null,map:{low:['land_flat'],mid:['land_flat'],high:['land_flat'],hills:0,obsAmt:0,water:null},enemies:[{kind:'shade',lv:1}],intro:null,tutorial:null,beats:[],...extra}),{id,extra});
   await idle();
   await page.evaluate(foeKind=>{Math.random=()=>0.5;Board.__test.arrange([{kind:'aria',r:5,c:4,dir:0,atk:999},{kind:foeKind,r:4,c:4,dir:2,hp:1}]);},extra.enemies?.[0]?.kind||'shade');
 }
@@ -218,11 +218,25 @@ test('Leaving target selection through a spirit badge preserves movement choices
   const after=await state();assert.equal(after.mode,'selected');assert.equal(after.ends.length,before.ends.length);assert(after.ends.length>0);
 });
 
-test('Enchanting keeps the action available and prevents a second enchant or summon',async()=>{
-  await boot('king');await openMenu();await page.locator('[data-k=spirit]').click();await page.locator('[data-k=enchant][data-a=gran]').click();
+test('Enchanting keeps the action available, allows no second enchant that turn, and still allows summoning other spirits',async()=>{
+  await boot('king');await fixture('king',{spStart:12});await openMenu();await page.locator('[data-k=spirit]').click();await page.locator('[data-k=enchant][data-a=gran]').click();
   assert(await page.locator('#endTurn').isDisabled());await idle();const s=await state();
-  assert.equal(aria(s).enchant.id,'gran');assert(!aria(s).acted);assert.equal(s.sp,3);assert(!(await page.locator('#endTurn').isDisabled()));
-  await page.locator('[data-k=spirit]').click();assert(await page.locator('[data-k=enchant][data-a=ivy]').isDisabled());assert(await page.locator('[data-k=summon][data-a=gran]').isDisabled());
+  assert.equal(aria(s).enchant.id,'gran');assert(!aria(s).acted);assert.equal(s.sp,9);assert(!(await page.locator('#endTurn').isDisabled()));
+  await page.locator('[data-k=spirit]').click();assert(await page.locator('[data-k=enchant][data-a=ivy]').isDisabled(),'only one enchant per turn');assert(await page.locator('[data-k=summon][data-a=gran]').isDisabled(),'the spirit in the sword cannot also be summoned');
+  assert(!await page.locator('[data-k=summon][data-a=ivy]').isDisabled(),'another spirit can be summoned while one is enchanted');
+});
+
+test('A summoned spirit and an enchanted sword fight together without doubling one spirit',async()=>{
+  await boot('king');await fixture('king',{spStart:12});await page.evaluate(()=>Board.__test.arrange([{kind:'aria',hp:1000,mhp:1000},{kind:'shade',hp:1000,mhp:1000,atk:1,r:1,c:1,root:10}]));
+  await openMenu();await page.locator('[data-k=spirit]').click();await page.locator('[data-k=enchant][data-a=gran]').click();await idle();
+  assert.equal(aria(await state()).enchant.id,'gran');
+  await page.locator('[data-k=spirit]').click();await page.locator('[data-k=summon][data-a=ivy]').click();const cell=await legalCell('targets');assert(cell);await page.mouse.click(cell.x,cell.y);
+  await page.waitForFunction(()=>Board.__test.state().turn===2&&!Board.__test.state().busy,{},{timeout:30000});
+  const s=await state();assert.equal(aria(s).enchant.id,'gran','the sword keeps its spirit after a summon');assert(s.units.some(u=>u.kind==='ivy'&&!u.dead&&u.until));
+  await page.evaluate(()=>Board.__test.arrange([{kind:'aria',hp:1000,mhp:1000}]));
+  await openMenu();await page.locator('[data-k=spirit]').click();
+  assert(await page.locator('[data-k=enchant][data-a=ivy]').isDisabled(),'the summoned spirit cannot also be enchanted');
+  assert(await page.locator('[data-k=summon][data-a=gran]').isDisabled(),'the enchanted spirit cannot also be summoned');
 });
 
 async function enchantBattle(id='king',viewport={width:1440,height:900}) {
@@ -337,7 +351,7 @@ for(const viewport of [{width:320,height:480},{width:390,height:844},{width:667,
   });
 }
 
-test('Another spirit can be summoned while one is out; the same spirit cannot be doubled and enchanting stays locked',async()=>{
+test('Another spirit can be summoned while one is out; the same spirit cannot be doubled',async()=>{
   await boot('king');await fixture('king',{spStart:12});await page.evaluate(()=>Board.__test.arrange([{kind:'aria',hp:1000,mhp:1000},{kind:'shade',hp:1000,mhp:1000,atk:1,r:1,c:1,root:10}]));
   await openMenu();await page.locator('[data-k=spirit]').click();await page.locator('[data-k=summon][data-a=gran]').click();let cell=await legalCell('targets');assert(cell);await page.mouse.click(cell.x,cell.y);
   await page.waitForFunction(()=>Board.__test.state().turn===2&&!Board.__test.state().busy,{},{timeout:25000});
@@ -346,7 +360,7 @@ test('Another spirit can be summoned while one is out; the same spirit cannot be
   await openMenu();await page.locator('[data-k=spirit]').click();
   assert(await page.locator('[data-k=summon][data-a=gran]').isDisabled(),'the same spirit cannot be summoned twice');
   assert(!await page.locator('[data-k=summon][data-a=ivy]').isDisabled(),'a different spirit can be summoned');
-  for(const id of ['gran','ivy'])assert(await page.locator(`[data-k=enchant][data-a=${id}]`).isDisabled(),'enchanting stays locked while a summon is out');
+  assert(await page.locator('[data-k=enchant][data-a=gran]').isDisabled(),'the summoned spirit itself cannot be enchanted');assert(!await page.locator('[data-k=enchant][data-a=ivy]').isDisabled(),'another spirit can be enchanted while one is out');
   const sp=(await state()).sp;await page.locator('[data-k=summon][data-a=ivy]').click();cell=await legalCell('targets');assert(cell);await page.mouse.click(cell.x,cell.y);
   await page.waitForFunction(()=>Board.__test.state().units.some(u=>u.kind==='ivy'&&!u.dead)&&!Board.__test.state().busy,{},{timeout:25000});
   const end=await state();assert(end.units.some(u=>u.kind==='gran'&&!u.dead&&u.until));assert(end.units.some(u=>u.kind==='ivy'&&!u.dead&&u.until),'both summoned spirits fight together');assert(end.sp<sp);
@@ -400,15 +414,7 @@ test('Interrupting a move cannot unlock the next battle before its opening banne
   assert((await state()).busy);await idle();assert.equal((await state()).cfg,'cove');assert.equal((await state()).turn,1);
 });
 
-test('Final battle reveals membranes after two attacks and protects neutral Chrome',async()=>{
-  await boot('chrome');await page.evaluate(()=>{Math.random=()=>.5;Board.__test.arrange([{kind:'aria',r:5,c:4,hp:1000,mhp:1000},{kind:'chrome',r:4,c:4,dir:2}]);});
-  const hp=enemy(await state()).hp;
-  await attack();await page.waitForFunction(()=>Board.__test.state().turn===2&&!Board.__test.state().busy,{},{timeout:18000});
-  // Put Chrome next to Aria again after his enemy movement.
-  await page.evaluate(()=>{const a=Board.__test.state().units.find(u=>u.kind==='aria');Board.__test.arrange([{kind:'chrome',r:a.r-1,c:a.c,dir:2}]);});
-  await attack();await page.waitForFunction(()=>Board.__test.state().stage===1&&!Board.__test.state().busy&&!Board.__test.state().paused,{},{timeout:18000});
-  const s=await state(),chrome=s.units.find(u=>u.kind==='chrome');assert.equal(chrome.hp,hp);assert.equal(chrome.side,'neutral');assert.equal(s.units.filter(u=>u.kind==='membrane'&&!u.hidden).length,6);assert.equal(s.skyCharges,4);
-});
+// 終章のクロム戦（絶望 → 救援 → 本戦）は tests/finale-battle.test.cjs
 
 const allChapters=['prologue','act1','act2','act3','act4','act5','finale','epilogue','done'];
 const partyWithBond=points=>({aria:{lv:1,exp:0},spirits:Object.fromEntries(['gran','ivy','spinel','king'].map(id=>[id,{lv:1,exp:0,bond:points,uses:0}]))});

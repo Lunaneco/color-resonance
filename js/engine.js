@@ -154,6 +154,18 @@ const Engine = (() => {
   function speakerColor(who) { return tints[who] || SPEAKERS[who] || '#cfe8ff'; }
 
   // ---------- 立ち絵・CG ----------
+  // マリーの色合い：clear（いつものマリー）／dim（闇がほどけかけている）／dark（闇に染まっている）
+  const MARI_TONE = {
+    clear: ['rgba(255,240,190,.55)', 'drop-shadow(0 0 24px rgba(255,230,150,.7))'],
+    dim: ['rgba(110,80,150,.45)', 'brightness(.62) saturate(.55) contrast(1.1) drop-shadow(0 0 22px rgba(120,80,170,.6))'],
+    dark: ['rgba(20,6,36,.78)', 'brightness(.24) saturate(.18) contrast(1.4) drop-shadow(0 0 32px rgba(70,20,110,.85))'],
+  };
+  function toneMari(el, tone, instant) {
+    const [halo, filter] = MARI_TONE[tone] || MARI_TONE.clear, cv = el.querySelector('canvas');
+    el.firstElementChild.style.background = `radial-gradient(circle,${halo},transparent 60%)`;
+    cv.style.transition = instant ? 'none' : 'filter 2.5s ease'; cv.style.filter = filter;
+    if (instant) { void cv.offsetWidth; cv.style.transition = 'filter 2.5s ease'; }
+  }
   function show(what, opt) {
     if (what === 'aria') { aria.classList.add('show'); scene.aria = true; return; }
     let el = cgLayer.querySelector(`[data-show="${what}"]`);
@@ -163,8 +175,10 @@ const Engine = (() => {
       el.querySelector('canvas').style.filter = opt === 'dark' ? 'brightness(.28) saturate(.25) contrast(1.2) drop-shadow(0 0 30px rgba(0,0,0,.8))' : opt === 'spirit' ? 'brightness(1.15) saturate(1.3) drop-shadow(0 0 40px rgba(140,210,255,.9))' : 'drop-shadow(0 0 30px rgba(120,200,255,.5))';
       el.querySelector('canvas').style.transition = 'filter 3s ease';
     } else if (what === 'mari') {
-      scene.mari = true;
+      scene.mari = opt || 'clear';
+      const created = !el;
       if (!el) { el = document.createElement('div'); el.dataset.show = 'mari'; el.className = 'cg'; el.innerHTML = '<div style="position:absolute;inset:-30%;background:radial-gradient(circle,rgba(255,240,190,.55),transparent 60%);filter:blur(10px)"></div><canvas width="384" height="480" style="position:relative;width:100%;filter:drop-shadow(0 0 24px rgba(255,230,150,.7))"></canvas>'; Object.assign(el.style, { right: '12vw', top: '12vh', width: 'min(440px,34vw)', animation: 'float 6s ease-in-out infinite' }); cgLayer.appendChild(el); GameArt.mount(el.querySelector('canvas'), 'mari', 'idle', { fallback: 'assets/img/mari.png' }); requestAnimationFrame(() => el.classList.add('show')); }
+      toneMari(el, scene.mari, created);
     } else if (what === 'renoir') {
       scene.renoir = true;
       if (!el) {
@@ -405,16 +419,18 @@ const Engine = (() => {
     const conf = BOARDS[key];
     return new Promise(res => {
       if (key === 'chrome') {
-        conf.onPhase0 = async () => {
-          if (mine !== token || !Board.running) return;
+        // 戦闘の中で起こる場面（ルノワールの救援・刃が黒を通り抜ける）を、盤の上に重ねて読む
+        conf.onEvent = async (name) => {
+          if (mine !== token || !Board.running || !FINALE_EVENTS[name]) return false;
           inlineMode = true;
-          for (const l of parse(FINALE_PHASE0)) {
-            if (mine !== token || !Board.running) return;
-            await runLine(l);
-            if (mine !== token || !Board.running) return;
-          }
-          tb.classList.add('hidden'); inlineMode = false;
-          Board.enterPhase1({ skyCharges: Renoir.state.colors.length || 4, say: { who: 'アリア', text: '白い膜だけを、切り分ける。<br><small>メニューの「小さな夜空」で、ルノワールの夜空が床を取り戻してくれる</small>' } });
+          try {
+            for (const l of parse(FINALE_EVENTS[name])) {
+              if (mine !== token || !Board.running) return true;
+              await runLine(l);
+              if (mine !== token || !Board.running) return true;
+            }
+          } finally { tb.classList.add('hidden'); inlineMode = false; }
+          return true;
         };
       }
       const difficulty=conf.difficultyFrom?Progression.selected(Board.party,conf.difficultyFrom):Progression.selected(Board.party,key);
@@ -531,7 +547,7 @@ const Engine = (() => {
   function applyScene(s) {
     if (s.bg) setBg(s.bg, s.preset); if (s.bgm) { scene.bgm = s.bgm; Audio2.playBgm(s.bgm); }
     if (s.fx) { scene.fx = s.fx; FX.set(s.fx); }
-    if (s.aria) show('aria'); if (s.gran) show('gran', s.gran); if (s.mari) show('mari'); if (s.renoir) show('renoir');
+    if (s.aria) show('aria'); if (s.gran) show('gran', s.gran); if (s.mari) show('mari', s.mari === true ? undefined : s.mari); if (s.renoir) show('renoir');
     if (s.aura) setAura(s.aura); scene.pouch = s.pouch;
     (s.cgs || []).forEach(k => cg(k));
   }

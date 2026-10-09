@@ -110,7 +110,7 @@ const FREE_STAGES = {
   f_stars: {
     id: 'f_stars', act: 'フリーステージ', title: '星見の崖', lv: 15, cols: 11, rows: 11, reward: 460, spStart: 6,
     map: { low: ['land_flat', 'sea_flat', 'land_flat'], mid: ['land_step', 'land_flat'], high: ['land_high'], water: 'sea_deep', waterAmt: 0.04, hills: 0.45, obstacles: ['rocks', 'mt_small'], obsAmt: 0.05 },
-    enemies: [{ kind: 'boss', lv: 17, armor: 2 }, { kind: 'shade', lv: 15, n: 3 }, { kind: 'lead', lv: 15, n: 2 }, { kind: 'thorn', lv: 15, n: 2 }], bossName: '星を隠す核',
+    enemies: [{ kind: 'boss', lv: 17, armor: 2 }, { kind: 'shade', lv: 15, n: 3 }, { kind: 'lead', lv: 15, n: 1 }, { kind: 'thorn', lv: 15, n: 2 }], bossName: '星を隠す核',
     missions: [{ type: 'turns', n: 12 }, { type: 'flashMulti' }, { type: 'enchantKill', n: 3 }], unique: 'u_lens',
     theme: { bg: 'stars', preset: 'none', fx: 'stars:0.8', bgm: 'fate' }, hue: '#cfd8ff', decor: ['mt_big', 'rocks'],
     desc: '夜空がいちばん近い崖。星を見上げるのを邪魔する言葉が、渦を巻いている。',
@@ -118,7 +118,7 @@ const FREE_STAGES = {
   f_void: {
     id: 'f_void', act: 'フリーステージ', title: '透明の回廊', lv: 22, cols: 12, rows: 12, reward: 700, spStart: 6, dullStart: 0.18,
     map: { low: ['sea_flat', 'land_flat', 'sea_calm'], mid: ['land_step', 'land_flat'], high: ['land_high'], water: 'sea_deep', waterAmt: 0.05, hills: 0.4, obstacles: ['mt_mid', 'rocks'], obsAmt: 0.05 },
-    enemies: [{ kind: 'boss', lv: 24, armor: 3 }, { kind: 'lead', lv: 22, n: 3 }, { kind: 'thorn', lv: 22, n: 3 }, { kind: 'shade', lv: 22, n: 3 }], bossName: '色を拒む核', spawnCap: 7,
+    enemies: [{ kind: 'boss', lv: 24, armor: 3 }, { kind: 'lead', lv: 22, n: 2 }, { kind: 'thorn', lv: 22, n: 2 }, { kind: 'shade', lv: 22, n: 3 }], bossName: '色を拒む核', spawnCap: 7,
     missions: [{ type: 'turns', n: 15 }, { type: 'noDown' }, { type: 'rainbow', n: 65 }], unique: 'u_sheath',
     theme: { bg: 'glass', preset: 'clearDawn', fx: 'sparkle:0.5', bgm: 'fate' }, hue: '#ffffff', decor: ['mt_big', 'mt_mid'],
     desc: '色のない場所へ続く、透き通った回廊。旅でいちばん強い穢れが、まだ眠っている。',
