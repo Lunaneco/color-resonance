@@ -1876,7 +1876,7 @@ const Board = (() => {
       enterTarget('item:' + arg, s);
     }
     else if (k === 'back') { if (mode === 'facing') closeFacing(); else showMenu(u); }
-    else if (k === 'summon') { if (u.kind !== 'aria' || !stage || !(cfg.spirits || []).includes(arg) || defeatedSpirits.has(arg) || sp < COST_SUMMON || u.enchant || live().some(x => x.until)) return; enterTarget('summon:' + arg, summonCells(u)); }
+    else if (k === 'summon') { if (u.kind !== 'aria' || !stage || !(cfg.spirits || []).includes(arg) || defeatedSpirits.has(arg) || sp < COST_SUMMON || u.enchant || live().some(x => x.until && x.kind === arg)) return; enterTarget('summon:' + arg, summonCells(u)); }
     else if (k === 'enchant') { if (u.kind !== 'aria' || !stage || !(cfg.spirits || []).includes(arg) || defeatedSpirits.has(arg) || enchantUsed || sp < COST_ENCHANT || u.enchant?.id === arg || live().some(x => x.until)) return; doEnchant(u, arg); }
     else if (k === 'sky') { const s = new Set(); cells.forEach(c => { if (c.walk && dist(c, u) <= 4) s.add(idx(c.r, c.c)); }); enterTarget('sky', s); }
     else if (k === 'wait') openFacing(u);
@@ -1898,7 +1898,7 @@ const Board = (() => {
       if (!skill || sp < skill.cost || !skillTargets(u, skill).has(idx(cell.r, cell.c))) return;
       sp -= skill.cost; act(u, () => spiritSkill(u, skill, cell));
     }
-    else if (cmd.startsWith('summon:')) { const id = cmd.slice(7); if (defeatedSpirits.has(id) || sp < COST_SUMMON) return; sp -= COST_SUMMON; act(u, () => summon(u, id, cell)); }
+    else if (cmd.startsWith('summon:')) { const id = cmd.slice(7); if (defeatedSpirits.has(id) || sp < COST_SUMMON || live().some(x => x.until && x.kind === id)) return; sp -= COST_SUMMON; act(u, () => summon(u, id, cell)); }
     else if (cmd === 'sky') { skyCharges--; act(u, () => nightSky(u, cell)); }
     else if (cmd.startsWith('item:')) {
       const id = cmd.slice(5);
@@ -1994,14 +1994,14 @@ const Board = (() => {
       it.push('<div class="cm-note cm-spirit-choice"><b>召喚 6</b>：登場の大技＋精霊が別行動<br><b>宿す 3</b>：アリアの通常攻撃が毎ターン2回</div>');
       const summoned = live().find(x => x.until);
       const enchanted = u.enchant;
-      if (summoned) it.push(`<div class="cm-note">${summoned.name}を召喚している間は、心剣に宿せない</div>`);
+      if (summoned) it.push(`<div class="cm-note">${live().filter(x => x.until).map(x => x.name).join('・')}を召喚している間は、心剣に宿せない。ほかの精霊は、続けて召喚できる</div>`);
       else if (enchanted) it.push(`<div class="cm-note">${SPIRITS[enchanted.id].name}が心剣に宿っている間は、召喚できない</div>`);
       (cfg.spirits || []).forEach(id => {
         const s = SPIRITS[id];
         const fallen = defeatedSpirits.has(id);
-        const canSum = !fallen && !summoned && !enchanted && sp >= COST_SUMMON && summonCells(u).size > 0;
+        const out = live().some(x => x.until && x.kind === id), canSum = !fallen && !out && !enchanted && sp >= COST_SUMMON && summonCells(u).size > 0;
         const canEn = !fallen && !summoned && !enchantUsed && sp >= COST_ENCHANT && !(enchanted && enchanted.id === id);
-        const why = (k) => fallen ? '（戦闘不能：この戦闘中は使えない）' : k === 'summon' ? (summoned ? '（いまは召喚中）' : enchanted ? '（宿している間は召喚できない）' : sp < COST_SUMMON ? '（共鳴が足りない）' : '')
+        const why = (k) => fallen ? '（戦闘不能：この戦闘中は使えない）' : k === 'summon' ? (out ? '（すでに召喚中）' : enchanted ? '（宿している間は召喚できない）' : sp < COST_SUMMON ? '（共鳴が足りない）' : '')
           : (summoned ? '（召喚している間は宿せない）' : enchantUsed ? '（このターンはもう宿した）' : sp < COST_ENCHANT ? '（共鳴が足りない）' : '');
         it.push(`<div class="cm-sp${fallen ? ' fallen' : ''}" style="--sc:${s.color}"><div class="cm-spn">${s.name}<small>${fallen ? '戦闘不能 · この戦闘中は使用不可' : `Lv${rec(id).lv}・絆${bondRank(id)}`}</small></div>
           <button class="cm-s" data-k="summon" data-a="${id}" ${canSum ? '' : 'disabled'} data-d="【召喚】${s.summon.name}：${s.summon.desc}。${3 + GB.summonTurns}ターン共に戦う（行動を使う）${why('summon')}">召喚<em>${COST_SUMMON}</em></button>
@@ -2119,11 +2119,37 @@ const Board = (() => {
       ${furyBonus(u)>1?`<div class="ui-fury">憤怒 · 攻撃+${Math.round((furyBonus(u)-1)*100)}%<small>失ったHPを攻撃力へ変える</small></div>`:''}
       <div class="ui-tags">${ft}${st.join('')}</div></div>`;
   }
+  // 精霊が増えても、右側のミッション欄と重ならないようにする。
+  // 余白が足りなければ、ルノワールを小さく → 精霊の札を一行に → それでも足りなければ札の中だけ縦にスクロール。
+  let fitQueued = false;
+  function fitSide() {
+    if (fitQueued) return; fitQueued = true;
+    requestAnimationFrame(() => {
+      fitQueued = false;
+      if (!running || !cfg) return;
+      const box = spiritBox, side = $id('boardSide');
+      box.classList.remove('dense'); screen.classList.remove('crowded'); box.style.maxHeight = '';
+      if (screen.classList.contains('compact') || box.style.display === 'none' || !box.children.length) return;
+      const gap = 4, free = () => {
+        const sideBottom = side.getBoundingClientRect().bottom, boxBottom = box.getBoundingClientRect().bottom;
+        return boxBottom - sideBottom - gap;     // 札に使える高さ
+      };
+      const need = () => box.scrollHeight;
+      if (need() <= free()) return;
+      screen.classList.add('crowded');
+      if (need() <= free()) return;
+      box.classList.add('dense');
+      if (need() <= free()) return;
+      box.style.maxHeight = Math.max(80, free()) + 'px';
+    });
+  }
+  addEventListener('resize', () => { if (running) fitSide(); });
   function renderSpirits() {
     const list = stage ? (cfg.spirits || []) : [];
     spiritBox.innerHTML = '';
     if (!list.length) { spiritBox.style.display = 'none'; return; }
     spiritBox.style.display = '';
+    fitSide();
     const a = ariaU();
     if (cfg.companion) {
       const ch = live().find(u => u.kind === 'chrome_human');
@@ -2140,11 +2166,11 @@ const Board = (() => {
       const anySum = live().some(u => u.until), en = a && a.enchant;
       const fallen = defeatedSpirits.has(id);
       const state = fallen ? '戦闘不能 · この戦闘中は使用不可' : su ? (su.summon > 0 ? `召喚中・あと${su.summon}ターン` : '召喚中・このターンまで') : (en && en.id === id) ? `通常攻撃2回・あと${en.turns}ターン`
-        : followUpPending(a) ? '追撃か待機を選択' : anySum ? '召喚中は宿せない' : en ? (enchantUsed ? 'このターンは宿し済み' : sp >= COST_ENCHANT ? '宿し替えできる' : '宿し中は召喚できない')  : sp >= COST_SUMMON ? '召喚・宿しができる' : sp >= COST_ENCHANT ? '宿せる' : '共鳴を待つ';
+        : followUpPending(a) ? '追撃か待機を選択' : anySum ? (sp >= COST_SUMMON ? '召喚できる（召喚中は宿せない）' : '召喚中は宿せない') : en ? (enchantUsed ? 'このターンは宿し済み' : sp >= COST_ENCHANT ? '宿し替えできる' : '宿し中は召喚できない')  : sp >= COST_SUMMON ? '召喚・宿しができる' : sp >= COST_ENCHANT ? '宿せる' : '共鳴を待つ';
       const b = document.createElement('button');
       b.className = 'skill spirit' + (fallen ? ' fallen' : '') + (su || (a && a.enchant && a.enchant.id === id) ? ' armed' : '');
       b.disabled = fallen;
-      b.setAttribute('aria-label', `${s.name} · ${state}`);
+      b.setAttribute('aria-label', `${s.name} · ${state}`); b.title = `${s.name} · ${state}`;
       b.style.setProperty('--sc', s.color);
       b.innerHTML = `${GameArt.available(id) ? GameArt.portrait(id, 'sk-art') : ''}<span class="sk-n">${s.name}</span><span class="sk-d">${state}</span><span class="sk-c">Lv${r.lv}・絆${bondRank(id)}</span>`;
       b.onclick = () => {
@@ -2298,6 +2324,7 @@ const Board = (() => {
     const st = ms.map(m => missionState(m, false));
     const done = st.filter(x => x.ok === true).length;
     box.classList.toggle('closed', !missionOpen);
+    fitSide();
     box.innerHTML = `<div class="mb-h">ミッション<span>${done}/${ms.length}</span></div>` + ms.map((m, i) => `<div class="mb-i ${st[i].ok === true ? 'ok' : st[i].ok === false ? 'ng' : ''}"><i></i><span>${missionText(m)}</span><em>${st[i].prog}</em></div>`).join('');
   }
   $id('missionBox').addEventListener('click', e => { e.stopPropagation(); missionOpen = !missionOpen; renderMissions(); });

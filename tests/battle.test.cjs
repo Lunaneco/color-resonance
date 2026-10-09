@@ -337,6 +337,21 @@ for(const viewport of [{width:320,height:480},{width:390,height:844},{width:667,
   });
 }
 
+test('Another spirit can be summoned while one is out; the same spirit cannot be doubled and enchanting stays locked',async()=>{
+  await boot('king');await fixture('king',{spStart:12});await page.evaluate(()=>Board.__test.arrange([{kind:'aria',hp:1000,mhp:1000},{kind:'shade',hp:1000,mhp:1000,atk:1,r:1,c:1,root:10}]));
+  await openMenu();await page.locator('[data-k=spirit]').click();await page.locator('[data-k=summon][data-a=gran]').click();let cell=await legalCell('targets');assert(cell);await page.mouse.click(cell.x,cell.y);
+  await page.waitForFunction(()=>Board.__test.state().turn===2&&!Board.__test.state().busy,{},{timeout:25000});
+  assert((await state()).units.some(u=>u.kind==='gran'&&!u.dead));
+  await page.evaluate(()=>Board.__test.arrange([{kind:'aria',hp:1000,mhp:1000}]));
+  await openMenu();await page.locator('[data-k=spirit]').click();
+  assert(await page.locator('[data-k=summon][data-a=gran]').isDisabled(),'the same spirit cannot be summoned twice');
+  assert(!await page.locator('[data-k=summon][data-a=ivy]').isDisabled(),'a different spirit can be summoned');
+  for(const id of ['gran','ivy'])assert(await page.locator(`[data-k=enchant][data-a=${id}]`).isDisabled(),'enchanting stays locked while a summon is out');
+  const sp=(await state()).sp;await page.locator('[data-k=summon][data-a=ivy]').click();cell=await legalCell('targets');assert(cell);await page.mouse.click(cell.x,cell.y);
+  await page.waitForFunction(()=>Board.__test.state().units.some(u=>u.kind==='ivy'&&!u.dead)&&!Board.__test.state().busy,{},{timeout:25000});
+  const end=await state();assert(end.units.some(u=>u.kind==='gran'&&!u.dead&&u.until));assert(end.units.some(u=>u.kind==='ivy'&&!u.dead&&u.until),'both summoned spirits fight together');assert(end.sp<sp);
+});
+
 test('A summoned spirit becomes selectable on the next turn',async()=>{
   await boot('king');await fixture('king',{spStart:6});await page.evaluate(()=>Board.__test.arrange([{kind:'aria',atk:25,hp:1000,mhp:1000},{kind:'shade',hp:1000,mhp:1000,atk:1,r:1,c:1}]));
   await openMenu();await page.locator('[data-k=spirit]').click();await page.locator('[data-k=summon][data-a=gran]').click();const cell=await legalCell('targets');assert(cell);await page.mouse.click(cell.x,cell.y);

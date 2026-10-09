@@ -73,3 +73,16 @@
   #boardScreen.compact #cmdMenu.sheet.facing .cm-facing-help{margin-bottom:6px;font-size:10px}
   #boardScreen.compact #cmdMenu.sheet.facing .cm-facing-keys{display:none}
 }
+
+/* 精霊が多いとき：右側の欄を詰めて、ミッションと札が重ならないようにする（board.js の fitSide） */
+#boardScreen.crowded #renoirBox,#boardScreen.crowded #renoirCanvas{width:84px;height:84px}
+#boardScreen.crowded .rn-label{display:none}
+#boardScreen.crowded #boardSide{gap:6px}
+#skills{overscroll-behavior:contain;scrollbar-width:thin}
+#skills.dense{gap:4px;overflow-y:auto}
+#skills.dense .skill.spirit{display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:2px 6px;min-height:36px;padding:4px 9px 4px 38px}
+#skills.dense .skill.spirit .sk-art{top:3px;width:26px;height:30px}
+#skills.dense .skill.spirit .sk-n{font-size:13px}
+#skills.dense .skill.spirit .sk-c{font-size:10.5px;white-space:nowrap}
+#skills.dense .skill.spirit .sk-d{display:none}
+#skills.dense .skill.spirit.armed .sk-d,#skills.dense .skill.spirit.fallen .sk-d{display:block;flex-basis:100%;font-size:10px;line-height:1.3}
