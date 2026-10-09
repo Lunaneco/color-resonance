@@ -35,3 +35,23 @@ test(`${engine}: six spirits, the mission list and resonance never overlap at ${
     assert.deepEqual(errors,[]);
   }finally{await ctx.close();}
 });
+
+for(const engine of ['chromium','webkit'])
+test(`${engine}: when the mission list grows after the first layout, the spirit cards are measured again and stay clear of it`,async()=>{
+  const ctx=await browsers[engine].newContext({viewport:{width:1440,height:900}}),page=await ctx.newPage(),errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  await ctx.addInitScript(({all})=>{localStorage.setItem('cr_unlocked',JSON.stringify(all));localStorage.setItem('cr_settings',JSON.stringify({reduceMotion:true,textSize:'normal'}));localStorage.setItem('cr_speed','0');localStorage.setItem('cr_party',JSON.stringify({aria:{lv:30,exp:0},chrome:{lv:30,exp:0},postgame:{started:true,progress:4},gold:100}));localStorage.setItem('cr_save',JSON.stringify({chapter:'restore5',idx:0,map:true,at:1}));},{all});
+  await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({contentType:'text/css',body:''}));
+  try{
+    await page.goto(base+'#world',{waitUntil:'networkidle'});await page.locator('#gate').click();await page.locator('#world').waitFor({state:'visible'});
+    await page.evaluate(()=>{World.close();Engine.resetStage();document.getElementById('title').style.display='none';Board.start({...BOARDS.king,intro:null,tutorial:null,beats:[],spirits:['gran','ivy','spinel','king'],spStart:12},()=>{});});
+    await page.locator('#skills .skill.spirit').nth(3).waitFor();await page.waitForTimeout(1500);
+    // 初回の配置が終わったあとで、ミッション欄を高くする（フォントや折り返しの変化を模す）
+    await page.evaluate(()=>{const m=document.getElementById('missionBox');m.style.paddingBottom='150px';});
+    await page.waitForTimeout(700);
+    const r=await page.evaluate(()=>{const rect=e=>{const b=e.getBoundingClientRect();return {top:b.top,bottom:b.bottom,left:b.left,right:b.right}};return {mission:rect(document.getElementById('missionBox')),cards:[...document.querySelectorAll('#skills .skill.spirit')].map(rect),skills:rect(document.getElementById('skills'))};});
+    assert(r.skills.top>=r.mission.bottom-1,`the spirit column starts below the taller mission list: ${JSON.stringify({skills:r.skills,mission:r.mission})}`);
+    for(const [i,c] of r.cards.entries())assert(!overlap(c,r.mission),`card ${i} must not cover the mission list`);
+    assert.deepEqual(errors,[]);
+  }finally{await ctx.close();}
+});

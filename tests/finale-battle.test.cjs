@@ -7,7 +7,7 @@ let server,base,browser,context,page,errors;
 
 // 終章のクロム戦：絶望 → ルノワールの救援 → 夜が戻る → 白い膜を切り分ける本戦
 const hook=`__t: {
-  state(){const ch=units.find(u=>u.kind==='chrome');return {running,turn,busy,over,paused,stage,sp,skyCharges,awakened,rescueTurn,pool:spiritPool(),
+  state(){const ch=units.find(u=>u.kind==='chrome');return {running,turn,busy,over,paused,stage,sp,skyCharges,awakened,rescueTurn,pool:cfg?spiritPool():[],
     units:units.map(u=>({id:u.id,kind:u.kind,side:u.side,hp:u.hp,mhp:u.mhp,r:u.r,c:u.c,dead:!!u.dead,hidden:!!u.hidden,gp:u.guardianPhase,...toScreen(unitXY(u).x,unitXY(u).y),bodyY:toScreen(unitXY(u).x,unitXY(u).y-tw*u.hgt*.5).y})),
     floors:cells.reduce((m,c)=>{m[c.floor]=(m[c.floor]||0)+1;return m},{}),
     danger:ch&&ch.intent?[...ch.intent.ids]:[],cols};},

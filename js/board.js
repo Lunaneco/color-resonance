@@ -2173,14 +2173,15 @@ const Board = (() => {
   if (document.fonts?.ready) document.fonts.ready.then(() => { if (running) fitNow(); });
   function fitNow() {
     if (fitQueued) return; fitQueued = true;
-    requestAnimationFrame(() => {
+    // requestAnimationFrame は、隠れたタブや同時に動くブラウザ（WebKit）で止まるので使わない。
+    setTimeout(() => {
       fitQueued = false;
       if (!running || !cfg) return;
       const box = spiritBox, side = $id('boardSide');
       // 札の高さが動きながら変わる途中を測らないよう、測っている間だけ動きを止める。
       screen.classList.add('fitting');
       try { fitMeasure(box, side); } finally { screen.classList.remove('fitting'); }
-    });
+    }, 0);
   }
   function fitMeasure(box, side) {
     box.classList.remove('dense'); screen.classList.remove('crowded'); box.style.maxHeight = '';
@@ -2198,6 +2199,11 @@ const Board = (() => {
     box.style.maxHeight = Math.max(80, free()) + 'px';
   }
   addEventListener('resize', () => { if (running) fitSide(); });
+  // 文字の折り返しやフォントの読み込みで、あとからミッション欄が高くなっても測り直す
+  if (typeof ResizeObserver === 'function') {
+    const sizeWatch = new ResizeObserver(() => { if (running && cfg) fitNow(); });
+    for (const id of ['missionBox', 'renoirBox', 'resonance']) { const el = $id(id); if (el) sizeWatch.observe(el); }
+  }
   function renderSpirits() {
     const list = spiritPool();
     spiritBox.innerHTML = '';
