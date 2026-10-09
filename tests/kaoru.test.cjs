@@ -177,3 +177,16 @@ test('Crystalia lies across the sea on the opposite side of Aquamist from Terra 
     assert.equal(await page.evaluate(()=>WORLD_NODES.filter(n=>n.type!=='quest').every(n=>true)),true);
   },{unlocked:all.slice(0,4)});
 });
+
+test('The Palette Palace scene places Crystalia beyond Aquamist and pays off Lila\'s words and the heart sword',async()=>{
+  const c=await content();const a=vm.runInContext('SCRIPT.act5',c),p=vm.runInContext('SCRIPT.prologue',c);
+  // 位置：アクアミストの海の奥（西）。テラ・コッタの反対側
+  assert.match(a,/アクアミストの港を出て、さらに海を西へ渡った奥/);assert.match(a,/アクアミストを挟んで、反対側/);assert(a.indexOf('さらに海を西へ')>a.indexOf('透明の王国、クリスタリア'));
+  // 伏線：リラが語った言葉は、揺りかごの王妃の歌だった
+  for(const line of ['石は投げるんじゃない。<br>水に預けるの。','行き先が違うだけ。<br>見捨てるんじゃないよ。<br>あなたは、あなたの岸へ預けるの。','なら、何を切らない剣なのか、<br>確かめなさい。','切るのは穢れだけ。<br>その人の色は、一滴も切らない。'])assert(a.includes(line),line);
+  assert(p.includes('石は投げるんじゃない。水に預けるの')||p.includes('石は投げるんじゃない'));assert(p.includes('行き先が違うだけ。見捨てるんじゃないよ。あなたは、あなたの岸へ預けるの'));assert(p.includes('なら、何を切らない剣なのか、確かめなさい'));
+  assert.match(a,/歌う水晶/);assert.match(a,/凪いだ水面を選びなさい/);assert.match(a,/それが、リラが話せなかった続きだ/);assert.match(a,/右の痣は、王妃が最後に、君の掌を握った跡/);assert.match(a,/先に『切らない』ほうを渡した/);
+  assert(a.indexOf('歌う水晶')>a.indexOf('欠けたカップの縁をなぞる親指')&&a.indexOf('歌う水晶')<a.indexOf('心剣は、王家の透明だ'),'the song is told before the heart sword is explained');
+  // グランの潮が浜へ押したという位置の裏づけ
+  assert.match(a,/私の潮は、その海の果てから来る/);
+});
