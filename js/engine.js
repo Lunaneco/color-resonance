@@ -214,7 +214,7 @@ const Engine = (() => {
           <i style="left:27%;bottom:1.2vh;width:16vw;height:4.2vh;background:radial-gradient(ellipse,#3e9a58 0%,#24683c 55%,transparent 72%)"></i>
           <i style="left:49%;bottom:-.4vh;width:11vw;height:3vh;background:radial-gradient(ellipse,#ffe28a 0%,#e0a93a 50%,transparent 72%);box-shadow:0 0 30px rgba(255,220,120,.6)"></i>
           <i style="left:65%;bottom:1.6vh;width:7vw;height:2.2vh;background:radial-gradient(ellipse,#9a9a9e 0%,#6e6e74 55%,transparent 72%)"></i>
-          <i style="left:83%;bottom:2.6vh;width:9vw;height:4vh;background:radial-gradient(ellipse,#050508 0%,#16121c 45%,rgba(30,20,40,.5) 60%,transparent 74%);filter:blur(5px)"></i>
+          <i style="left:-1%;bottom:2.6vh;width:8vw;height:4vh;background:radial-gradient(ellipse,#050508 0%,#16121c 45%,rgba(30,20,40,.5) 60%,transparent 74%);filter:blur(5px)"></i>
         </div>
         <div class="cloudSea"></div>
         <img src="assets/img/gran.png" style="position:absolute;left:50%;top:14%;width:min(900px,70vw);transform:translateX(-50%);filter:brightness(1.12) saturate(1.3) drop-shadow(0 0 40px rgba(170,220,255,.9));animation:swim 12s ease-in-out infinite">`, { inset: '0' });

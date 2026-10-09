@@ -126,6 +126,8 @@ const FREE_STAGES = {
 };
 
 // ---------- 地図 ----------
+// 西の端はクリスタリア（アクアミストの海を挟んで、テラ・コッタの反対側）。座標は SVG の viewBox と同じ。
+const MAP = { x0: -260, w: 1260, h: 620 };
 // chapter: その章の物語が始まる場所（次に進む章なら「物語」の印が出る）
 // need: その章が開いていれば見える
 const WORLD_NODES = [
@@ -138,16 +140,18 @@ const WORLD_NODES = [
   { id: 'stone', type: 'town', name: '石の子の村', sub: '黄金の渓谷', need: 'act5', x: 665, y: 435, shop: 'stone', bg: 'canyon', preset: 'dusk', desc: '鉛から解き放たれた石の子たちの村。渓谷の金で、よい刻印を彫る。' },
   { id: 'spire', clearedBy: 'finale',  type: 'stage', board: 'king', chapter: 'act5', name: '虹の尖塔', sub: '第五幕', x: 770, y: 195, theme: { bg: 'glass', preset: 'dim', fx: 'sparkle:0.3', bgm: 'fate' }, desc: '世界の色の調和を守ってきた王の塔。いまは漆黒が玉座を満たしている。' },
   { id: 'rainbow', type: 'town', name: '虹の城下町', sub: '王の街', need: 'finale', x: 870, y: 95, shop: 'rainbow', bg: 'glass', preset: 'bright', desc: '色の戻った城下町。世界中の品が集まる大きな市がある。' },
-  { id: 'veil', clearedBy: 'epilogue',  type: 'stage', board: 'chrome', chapter: 'finale', name: '黒い靄の奥', sub: '終章', x: 895, y: 345, theme: { bg: 'stars', preset: 'dark', fx: 'stars:0.6', bgm: 'fate' }, desc: 'ひとつだけ黒い靄のかかった場所。クロムが待っている。' },
-  { id: 'nowhere', type: 'story', chapter: 'epilogue', name: '色のない場所', sub: 'エピローグ', x: 955, y: 535, desc: 'リラが話してくれた、伝承の場所。' },
+  { id: 'veil', clearedBy: 'epilogue',  type: 'stage', board: 'chrome', chapter: 'finale', name: '黒い靄の奥', sub: '終章', x: -135, y: 395, theme: { bg: 'stars', preset: 'dark', fx: 'stars:0.6', bgm: 'fate' },
+    desc: 'アクアミストから見て、テラ・コッタと反対の、海の向こう。黒いヴェールに覆われた透明の王国クリスタリアで、クロムが待っている。',
+    after: { done: { name: 'クリスタリア', sub: '透明の王国・終章の戦場', desc: 'アクアミストの海を挟んで、テラ・コッタの反対側にある透明の王国。十六年前、ここから水晶の揺りかごが海へ流され、アクアミストの浜に着いた。いまは、復興の途中。' } } },
+  { id: 'nowhere', type: 'story', chapter: 'epilogue', name: '色のない場所', sub: 'エピローグ', x: -175, y: 270, desc: 'リラが話してくれた、伝承の場所。海の向こうの、どんな色も拒まない国。' },
   { id: 'f_mist', type: 'free', free: 'f_mist', name: '霧の浅瀬', sub: 'フリーステージ', need: 'act2', x: 70, y: 335 },
   { id: 'f_fruit', type: 'free', free: 'f_fruit', name: '赤い果実の丘', sub: 'フリーステージ', need: 'act3', x: 205, y: 175 },
   { id: 'f_maze', type: 'free', free: 'f_maze', name: '迷いの森の奥', sub: 'フリーステージ', need: 'act4', x: 500, y: 130 },
   { id: 'f_stars', type: 'free', free: 'f_stars', name: '星見の崖', sub: 'フリーステージ', need: 'finale', x: 760, y: 520 },
-  { id: 'f_void', type: 'free', free: 'f_void', name: '透明の回廊', sub: 'フリーステージ', need: 'done', x: 975, y: 225 },
+  { id: 'f_void', type: 'free', free: 'f_void', name: '透明の回廊', sub: 'フリーステージ', need: 'done', x: -95, y: 525 },
 ];
 const WORLD_ROUTES = [['aquamist', 'cove'], ['aquamist', 'belfry'], ['aquamist', 'f_mist'], ['belfry', 'grey'], ['grey', 'thorn'], ['thorn', 'f_fruit'], ['thorn', 'f_maze'],
-  ['grey', 'canyon'], ['canyon', 'stone'], ['canyon', 'spire'], ['f_maze', 'spire'], ['spire', 'rainbow'], ['spire', 'veil'], ['stone', 'f_stars'], ['veil', 'nowhere'], ['veil', 'f_void']];
+  ['grey', 'canyon'], ['canyon', 'stone'], ['canyon', 'spire'], ['f_maze', 'spire'], ['spire', 'rainbow'], ['aquamist', 'veil'], ['stone', 'f_stars'], ['veil', 'nowhere'], ['veil', 'f_void']];
 const WORLD_LANDS = [
   { name: 'アクアミスト', x: 160, y: 470, rx: 160, ry: 115, col: '#3fb4c9', need: 'act1', seed: 1 },
   { name: 'テラ・コッタ', x: 430, y: 455, rx: 95, ry: 72, col: '#9aa3b2', need: 'act2', seed: 2, restored: '#c97a52' },
@@ -155,7 +159,7 @@ const WORLD_LANDS = [
   { name: '緑の森', x: 400, y: 200, rx: 150, ry: 105, col: '#5fd07a', need: 'act3', seed: 4 },
   { name: '黄金の谷', x: 625, y: 380, rx: 135, ry: 105, col: '#ffd25e', need: 'act4', seed: 5 },
   { name: '虹の尖塔', x: 805, y: 160, rx: 130, ry: 95, col: '#b48cff', need: 'act5', seed: 6 },
-  { name: '黒い靄', x: 915, y: 400, rx: 105, ry: 150, col: '#3a3448', need: 'finale', seed: 7, dark: true },
+  { name: '黒い靄', x: -135, y: 395, rx: 108, ry: 170, col: '#3a3448', need: 'finale', seed: 7, dark: true, restored: '#9fd0ee', restoredName: 'クリスタリア' },
 ];
 const CHAPTER_NODE = { act1: 'belfry', act2: 'grey', act3: 'thorn', fury: 'f_fruit', act4: 'canyon', act5: 'spire', finale: 'veil', epilogue: 'nowhere' };
 
@@ -198,6 +202,8 @@ const World = (() => {
     return has(n.need);
   }
   const node = (id) => WORLD_NODES.find(n => n.id === id) || questNode(id);
+  // 物語が進むと名前や説明が変わる場所（黒い靄の奥 → クリスタリア）
+  const view = n => { const a = n.after && Object.entries(n.after).find(([k]) => has(k)); return a ? { ...n, ...a[1] } : n; };
   function questNode(id) {
     const q = SIDE_QUESTS[id]; if (!q) return null;
     const town = WORLD_NODES.find(n => n.id === q.town);
@@ -256,7 +262,7 @@ const World = (() => {
     let defs = '<defs><filter id="wmGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="10"/></filter><filter id="wmSoft"><feGaussianBlur stdDeviation="2.5"/></filter>';
     let land = '', labels = '';
     WORLD_LANDS.forEach((l0, i) => {
-      const l = l0.restored && has('done') ? { ...l0, col: l0.restored } : l0;
+      const l = l0.restored && has('done') ? { ...l0, col: l0.restored, dark: false, name: l0.restoredName || l0.name } : l0;
       const on = has(l.need);
       defs += `<radialGradient id="wl${i}" cx="45%" cy="40%" r="65%"><stop offset="0" stop-color="${on ? l.col : '#5a5f6e'}" stop-opacity="${on ? (l.dark ? 0.9 : 0.55) : 0.28}"/><stop offset="1" stop-color="${on ? l.col : '#3a3f4e'}" stop-opacity="${on ? 0.12 : 0.08}"/></radialGradient>`;
       const d = blob(l.x, l.y, l.rx, l.ry, l.seed);
@@ -274,7 +280,7 @@ const World = (() => {
     });
     // 海の光
     let sea = '';
-    for (let i = 0; i < 70; i++) { const x = (i * 137.5) % 1000, y = (i * 91.3) % 620; sea += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(i % 3) * 0.6 + 0.6}" class="ws" style="animation-delay:${(i % 9) * 0.5}s"/>`; }
+    for (let i = 0; i < 90; i++) { const x = MAP.x0 + (i * 137.5) % MAP.w, y = (i * 91.3) % MAP.h; sea += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(i % 3) * 0.6 + 0.6}" class="ws" style="animation-delay:${(i % 9) * 0.5}s"/>`; }
     svg.innerHTML = defs + `<g>${sea}</g><g>${land}</g><g>${routes}</g><g>${labels}</g>`;
   }
   function drawNodes() {
@@ -286,16 +292,16 @@ const World = (() => {
       const rec = conf && diffRec(conf, key);
       const locked = (n.type === 'stage' && !replayable(n, stageRec(conf.id)) && !story) || (n.type === 'story' && !story);
       b.className = `wn t-${n.type}${story ? ' story' : ''}${locked ? ' dim' : ''}${current === n.id ? ' here' : ''}`;
-      b.style.left = (n.x / 10) + '%'; b.style.top = (n.y / 6.2) + '%';
+      b.style.left = ((n.x - MAP.x0) / MAP.w * 100) + '%'; b.style.top = (n.y / MAP.h * 100) + '%';
       b.dataset.node = n.id;
       const qs = n.type === 'town' ? questsAt(n.id) : [];
       const levels = qs.map(q => Progression.level(q, chosen(q)));
       const legendary = typeof Restoration !== 'undefined' && Restoration.joined() && LEGEND_QUESTS.find(q => q.town === n.id);
       const baseMeta = conf ? `LV${Progression.level(conf, key)}・${Progression.difficulties[key].name}` : qs.length ? `依頼${qs.length}件・LV${Math.min(...levels)}〜${Math.max(...levels)}` : '';
       const meta = legendary ? `${baseMeta ? baseMeta + ' / ' : ''}伝説級LV${Progression.level(legendary, 'hard')}` : baseMeta;
-      b.setAttribute('aria-label', n.name + (meta ? '・適正' + meta : ''));
+      b.setAttribute('aria-label', view(n).name + (meta ? '・適正' + meta : ''));
       const icon = n.type === 'town' ? '⌂' : n.type === 'free' ? '◇' : n.type === 'story' ? '✧' : '◆';
-      b.innerHTML = `<i class="wn-dot">${icon}</i><span class="wn-name">${n.name}</span>${meta ? `<span class="wn-meta">${meta}</span>` : ''}${rec && rec.best ? `<span class="wn-rank r${rec.best}">${rec.best}</span>` : ''}${story ? '<span class="wn-story">物語</span>' : ''}`;
+      b.innerHTML = `<i class="wn-dot">${icon}</i><span class="wn-name">${view(n).name}</span>${meta ? `<span class="wn-meta">${meta}</span>` : ''}${rec && rec.best ? `<span class="wn-rank r${rec.best}">${rec.best}</span>` : ''}${story ? '<span class="wn-story">物語</span>' : ''}`;
       b.onclick = (e) => { e.stopPropagation(); go(n.id); };
       nodesEl.appendChild(b);
     });
@@ -303,11 +309,11 @@ const World = (() => {
   function placeAria(id, animate) {
     const n = node(id) || node('aquamist');
     ariaEl.style.transition = animate ? 'left .7s cubic-bezier(.4,0,.2,1), top .7s cubic-bezier(.4,0,.2,1)' : 'none';
-    ariaEl.style.left = (n.x / 10) + '%'; ariaEl.style.top = (n.y / 6.2) + '%';
+    ariaEl.style.left = ((n.x - MAP.x0) / MAP.w * 100) + '%'; ariaEl.style.top = (n.y / MAP.h * 100) + '%';
     if (innerWidth <= 820) requestAnimationFrame(() => {
       const view = document.getElementById('wmViewport');
-      view.scrollTo({ left: mapEl.offsetLeft + mapEl.offsetWidth * n.x / 1000 - view.clientWidth / 2,
-        top: mapEl.offsetTop + mapEl.offsetHeight * n.y / 620 - view.clientHeight / 2, behavior: animate ? 'smooth' : 'instant' });
+      view.scrollTo({ left: mapEl.offsetLeft + mapEl.offsetWidth * (n.x - MAP.x0) / MAP.w - view.clientWidth / 2,
+        top: mapEl.offsetTop + mapEl.offsetHeight * n.y / MAP.h - view.clientHeight / 2, behavior: animate ? 'smooth' : 'instant' });
     });
   }
   function updateTop() {
@@ -350,6 +356,7 @@ const World = (() => {
     })[m.type] || '';
   }
   function showPanel(n) {
+    n = view(n);
     reload();
     const changed = panel.dataset.node !== n.id;
     panel.dataset.node = n.id;
@@ -422,6 +429,10 @@ const World = (() => {
         acts.push(`<button class="wb main" data-a="legend" data-legend="${legend.id}">伝説級へ挑戦</button>`);
       }
     }
+    if ((n.id === 'veil' || n.id === 'nowhere') && has('done')) {
+      body += `<div class="wp-sec">クリスタリア<small>透明の王国</small></div><p class="wp-note">アクアミストの海を挟んで、テラ・コッタの反対側。リラが拾った揺りかごは、ここから流れてきた。復興の旅は、ここから続く。</p>`;
+      acts.push('<button class="wb main" data-a="restoration">王国復興を開く</button>');
+    }
     acts.push(`<button class="wb" data-a="equip">装備</button>`);
     panel.innerHTML = body + `<div class="wp-acts">${acts.join('')}</div>`;
     panel.classList.remove('hidden');
@@ -438,6 +449,7 @@ const World = (() => {
       if (a === 'dismiss') dismissPanel();
       else if (a === 'furychat') Fury.start(true);
       else if (a === 'cafe') Kaoru.start();
+      else if (a === 'restoration') Restoration.open();
       else if (a === 'notebook') Journal.open();
       else if (a === 'journey') go(b.dataset.node);
       else if (a === 'story') playStory(story);

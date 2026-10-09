@@ -154,3 +154,26 @@ test('Kaoru\'s pixel-art sprite is shown while he speaks in the Terra Cotta chap
     assert(painted>8000,'the sprite is actually drawn ('+painted+' opaque pixels)');
   },{unlocked:all.slice(0,3),save:{chapter:'act2',idx:0,map:true,at:1}});
 });
+
+test('Crystalia lies across the sea on the opposite side of Aquamist from Terra Cotta, and every place stays inside the map',async()=>{
+  await session(async page=>{
+    const g=await page.evaluate(()=>{const x=id=>WORLD_NODES.find(n=>n.id===id).x;return {aqua:x('aquamist'),grey:x('grey'),veil:x('veil'),nowhere:x('nowhere'),void:x('f_void'),land:WORLD_LANDS.find(l=>l.dark).x,aquaLand:WORLD_LANDS.find(l=>l.name==='アクアミスト').x,greyLand:WORLD_LANDS.find(l=>/テラ/.test(l.name)).x};});
+    assert(g.grey>g.aqua,'Terra Cotta is east of Aquamist');
+    for(const k of ['veil','nowhere','void','land'])assert(g[k]<g.aqua,k+' (Crystalia) is west of Aquamist, opposite Terra Cotta');
+    assert(g.land<g.aquaLand&&g.aquaLand<g.greyLand);
+    const sea=await page.evaluate(()=>{const l=WORLD_LANDS.find(l=>l.dark),a=WORLD_LANDS.find(l=>l.name==='アクアミスト');return (a.x-a.rx)-(l.x+l.rx);});
+    assert(sea>20,'open sea separates the two coasts ('+sea+')');
+    const bad=await page.evaluate(()=>[...document.querySelectorAll('.wn')].map(b=>[b.dataset.node,parseFloat(b.style.left),parseFloat(b.style.top)]).filter(([,l,t])=>l<0||l>100||t<0||t>100));
+    assert.deepEqual(bad,[]);
+  },{unlocked:all,save:{chapter:'restored',idx:0,map:true,at:9},party:{aria:{lv:30,exp:0},chrome:{lv:30,exp:0},postgame:{started:true,progress:2},gold:1}});
+  await session(async page=>{
+    assert.equal(await page.locator('.wn[data-node=veil] .wn-name').textContent(),'クリスタリア');
+    await page.evaluate(()=>World.open({at:'veil'}));await page.locator('#wmPanel:not(.hidden) .wp-name').waitFor();
+    assert.equal(await page.locator('#wmPanel .wp-name').textContent(),'クリスタリア');assert.match(await page.locator('#wmPanel').textContent(),/揺りかご/);
+    await page.locator('#wmPanel [data-a=restoration]').click();await page.locator('.re-book').waitFor();
+  },{unlocked:all,save:{chapter:'restored',idx:0,map:true,at:9},party:{aria:{lv:30,exp:0},chrome:{lv:30,exp:0},postgame:{started:true,progress:2},gold:1}});
+  await session(async page=>{
+    assert.equal(await page.locator('.wn[data-node=veil] .wn-name').count(),0,'the veiled land is hidden before the finale');
+    assert.equal(await page.evaluate(()=>WORLD_NODES.filter(n=>n.type!=='quest').every(n=>true)),true);
+  },{unlocked:all.slice(0,4)});
+});
