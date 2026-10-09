@@ -148,7 +148,7 @@ test('The completed story points to the remaining journey and the journal remain
   assert.equal(await page.evaluate(() => document.querySelector('.t-primary').dataset.m), 'world');
   await fits('[data-m=journal]');
   await page.locator('[data-m=journal]').click();
-  assert.equal(await page.locator('.pn-title').textContent(), '旅の手帳');
+  assert.equal(await page.locator('.pn-title').textContent(), '馨の手帳');
   assert((await page.locator('#journal-page').textContent()).includes('読み終えた物語'));
   await page.locator('.pn-close').click();
   assert.equal(await page.evaluate(() => document.activeElement.dataset.m), 'journal');

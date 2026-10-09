@@ -132,7 +132,7 @@ const WORLD_NODES = [
   { id: 'aquamist', type: 'town', name: 'アクアミスト', sub: '雨の港町', x: 165, y: 455, need: 'act1', shop: 'aquamist', bg: 'rain', preset: 'dusk', desc: '晴れ間より雨音で朝を知る港町。坂の下に、小さな市が戻ってきている。' },
   { id: 'cove', clearedBy: 'act1',  type: 'stage', board: 'cove', name: '夜明けの入り江', sub: '序章の戦場', x: 85, y: 545, need: 'act1', theme: { bg: 'rain', preset: 'dawn', fx: 'rain:0.08,sparkle:0.4', bgm: 'haruka' }, desc: 'リラに水切りを教わった入り江。黒いにじみは、ときどき戻ってくる。' },
   { id: 'belfry', clearedBy: 'act2',  type: 'stage', board: 'gran', chapter: 'act1', name: '鐘楼の空', sub: '第一幕', x: 255, y: 395, theme: { bg: 'rain', preset: 'night', fx: 'rain:0.6', bgm: 'haruka' }, desc: '雲を泳ぐ鯨の真下。涙の雨は、ここから降っていた。' },
-  { id: 'grey', type: 'town', name: '灰色の街', sub: 'チクタクの音の街', chapter: 'act2', x: 425, y: 455, shop: 'grey', bg: 'cave_sky', preset: 'gray', desc: '時計の音ばかりが聞こえる街。角のカフェでは、カモミールが頼める。' },
+  { id: 'grey', type: 'town', name: 'テラ・コッタ', sub: 'チクタクの音の街', chapter: 'act2', x: 425, y: 455, shop: 'grey', bg: 'cave_sky', preset: 'gray', desc: '時計の音ばかりが聞こえる、灰色の街。ここには切り分けるものがない。角のカフェでは、馨がカモミールを頼んでいる。' },
   { id: 'thorn', clearedBy: 'act4',  type: 'stage', board: 'ivy', chapter: 'act3', name: '茨の鳥籠', sub: '第三幕', x: 365, y: 235, theme: { bg: 'forest', preset: 'dim', fx: 'motes:0.5', bgm: 'forest' }, desc: '木漏れ日を妬む茨が、光の精霊を閉じこめている森。' },
   { id: 'canyon', clearedBy: 'act5',  type: 'stage', board: 'spinel', chapter: 'act4', name: '鉛のドーム', sub: '第四幕', x: 600, y: 320, theme: { bg: 'canyon', preset: 'dim', fx: 'gold:0.5', bgm: 'forest' }, desc: '夕日に金色に燃える渓谷。その真ん中に、鉛の丸屋根がある。' },
   { id: 'stone', type: 'town', name: '石の子の村', sub: '黄金の渓谷', need: 'act5', x: 665, y: 435, shop: 'stone', bg: 'canyon', preset: 'dusk', desc: '鉛から解き放たれた石の子たちの村。渓谷の金で、よい刻印を彫る。' },
@@ -150,14 +150,14 @@ const WORLD_ROUTES = [['aquamist', 'cove'], ['aquamist', 'belfry'], ['aquamist',
   ['grey', 'canyon'], ['canyon', 'stone'], ['canyon', 'spire'], ['f_maze', 'spire'], ['spire', 'rainbow'], ['spire', 'veil'], ['stone', 'f_stars'], ['veil', 'nowhere'], ['veil', 'f_void']];
 const WORLD_LANDS = [
   { name: 'アクアミスト', x: 160, y: 470, rx: 160, ry: 115, col: '#3fb4c9', need: 'act1', seed: 1 },
-  { name: '灰色の街', x: 430, y: 455, rx: 95, ry: 72, col: '#9aa3b2', need: 'act2', seed: 2 },
+  { name: 'テラ・コッタ', x: 430, y: 455, rx: 95, ry: 72, col: '#9aa3b2', need: 'act2', seed: 2, restored: '#c97a52' },
   { name: '赤い丘', x: 215, y: 190, rx: 95, ry: 70, col: '#e2584c', need: 'act3', seed: 3 },
   { name: '緑の森', x: 400, y: 200, rx: 150, ry: 105, col: '#5fd07a', need: 'act3', seed: 4 },
   { name: '黄金の谷', x: 625, y: 380, rx: 135, ry: 105, col: '#ffd25e', need: 'act4', seed: 5 },
   { name: '虹の尖塔', x: 805, y: 160, rx: 130, ry: 95, col: '#b48cff', need: 'act5', seed: 6 },
   { name: '黒い靄', x: 915, y: 400, rx: 105, ry: 150, col: '#3a3448', need: 'finale', seed: 7, dark: true },
 ];
-const CHAPTER_NODE = { act1: 'belfry', act2: 'grey', act3: 'thorn', act4: 'canyon', act5: 'spire', finale: 'veil', epilogue: 'nowhere' };
+const CHAPTER_NODE = { act1: 'belfry', act2: 'grey', act3: 'thorn', fury: 'f_fruit', act4: 'canyon', act5: 'spire', finale: 'veil', epilogue: 'nowhere' };
 
 const World = (() => {
   const el = document.getElementById('world');
@@ -210,7 +210,14 @@ const World = (() => {
   const chosen = conf => Progression.selected(party, conf.id);
   const diffRec = (conf, key) => stageRec(conf.id)?.difficulties[key] || null;
   function stageRec(id) { return party.stages[id] || null; }
-  function storyHere(n) { const s = nextChapter(); return s && n.chapter && n.chapter === s.chapter ? s : null; }
+  // 「物語」の印：本編の次の章、または森と並ぶ赤い丘の章（どちらから読んでもよい）
+  function storyHere(n) {
+    if (!n.chapter) return null;
+    const s = nextChapter();
+    if (s && n.chapter === s.chapter) return s;
+    if (n.chapter === 'fury' && Fury.pending()) return { chapter: 'fury', idx: 0, map: true };
+    return null;
+  }
   // 精霊になった仲間（物語の進み具合で決まる）
   function spiritsNow() { return Progression.companions(unlocked(), Engine.load()?.colors); }
   const replayable = (n, rec) => !Progression.journeyGate(n.chapter,unlocked(),Engine.load()?.colors) && !!(rec?.cleared || n.type === 'free' || (n.type === 'quest' && bondReady(SIDE_QUESTS[n.quest])) || (n.clearedBy && has(n.clearedBy)));
@@ -248,7 +255,8 @@ const World = (() => {
   function drawSvg() {
     let defs = '<defs><filter id="wmGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="10"/></filter><filter id="wmSoft"><feGaussianBlur stdDeviation="2.5"/></filter>';
     let land = '', labels = '';
-    WORLD_LANDS.forEach((l, i) => {
+    WORLD_LANDS.forEach((l0, i) => {
+      const l = l0.restored && has('done') ? { ...l0, col: l0.restored } : l0;
       const on = has(l.need);
       defs += `<radialGradient id="wl${i}" cx="45%" cy="40%" r="65%"><stop offset="0" stop-color="${on ? l.col : '#5a5f6e'}" stop-opacity="${on ? (l.dark ? 0.9 : 0.55) : 0.28}"/><stop offset="1" stop-color="${on ? l.col : '#3a3f4e'}" stop-opacity="${on ? 0.12 : 0.08}"/></radialGradient>`;
       const d = blob(l.x, l.y, l.rx, l.ry, l.seed);
@@ -397,9 +405,13 @@ const World = (() => {
     }
     if (n.type === 'town' && questsAt(n.id).length) body += `<div class="wp-sec">町の依頼<small>${questsAt(n.id).length}件</small></div>${questList(n.id)}`;
     if(n.id==='f_fruit' && Fury.available()){
-      body+=`<div class="wp-sec">紅角の精霊<small>憤怒を攻撃力へ</small></div><p class="wp-note">影を払う通常戦と、汚染された猛牛のボス戦。物語の結末でヴァルドが仲間になります。</p>`;
+      body+=`<div class="wp-sec">紅角の精霊<small>憤怒を攻撃力へ</small></div><p class="wp-note">${Fury.joined()?'ヴァルドは仲間になった。怒りを攻撃力に変える精霊で、傷を負うほど強くなる。':'影を払う通常戦と、汚染された猛牛のボス戦。物語の結末でヴァルドが仲間になります。森の物語と、どちらが先でもかまいません。'}</p>`;
       if(Fury.reunionReady())acts.push('<button class="wb" data-a="furychat">精霊たちの語らい</button>');
-      acts.push(`<button class="wb main" data-a="fury">${Fury.joined()?'紅角の物語を振り返る':'紅角のヴァルドに会う'}</button>`);
+    }
+    if(n.id==='grey'){
+      body+=`<div class="wp-sec">馨のカフェ<small>戦わない町</small></div><p class="wp-note">${Kaoru.available()?'復興の頁が書き上がった。馨が、窓際の席で待っている。':'ここに戦場はない。馨が書いている手帳は、地図の「手帳」からいつでも読める。'}</p>`;
+      if(Kaoru.available())acts.push('<button class="wb main" data-a="cafe">馨のカフェへ</button>');
+      acts.push('<button class="wb" data-a="notebook">馨の手帳を開く</button>');
     }
     const guardianRoute=GUARDIANS.find(p=>!p.chapter.startsWith('restore')&&p.town===n.id&&GuardianJourney.available(GUARDIAN_STAGES['gp_'+p.id]));
     if(guardianRoute){body+=`<div class="wp-sec">章の戦場<small>通常戦と精霊ボス戦</small></div><p class="wp-note">${guardianRoute.name} · 適正LV ${guardianRoute.lv}〜${guardianRoute.lv+3}。${guardianRoute.counter}</p>`;acts.push(`<button class="wb" data-a="guardians" data-chapter="${guardianRoute.chapter}">この章の戦場を選ぶ</button>`);}
@@ -425,7 +437,8 @@ const World = (() => {
       const a = b.dataset.a;
       if (a === 'dismiss') dismissPanel();
       else if (a === 'furychat') Fury.start(true);
-      else if (a === 'fury') Fury.start();
+      else if (a === 'cafe') Kaoru.start();
+      else if (a === 'notebook') Journal.open();
       else if (a === 'journey') go(b.dataset.node);
       else if (a === 'story') playStory(story);
       else if (a === 'sortie') sortie(n);

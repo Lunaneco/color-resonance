@@ -39,7 +39,10 @@ const Panel = (() => {
 })();
 
 const Engine = (() => {
-  const SIDE_STORIES=['fury','fury_reunion','mari_reunion'];
+  // 本編の合間に読む物語。読み終えたら、読み始める前の記録へ戻る。
+  const SIDE_STORIES=['fury','fury_reunion','mari_reunion','kaoru_cafe'];
+  const SIDE_HOME={fury:'f_fruit',fury_reunion:'f_fruit',mari_reunion:null,kaoru_cafe:'grey'};
+  const SIDE_OPEN={fury:()=>Fury.available(),fury_reunion:()=>Fury.available()&&Fury.reunionReady(),mari_reunion:()=>MariReturn.available()&&MariReturn.joined(),kaoru_cafe:()=>Kaoru.available()};
   const BG = { rain: 'rain', cave_sky: 'cave_sky', canyon: 'canyon', teal: 'teal', forest: 'forest', stars: 'stars', glass: 'glass' };
   const PRESET = {
     none: 'none', dim: 'brightness(.72)', night: 'brightness(.55) saturate(.85) hue-rotate(-8deg)', storm: 'brightness(.32) saturate(.45) contrast(1.15)',
@@ -54,6 +57,7 @@ const Engine = (() => {
     lira: '#ffd98a', liraBright: '#ffe9a8', gran: '#2f86a8', woman: '#b5927a', fisher: '#7fa5b8', rooster: '#d9c25a',
     chrome: 'void', chromeStar: 'starry', kaoru: '#8f8a86', kaoru2: '#c97a52', ivy: '#5fd07a', ivyDark: '#2d4a33', lumina: '#fff2c0',
     spinel: '#ffd25e', spinelLead: '#7c8088', stone: '#c2b29a', king: '#b48cff', kingDark: '#2a1838',
+    vard: '#f57965', vardDark: '#4a1f1b',
   };
 
   const tb = $('#textbox'), textEl = $('#text'), speakerEl = $('#speaker'), namePlate = $('#namePlate'), nextMark = $('#nextMark');
@@ -77,13 +81,14 @@ const Engine = (() => {
     }
     const changed = speakerArtId !== id;
     speakerArtId = id; speakerArt.classList.remove('dim');
-    speakerArt.classList.toggle('small', !['lila', 'fisher', 'kaoru', 'chrome', 'chrome_human', 'achroma', 'king'].includes(id));
+    speakerArt.classList.toggle('small', !['lila', 'fisher', 'chrome', 'chrome_human', 'achroma', 'king'].includes(id));
+    speakerArt.classList.toggle('chibi', id === 'kaoru');   // ドット絵の頭身が低いので、立ち絵より小さめに置く
     speakerArt.setAttribute('role', 'img'); speakerArt.setAttribute('aria-label', who);
     GameArt.mount(speakerArt, id, ['lila', 'fisher', 'lumina', 'stone_child', 'kaoru', 'mari'].includes(id) ? 'talk' : 'idle');
     if (changed) { speakerArt.classList.remove('show'); requestAnimationFrame(() => speakerArt?.classList.add('show')); }
   }
 
-  let lines = [], idx = 0, chapter = null, running = false, excursionReturn = null;
+  let lines = [], idx = 0, chapter = null, running = false, excursionReturn = null, arrival = null;
   let waiting = null, typing = false, typeTimer = null;
   let auto = false, skip = false, inlineMode = false;
   const log = [];
@@ -448,12 +453,15 @@ const Engine = (() => {
       case 'marichat': {const mine=token;for(const line of parse(MariReturn.chat(a[0]))){if(mine!==token)return 'stop';await runLine(line);}break;}
       case 'maribond': if(chapter==='restore4'){unlock('maribond');Board.saveParty();toast('マリーが精霊として仲間になった');} break;
       case 'vardbond': if(chapter==='fury'){unlock('vardbond');Board.saveParty();toast('紅角のヴァルドが仲間になった');} break;
+      case 'route': arrival = a[0] || null; break;
       case 'sideend': {
         if((!SIDE_STORIES.includes(chapter)&&chapter!=='restore4')||!excursionReturn) break;
-        const bookmark=excursionReturn,mariStory=chapter.startsWith('mari_')||chapter==='restore4';resetStage();excursionReturn=null;
-        localStorage.setItem('cr_save',JSON.stringify(bookmark));World.open(mariStory?{}:{at:'f_fruit'});if(mariStory)Restoration.open();return 'stop';
+        const bookmark=excursionReturn,mariStory=chapter.startsWith('mari_')||chapter==='restore4';
+        // 丘を読み終えたら、残っている本編の場所（森、または揃った谷）へ案内する。
+        const home=chapter==='fury'&&bookmark.map&&{act3:'thorn',act4:'canyon'}[bookmark.chapter]||SIDE_HOME[chapter];resetStage();excursionReturn=null;
+        localStorage.setItem('cr_save',JSON.stringify(bookmark));World.open(mariStory?{}:{at:home||'f_fruit'});if(mariStory)Restoration.open();return 'stop';
       }
-      case 'next': { if(chapter==='restore4'&&excursionReturn)return command('sideend','');const mine = token; unlock(a[0]); await fadeOut(); if (mine === token) toMap(a[0]); return 'stop'; }
+      case 'next': { if(chapter==='restore4'&&excursionReturn)return command('sideend','');const mine = token, node = arrival; arrival = null; unlock(a[0]); await fadeOut(); if (mine === token) toMap(a[0], node); return 'stop'; }
       case 'rejoin': Restoration.join(); break;
       case 'restore': Restoration.complete(Number(a[0])); break;
       case 'priority': Restoration.priority(a[0]); await sayLine('アリア', Restoration.recall()); break;
@@ -488,7 +496,7 @@ const Engine = (() => {
     const gate = Progression.journeyGate(key, unlocked(), load()?.colors);
     if (gate) { resetStage(); World.open({at:gate.node}); toast(gate.message); return; }
     if(SIDE_STORIES.includes(key)){
-      if(key.startsWith('fury')?(!Fury.available()||key==='fury_reunion'&&!Fury.reunionReady()):(!MariReturn.available()||key==='mari_reunion'&&!MariReturn.joined()))return;
+      if(!SIDE_OPEN[key]())return;
       const bookmark=restore?.returnStory || load()?.returnStory || load() || {chapter:'act3',idx:0,map:true};
       restore={...bookmark,...restore,returnStory:bookmark};unlock(key);
     }
@@ -569,7 +577,8 @@ const Engine = (() => {
     } catch (e) {}
   }
   function load() { try { const value = SaveData.story(JSON.parse(localStorage.getItem('cr_save') || 'null')); return Object.hasOwn(SCRIPT, value.chapter) ? value : null; } catch (e) { return null; } }
-  function unlocked() { try { const value = JSON.parse(localStorage.getItem('cr_unlocked') || '["prologue"]'); return Array.isArray(value) ? [...new Set(['prologue', ...value.filter(k => k === 'done' || k === 'vardbond' || k === 'maribond' || Object.hasOwn(SCRIPT, k))])] : ['prologue']; } catch (e) { return ['prologue']; } }
+  // 森（第三幕）が開いたら、赤い丘の章も同時に開く。どちらから読んでもよい。
+  function unlocked() { try { const value = JSON.parse(localStorage.getItem('cr_unlocked') || '["prologue"]'); if (!Array.isArray(value)) return ['prologue']; const list = [...new Set(['prologue', ...value.filter(k => k === 'done' || k === 'vardbond' || k === 'maribond' || Object.hasOwn(SCRIPT, k))])]; if (list.includes('act3') && !list.includes('fury')) list.push('fury'); return list; } catch (e) { return ['prologue']; } }
   function unlock(k) { try { const u = unlocked(); if (!u.includes(k)) u.push(k); localStorage.setItem('cr_unlocked', JSON.stringify(u)); } catch (e) {} }
   function cont() {
     const s = load(); if (!s) return false;
@@ -579,11 +588,13 @@ const Engine = (() => {
     play(s.chapter, from, s); return true;
   }
   // 章の終わり：ワールドマップへ。次の章は地図の「物語」から始まる
-  function toMap(next) {
+  function toMap(next, node) {
+    // 森を先に読み終えて丘が残っているときは、谷ではなく赤い丘へ案内する。
+    if (!node && next === 'act4' && Fury.pending()) node = 'f_fruit';
     token++; running = false;
     try { localStorage.setItem('cr_save', JSON.stringify({ chapter: next, idx: 0, map: true, at: Date.now() })); } catch (e) {}
     resetStage();
-    World.open({ arrive: next });
+    World.open(node ? { at: node } : { arrive: next });
     if (next.startsWith('restore')) Restoration.open();
   }
 

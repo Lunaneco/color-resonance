@@ -30,11 +30,27 @@ async function boot(viewport={width:1440,height:900},unlocked=['prologue','act1'
   await page.locator('[data-w=journal]').click();await page.locator('.jn-book').waitFor();
 }
 test('Only completed chapters and met spirits reveal journal prose',async()=>{
-  await boot();assert.equal(await page.locator('.jn-chapter.read').count(),2);assert.equal(await page.locator('.jn-chapter').count(),8);
+  await boot();assert.equal(await page.locator('.jn-chapter.read').count(),2);assert.equal(await page.locator('.jn-chapter').count(),9);
   assert((await page.locator('.jn-chapter').nth(2).textContent()).includes('旅の途中'));assert((await page.locator('.jn-chapter').nth(3).textContent()).includes('まだ開いていないページ'));
   assert(!(await page.locator('.jn-timeline').textContent()).includes('クリスタは、最初から'));
   await page.locator('[data-journal-tab=letters]').click();assert.equal(await page.locator('.jn-letter.opened').count(),2);assert.equal(await page.locator('.jn-letter').count(),3);assert.equal(await page.locator('.jn-spirit').count(),1);
   assert((await page.locator('.jn-spirit').nth(0).textContent()).includes('あと 20'));assert(!(await page.locator('.jn-letters').textContent()).includes('黄金の庇護'));
+});
+test('The notebook is Kaoru\'s: his name, portrait and margin notes appear only after Terra Cotta, and the red hill reads as its own chapter',async()=>{
+  await boot(undefined,['prologue','act1']);
+  assert.match(await page.locator('.jn-heading').textContent(),/書き手の名は、まだ読めない/);assert.equal(await page.locator('.jn-kaoru').count(),0);assert.equal(await page.locator('.jn-writer').count(),0);
+  assert.equal(await page.locator('#panel .pn-title').textContent(),'旅の手帳');
+  await context.close();
+  await boot(undefined,['prologue','act1','act2','act3','fury']);
+  assert.equal(await page.locator('#panel .pn-title').textContent(),'馨の手帳');assert.match(await page.locator('.jn-heading').textContent(),/書き手は馨/);assert.equal(await page.locator('.jn-writer').count(),1);
+  assert.equal(await page.locator('.jn-chapter.read').count(),3);assert.equal(await page.locator('.jn-kaoru').count(),3);
+  const timeline=await page.locator('.jn-timeline').textContent();assert(timeline.includes('怒りの向け先'));assert(!timeline.includes('怒りの頁は、赤い字で'));
+  assert.equal(await page.locator('.jn-chapter').nth(3).locator('.jn-kaoru').count(),0);
+  await page.locator('[data-journal-tab=letters]').click();assert.match(await page.locator('.jn-note').first().textContent(),/馨が一字ずつ手帳へ写しています/);
+  await context.close();
+  await boot(undefined,['prologue','act1','act2','act3','fury','vardbond']);
+  assert.equal(await page.locator('.jn-chapter.read').count(),4);assert.equal(await page.locator('.jn-kaoru').count(),4);
+  assert((await page.locator('.jn-chapter').nth(4).textContent()).includes('怒りの頁は、赤い字で'));
 });
 test('Vard and Marii have three letters each after recruitment; unjoined training records reveal neither',async()=>{
   await boot(undefined,['prologue','act1','act2','act3','act4','act5','finale','epilogue','done'],40);

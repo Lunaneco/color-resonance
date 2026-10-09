@@ -6,7 +6,7 @@ const root=path.resolve(__dirname,'..');
 async function content(){const ctx=vm.createContext({localStorage:{getItem:()=>null}});for(const f of ['progression','story','quests','restoration-content','guardian-content','guardian-combat'])vm.runInContext(await fs.readFile(path.join(root,'js',f+'.js'),'utf8'),ctx);return ctx;}
 test('Original Gran, Ivy, Spinel and Palette King are the actual corrupted bosses, once in their original chapters',async()=>{
  const c=await content(),data=JSON.parse(vm.runInContext('JSON.stringify({profiles:GUARDIANS,stages:GUARDIAN_STAGES,boards:BOARDS,scripts:SCRIPT})',c));
- assert.equal(data.profiles.length,14);assert.equal(Object.keys(data.stages).length,28);
+ assert.equal(data.profiles.length,13);assert.equal(Object.keys(data.stages).length,26);assert(!data.profiles.some(p=>p.id==='tokinel'),'Terra Cotta has no guardian battle');assert(!data.profiles.some(p=>p.town==='grey'));
  for(const [chapter,id] of [['act1','gran'],['act3','ivy'],['act4','spinel'],['act5','king']]){
   const p=data.profiles.find(p=>p.chapter===chapter),b=data.boards[id],script=data.scripts[chapter];
   assert.equal(p.id,id);assert.equal(p.art,id);assert.equal(p.bossId,id);assert.equal(b.guardian,id);assert.equal(b.bossArt,id);assert.match(b.bossName,/汚染された/);assert.equal(b.beats.length,0);
@@ -14,14 +14,14 @@ test('Original Gran, Ivy, Spinel and Palette King are the actual corrupted bosse
   assert(script.indexOf('@board '+p.pathId)<script.indexOf('@board '+id));assert(!data.boards['gb_'+id]);
  }
  for(const p of data.profiles){assert.equal(p.lines.length,3);assert.equal(p.skills.length,3);for(const lines of p.lines){assert.equal(lines.length,2);assert(lines[1][1].length>6);}const script=data.scripts[p.chapter];assert(script.includes('@board '+p.pathId));assert(script.includes('@board '+p.bossId));assert(script.indexOf('@board '+p.pathId)<script.indexOf('@board '+p.bossId));}
- assert(data.scripts.act2.indexOf('@board gb_tokinel')>data.scripts.act2.indexOf('翌朝'));assert(data.scripts.restore1.indexOf('@board gp_farol')>data.scripts.restore1.indexOf('二人で。一振りも、一緒に'));
+ assert(!data.scripts.act2.includes('@board'),'The Terra Cotta chapter contains no battle');assert(data.scripts.act2.indexOf('@choice route3')>data.scripts.act2.indexOf('翌朝'));assert(data.scripts.restore1.indexOf('@board gp_farol')>data.scripts.restore1.indexOf('二人で。一振りも、一緒に'));
 });
-test('Every HP threshold, armour phase and fourteen distinct forecasts use walkable stable map coordinates',async()=>{
+test('Every HP threshold, armour phase and thirteen distinct forecasts use walkable stable map coordinates',async()=>{
  const c=await content();vm.runInContext(`
  globalThis.checks=GUARDIANS.map(p=>{const cells=Array.from({length:100},(_,id)=>({r:Math.floor(id/10),c:id%10,walk:id!==0}));const boss={r:3,c:3},heroes=[{r:6,c:5}];return {id:p.id,plans:[0,1,2].map(i=>GuardianCombat.plan(p,i,boss,heroes,cells,1)),modes:[0,1,2].map(i=>GuardianCombat.mode(p,i))};});
  globalThis.phases=[100,68,67,35,34,0].map(h=>GuardianCombat.phase(h,100));globalThis.gates=[0,1,2].map((phase)=>GuardianCombat.damage([100,67,34][phase],100,phase,9999));`,c);
  const checks=JSON.parse(vm.runInContext('JSON.stringify(checks)',c));assert.deepEqual(JSON.parse(vm.runInContext('JSON.stringify(phases)',c)),[0,0,1,1,2,2]);assert.deepEqual(JSON.parse(vm.runInContext('JSON.stringify(gates)',c)),[33,33,34]);
- assert.equal(new Set(checks.map(p=>JSON.stringify(p.plans))).size,14);
+ assert.equal(new Set(checks.map(p=>JSON.stringify(p.plans))).size,13);
  for(const p of checks){for(const plan of p.plans){assert(plan.length);assert.equal(new Set(plan.map(c=>c.r+','+c.c)).size,plan.length);assert(plan.every(c=>c.r>=0&&c.r<10&&c.c>=0&&c.c<10&&(c.r||c.c)));}assert(p.modes[2].power<p.modes[0].power);assert.equal(p.modes[2].rng[1],3);}
  assert.deepEqual(checks.find(p=>p.id==='spinel').modes.map(m=>m.armor),[3,2,0]);
 });
@@ -166,8 +166,8 @@ for(const engine of ['chromium','webkit']){
  });
  test(`${engine}: rainbow suppresses forecast HP, SP and root effects; neutral cells apply them and root lasts the next turn`,async()=>{
   await session(engine,{width:390,height:844},async page=>{
-   for(const id of ['ivy','gb_tokinel']){await battle(page,id);await page.evaluate(()=>Board.__guardianQA.arrange());await page.evaluate(()=>Board.__guardianQA.setIntent(true));let before=await state(page);await page.evaluate(()=>Board.__guardianQA.resolve());await ready(page);let s=await state(page);assert.equal(hero(s).hp,hero(before).hp);assert.equal(s.sp,before.sp);assert.equal(hero(s).root,0);
-    await page.evaluate(()=>Board.__guardianQA.setIntent(false));before=await state(page);await page.evaluate(()=>Board.__guardianQA.resolve());await ready(page);s=await state(page);assert(hero(s).hp<hero(before).hp);if(id==='gb_tokinel')assert.equal(s.sp,before.sp-1);else{assert.equal(hero(s).root,1);await page.evaluate(()=>Board.__guardianQA.next());await ready(page);assert.equal(hero(await state(page)).root,1);await page.evaluate(()=>Board.__guardianQA.next());await ready(page);assert.equal(hero(await state(page)).root,0);}}
+   for(const id of ['ivy','gb_rivela']){await battle(page,id);await page.evaluate(()=>Board.__guardianQA.arrange());await page.evaluate(()=>Board.__guardianQA.setIntent(true));let before=await state(page);await page.evaluate(()=>Board.__guardianQA.resolve());await ready(page);let s=await state(page);assert.equal(hero(s).hp,hero(before).hp);assert.equal(s.sp,before.sp);assert.equal(hero(s).root,0);
+    await page.evaluate(()=>Board.__guardianQA.setIntent(false));before=await state(page);await page.evaluate(()=>Board.__guardianQA.resolve());await ready(page);s=await state(page);assert(hero(s).hp<hero(before).hp);if(id==='gb_rivela')assert.equal(s.sp,before.sp-1);else{assert.equal(hero(s).root,1);await page.evaluate(()=>Board.__guardianQA.next());await ready(page);assert.equal(hero(await state(page)).root,1);await page.evaluate(()=>Board.__guardianQA.next());await ready(page);assert.equal(hero(await state(page)).root,0);}}
   });
  });
  test(`${engine}: actual enemy turns execute recovered boss intents and retry restores the first phase`,async()=>{
@@ -179,7 +179,7 @@ for(const engine of ['chromium','webkit']){
    await page.locator('[data-gj-stage=gran]').click();await page.locator('[data-gj-diff=normal]').click();await page.locator('#gjSortie').click();await ready(page);await page.evaluate(()=>Board.__guardianQA.finish());await page.locator('#resNext').waitFor();assert.equal(await page.locator('.r-unique:not(.r-equipment)').count(),0);assert.equal(await page.locator('.r-equipment').count(),0);assert.match(await page.locator('.r-bond').allTextContents().then(x=>x.join(' ')),/ふつうのS評価報酬/);await page.locator('#resNext').click();await page.locator('#gjRecall').click();assert.equal(await page.locator('.gj-voices section').count(),4);
    await page.evaluate(()=>{Panel.close();Board.party.stages.gp_gran=undefined;Board.saveParty();GuardianJourney.open('act1');});assert(await page.locator('[data-gj-stage=gran]').isEnabled(),'Existing original boss clear permits replay');
   });
-  await session(engine,{width:390,height:844},async page=>{await page.locator('[data-w=guardians]').click();assert.equal(await page.locator('[data-gj-chapter]').count(),1);assert.equal(await page.locator('img[src*=guardian_]').count(),0);assert(await page.evaluate(()=>!GuardianJourney.available(BOARDS.gb_tokinel)));},{unlocked:['prologue','act1'],started:false,progress:0});
+  await session(engine,{width:390,height:844},async page=>{await page.locator('[data-w=guardians]').click();assert.equal(await page.locator('[data-gj-chapter]').count(),1);assert.equal(await page.locator('img[src*=guardian_]').count(),0);assert(await page.evaluate(()=>!GuardianJourney.available(BOARDS.gb_nephra)));},{unlocked:['prologue','act1'],started:false,progress:0});
  });
  for(const viewport of [{width:1440,height:900},{width:320,height:480},{width:390,height:844},{width:667,height:375}])test(`${engine}: original polluted boss HUD and chapter controls fit ${viewport.width} × ${viewport.height}`,async()=>{
   await session(engine,viewport,async page=>{await page.locator('[data-w=guardians]').click();await page.locator('[data-gj-chapter=act5]').click();await page.screenshot({path:`/tmp/cr-guardians-${engine}-${viewport.width}-book.png`});assert(await page.locator('.gj-guardian img').getAttribute('src').then(s=>s.includes('/king')));assert(await page.locator('[data-gj-stage=king]').isDisabled());await page.locator('[data-gj-stage=gp_king]').click();const sortie=await page.locator('#gjSortie').boundingBox();assert(sortie.height>=44&&sortie.y+sortie.height<=viewport.height+1);await battle(page,'king',{flat:false});await page.locator('#hint').click({force:true});const b=await page.locator('#guardianHud').boundingBox(),voice=await page.locator('#guardianHud button').boundingBox();assert(b.x>=0&&b.y>=0&&b.x+b.width<=viewport.width+1);assert(voice.height>=44);assert((await state(page)).tw>=17,'Tactical tiles remain selectable');const doc=await page.evaluate(()=>document.documentElement.scrollWidth);assert(doc<=viewport.width);await page.screenshot({path:`/tmp/cr-guardians-${engine}-${viewport.width}-king.png`});});

@@ -3332,7 +3332,9 @@
           "gifRepeatsForPreview": true,
           "gifAlphaThreshold": 96
         }
-      }
+      },
+      "pixelArt": true,
+      "reference": "art-source/kaoru/reference.webp"
     },
     {
       "id": "mari",

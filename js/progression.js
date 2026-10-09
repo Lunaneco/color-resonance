@@ -37,7 +37,7 @@ const Progression = (() => {
     const joined = companions(unlocked, colors), missing = required.filter(id => !joined.includes(id));
     if (!missing.length) return null;
     const id = missing[0], node = {gran:'belfry',ivy:'thorn',vard:'f_fruit',spinel:'canyon'}[id];
-    return { missing, node, message: `${spirits[id].name}と旅の約束を結んでから、${chapter==='act5'?'虹の尖塔':'黄金の渓谷'}へ進もう。${id==='vard'?'赤い果実の丘で、紅角の物語を最後まで進めてください。':''}` };
+    return { missing, node, message: `${spirits[id].name}と旅の約束を結んでから、${chapter==='act5'?'虹の尖塔':'黄金の渓谷'}へ進もう。${id==='vard'?'赤い果実の丘の物語（第三幕・赤い丘）を最後まで進めてください。':id==='ivy'?'暗い森の物語（第三幕）を最後まで進めてください。':''}` };
   }
   function materialDescription(id, joined) {
     const m = materials[id];

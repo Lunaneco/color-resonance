@@ -2,7 +2,7 @@
 const SaveData = (() => {
   const progress = ['cr_save', 'cr_unlocked', 'cr_party', 'cr_best'];
   const keys = [...progress, 'cr_diff', 'cr_speed', 'cr_vol', 'cr_settings'];
-  const chapters = ['prologue', 'act1', 'act2', 'act3', 'act4', 'act5', 'finale', 'epilogue', 'done', 'restore1', 'restore2', 'restore3', 'restore4', 'restore5', 'restore6', 'restore7', 'restore8', 'restored', 'fury', 'fury_reunion', 'vardbond', 'mari_reunion', 'maribond'];
+  const chapters = ['prologue', 'act1', 'act2', 'act3', 'act4', 'act5', 'finale', 'epilogue', 'done', 'restore1', 'restore2', 'restore3', 'restore4', 'restore5', 'restore6', 'restore7', 'restore8', 'restored', 'fury', 'fury_reunion', 'vardbond', 'mari_reunion', 'maribond', 'kaoru_cafe'];
   const object = v => !!v && typeof v === 'object' && !Array.isArray(v);
   const finite = (n, min, max) => typeof n === 'number' && Number.isFinite(n) && n >= min && n <= max;
   function checkTree(v, depth = 0) {
@@ -46,7 +46,7 @@ const SaveData = (() => {
       if (who.length <= 8 && typeof color === 'string' && /^(?:#[a-f0-9]{3,8}|void|renoir)$/i.test(color)) out.tints[who] = color;
     }
     if(v.returnStory != null){
-      if(!['fury','fury_reunion','restore4','mari_reunion'].includes(v.chapter)||!object(v.returnStory)||['fury','fury_reunion','mari_return','mari_reunion'].includes(v.returnStory.chapter)||v.returnStory.returnStory!=null) throw new Error('物語の帰還記録が正しくありません');
+      if(!['fury','fury_reunion','restore4','mari_reunion','kaoru_cafe'].includes(v.chapter)||!object(v.returnStory)||['fury','fury_reunion','mari_return','mari_reunion','kaoru_cafe'].includes(v.returnStory.chapter)||v.returnStory.returnStory!=null) throw new Error('物語の帰還記録が正しくありません');
       out.returnStory=story(v.returnStory);
     }
     return out;

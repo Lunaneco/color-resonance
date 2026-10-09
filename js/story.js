@@ -6,6 +6,7 @@ const CHAPTERS = [
   { key: 'act1', act: '第一幕', title: '深碧の涙雨' },
   { key: 'act2', act: '第二幕', title: '灰色の街と温かい一杯' },
   { key: 'act3', act: '第三幕', title: '木漏れ日を妬む茨の檻' },
+  { key: 'fury', act: '第三幕・赤い丘', title: '怒りの向け先' },
   { key: 'act4', act: '第四幕', title: '黄金の傷跡' },
   { key: 'act5', act: '第五幕', title: '漆黒の道化と透明の王女' },
   { key: 'finale', act: '終章', title: '夜空の黒' },
@@ -14,7 +15,7 @@ const CHAPTERS = [
 // 章の頭での持ち物
 const CHAPTER_STATE = {
   prologue: { colors: [], shavings: 0 }, act1: { colors: [], shavings: 0 },
-  act2: { colors: ['teal'], shavings: 1 }, act3: { colors: ['teal'], shavings: 1 },
+  act2: { colors: ['teal'], shavings: 1 }, act3: { colors: ['teal'], shavings: 1 }, fury: { colors: ['teal'], shavings: 1 },
   act4: { colors: ['teal', 'green'], shavings: 2 }, act5: { colors: ['teal', 'green', 'gold'], shavings: 3 },
   finale: { colors: ['teal', 'green', 'gold', 'violet'], shavings: 4 }, epilogue: { colors: ['teal', 'green', 'gold', 'violet'], shavings: 4, sky: 1 },
 };
@@ -172,6 +173,15 @@ const CHOICES = {
       { t: '何も言わずに、馨の見ている先を一緒に見る', ok: true, lines: ['アリアは何も言わずに、馨の見ている先を一緒に見た。'] },
     ],
   },
+};
+
+// テラ・コッタのあと：森（アイビー）と赤い丘（ヴァルド）は、どちらから行ってもいい。
+CHOICES.route3 = {
+  prompt: '地図に、二つの道が残っている。どちらから向かう？',
+  options: [
+    { t: '暗い森へ。茨に閉ざされた鳥籠のほうから', ok: true, lines: ['@route thorn', 'アリアは、黒い穴のように見える森の方角を指した。'] },
+    { t: '赤い丘へ。折れた枝の積もる畑のほうから', ok: true, lines: ['@route f_fruit', 'アリアは、夕焼けより赤い丘の方角を指した。'] },
+  ],
 };
 
 const SCRIPT = {};
@@ -628,6 +638,14 @@ SCRIPT.act2 = `
 その夜、ルノワールは糸を送らなかった。送るものが、何もなかったからだ。
 カフェの窓辺で、丸くなって眠っていた。
 @cg off
+@bg glass c4
+@fx motes:0.2
+@aura none
+翌朝、グランが屋根の高さまで体を下げて待っていた。
+グラン「この先に、傷の深い場所が二つある。緑の森と、赤い丘だ。雲の上から見えた、あの二つだ」
+グランの額には、小さな鳥が一羽降りられるだけのくぼみが、まだ空いたままだった。
+グラン「どちらが先でもいい。……どちらも、置いていく気はない」
+@choice route3
 @next act3
 `;
 
