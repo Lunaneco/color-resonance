@@ -8392,11 +8392,18 @@
       "source": "source/guardian_tokinel.png",
       "sheet": "sheets/guardian_tokinel.png",
       "frames": [
-        "frames/guardian_tokinel/000.png"
+        "frames/guardian_tokinel/000.png",
+        "frames/guardian_tokinel/001.png",
+        "frames/guardian_tokinel/002.png",
+        "frames/guardian_tokinel/003.png",
+        "frames/guardian_tokinel/004.png",
+        "frames/guardian_tokinel/005.png",
+        "frames/guardian_tokinel/006.png",
+        "frames/guardian_tokinel/007.png"
       ],
       "grid": {
-        "columns": 1,
-        "rows": 1,
+        "columns": 4,
+        "rows": 2,
         "cellSize": [
           444,
           444
@@ -8407,45 +8414,67 @@
         "idle": {
           "name": "待機",
           "sequence": [
-            0
+            0,
+            7,
+            0,
+            1
           ],
           "durationsMs": [
-            900
+            520,
+            520,
+            420,
+            150
           ],
-          "durationMs": 900,
+          "durationMs": 1610,
           "loop": true
         },
         "walk": {
           "name": "移動",
           "sequence": [
+            2,
+            0,
+            3,
             0
           ],
           "durationsMs": [
-            900
+            140,
+            90,
+            140,
+            90
           ],
-          "durationMs": 900,
+          "durationMs": 460,
           "loop": true
         },
         "attack": {
-          "name": "特殊行動",
+          "name": "攻撃",
           "sequence": [
+            0,
+            4,
+            5,
             0
           ],
           "durationsMs": [
-            900
+            200,
+            180,
+            220,
+            400
           ],
-          "durationMs": 900,
+          "durationMs": 1000,
           "loop": false
         },
         "hurt": {
           "name": "被弾",
           "sequence": [
+            0,
+            6,
             0
           ],
           "durationsMs": [
-            900
+            260,
+            200,
+            400
           ],
-          "durationMs": 900,
+          "durationMs": 860,
           "loop": false
         }
       }
@@ -8457,11 +8486,18 @@
       "source": "source/guardian_nephra.png",
       "sheet": "sheets/guardian_nephra.png",
       "frames": [
-        "frames/guardian_nephra/000.png"
+        "frames/guardian_nephra/000.png",
+        "frames/guardian_nephra/001.png",
+        "frames/guardian_nephra/002.png",
+        "frames/guardian_nephra/003.png",
+        "frames/guardian_nephra/004.png",
+        "frames/guardian_nephra/005.png",
+        "frames/guardian_nephra/006.png",
+        "frames/guardian_nephra/007.png"
       ],
       "grid": {
-        "columns": 1,
-        "rows": 1,
+        "columns": 4,
+        "rows": 2,
         "cellSize": [
           444,
           444
@@ -8472,45 +8508,67 @@
         "idle": {
           "name": "待機",
           "sequence": [
-            0
+            0,
+            7,
+            0,
+            1
           ],
           "durationsMs": [
-            900
+            520,
+            520,
+            420,
+            150
           ],
-          "durationMs": 900,
+          "durationMs": 1610,
           "loop": true
         },
         "walk": {
           "name": "移動",
           "sequence": [
+            2,
+            0,
+            3,
             0
           ],
           "durationsMs": [
-            900
+            140,
+            90,
+            140,
+            90
           ],
-          "durationMs": 900,
+          "durationMs": 460,
           "loop": true
         },
         "attack": {
-          "name": "特殊行動",
+          "name": "攻撃",
           "sequence": [
+            0,
+            4,
+            5,
             0
           ],
           "durationsMs": [
-            900
+            200,
+            180,
+            220,
+            400
           ],
-          "durationMs": 900,
+          "durationMs": 1000,
           "loop": false
         },
         "hurt": {
           "name": "被弾",
           "sequence": [
+            0,
+            6,
             0
           ],
           "durationsMs": [
-            900
+            260,
+            200,
+            400
           ],
-          "durationMs": 900,
+          "durationMs": 860,
           "loop": false
         }
       }
@@ -8522,11 +8580,18 @@
       "source": "source/guardian_farol.png",
       "sheet": "sheets/guardian_farol.png",
       "frames": [
-        "frames/guardian_farol/000.png"
+        "frames/guardian_farol/000.png",
+        "frames/guardian_farol/001.png",
+        "frames/guardian_farol/002.png",
+        "frames/guardian_farol/003.png",
+        "frames/guardian_farol/004.png",
+        "frames/guardian_farol/005.png",
+        "frames/guardian_farol/006.png",
+        "frames/guardian_farol/007.png"
       ],
       "grid": {
-        "columns": 1,
-        "rows": 1,
+        "columns": 4,
+        "rows": 2,
         "cellSize": [
           444,
           444
@@ -8537,45 +8602,67 @@
         "idle": {
           "name": "待機",
           "sequence": [
-            0
+            0,
+            7,
+            0,
+            1
           ],
           "durationsMs": [
-            900
+            520,
+            520,
+            420,
+            150
           ],
-          "durationMs": 900,
+          "durationMs": 1610,
           "loop": true
         },
         "walk": {
           "name": "移動",
           "sequence": [
+            2,
+            0,
+            3,
             0
           ],
           "durationsMs": [
-            900
+            140,
+            90,
+            140,
+            90
           ],
-          "durationMs": 900,
+          "durationMs": 460,
           "loop": true
         },
         "attack": {
-          "name": "特殊行動",
+          "name": "攻撃",
           "sequence": [
+            0,
+            4,
+            5,
             0
           ],
           "durationsMs": [
-            900
+            200,
+            180,
+            220,
+            400
           ],
-          "durationMs": 900,
+          "durationMs": 1000,
           "loop": false
         },
         "hurt": {
           "name": "被弾",
           "sequence": [
+            0,
+            6,
             0
           ],
           "durationsMs": [
-            900
+            260,
+            200,
+            400
           ],
-          "durationMs": 900,
+          "durationMs": 860,
           "loop": false
         }
       }
@@ -8587,11 +8674,18 @@
       "source": "source/guardian_rivela.png",
       "sheet": "sheets/guardian_rivela.png",
       "frames": [
-        "frames/guardian_rivela/000.png"
+        "frames/guardian_rivela/000.png",
+        "frames/guardian_rivela/001.png",
+        "frames/guardian_rivela/002.png",
+        "frames/guardian_rivela/003.png",
+        "frames/guardian_rivela/004.png",
+        "frames/guardian_rivela/005.png",
+        "frames/guardian_rivela/006.png",
+        "frames/guardian_rivela/007.png"
       ],
       "grid": {
-        "columns": 1,
-        "rows": 1,
+        "columns": 4,
+        "rows": 2,
         "cellSize": [
           444,
           444
@@ -8602,45 +8696,67 @@
         "idle": {
           "name": "待機",
           "sequence": [
-            0
+            0,
+            7,
+            0,
+            1
           ],
           "durationsMs": [
-            900
+            520,
+            520,
+            420,
+            150
           ],
-          "durationMs": 900,
+          "durationMs": 1610,
           "loop": true
         },
         "walk": {
           "name": "移動",
           "sequence": [
+            2,
+            0,
+            3,
             0
           ],
           "durationsMs": [
-            900
+            140,
+            90,
+            140,
+            90
           ],
-          "durationMs": 900,
+          "durationMs": 460,
           "loop": true
         },
         "attack": {
-          "name": "特殊行動",
+          "name": "攻撃",
           "sequence": [
+            0,
+            4,
+            5,
             0
           ],
           "durationsMs": [
-            900
+            200,
+            180,
+            220,
+            400
           ],
-          "durationMs": 900,
+          "durationMs": 1000,
           "loop": false
         },
         "hurt": {
           "name": "被弾",
           "sequence": [
+            0,
+            6,
             0
           ],
           "durationsMs": [
-            900
+            260,
+            200,
+            400
           ],
-          "durationMs": 900,
+          "durationMs": 860,
           "loop": false
         }
       }
@@ -8652,11 +8768,18 @@
       "source": "source/guardian_pomela.png",
       "sheet": "sheets/guardian_pomela.png",
       "frames": [
-        "frames/guardian_pomela/000.png"
+        "frames/guardian_pomela/000.png",
+        "frames/guardian_pomela/001.png",
+        "frames/guardian_pomela/002.png",
+        "frames/guardian_pomela/003.png",
+        "frames/guardian_pomela/004.png",
+        "frames/guardian_pomela/005.png",
+        "frames/guardian_pomela/006.png",
+        "frames/guardian_pomela/007.png"
       ],
       "grid": {
-        "columns": 1,
-        "rows": 1,
+        "columns": 4,
+        "rows": 2,
         "cellSize": [
           512,
           512
@@ -8667,45 +8790,67 @@
         "idle": {
           "name": "待機",
           "sequence": [
-            0
+            0,
+            7,
+            0,
+            1
           ],
           "durationsMs": [
-            900
+            520,
+            520,
+            420,
+            150
           ],
-          "durationMs": 900,
+          "durationMs": 1610,
           "loop": true
         },
         "walk": {
           "name": "移動",
           "sequence": [
+            2,
+            0,
+            3,
             0
           ],
           "durationsMs": [
-            900
+            140,
+            90,
+            140,
+            90
           ],
-          "durationMs": 900,
+          "durationMs": 460,
           "loop": true
         },
         "attack": {
-          "name": "特殊行動",
+          "name": "攻撃",
           "sequence": [
+            0,
+            4,
+            5,
             0
           ],
           "durationsMs": [
-            900
+            200,
+            180,
+            220,
+            400
           ],
-          "durationMs": 900,
+          "durationMs": 1000,
           "loop": false
         },
         "hurt": {
           "name": "被弾",
           "sequence": [
+            0,
+            6,
             0
           ],
           "durationsMs": [
-            900
+            260,
+            200,
+            400
           ],
-          "durationMs": 900,
+          "durationMs": 860,
           "loop": false
         }
       }
@@ -8717,11 +8862,18 @@
       "source": "source/guardian_folio.png",
       "sheet": "sheets/guardian_folio.png",
       "frames": [
-        "frames/guardian_folio/000.png"
+        "frames/guardian_folio/000.png",
+        "frames/guardian_folio/001.png",
+        "frames/guardian_folio/002.png",
+        "frames/guardian_folio/003.png",
+        "frames/guardian_folio/004.png",
+        "frames/guardian_folio/005.png",
+        "frames/guardian_folio/006.png",
+        "frames/guardian_folio/007.png"
       ],
       "grid": {
-        "columns": 1,
-        "rows": 1,
+        "columns": 4,
+        "rows": 2,
         "cellSize": [
           512,
           512
@@ -8732,45 +8884,67 @@
         "idle": {
           "name": "待機",
           "sequence": [
-            0
+            0,
+            7,
+            0,
+            1
           ],
           "durationsMs": [
-            900
+            520,
+            520,
+            420,
+            150
           ],
-          "durationMs": 900,
+          "durationMs": 1610,
           "loop": true
         },
         "walk": {
           "name": "移動",
           "sequence": [
+            2,
+            0,
+            3,
             0
           ],
           "durationsMs": [
-            900
+            140,
+            90,
+            140,
+            90
           ],
-          "durationMs": 900,
+          "durationMs": 460,
           "loop": true
         },
         "attack": {
-          "name": "特殊行動",
+          "name": "攻撃",
           "sequence": [
+            0,
+            4,
+            5,
             0
           ],
           "durationsMs": [
-            900
+            200,
+            180,
+            220,
+            400
           ],
-          "durationMs": 900,
+          "durationMs": 1000,
           "loop": false
         },
         "hurt": {
           "name": "被弾",
           "sequence": [
+            0,
+            6,
             0
           ],
           "durationsMs": [
-            900
+            260,
+            200,
+            400
           ],
-          "durationMs": 900,
+          "durationMs": 860,
           "loop": false
         }
       }
@@ -8782,11 +8956,18 @@
       "source": "source/guardian_fiamma.png",
       "sheet": "sheets/guardian_fiamma.png",
       "frames": [
-        "frames/guardian_fiamma/000.png"
+        "frames/guardian_fiamma/000.png",
+        "frames/guardian_fiamma/001.png",
+        "frames/guardian_fiamma/002.png",
+        "frames/guardian_fiamma/003.png",
+        "frames/guardian_fiamma/004.png",
+        "frames/guardian_fiamma/005.png",
+        "frames/guardian_fiamma/006.png",
+        "frames/guardian_fiamma/007.png"
       ],
       "grid": {
-        "columns": 1,
-        "rows": 1,
+        "columns": 4,
+        "rows": 2,
         "cellSize": [
           512,
           512
@@ -8797,45 +8978,67 @@
         "idle": {
           "name": "待機",
           "sequence": [
-            0
+            0,
+            7,
+            0,
+            1
           ],
           "durationsMs": [
-            900
+            520,
+            520,
+            420,
+            150
           ],
-          "durationMs": 900,
+          "durationMs": 1610,
           "loop": true
         },
         "walk": {
           "name": "移動",
           "sequence": [
+            2,
+            0,
+            3,
             0
           ],
           "durationsMs": [
-            900
+            140,
+            90,
+            140,
+            90
           ],
-          "durationMs": 900,
+          "durationMs": 460,
           "loop": true
         },
         "attack": {
-          "name": "特殊行動",
+          "name": "攻撃",
           "sequence": [
+            0,
+            4,
+            5,
             0
           ],
           "durationsMs": [
-            900
+            200,
+            180,
+            220,
+            400
           ],
-          "durationMs": 900,
+          "durationMs": 1000,
           "loop": false
         },
         "hurt": {
           "name": "被弾",
           "sequence": [
+            0,
+            6,
             0
           ],
           "durationsMs": [
-            900
+            260,
+            200,
+            400
           ],
-          "durationMs": 900,
+          "durationMs": 860,
           "loop": false
         }
       }
@@ -8847,11 +9050,18 @@
       "source": "source/guardian_lucerna.png",
       "sheet": "sheets/guardian_lucerna.png",
       "frames": [
-        "frames/guardian_lucerna/000.png"
+        "frames/guardian_lucerna/000.png",
+        "frames/guardian_lucerna/001.png",
+        "frames/guardian_lucerna/002.png",
+        "frames/guardian_lucerna/003.png",
+        "frames/guardian_lucerna/004.png",
+        "frames/guardian_lucerna/005.png",
+        "frames/guardian_lucerna/006.png",
+        "frames/guardian_lucerna/007.png"
       ],
       "grid": {
-        "columns": 1,
-        "rows": 1,
+        "columns": 4,
+        "rows": 2,
         "cellSize": [
           512,
           512
@@ -8862,45 +9072,67 @@
         "idle": {
           "name": "待機",
           "sequence": [
-            0
+            0,
+            7,
+            0,
+            1
           ],
           "durationsMs": [
-            900
+            520,
+            520,
+            420,
+            150
           ],
-          "durationMs": 900,
+          "durationMs": 1610,
           "loop": true
         },
         "walk": {
           "name": "移動",
           "sequence": [
+            2,
+            0,
+            3,
             0
           ],
           "durationsMs": [
-            900
+            140,
+            90,
+            140,
+            90
           ],
-          "durationMs": 900,
+          "durationMs": 460,
           "loop": true
         },
         "attack": {
-          "name": "特殊行動",
+          "name": "攻撃",
           "sequence": [
+            0,
+            4,
+            5,
             0
           ],
           "durationsMs": [
-            900
+            200,
+            180,
+            220,
+            400
           ],
-          "durationMs": 900,
+          "durationMs": 1000,
           "loop": false
         },
         "hurt": {
           "name": "被弾",
           "sequence": [
+            0,
+            6,
             0
           ],
           "durationsMs": [
-            900
+            260,
+            200,
+            400
           ],
-          "durationMs": 900,
+          "durationMs": 860,
           "loop": false
         }
       }
@@ -8912,11 +9144,18 @@
       "source": "source/guardian_coronel.png",
       "sheet": "sheets/guardian_coronel.png",
       "frames": [
-        "frames/guardian_coronel/000.png"
+        "frames/guardian_coronel/000.png",
+        "frames/guardian_coronel/001.png",
+        "frames/guardian_coronel/002.png",
+        "frames/guardian_coronel/003.png",
+        "frames/guardian_coronel/004.png",
+        "frames/guardian_coronel/005.png",
+        "frames/guardian_coronel/006.png",
+        "frames/guardian_coronel/007.png"
       ],
       "grid": {
-        "columns": 1,
-        "rows": 1,
+        "columns": 4,
+        "rows": 2,
         "cellSize": [
           512,
           512
@@ -8927,45 +9166,67 @@
         "idle": {
           "name": "待機",
           "sequence": [
-            0
+            0,
+            7,
+            0,
+            1
           ],
           "durationsMs": [
-            900
+            520,
+            520,
+            420,
+            150
           ],
-          "durationMs": 900,
+          "durationMs": 1610,
           "loop": true
         },
         "walk": {
           "name": "移動",
           "sequence": [
+            2,
+            0,
+            3,
             0
           ],
           "durationsMs": [
-            900
+            140,
+            90,
+            140,
+            90
           ],
-          "durationMs": 900,
+          "durationMs": 460,
           "loop": true
         },
         "attack": {
-          "name": "特殊行動",
+          "name": "攻撃",
           "sequence": [
+            0,
+            4,
+            5,
             0
           ],
           "durationsMs": [
-            900
+            200,
+            180,
+            220,
+            400
           ],
-          "durationMs": 900,
+          "durationMs": 1000,
           "loop": false
         },
         "hurt": {
           "name": "被弾",
           "sequence": [
+            0,
+            6,
             0
           ],
           "durationsMs": [
-            900
+            260,
+            200,
+            400
           ],
-          "durationMs": 900,
+          "durationMs": 860,
           "loop": false
         }
       }
@@ -8977,11 +9238,18 @@
       "source": "source/guardian_aster.png",
       "sheet": "sheets/guardian_aster.png",
       "frames": [
-        "frames/guardian_aster/000.png"
+        "frames/guardian_aster/000.png",
+        "frames/guardian_aster/001.png",
+        "frames/guardian_aster/002.png",
+        "frames/guardian_aster/003.png",
+        "frames/guardian_aster/004.png",
+        "frames/guardian_aster/005.png",
+        "frames/guardian_aster/006.png",
+        "frames/guardian_aster/007.png"
       ],
       "grid": {
-        "columns": 1,
-        "rows": 1,
+        "columns": 4,
+        "rows": 2,
         "cellSize": [
           512,
           512
@@ -8992,45 +9260,67 @@
         "idle": {
           "name": "待機",
           "sequence": [
-            0
+            0,
+            7,
+            0,
+            1
           ],
           "durationsMs": [
-            900
+            520,
+            520,
+            420,
+            150
           ],
-          "durationMs": 900,
+          "durationMs": 1610,
           "loop": true
         },
         "walk": {
           "name": "移動",
           "sequence": [
+            2,
+            0,
+            3,
             0
           ],
           "durationsMs": [
-            900
+            140,
+            90,
+            140,
+            90
           ],
-          "durationMs": 900,
+          "durationMs": 460,
           "loop": true
         },
         "attack": {
-          "name": "特殊行動",
+          "name": "攻撃",
           "sequence": [
+            0,
+            4,
+            5,
             0
           ],
           "durationsMs": [
-            900
+            200,
+            180,
+            220,
+            400
           ],
-          "durationMs": 900,
+          "durationMs": 1000,
           "loop": false
         },
         "hurt": {
           "name": "被弾",
           "sequence": [
+            0,
+            6,
             0
           ],
           "durationsMs": [
-            900
+            260,
+            200,
+            400
           ],
-          "durationMs": 900,
+          "durationMs": 860,
           "loop": false
         }
       }
@@ -9042,11 +9332,18 @@
       "source": "source/vard.png",
       "sheet": "sheets/vard.png",
       "frames": [
-        "frames/vard/000.png"
+        "frames/vard/000.png",
+        "frames/vard/001.png",
+        "frames/vard/002.png",
+        "frames/vard/003.png",
+        "frames/vard/004.png",
+        "frames/vard/005.png",
+        "frames/vard/006.png",
+        "frames/vard/007.png"
       ],
       "grid": {
-        "columns": 1,
-        "rows": 1,
+        "columns": 4,
+        "rows": 2,
         "cellSize": [
           512,
           512
@@ -9057,56 +9354,2340 @@
         "idle": {
           "name": "待機",
           "sequence": [
-            0
+            0,
+            7,
+            0,
+            1
           ],
           "durationsMs": [
-            900
+            520,
+            520,
+            420,
+            150
           ],
-          "durationMs": 900,
+          "durationMs": 1610,
           "loop": true
         },
         "walk": {
           "name": "移動",
           "sequence": [
+            2,
+            0,
+            3,
             0
           ],
           "durationsMs": [
-            700
+            140,
+            90,
+            140,
+            90
           ],
-          "durationMs": 700,
+          "durationMs": 460,
           "loop": true
         },
         "attack": {
-          "name": "紅角の突進",
+          "name": "攻撃",
           "sequence": [
+            0,
+            4,
+            5,
             0
           ],
           "durationsMs": [
-            600
+            200,
+            180,
+            220,
+            400
           ],
-          "durationMs": 600,
+          "durationMs": 1000,
           "loop": false
         },
         "hurt": {
           "name": "被弾",
           "sequence": [
+            0,
+            6,
             0
           ],
           "durationsMs": [
-            450
+            260,
+            200,
+            400
           ],
-          "durationMs": 450,
+          "durationMs": 860,
           "loop": false
         },
         "summon": {
           "name": "憤怒の顕現",
           "sequence": [
+            0,
+            4,
+            5,
+            7
+          ],
+          "durationsMs": [
+            180,
+            220,
+            360,
+            280
+          ],
+          "durationMs": 1040,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "sea_shade",
+      "name": "雨だれの影",
+      "category": "enemy",
+      "source": "source/sea_shade.png",
+      "sheet": "sheets/sea_shade.png",
+      "frames": [
+        "frames/sea_shade/000.png",
+        "frames/sea_shade/001.png",
+        "frames/sea_shade/002.png",
+        "frames/sea_shade/003.png",
+        "frames/sea_shade/004.png",
+        "frames/sea_shade/005.png",
+        "frames/sea_shade/006.png",
+        "frames/sea_shade/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
             0
           ],
           "durationsMs": [
-            900
+            140,
+            90,
+            140,
+            90
           ],
-          "durationMs": 900,
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "sea_thorn",
+      "name": "珊瑚棘の影",
+      "category": "enemy",
+      "source": "source/sea_thorn.png",
+      "sheet": "sheets/sea_thorn.png",
+      "frames": [
+        "frames/sea_thorn/000.png",
+        "frames/sea_thorn/001.png",
+        "frames/sea_thorn/002.png",
+        "frames/sea_thorn/003.png",
+        "frames/sea_thorn/004.png",
+        "frames/sea_thorn/005.png",
+        "frames/sea_thorn/006.png",
+        "frames/sea_thorn/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "sea_lead",
+      "name": "錆びた錨の殻",
+      "category": "enemy",
+      "source": "source/sea_lead.png",
+      "sheet": "sheets/sea_lead.png",
+      "frames": [
+        "frames/sea_lead/000.png",
+        "frames/sea_lead/001.png",
+        "frames/sea_lead/002.png",
+        "frames/sea_lead/003.png",
+        "frames/sea_lead/004.png",
+        "frames/sea_lead/005.png",
+        "frames/sea_lead/006.png",
+        "frames/sea_lead/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "sea_membrane",
+      "name": "泡の膜",
+      "category": "enemy",
+      "source": "source/sea_membrane.png",
+      "sheet": "sheets/sea_membrane.png",
+      "frames": [
+        "frames/sea_membrane/000.png",
+        "frames/sea_membrane/001.png",
+        "frames/sea_membrane/002.png",
+        "frames/sea_membrane/003.png",
+        "frames/sea_membrane/004.png",
+        "frames/sea_membrane/005.png",
+        "frames/sea_membrane/006.png",
+        "frames/sea_membrane/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "hill_shade",
+      "name": "くすぶる影",
+      "category": "enemy",
+      "source": "source/hill_shade.png",
+      "sheet": "sheets/hill_shade.png",
+      "frames": [
+        "frames/hill_shade/000.png",
+        "frames/hill_shade/001.png",
+        "frames/hill_shade/002.png",
+        "frames/hill_shade/003.png",
+        "frames/hill_shade/004.png",
+        "frames/hill_shade/005.png",
+        "frames/hill_shade/006.png",
+        "frames/hill_shade/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "hill_thorn",
+      "name": "燠火の棘",
+      "category": "enemy",
+      "source": "source/hill_thorn.png",
+      "sheet": "sheets/hill_thorn.png",
+      "frames": [
+        "frames/hill_thorn/000.png",
+        "frames/hill_thorn/001.png",
+        "frames/hill_thorn/002.png",
+        "frames/hill_thorn/003.png",
+        "frames/hill_thorn/004.png",
+        "frames/hill_thorn/005.png",
+        "frames/hill_thorn/006.png",
+        "frames/hill_thorn/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "hill_lead",
+      "name": "焦げた鎧殻",
+      "category": "enemy",
+      "source": "source/hill_lead.png",
+      "sheet": "sheets/hill_lead.png",
+      "frames": [
+        "frames/hill_lead/000.png",
+        "frames/hill_lead/001.png",
+        "frames/hill_lead/002.png",
+        "frames/hill_lead/003.png",
+        "frames/hill_lead/004.png",
+        "frames/hill_lead/005.png",
+        "frames/hill_lead/006.png",
+        "frames/hill_lead/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "hill_membrane",
+      "name": "煤の膜",
+      "category": "enemy",
+      "source": "source/hill_membrane.png",
+      "sheet": "sheets/hill_membrane.png",
+      "frames": [
+        "frames/hill_membrane/000.png",
+        "frames/hill_membrane/001.png",
+        "frames/hill_membrane/002.png",
+        "frames/hill_membrane/003.png",
+        "frames/hill_membrane/004.png",
+        "frames/hill_membrane/005.png",
+        "frames/hill_membrane/006.png",
+        "frames/hill_membrane/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "forest_shade",
+      "name": "木陰の影",
+      "category": "enemy",
+      "source": "source/forest_shade.png",
+      "sheet": "sheets/forest_shade.png",
+      "frames": [
+        "frames/forest_shade/000.png",
+        "frames/forest_shade/001.png",
+        "frames/forest_shade/002.png",
+        "frames/forest_shade/003.png",
+        "frames/forest_shade/004.png",
+        "frames/forest_shade/005.png",
+        "frames/forest_shade/006.png",
+        "frames/forest_shade/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "forest_thorn",
+      "name": "絡み蔦の影",
+      "category": "enemy",
+      "source": "source/forest_thorn.png",
+      "sheet": "sheets/forest_thorn.png",
+      "frames": [
+        "frames/forest_thorn/000.png",
+        "frames/forest_thorn/001.png",
+        "frames/forest_thorn/002.png",
+        "frames/forest_thorn/003.png",
+        "frames/forest_thorn/004.png",
+        "frames/forest_thorn/005.png",
+        "frames/forest_thorn/006.png",
+        "frames/forest_thorn/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "forest_lead",
+      "name": "苔むした殻",
+      "category": "enemy",
+      "source": "source/forest_lead.png",
+      "sheet": "sheets/forest_lead.png",
+      "frames": [
+        "frames/forest_lead/000.png",
+        "frames/forest_lead/001.png",
+        "frames/forest_lead/002.png",
+        "frames/forest_lead/003.png",
+        "frames/forest_lead/004.png",
+        "frames/forest_lead/005.png",
+        "frames/forest_lead/006.png",
+        "frames/forest_lead/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "forest_membrane",
+      "name": "胞子の膜",
+      "category": "enemy",
+      "source": "source/forest_membrane.png",
+      "sheet": "sheets/forest_membrane.png",
+      "frames": [
+        "frames/forest_membrane/000.png",
+        "frames/forest_membrane/001.png",
+        "frames/forest_membrane/002.png",
+        "frames/forest_membrane/003.png",
+        "frames/forest_membrane/004.png",
+        "frames/forest_membrane/005.png",
+        "frames/forest_membrane/006.png",
+        "frames/forest_membrane/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "canyon_shade",
+      "name": "砂金の影",
+      "category": "enemy",
+      "source": "source/canyon_shade.png",
+      "sheet": "sheets/canyon_shade.png",
+      "frames": [
+        "frames/canyon_shade/000.png",
+        "frames/canyon_shade/001.png",
+        "frames/canyon_shade/002.png",
+        "frames/canyon_shade/003.png",
+        "frames/canyon_shade/004.png",
+        "frames/canyon_shade/005.png",
+        "frames/canyon_shade/006.png",
+        "frames/canyon_shade/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "canyon_thorn",
+      "name": "乾いた棘",
+      "category": "enemy",
+      "source": "source/canyon_thorn.png",
+      "sheet": "sheets/canyon_thorn.png",
+      "frames": [
+        "frames/canyon_thorn/000.png",
+        "frames/canyon_thorn/001.png",
+        "frames/canyon_thorn/002.png",
+        "frames/canyon_thorn/003.png",
+        "frames/canyon_thorn/004.png",
+        "frames/canyon_thorn/005.png",
+        "frames/canyon_thorn/006.png",
+        "frames/canyon_thorn/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "canyon_lead",
+      "name": "金屑の殻",
+      "category": "enemy",
+      "source": "source/canyon_lead.png",
+      "sheet": "sheets/canyon_lead.png",
+      "frames": [
+        "frames/canyon_lead/000.png",
+        "frames/canyon_lead/001.png",
+        "frames/canyon_lead/002.png",
+        "frames/canyon_lead/003.png",
+        "frames/canyon_lead/004.png",
+        "frames/canyon_lead/005.png",
+        "frames/canyon_lead/006.png",
+        "frames/canyon_lead/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "canyon_membrane",
+      "name": "砂の膜",
+      "category": "enemy",
+      "source": "source/canyon_membrane.png",
+      "sheet": "sheets/canyon_membrane.png",
+      "frames": [
+        "frames/canyon_membrane/000.png",
+        "frames/canyon_membrane/001.png",
+        "frames/canyon_membrane/002.png",
+        "frames/canyon_membrane/003.png",
+        "frames/canyon_membrane/004.png",
+        "frames/canyon_membrane/005.png",
+        "frames/canyon_membrane/006.png",
+        "frames/canyon_membrane/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "spire_shade",
+      "name": "借り物の影",
+      "category": "enemy",
+      "source": "source/spire_shade.png",
+      "sheet": "sheets/spire_shade.png",
+      "frames": [
+        "frames/spire_shade/000.png",
+        "frames/spire_shade/001.png",
+        "frames/spire_shade/002.png",
+        "frames/spire_shade/003.png",
+        "frames/spire_shade/004.png",
+        "frames/spire_shade/005.png",
+        "frames/spire_shade/006.png",
+        "frames/spire_shade/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "spire_thorn",
+      "name": "彩りの棘",
+      "category": "enemy",
+      "source": "source/spire_thorn.png",
+      "sheet": "sheets/spire_thorn.png",
+      "frames": [
+        "frames/spire_thorn/000.png",
+        "frames/spire_thorn/001.png",
+        "frames/spire_thorn/002.png",
+        "frames/spire_thorn/003.png",
+        "frames/spire_thorn/004.png",
+        "frames/spire_thorn/005.png",
+        "frames/spire_thorn/006.png",
+        "frames/spire_thorn/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "spire_lead",
+      "name": "飾り鎧の殻",
+      "category": "enemy",
+      "source": "source/spire_lead.png",
+      "sheet": "sheets/spire_lead.png",
+      "frames": [
+        "frames/spire_lead/000.png",
+        "frames/spire_lead/001.png",
+        "frames/spire_lead/002.png",
+        "frames/spire_lead/003.png",
+        "frames/spire_lead/004.png",
+        "frames/spire_lead/005.png",
+        "frames/spire_lead/006.png",
+        "frames/spire_lead/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "spire_membrane",
+      "name": "塗りの膜",
+      "category": "enemy",
+      "source": "source/spire_membrane.png",
+      "sheet": "sheets/spire_membrane.png",
+      "frames": [
+        "frames/spire_membrane/000.png",
+        "frames/spire_membrane/001.png",
+        "frames/spire_membrane/002.png",
+        "frames/spire_membrane/003.png",
+        "frames/spire_membrane/004.png",
+        "frames/spire_membrane/005.png",
+        "frames/spire_membrane/006.png",
+        "frames/spire_membrane/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "veil_shade",
+      "name": "霞の影",
+      "category": "enemy",
+      "source": "source/veil_shade.png",
+      "sheet": "sheets/veil_shade.png",
+      "frames": [
+        "frames/veil_shade/000.png",
+        "frames/veil_shade/001.png",
+        "frames/veil_shade/002.png",
+        "frames/veil_shade/003.png",
+        "frames/veil_shade/004.png",
+        "frames/veil_shade/005.png",
+        "frames/veil_shade/006.png",
+        "frames/veil_shade/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "veil_thorn",
+      "name": "氷花の棘",
+      "category": "enemy",
+      "source": "source/veil_thorn.png",
+      "sheet": "sheets/veil_thorn.png",
+      "frames": [
+        "frames/veil_thorn/000.png",
+        "frames/veil_thorn/001.png",
+        "frames/veil_thorn/002.png",
+        "frames/veil_thorn/003.png",
+        "frames/veil_thorn/004.png",
+        "frames/veil_thorn/005.png",
+        "frames/veil_thorn/006.png",
+        "frames/veil_thorn/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "veil_lead",
+      "name": "曇り硝子の殻",
+      "category": "enemy",
+      "source": "source/veil_lead.png",
+      "sheet": "sheets/veil_lead.png",
+      "frames": [
+        "frames/veil_lead/000.png",
+        "frames/veil_lead/001.png",
+        "frames/veil_lead/002.png",
+        "frames/veil_lead/003.png",
+        "frames/veil_lead/004.png",
+        "frames/veil_lead/005.png",
+        "frames/veil_lead/006.png",
+        "frames/veil_lead/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
+          "loop": false
+        }
+      }
+    },
+    {
+      "id": "veil_membrane",
+      "name": "白磁の膜",
+      "category": "enemy",
+      "source": "source/veil_membrane.png",
+      "sheet": "sheets/veil_membrane.png",
+      "frames": [
+        "frames/veil_membrane/000.png",
+        "frames/veil_membrane/001.png",
+        "frames/veil_membrane/002.png",
+        "frames/veil_membrane/003.png",
+        "frames/veil_membrane/004.png",
+        "frames/veil_membrane/005.png",
+        "frames/veil_membrane/006.png",
+        "frames/veil_membrane/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          512,
+          512
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            7,
+            0,
+            1
+          ],
+          "durationsMs": [
+            520,
+            520,
+            420,
+            150
+          ],
+          "durationMs": 1610,
+          "loop": true
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            140,
+            90,
+            140,
+            90
+          ],
+          "durationMs": 460,
+          "loop": true
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            200,
+            180,
+            220,
+            400
+          ],
+          "durationMs": 1000,
+          "loop": false
+        },
+        "hurt": {
+          "name": "被弾",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            400
+          ],
+          "durationMs": 860,
           "loop": false
         }
       }

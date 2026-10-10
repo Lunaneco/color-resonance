@@ -1,6 +1,6 @@
-// 各国・町の「色」に合わせた敵のバリエーションと、戦場の雰囲気。
-// 絵は既存のスプライトを色替えして使い（art.js の tintedImage）、名前と一つの特性で戦い方を少し変える。
-// 特性は弱め・最大2〜3種の敵だけに付け、「なぜ強いか」が見た目と名前でわかるようにする。
+// 各国の敵は、土地ごとの姿（art）と名前と、一つの特性を持つ。
+// 絵が読めないときは、同じ種類の絵を土地の色へ染めて使う。
+// 床の仕掛けは国に一つ。虹に戻すと、潮流・燠・蔦・霞は凪ぐ。
 const Regions = (() => {
   // hue: 紫（影の炎）・桃（茨の棘）・金（鉛のひび）を、その土地の色へ回す角度
   const REGIONS = {
@@ -43,6 +43,74 @@ const Regions = (() => {
     drain: { name: '色吸い', desc: '命中すると共鳴を1奪う（敵の手番に2まで）' },
     mist: { name: '霞', desc: '攻撃が外れやすい（+12%）' },
   };
+  // 床の仕掛け。虹に戻した床は、潮流・燠・蔦・霞を止める。金膜は割れるまで残り、吸彩は虹で共鳴を返す。
+  const GIMMICKS = {
+    sea: { id: 'current', name: '潮流', desc: '虹でない潮流の上で手番を終えると、矢の向きへ1マス流される' },
+    hill: { id: 'ember', name: '燠床', desc: '敵の手番の始め、虹でない燠床の隣の素の床がくすむ' },
+    forest: { id: 'vine', name: '蔦床', desc: '虹でない蔦床で手番を終えると、次の自分の手番は移動できない' },
+    canyon: { id: 'film', name: '金膜', desc: 'この床に立っていると、最初の一撃が半分になり、膜は割れて消える' },
+    spire: { id: 'siphon', name: '吸彩', desc: '味方が虹でない吸彩で手番を終えると共鳴を1失う。虹に戻すと、共鳴が1戻る' },
+    veil: { id: 'mist', name: '霞床', desc: '虹でない霞床から攻撃すると外れやすい。背後からは届く' },
+  };
+  // 同じ国でも、戦場の並びで床の形を変える。序章の近くと端は空け、入り江の足場を塞がない。
+  function gimmickLayout(region, id, rows, cols) {
+    const g = GIMMICKS[region];
+    if (!g || rows < 4 || cols < 4) return [];
+    const list = (STAGES[region] || []).map(s => s.endsWith('*') ? s.slice(0, -1) : s);
+    const found = list.indexOf(id);
+    const pat = (found < 0 ? 0 : found) % 4;
+    const tiles = [];
+    const add = (r, c, dir = 0) => {
+      r = Math.round(r); c = Math.round(c);
+      if (r >= 1 && c >= 1 && r < rows - 1 && c < cols - 1) tiles.push({ r, c, dir });
+    };
+    const midR = Math.floor(rows / 2), midC = Math.floor(cols / 2);
+    const band = (r, dir) => { for (let c = 1; c < cols - 1; c++) add(r, c, dir); };
+    if (g.id === 'current') {
+      if (pat === 0) band(midR, 1);
+      else if (pat === 1) { band(Math.max(1, midR - 1), 1); band(Math.min(rows - 2, midR + 1), 3); }
+      else if (pat === 2) for (let r = 1; r < rows - 1; r++) add(r, midC, 2);
+      else {
+        for (let r = 1; r < rows - 1; r++) add(r, Math.max(1, midC - 1), 0);
+        for (let r = 1; r < rows - 1; r++) add(r, Math.min(cols - 2, midC + 1), 2);
+      }
+    } else if (g.id === 'vine') {
+      if (pat === 0) for (let c = 1; c < cols - 1; c++) if (c !== midC && c !== midC - 1) add(midR, c);
+      else if (pat === 1) {
+        for (let c = 1; c < cols - 1; c++) if (c < midC - 1 || c > midC + 1) add(midR, c);
+        for (let r = 1; r < rows - 1; r++) if (Math.abs(r - midR) > 1) add(r, Math.max(1, midC - 2));
+      } else if (pat === 2) {
+        for (let c = 1; c < cols - 1; c += 2) add(Math.max(1, midR - 1), c);
+        for (let c = 2; c < cols - 1; c += 2) add(Math.min(rows - 2, midR + 1), c);
+      } else for (let r = 1; r < rows - 2; r++) if (r !== midR) add(r, midC);
+    } else if (g.id === 'film') {
+      const colsA = pat === 1 ? [1] : pat === 2 ? [cols - 2] : pat === 3 ? [midC] : [1, cols - 2];
+      colsA.forEach(c => { for (let r = 1; r < rows - 2; r += 2) add(r, c); });
+      if (pat === 3) for (let c = 1; c < cols - 1; c += 2) add(midR, c);
+    } else if (g.id === 'siphon') {
+      if (pat % 2 === 0) for (let i = 1; i < Math.min(rows, cols) - 1; i++) add(i, i);
+      else {
+        for (let c = 1; c < cols - 1; c++) add(midR, c);
+        for (let r = 1; r < rows - 1; r++) if (r !== midR) add(r, midC);
+      }
+      if (pat >= 2) for (let c = 2; c < cols - 2; c += 3) add(Math.max(1, midR - 2), c);
+    } else {
+      const seeds = [
+        [[2, 2], [2, cols - 3], [midR, midC]],
+        [[1, midC], [3, 2], [midR, cols - 3]],
+        [[2, Math.max(1, midC - 2)], [midR, 2], [Math.min(rows - 3, midR + 1), cols - 3]],
+        [[1, 1], [1, cols - 2], [3, midC]],
+      ][pat];
+      seeds.forEach(([r, c]) => { add(r, c); add(r, c + (c < midC ? 1 : -1)); });
+    }
+    const seen = new Set(), homeC = Math.floor(cols * 0.45);
+    return tiles.filter(t => {
+      const k = t.r + ',' + t.c;
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return !(t.r >= rows - 3 && t.c >= homeC);
+    });
+  }
   // 戦場の雰囲気：同じ国の中でも、戦場ごとに天気・時間・光を変える
   const ATMOS = {
     sea: [
@@ -104,7 +172,7 @@ const Regions = (() => {
   const variant = (region, kind) => {
     const r = REGIONS[region];
     if (!r || !r.names[kind]) return null;
-    return { region, name: r.names[kind], tint: r.tint, trait: r.kinds.includes(kind) ? r.trait : null };
+    return { region, name: r.names[kind], tint: r.tint, trait: r.kinds.includes(kind) ? r.trait : null, art: region + '_' + kind };
   };
   // 登録済みの戦場へ雰囲気を反映する（読み込み時に一度だけ）
   function decorate() {
@@ -119,5 +187,5 @@ const Regions = (() => {
     }
   }
   decorate();
-  return { REGIONS, TRAITS, ATMOS, STAGES, of, variant, decorate, regionOf, atmosOf };
+  return { REGIONS, TRAITS, GIMMICKS, ATMOS, STAGES, of, variant, decorate, regionOf, atmosOf, gimmickLayout };
 })();

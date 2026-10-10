@@ -302,6 +302,24 @@ const Board = (() => {
       while (n-- > 0) { const c = pickOf(cells.filter(x => x.walk && x.floor === 'neutral' && dist(x, plan.aria) > 3)); if (!c) break; [c, ...nb4(c)].forEach(x => { if (x.floor === 'neutral') set(x, 'dull'); }); }
     }
   }
+  // 序章と終章には置かない。アリアの足元も空けて、最初の一歩を床の説明にしない。
+  function placeGimmicks(plan) {
+    if (!region || cfg.finale || cfg.tutorial || (cfg.map && cfg.map.gimmick === false) || typeof Regions === 'undefined' || !Regions.gimmickLayout) return;
+    const spec = Regions.GIMMICKS[region];
+    if (!spec) return;
+    const avoid = new Set(areaCells(plan.aria, 2).map(c => idx(c.r, c.c)));
+    for (const t of Regions.gimmickLayout(region, cfg.id, rows, cols)) {
+      const c = cellAt(t.r, t.c);
+      if (!c || !c.walk || avoid.has(idx(c.r, c.c)) || c.gimmick) continue;
+      c.gimmick = { id: spec.id, dir: t.dir || 0, cracked: false };
+    }
+  }
+  function gimmickCaption() {
+    const g = region && typeof Regions !== 'undefined' && Regions.GIMMICKS[region];
+    if (!g || !cells.some(c => c.gimmick)) return '';
+    return `床・${g.name}。${g.desc}`;
+  }
+  const gimmickQuiet = (c) => c && c.floor === 'rainbow' && c.gimmick && ['current', 'ember', 'vine', 'mist'].includes(c.gimmick.id);
 
   // ---------- 床を染める ----------
   function paint(c, f, delay = 0) {
@@ -580,6 +598,7 @@ const Board = (() => {
     if (area && area.has(id)) tint(x, y, '255,245,200', 0.28, 0.9);
     if (path && path.has(id)) { g.save(); g.fillStyle = 'rgba(230,245,255,.9)'; g.shadowColor = '#bfe3ff'; g.shadowBlur = 8; g.beginPath(); g.arc(x, y, Math.max(2.5, tw * 0.05), 0, 6.29); g.fill(); g.restore(); }
     if (hover === c && !busy && !over) { g.save(); diamond(x, y, tw * 0.96, th * 0.96); g.shadowColor = 'rgba(230,240,255,1)'; g.shadowBlur = 14; g.strokeStyle = 'rgba(235,245,255,.9)'; g.lineWidth = 2; g.stroke(); g.restore(); }
+    if (c.gimmick) drawGimmick(c, x, y, t);
     const warning = units.some(u => !u.dead && u.guardian && u.intent?.ids.has(id));
     if (warning) {
       const safe = c.floor === 'rainbow';
@@ -587,6 +606,61 @@ const Board = (() => {
       g.strokeStyle = safe ? '#83edca' : '#ffbb9c'; g.lineWidth = 1.8; g.setLineDash([4,3]); g.stroke(); g.setLineDash([]);
       g.font = `bold ${Math.max(8,tw*.18)}px sans-serif`; g.textAlign = 'center'; g.fillStyle = safe ? '#b1ffde' : '#ffe1c7'; g.fillText(safe ? '◇' : '!',x,y+tw*.055); g.restore();
     }
+  }
+  function drawGimmick(c, x, y, t) {
+    const gmk = c.gimmick;
+    if (!gmk) return;
+    const quiet = gimmickQuiet(c);
+    g.save();
+    g.lineJoin = 'round';
+    g.lineWidth = Math.max(1.4, tw * 0.035);
+    if (gmk.id === 'current' && !gmk.cracked) {
+      const [dr, dc] = DIRS[gmk.dir] || [0, 1];
+      const a = base(c.r, c.c), b = base(c.r + dr, c.c + dc);
+      let dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy) || 1;
+      dx /= L; dy /= L;
+      const len = tw * 0.2, px = x + dx * len * 0.1, py = y + dy * len * 0.1;
+      g.globalAlpha = quiet ? 0.28 : 0.95;
+      g.strokeStyle = quiet ? '#d7f7ff' : '#7ee7f2';
+      g.beginPath();
+      g.moveTo(px - dx * len + dy * len * 0.5, py - dy * len - dx * len * 0.5);
+      g.lineTo(px + dx * len * 0.2, py + dy * len * 0.2);
+      g.lineTo(px - dx * len - dy * len * 0.5, py - dy * len + dx * len * 0.5);
+      g.stroke();
+    } else if (gmk.id === 'ember') {
+      g.globalAlpha = quiet ? 0.22 : 0.55 + 0.2 * Math.sin(t * 3 + c.sd);
+      g.fillStyle = quiet ? '#ffd0bc' : '#ff7a45';
+      g.beginPath(); g.ellipse(x, y, tw * 0.16, th * 0.13, 0, 0, 6.29); g.fill();
+    } else if (gmk.id === 'vine') {
+      g.globalAlpha = quiet ? 0.28 : 0.9;
+      g.strokeStyle = quiet ? '#dff8df' : '#8ee09a';
+      g.beginPath(); g.ellipse(x, y, tw * 0.28, th * 0.2, 0.5, 0.4, 5.5); g.stroke();
+    } else if (gmk.id === 'film') {
+      g.globalAlpha = gmk.cracked ? 0.35 : 0.9;
+      g.strokeStyle = gmk.cracked ? 'rgba(255,220,140,.7)' : '#ffe08a';
+      g.beginPath(); g.ellipse(x, y, tw * (gmk.cracked ? 0.16 : 0.26), th * (gmk.cracked ? 0.12 : 0.2), 0, 0, 6.29); g.stroke();
+    } else if (gmk.id === 'siphon') {
+      const giving = c.floor === 'rainbow';
+      g.globalAlpha = 0.95;
+      g.strokeStyle = giving ? '#b7fff0' : '#d2b8ff';
+      g.beginPath(); g.moveTo(x, y - th * 0.2); g.lineTo(x + tw * 0.11, y); g.lineTo(x, y + th * 0.2); g.lineTo(x - tw * 0.11, y); g.closePath(); g.stroke();
+    } else if (gmk.id === 'mist') {
+      g.globalAlpha = quiet ? 0.12 : 0.22 + 0.06 * Math.sin(t + c.sd);
+      g.fillStyle = '#e7eeff';
+      g.beginPath(); g.ellipse(x, y, tw * 0.34, th * 0.26, 0, 0, 6.29); g.fill();
+    }
+    if (hover === c && region && Regions.GIMMICKS[region]) {
+      const label = Regions.GIMMICKS[region].name + (gmk.cracked ? '・割れ' : quiet ? '・凪' : c.floor === 'rainbow' && gmk.id === 'siphon' ? '・還る' : '');
+      g.globalAlpha = 1;
+      g.font = `600 ${Math.max(10, tw * 0.16)}px sans-serif`;
+      g.textAlign = 'center';
+      const w = g.measureText(label).width + 12, bh = Math.max(14, tw * 0.22);
+      g.fillStyle = 'rgba(8,14,28,.78)';
+      g.fillRect(x - w / 2, y - th * 1.05, w, bh);
+      g.fillStyle = '#f4fbff';
+      g.fillText(label, x, y - th * 1.05 + bh * 0.78);
+    }
+    g.restore();
   }
   function tint(x, y, col, a, sa, glow) {
     g.save(); diamond(x, y, tw * 0.9, th * 0.9);
@@ -653,15 +727,76 @@ const Board = (() => {
     }
     if (done) g.globalAlpha = alpha * 0.6;
     const flash = u.flash > now ? (u.flash - now) / 220 : 0;
-    if (GameArt.available(u.artId || u.kind)) drawGenerated(u, p, now, flash);
+    if (resolvedArt(u)) drawGenerated(u, p, now, flash);
     else if (u.kind === 'aria') drawAria(u, p.x, p.y, t, flash);
     else if (SPIRITS[u.kind]) drawSpirit(u, p.x, p.y, t, flash);
     else drawKegare(u, p.x, p.y, t, flash);
     g.restore();
   }
   function playMotion(u, action, rate = 1, offset = 0) { u.artMotion = { action, rate, offset, t0: performance.now() }; }
+  // 1枚絵の土地の敵・守り手・ヴァルドを、姿に合わせた動きで描く。足元を軸にする。
+  const POSE_STYLE = {
+    sea_shade: 'drip', sea_thorn: 'flare', sea_lead: 'heavy', sea_membrane: 'bobble',
+    hill_shade: 'ember', hill_thorn: 'flare', hill_lead: 'heavy', hill_membrane: 'hem',
+    forest_shade: 'hood', forest_thorn: 'vine', forest_lead: 'heavy', forest_membrane: 'cap',
+    canyon_shade: 'sand', canyon_thorn: 'reeds', canyon_lead: 'heavy', canyon_membrane: 'hem',
+    spire_shade: 'patch', spire_thorn: 'flare', spire_lead: 'gem', spire_membrane: 'hem',
+    veil_shade: 'mist', veil_thorn: 'flower', veil_lead: 'glass', veil_membrane: 'porcelain',
+    vard: 'bull',
+    guardian_tokinel: 'hop', guardian_nephra: 'slink', guardian_farol: 'wing', guardian_rivela: 'ribbon',
+    guardian_pomela: 'hop', guardian_folio: 'wing', guardian_fiamma: 'ember', guardian_lucerna: 'wing',
+    guardian_coronel: 'hood', guardian_aster: 'wing',
+  };
+  function spritePose(id, action, elapsed) {
+    const style = POSE_STYLE[id];
+    if (!style || reducedMotion()) return null;
+    const wave = (ms) => Math.sin(elapsed / ms * Math.PI * 2);
+    const walk = action === 'walk';
+    let rot = 0, sx = 1, sy = 1, ox = 0, oy = 0;
+    if (action === 'hurt') {
+      rot = style === 'vine' || style === 'reeds' ? -0.2 : -0.14;
+      return { rot, sx: 1.05, sy: 0.88, ox: -0.05, oy: 0.02 };
+    }
+    if (action === 'attack' || action === 'summon') {
+      const dur = GameArt.animation(id, action)?.durationMs || 1000;
+      const k = Math.min(1, Math.max(0, elapsed) / dur);
+      const swing = k < 0.4 ? -k / 0.4 : k < 0.7 ? -1 + (k - 0.4) / 0.3 * 2 : 1 - (k - 0.7) / 0.3;
+      const amp = { vine: 0.28, reeds: 0.24, flare: 0.2, wing: 0.22, ribbon: 0.2, hop: 0.16, bull: 0.1, heavy: 0.1, porcelain: 0.08 }[style] || 0.16;
+      rot = swing * amp;
+      sy = 1 - Math.max(0, -swing) * (style === 'heavy' || style === 'bull' ? 0.1 : 0.05);
+      sx = 1 + Math.max(0, swing) * (style === 'flare' || style === 'wing' || style === 'flower' ? 0.08 : 0.03);
+      oy = style === 'drip' || style === 'bobble' ? swing * 0.04 : style === 'hop' ? -Math.max(0, swing) * 0.08 : 0;
+      return { rot, sx, sy, ox: swing * 0.03, oy };
+    }
+    const s = wave(walk ? 420 : 1600);
+    const fast = wave(walk ? 210 : 700);
+    if (style === 'drip') { rot = s * (walk ? 0.1 : 0.045); sy = 1 + fast * (walk ? 0.07 : 0.035); oy = -Math.abs(fast) * (walk ? 0.05 : 0.02); }
+    else if (style === 'flare') { rot = s * (walk ? 0.12 : 0.05); sx = 1 + Math.abs(fast) * (walk ? 0.07 : 0.04); }
+    else if (style === 'heavy' || style === 'bull') { sy = 1 - Math.abs(fast) * (walk ? 0.08 : 0.03); rot = s * (walk ? 0.06 : 0.02); oy = Math.abs(fast) * (walk ? 0.03 : 0.01); }
+    else if (style === 'bobble') { oy = fast * (walk ? 0.08 : 0.045); rot = s * 0.04; }
+    else if (style === 'ember') { oy = -Math.abs(fast) * (walk ? 0.06 : 0.03); rot = s * (walk ? 0.08 : 0.04); sy = 1 + Math.abs(s) * 0.03; }
+    else if (style === 'hem') { rot = s * (walk ? 0.14 : 0.06); ox = fast * (walk ? 0.03 : 0.012); }
+    else if (style === 'hood' || style === 'mist') { rot = s * (walk ? 0.16 : 0.07); ox = fast * (style === 'mist' ? 0.04 : 0.02); }
+    else if (style === 'vine' || style === 'reeds') { rot = s * (walk ? 0.2 : 0.09); }
+    else if (style === 'cap') { oy = fast * (walk ? 0.06 : 0.035); rot = s * 0.04; sy = 1 - Math.abs(s) * 0.03; }
+    else if (style === 'sand') { ox = fast * (walk ? 0.05 : 0.02); rot = s * (walk ? 0.08 : 0.03); }
+    else if (style === 'flower') { sx = 1 + Math.abs(fast) * (walk ? 0.08 : 0.045); sy = 1 - Math.abs(fast) * 0.03; rot = s * 0.04; }
+    else if (style === 'glass') { sx = 1 + fast * 0.035; rot = s * (walk ? 0.07 : 0.025); }
+    else if (style === 'porcelain') { rot = s * (walk ? 0.06 : 0.025); sy = 1 - Math.abs(fast) * 0.02; }
+    else if (style === 'gem') { sy = 1 + Math.abs(fast) * (walk ? 0.05 : 0.03); rot = s * (walk ? 0.08 : 0.03); }
+    else if (style === 'patch') { rot = s * (walk ? 0.14 : 0.07); sx = 1 + Math.abs(fast) * 0.04; }
+    else if (style === 'hop') { oy = -Math.abs(fast) * (walk ? 0.1 : 0.045); rot = s * (walk ? 0.08 : 0.04); }
+    else if (style === 'slink') { ox = s * (walk ? 0.07 : 0.03); rot = s * (walk ? 0.1 : 0.04); sy = 1 - Math.abs(fast) * 0.04; }
+    else if (style === 'wing') { sx = 1 + Math.abs(fast) * (walk ? 0.1 : 0.06); rot = s * (walk ? 0.12 : 0.05); oy = -Math.abs(fast) * 0.02; }
+    else if (style === 'ribbon') { rot = s * (walk ? 0.18 : 0.08); ox = fast * 0.03; }
+    return { rot, sx, sy, ox, oy };
+  }
+  function resolvedArt(u) {
+    if (u.artId && GameArt.available(u.artId)) return u.artId;
+    return GameArt.available(u.kind) ? u.kind : null;
+  }
   function drawGenerated(u, p, now, flash) {
-    const artId = u.artId || u.kind;
+    const artId = resolvedArt(u) || u.kind;
     let action = u.mv ? 'walk' : 'idle', elapsed = now - (u.walkT || u.bornT || 0);
     const m = u.artMotion;
     if (m && (now - m.t0) * m.rate + m.offset < (GameArt.animation(artId, m.action)?.durationMs || 0)) {
@@ -681,12 +816,27 @@ const Board = (() => {
     const flip = artId === 'gran' ? dir === 0 || dir === 1 : dir === 2 || dir === 3;
     const height = tw * u.hgt, width = tw * (artId === 'gran' ? (u.guardian?1.6:1.25) : artId==='vard'?1.3:.98);
     g.save();
-    const bob = u.guardian && !reducedMotion() ? Math.sin(now/680+u.id)*tw*.025 : 0;
-    const artOptions={flip,...(u.guardian && u.kind !== 'chrome'?{tone:u.guardianPhase}:u.variant?{tint:u.variant.tint}:{})};
-    GameArt.drawMotion(g, artId, action, elapsed, p.x, p.y + th * .08 + bob, height, width, artOptions); g.restore();
+    const artOptions={flip,...(u.guardian && u.kind !== 'chrome'?{tone:u.guardianPhase}:artId===u.kind && u.variant?{tint:u.variant.tint}:{})};
+    const pose = spritePose(artId, action, elapsed);
+    const bob = !pose && u.guardian && !reducedMotion() ? Math.sin(now/680+u.id)*tw*.025 : 0;
+    if (pose) {
+      g.translate(p.x, p.y + th * .08);
+      g.rotate(pose.rot);
+      g.scale(pose.sx, pose.sy);
+      g.translate(pose.ox * tw, pose.oy * tw);
+      GameArt.drawMotion(g, artId, action, elapsed, 0, 0, height, width, artOptions);
+    } else GameArt.drawMotion(g, artId, action, elapsed, p.x, p.y + th * .08 + bob, height, width, artOptions);
+    g.restore();
     if (flash > 0) {
       g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha *= flash;
-      GameArt.drawMotion(g, artId, action, elapsed, p.x, p.y + th * .08, height, width, artOptions); g.restore();
+      if (pose) {
+        g.translate(p.x, p.y + th * .08);
+        g.rotate(pose.rot);
+        g.scale(pose.sx, pose.sy);
+        g.translate(pose.ox * tw, pose.oy * tw);
+        GameArt.drawMotion(g, artId, action, elapsed, 0, 0, height, width, artOptions);
+      } else GameArt.drawMotion(g, artId, action, elapsed, p.x, p.y + th * .08, height, width, artOptions);
+      g.restore();
     }
     if (u.armor > 0) { g.strokeStyle = 'rgba(200,210,225,.8)'; g.lineWidth = 2; g.beginPath(); g.ellipse(p.x, p.y - tw * .28, tw * .29, th * .3, 0, 0, 6.29); g.stroke(); }
   }
@@ -1137,7 +1287,7 @@ const Board = (() => {
     if (side === 'enemy' && cfg.enemyBoost) { s.mhp = Math.round(s.mhp * cfg.enemyBoost.hp); s.atk = Math.round(s.atk * cfg.enemyBoost.atk); }
     return Object.assign({
       id: uid++, kind, side, lv, r: cell.r, c: cell.c, hp: s.mhp, mhp: s.mhp, atk: s.atk, def: s.def, mov: G.mov + (ar ? GB.mov : 0), jump: G.jump + (ar ? GB.jump : 0), rng: G.rng, fly: !!G.fly, armor: G.armor || 0, hgt: G.h,
-      dir: side === 'ally' ? 0 : 2, moved: false, acted: false, normalAttacks: 0, root: 0, guard: 0, enchant: null, summon: 0, name: (v && v.name) || KIND_NAME[kind] || (SPIRITS[kind] && SPIRITS[kind].name) || kind, word: '', variant: v, trait: v ? v.trait : null,
+      dir: side === 'ally' ? 0 : 2, moved: false, acted: false, normalAttacks: 0, root: 0, guard: 0, enchant: null, summon: 0, name: (v && v.name) || KIND_NAME[kind] || (SPIRITS[kind] && SPIRITS[kind].name) || kind, word: '', variant: v, trait: v ? v.trait : null, artId: v && v.art ? v.art : null,
       flash: 0, lunge: null, knock: null, mv: null, dk: null, dieT: 0, bornT: performance.now(), hidden: false, dead: false,
     }, extra);
   }
@@ -1157,13 +1307,20 @@ const Board = (() => {
       Audio2.sfx.miss(); return { pass: true };
     }
     const res = calcDamage(a, d, opt);
-    const miss = !opt.sure && res.side !== 'back' && Math.random() < 0.05 + (d.kind === 'aria' ? GB.evade / 100 : 0) + (d.trait === 'mist' ? 0.12 : 0);
+    const mistFloor = cellOf(a);
+    const misty = !!(mistFloor && mistFloor.gimmick && mistFloor.gimmick.id === 'mist' && mistFloor.floor !== 'rainbow');
+    const miss = !opt.sure && res.side !== 'back' && Math.random() < 0.05 + (d.kind === 'aria' ? GB.evade / 100 : 0) + (d.trait === 'mist' ? 0.12 : 0) + (misty ? 0.12 : 0);
     const crit = !miss && !opt.noCrit && Math.random() < (res.side === 'back' ? 0.18 : 0.08) + (a.kind === 'aria' ? GB.crit / 100 : 0);
     if (a.side === 'ally' && !miss) { if (res.side === 'back') stats.back++; if (crit) stats.crit++; }
     const col = opt.col || '220,235,255';
     fxp.push({ k: 'slash', x: pd.x, y: pd.y - tw * d.hgt * 0.5, rot: -0.6 + (Math.random() - .5) * 0.5, life: 0, max: 0.42, col, len: crit ? 1.8 : 1.3 });
-    if (miss) { popNum(pd.x, pd.y - tw * d.hgt * 0.6, 'MISS', 'miss'); Audio2.sfx.miss(); d.knock = { t0: performance.now(), dx: tw * 0.25, dy: 0 }; return { miss: true }; }
+    if (miss) { popNum(pd.x, pd.y - tw * d.hgt * 0.6, 'MISS', 'miss'); if (misty) floatText(pd.x, pd.y - tw * d.hgt * 1.15, '霞', 'sys'); Audio2.sfx.miss(); d.knock = { t0: performance.now(), dx: tw * 0.25, dy: 0 }; return { miss: true }; }
     let dmg = res.dmg; if (crit) dmg = Math.round(dmg * 1.5);
+    const film = cellOf(d);
+    if (film && film.gimmick && film.gimmick.id === 'film' && !film.gimmick.cracked && d.trait !== 'plate') {
+      film.gimmick.cracked = true; dmg = Math.max(1, Math.round(dmg * 0.5));
+      floatText(pd.x, pd.y - tw * d.hgt * 1.2, '金膜が、割れた', 'sys');
+    }
     if (d.trait === 'plate' && !d.plateUsed) { d.plateUsed = true; dmg = Math.max(1, Math.round(dmg * 0.5)); floatText(pd.x, pd.y - tw * d.hgt * 1.2, '金の被膜', 'sys'); }
     if (d.guardian) dmg = GuardianCombat.damage(d.hp,d.mhp,d.guardianPhase,dmg);
     if (crit) { FX.flash('255,255,255', 0.55); shake(11); Audio2.sfx.crit(); popNum(pd.x, pd.y - tw * d.hgt - 26, 'CRITICAL!', 'critw'); }
