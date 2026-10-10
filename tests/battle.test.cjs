@@ -706,7 +706,7 @@ async function recordArt() {
     const draw=CanvasRenderingContext2D.prototype.drawImage;
     CanvasRenderingContext2D.prototype.drawImage=function(im,...args){
       if(im.src?.includes('/generated/sheets/')&&args.length===8&&(this.canvas.id==='boardCanvas'||this.canvas.dataset.art)){
-        const id=im.src.split('/').pop().replace('.png',''),cel=args[0]/288+args[1]/384*4;
+        const id=im.src.split('/').pop().split('?')[0].replace(/\.png$/,''),cel=Math.round(args[0]/args[2]+args[1]/args[3]*4);
         const key=`${this.canvas.id||this.canvas.dataset.art}:${id}:${cel}`;
         if(!window.artCels.includes(key))window.artCels.push(key);
       }
@@ -752,7 +752,7 @@ test('Each spirit has an animated enchant cut-in and no effect survives leaving 
 });
 
 test('Battle remains playable if a generated sprite sheet cannot load',async()=>{
-  await boot('cove',{width:390,height:844},{},async p=>p.route('**/assets/generated/sheets/aria.png',r=>r.abort()));
+  await boot('cove',{width:390,height:844},{},async p=>p.route(/\/assets\/generated\/sheets\/aria\.png/,r=>r.abort()));
   assert(!await page.evaluate(()=>GameArt.available('aria')));await fixture();await attack();
   await page.waitForFunction(()=>Board.__test.state().over);assert.equal(enemy(await state()),undefined);
 });
