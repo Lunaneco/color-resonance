@@ -117,6 +117,19 @@ for(const engine of ['chromium','webkit']){
       assert.match(await page.locator('.ui-facing').textContent(),/↗.*右上/);
     }
   }));
+  if (engine === 'chromium') test('dragging around the map turns the view without moving Aria', async () => session(engine, { width: 1440, height: 900 }, async page => {
+    await fixture(page);
+    const box = page.viewportSize(), cx = box.width / 2, cy = box.height / 2;
+    await page.mouse.move(cx + 180, cy);
+    await page.mouse.down();
+    await page.mouse.move(cx, cy + 180, { steps: 12 });
+    await page.mouse.move(cx - 180, cy, { steps: 12 });
+    await page.mouse.up();
+    const s = await state(page);
+    assert.ok(s.rotation >= 1 && s.rotation <= 3, 'A sweeping drag should turn the map');
+    assert.deepEqual([aria(s).r, aria(s).c], [3, 4]);
+    assert.equal(s.mode, 'selected');
+  }));
   test(`${engine}: each defeated summoned spirit locks both routes for later turns without spending resonance or training`,async()=>session(engine,{width:1440,height:900},async(page,viewport)=>{
     for(const id of ['gran','ivy','spinel','king']){
       await fixture(page);assert.deepEqual((await state(page)).fallen,[],'A new battle must clear the previous restriction');await page.evaluate(id=>Board.__viewQA.ally(id,2,3,{hp:1,mhp:1,def:0,until:4,summon:3}),id);

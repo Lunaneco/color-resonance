@@ -163,7 +163,7 @@ const Board = (() => {
   const cam = { z: 1, x: 0, y: 0, tz: 1, tx: 0, ty: 0 };
   const fxp = [];
   const artEffects = [];
-  let cutinCancel = null;
+  let cutinCancel = null, cutinToken = 0;
   let shakeAnimation = null;
   let t0 = performance.now(), running = false, sess = 0, renderFrame = null;
   let turn = 0, phase = 'player', stage = 1, busy = false, over = false, paused = false;
@@ -796,10 +796,10 @@ const Board = (() => {
     return GameArt.available(u.kind) ? u.kind : null;
   }
   function drawGenerated(u, p, now, flash) {
-    const artId = resolvedArt(u) || u.kind;
+    const baseId = resolvedArt(u) || u.kind;
     let action = u.mv ? 'walk' : 'idle', elapsed = now - (u.walkT || u.bornT || 0);
     const m = u.artMotion;
-    if (m && (now - m.t0) * m.rate + m.offset < (GameArt.animation(artId, m.action)?.durationMs || 0)) {
+    if (m && (now - m.t0) * m.rate + m.offset < (GameArt.animation(baseId, m.action)?.durationMs || 0)) {
       action = m.action; elapsed = (now - m.t0) * m.rate + m.offset;
     }
     if (u.resonance) {
@@ -813,7 +813,9 @@ const Board = (() => {
       g.strokeStyle = s.color; g.lineWidth = 2; g.beginPath(); g.ellipse(p.x, p.y, tw * .3, th * .3, 0, now / 500, now / 500 + 4.5); g.stroke();
     }
     const dir = viewDir(u.dir);
-    const flip = artId === 'gran' ? dir === 0 || dir === 1 : dir === 2 || dir === 3;
+    const facingId = u.kind === 'aria' ? 'aria_d' + dir : null;
+    const artId = facingId && GameArt.available(facingId) && GameArt.animation(facingId, action) ? facingId : baseId;
+    const flip = artId.startsWith('aria_d') ? false : artId === 'gran' ? dir === 0 || dir === 1 : dir === 2 || dir === 3;
     const height = tw * u.hgt, width = tw * (artId === 'gran' ? (u.guardian?1.6:1.25) : artId==='vard'?1.3:.98);
     g.save();
     const artOptions={flip,...(u.guardian && u.kind !== 'chrome'?{tone:u.guardianPhase}:artId===u.kind && u.variant?{tint:u.variant.tint}:{})};
@@ -1120,7 +1122,13 @@ const Board = (() => {
     await wait(520);
     later(() => { skillEl.className = ''; }, 700);
   }
+  function dismissCutin() {
+    cutinToken++;
+    cutinCancel?.(); cutinCancel = null;
+    cutinEl.className = '';
+  }
   async function cutIn(kind, id) {
+    cutinToken++;
     const s = SPIRITS[id];
     const generated = GameArt.available(kind === 'enchant' ? 'aria' : id);
     const art = generated ? '<canvas class="ci-generated" width="384" height="480" aria-label="技の発動"></canvas>' : kind === 'enchant'
@@ -1143,6 +1151,34 @@ const Board = (() => {
     await wait(320);
     cutinCancel?.(); cutinCancel = null;
     cutinEl.className = '';
+  }
+  // 攻撃の顔と、その向きの斬り。手番は止めず、次の演出が来たら消さない。
+  const SLASH_ROT = [-0.85, 0.7, 2.35, -2.45];
+  function attackCutIn(u, label) {
+    if (u.side !== 'ally') return;
+    const face = u.kind === 'aria' ? 'aria' : (u.artId && GameArt.available(u.artId) ? u.artId : (GameArt.available(u.kind) ? u.kind : null));
+    if (!face || !GameArt.available(face)) return;
+    const dir = viewDir(u.dir);
+    const motion = u.kind === 'aria' && GameArt.available('aria_d' + dir) ? 'aria_d' + dir : face;
+    const token = ++cutinToken;
+    const name = label || (u.kind === 'aria' ? '心剣' : (u.name || '攻撃'));
+    cutinEl.innerHTML = `<div class="ci-dim"></div><div class="ci-band"></div><div class="ci-face" style="background-image:url('assets/generated/frames/${face}/000.png')"></div><div class="ci-art"><canvas class="ci-generated" width="384" height="480" aria-label="攻撃"></canvas></div><div class="ci-text"><div class="ci-sub">斬撃</div><div class="ci-name">${name}</div></div>`;
+    cutinEl.style.setProperty('--c', '#b9dcff');
+    cutinEl.style.setProperty('--rgb', '150,200,255');
+    cutinEl.className = '';
+    void cutinEl.offsetWidth;
+    cutinEl.className = 'show attack' + (dir === 2 || dir === 3 ? ' left' : '');
+    cutinCancel?.();
+    cutinCancel = GameArt.available(motion) ? GameArt.mount(cutinEl.querySelector('canvas'), motion, 'attack', { rate: 1.35, once: true }) : null;
+    later(() => {
+      if (cutinToken !== token || !cutinEl.classList.contains('attack')) return;
+      cutinEl.className = 'out attack';
+      later(() => {
+        if (cutinToken !== token) return;
+        cutinCancel?.(); cutinCancel = null;
+        cutinEl.className = '';
+      }, 240);
+    }, reducedMotion() ? 420 : 780);
   }
 
   // ---------- 移動 ----------
@@ -1313,7 +1349,7 @@ const Board = (() => {
     const crit = !miss && !opt.noCrit && Math.random() < (res.side === 'back' ? 0.18 : 0.08) + (a.kind === 'aria' ? GB.crit / 100 : 0);
     if (a.side === 'ally' && !miss) { if (res.side === 'back') stats.back++; if (crit) stats.crit++; }
     const col = opt.col || '220,235,255';
-    fxp.push({ k: 'slash', x: pd.x, y: pd.y - tw * d.hgt * 0.5, rot: -0.6 + (Math.random() - .5) * 0.5, life: 0, max: 0.42, col, len: crit ? 1.8 : 1.3 });
+    fxp.push({ k: 'slash', x: pd.x, y: pd.y - tw * d.hgt * 0.5, rot: SLASH_ROT[viewDir(a.dir)], life: 0, max: 0.42, col, len: crit ? 1.8 : 1.3 });
     if (miss) { popNum(pd.x, pd.y - tw * d.hgt * 0.6, 'MISS', 'miss'); if (misty) floatText(pd.x, pd.y - tw * d.hgt * 1.15, '霞', 'sys'); Audio2.sfx.miss(); d.knock = { t0: performance.now(), dx: tw * 0.25, dy: 0 }; return { miss: true }; }
     let dmg = res.dmg; if (crit) dmg = Math.round(dmg * 1.5);
     const film = cellOf(d);
@@ -1364,12 +1400,15 @@ const Board = (() => {
     if (opt.skill) await skillBanner(opt.skill, opt.color);
     else await wait(160);
     if (my !== sess) return;
+    attackCutIn(a, opt.skill);
     const dx = pd.x - pa.x, dy = pd.y - pa.y, L = Math.hypot(dx, dy) || 1;
     const ranged = dist(cellOf(a), cellOf(d)) > 1;
     const reach = ranged ? tw * 0.18 : Math.min(L * 0.45, tw * 0.45);
+    const slashRot = SLASH_ROT[viewDir(a.dir)];
     playMotion(a, a.kind === 'chrome' ? 'wave' : 'attack', 2.5);
     a.lunge = { dx: dx / L * reach, dy: dy / L * reach, t0: performance.now(), dur: 360 };
     Audio2.sfx.sword();
+    fxp.push({ k: 'slash', x: pa.x + dx / L * reach * 0.45, y: pa.y - tw * a.hgt * 0.42, rot: slashRot, life: 0, max: 0.34, col: opt.col || (a.side === 'ally' ? '190,220,255' : '180,140,220'), len: 1.25 });
     if (ranged) fxp.push({ k: 'line', x: pa.x, y: pa.y - tw * a.hgt * 0.5, tx: pd.x, ty: pd.y - tw * d.hgt * 0.5, col: opt.col || (a.side === 'ally' ? '200,230,255' : '170,110,220'), life: 0, max: 0.5 });
     await wait(180);
     if (my !== sess) return;
@@ -2669,14 +2708,64 @@ const Board = (() => {
   });
   cv.addEventListener('mouseleave', () => { hover = null; });
   cv.addEventListener('contextmenu', e => e.preventDefault());
+  // マップの中心を回すドラッグで、90度ずつ視点をくるくる回す。短いタップは今まで通り床を選ぶ。
+  let spin = null;
+  const spinAngle = (x, y) => Math.atan2(y - H / 2, x - W / 2);
+  function trackSpin(x, y) {
+    if (!spin) return;
+    if (!spin.dragged && Math.hypot(x - spin.x, y - spin.y) < 16) return;
+    if (!spin.dragged) {
+      spin.dragged = true;
+      spin.angle = spinAngle(x, y);
+      cv.classList.add('turning');
+      return;
+    }
+    const angle = spinAngle(x, y);
+    let delta = angle - spin.angle;
+    if (delta > Math.PI) delta -= Math.PI * 2;
+    if (delta < -Math.PI) delta += Math.PI * 2;
+    spin.angle = angle;
+    spin.accum += delta;
+    const step = Math.PI / 2;
+    while (spin.accum >= step) { spin.accum -= step; rotateView(1); }
+    while (spin.accum <= -step) { spin.accum += step; rotateView(-1); }
+  }
+  function endSpin(x, y, click) {
+    if (!spin) return;
+    const dragged = spin.dragged;
+    spin = null;
+    cv.classList.remove('turning');
+    if (!dragged && click) onClick(pick(x, y));
+  }
   cv.addEventListener('mousedown', e => {
     if (!running) return;
     if (e.button === 2) { cancel(); return; }
-    if (e.button === 0) onClick(pick(e.clientX, e.clientY));
+    if (e.button !== 0) return;
+    spin = { id: 'mouse', x: e.clientX, y: e.clientY, angle: spinAngle(e.clientX, e.clientY), accum: 0, dragged: false };
   });
+  addEventListener('mousemove', e => { if (spin?.id === 'mouse') trackSpin(e.clientX, e.clientY); });
+  addEventListener('mouseup', e => { if (spin?.id === 'mouse' && e.button === 0) endSpin(e.clientX, e.clientY, true); });
   let touchCell = null;
-  cv.addEventListener('touchstart', e => { const t = e.touches[0]; touchCell = pick(t.clientX, t.clientY); hover = touchCell; const u = touchCell && unitAt(touchCell); if (u) showInfo(u); e.preventDefault(); }, { passive: false });
-  cv.addEventListener('touchend', e => { onClick(touchCell); e.preventDefault(); }, { passive: false });
+  cv.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+    touchCell = pick(t.clientX, t.clientY); hover = touchCell;
+    const u = touchCell && unitAt(touchCell); if (u) showInfo(u);
+    spin = { id: 'touch', x: t.clientX, y: t.clientY, angle: spinAngle(t.clientX, t.clientY), accum: 0, dragged: false };
+    e.preventDefault();
+  }, { passive: false });
+  addEventListener('touchmove', e => {
+    if (spin?.id !== 'touch') return;
+    const t = e.touches[0]; if (!t) return;
+    trackSpin(t.clientX, t.clientY);
+    if (spin?.dragged) e.preventDefault();
+  }, { passive: false });
+  cv.addEventListener('touchend', e => {
+    const dragged = spin?.id === 'touch' && spin.dragged;
+    if (spin?.id === 'touch') endSpin(0, 0, false);
+    e.preventDefault();
+    if (!dragged) onClick(touchCell);
+    touchCell = null;
+  }, { passive: false });
   addEventListener('keydown', e => {
     if (!running || Panel.isOpen() || paused || e.ctrlKey || e.altKey || e.metaKey || e.target.closest?.('input,textarea,select,[contenteditable="true"]')) return;
     if (['q', 'r', '0'].includes(e.key.toLowerCase())) { e.preventDefault(); if (!e.repeat) rotateView(e.key === '0' ? -viewRotation : e.key.toLowerCase() === 'q' ? -1 : 1); return; }
@@ -2723,7 +2812,7 @@ const Board = (() => {
     Panel.open('戦い方', `
       <h4>目的</h4>盤のどこかにいる<b>穢れの影</b>を、すべて心剣で切り分けてください。アリアが倒れると、やり直しになります。復興編はクロムも毎ターン操作でき、二人のどちらかが倒れると再挑戦です。
       <h4>動かし方</h4>味方に触れると、<b>光る床</b>が歩ける場所。床に触れると移動し、そのあとメニューが開きます。<br>動かずに行動したいときは、本人にもう一度触れるか「その場で行動」。届く敵に直接触れても攻撃できます。<br><b>待機は4方向から向きを選んで確定</b>。Esc／戻るで取り消しても行動は消費せず、移動も戻せます。方向キーで選び、Enterで確定できます。<br>右クリック／Esc／「選び直す」：戻る　E：ターン終了　A：攻撃　W：待機の向き選び
-      <h4>マップの回転</h4><b>↶／↷</b>ボタンで視点を左右に90度ずつ回転します。キーボードは<b>Q：左、R：右、0：初期の視点</b>。回転は移動や行動を使わず、位置・射程・正面／背後の判定はそのままです。移動や攻撃の演出中は回転できません。
+      <h4>マップの回転</h4>マップを<b>ドラッグしてくるくる回す</b>と、指の向きに合わせて視点が90度ずつ回ります。短いタップは今まで通り、床や人を選びます。<b>↶／↷</b>ボタンでも左右に90度ずつ回転します。キーボードは<b>Q：左、R：右、0：初期の視点</b>。回転は移動や行動を使わず、位置・射程・正面／背後の判定はそのままです。移動や攻撃の演出中は回転できません。
       <div class="tip-tiles"><div><span class="tip-rainbow-floor${cfg.inverted ? ' night' : ''}"><img src="assets/tiles/dark_land_flat.png" alt=""></span>${floorNames()[0]}の床（味方）</div><div><img src="assets/tiles/dark_land_flat.png" alt="">${floorNames()[1]}の床（穢れ）</div></div>
       <h4>床の割合と加護</h4>味方が歩いた床・攻撃した床は<b>虹色</b>に、穢れが立つ床は<b>くすみ</b>ます。盤全体の割合が<b>25%・45%・65%</b>を超えるたびに、その側の攻撃・守り・共鳴が強くなります（65%で毎ターン回復）。<br>自分の色の床に立つと攻撃+10%、相手の色の床では守り-10%。
       <h4>位置どり</h4>敵の足元の<b style="color:#ffd07a">橙の矢印が正面</b>、<b style="color:#81e7ff">青の二本線が背後</b>です。HPの横にも正面を向く矢印が表示されます。敵の情報欄では、選んだ味方の現在位置が正面・側面・背後のどれかを確認できます。<br>高い場所から打つと+15%。敵の<b>背後</b>から+25%（会心も出やすい）、側面から+10%。
@@ -2756,7 +2845,7 @@ const Board = (() => {
   function restart() {
     sess++;
     shakeAnimation?.cancel(); shakeAnimation = null;
-    artEffects.length = 0; cutinCancel?.(); cutinCancel = null;
+    artEffects.length = 0; dismissCutin();
     cancelPending();
     cfg = Progression.prepare(baseCfg, baseCfg.difficulty);
     cfg.onEvent = baseCfg.onEvent;
@@ -2815,7 +2904,7 @@ const Board = (() => {
     document.getElementById('pouch').style.visibility = 'hidden';
     $id('renoirBox').style.display = cfg.hideSide ? 'none' : '';
     endBtn.disabled = true;
-    bannerEl.className = ''; cutinEl.className = ''; skillEl.className = '';
+    bannerEl.className = ''; dismissCutin(); skillEl.className = '';
     buildSubject();
     layout();
     missionOpen = !screen.classList.contains('short') && !((cfg.guardian || cfg.finale) && screen.classList.contains('compact'));
@@ -2937,7 +3026,7 @@ const Board = (() => {
   function stop() {
     sess++; running = false; over = true;
     shakeAnimation?.cancel(); shakeAnimation = null;
-    artEffects.length = 0; cutinCancel?.(); cutinCancel = null;
+    artEffects.length = 0; dismissCutin();
     cancelAnimationFrame(renderFrame); renderFrame = null;
     cancelPending();
     screen.classList.add('hidden'); hideSay(); floatLayer.innerHTML = ''; hideMenu();
@@ -2947,7 +3036,7 @@ const Board = (() => {
   function end(won) {
     sess++;
     shakeAnimation?.cancel(); shakeAnimation = null;
-    artEffects.length = 0; cutinCancel?.(); cutinCancel = null;
+    artEffects.length = 0; dismissCutin();
     cancelAnimationFrame(renderFrame); renderFrame = null;
     cancelPending();
     running = false; screen.classList.add('hidden'); hideSay(); floatLayer.innerHTML = ''; hideMenu();

@@ -103,7 +103,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
 /* ---------- 共鳴盤 ---------- */
 #boardScreen{position:absolute;inset:0;z-index:10}
-#boardCanvas{position:absolute;inset:0;width:100%;height:100%;cursor:pointer}
+#boardCanvas{position:absolute;inset:0;width:100%;height:100%;cursor:pointer;touch-action:none}
+#boardCanvas.turning{cursor:grabbing}
 #boardSubject{position:absolute;inset:0;pointer-events:none;z-index:-1}
 #vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 55%,transparent 35%,rgba(0,0,0,.9) 100%);opacity:.2;transition:opacity .8s ease}
 #boardTop{position:absolute;top:16px;left:20px;right:20px;display:flex;align-items:center;gap:22px;pointer-events:none}
@@ -467,6 +468,20 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .ci-name{font-family:var(--mincho);font-weight:800;font-size:clamp(34px,6vw,60px);letter-spacing:.2em;color:#fff;text-shadow:0 0 24px rgba(var(--rgb),1),0 4px 20px rgba(0,0,0,.9)}
 .ci-skill{font-family:var(--mincho);font-size:clamp(16px,2.2vw,22px);letter-spacing:.3em;color:#fff;text-shadow:0 0 14px rgba(var(--rgb),1)}
 #cutin.enchant .ci-text{right:auto;left:8vw;text-align:left}
+#cutin.attack .ci-dim{background:linear-gradient(90deg,rgba(4,8,20,.55),rgba(4,8,20,.12) 46%,transparent 68%)}
+#cutin.attack.left .ci-dim{background:linear-gradient(270deg,rgba(4,8,20,.55),rgba(4,8,20,.12) 46%,transparent 68%)}
+#cutin.attack .ci-band{top:auto;bottom:14%;height:22%;animation-duration:.28s}
+#cutin.attack .ci-face{position:absolute;z-index:3;width:min(16vh,20vw);height:min(16vh,20vw);border-radius:50%;overflow:hidden;bottom:20%;left:5vw;border:2px solid rgba(var(--rgb),.9);background:center 36% / 240% auto no-repeat rgba(8,12,24,.8);box-shadow:0 8px 24px rgba(0,0,0,.45),0 0 18px rgba(var(--rgb),.55);animation:ciFace .4s cubic-bezier(.2,.8,.2,1)}
+#cutin.attack.left .ci-face{left:auto;right:4vw;animation-name:ciFaceL}
+#cutin.attack:has(.ci-generated) .ci-art{top:auto;bottom:12%;height:40%;left:14vw;right:auto;width:min(34vh,38vw);justify-content:flex-start}
+#cutin.attack.left:has(.ci-generated) .ci-art{left:auto;right:14vw;justify-content:flex-end}
+#cutin.attack:has(.ci-generated) .ci-text{bottom:24%;left:40vw;right:8vw;text-align:left}
+#cutin.attack.left:has(.ci-generated) .ci-text{left:8vw;right:40vw;text-align:right}
+#cutin.attack .ci-name{font-size:clamp(28px,4.4vw,46px)}
+#cutin.attack .ci-text{animation:ciTextFast .42s ease forwards}
+@keyframes ciTextFast{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes ciFace{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
+@keyframes ciFaceL{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
 @keyframes ciText{0%{opacity:0;transform:translateY(20px)}22%{opacity:0;transform:translateY(20px)}38%{opacity:1;transform:translateY(0)}85%{opacity:1}100%{opacity:0}}
 
 /* 数字 */

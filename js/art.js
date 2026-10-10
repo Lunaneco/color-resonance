@@ -4,7 +4,7 @@ const GameArt = (() => {
   const assets = new Map(), cache = new Map(), mounts = new WeakMap();
   const spiritEffects = { gran: 'gran_tide', ivy: 'ivy_vines', spinel: 'spinel_shield', king: 'king_prism', vard: 'crystal_slash', mari:'pray_heal' };
   const speakers = { アリア: 'aria', リラ: 'lila', 老漁師: 'fisher', ルミナ: 'lumina', 石の子: 'stone_child', 馨: 'kaoru', マリー: 'mari', グラン: 'gran', アイビー: 'ivy', スピネル: 'spinel', パレット王: 'king', クロム: 'chrome', ルノワール: 'renoir', アクロマ: 'achroma', ヴァルド: 'vard', 紅角のヴァルド: 'vard' };
-  const ready = fetch(ROOT + 'manifest.json?v=20261010-motion', { signal: AbortSignal.timeout(8000) })
+  const ready = fetch(ROOT + 'manifest.json?v=20261011-aria4', { signal: AbortSignal.timeout(8000) })
     .then(r => { if (!r.ok) throw new Error('art manifest'); return r.json(); })
     .then(m => m.assets.forEach(a => assets.set(a.id, a))).catch(() => {});
 
@@ -39,7 +39,7 @@ const GameArt = (() => {
           resolve(entry.image);
         };
         const timer = setTimeout(() => finish(false), 8000);
-        im.onload = () => finish(true); im.onerror = () => finish(false); im.src = ROOT + a.sheet + '?v=20261010-motion';
+        im.onload = () => finish(true); im.onerror = () => finish(false); im.src = ROOT + a.sheet + '?v=20261011-aria4';
       });
       cache.set(id, entry); return entry.promise;
     }));
@@ -137,7 +137,7 @@ const GameArt = (() => {
     const spirits = conf.spirits || [];
     const region = typeof Regions !== 'undefined' ? Regions.of(conf) : null;
     const regional = region ? ['shade', 'thorn', 'lead', 'membrane'].map(k => region + '_' + k) : [];
-    return load(['aria', 'renoir', ...(conf.enemies || []).map(e => e.kind), conf.bossArt, ...(conf.companion ? ['chrome_human'] : []), ...spirits,
+    return load(['aria', 'aria_d0', 'aria_d1', 'aria_d2', 'aria_d3', 'renoir', ...(conf.enemies || []).map(e => e.kind), conf.bossArt, ...(conf.companion ? ['chrome_human'] : []), ...spirits,
       'crystal_slash', 'pray_heal', 'night_sky', ...(conf.guardian ? Object.values(spiritEffects) : []), ...[...spirits, ...learnedSpirits].map(id => spiritEffects[id]),
       ...((conf.enemies || []).some(e => e.kind === 'chrome') ? ['chrome_wave'] : []), ...regional]);
   }

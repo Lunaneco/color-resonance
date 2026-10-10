@@ -11691,6 +11691,434 @@
           "loop": false
         }
       }
+    },
+    {
+      "id": "aria_d0",
+      "name": "アリア・右上",
+      "category": "ally",
+      "source": "source/aria_d0.png",
+      "sheet": "sheets/aria_d0.png",
+      "frames": [
+        "frames/aria_d0/000.png",
+        "frames/aria_d0/001.png",
+        "frames/aria_d0/002.png",
+        "frames/aria_d0/003.png",
+        "frames/aria_d0/004.png",
+        "frames/aria_d0/005.png",
+        "frames/aria_d0/006.png",
+        "frames/aria_d0/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          288,
+          384
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            1,
+            0
+          ],
+          "durationsMs": [
+            1100,
+            160,
+            900
+          ],
+          "loop": true,
+          "durationMs": 2160
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            100,
+            150,
+            100
+          ],
+          "loop": true,
+          "durationMs": 500
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            180,
+            600
+          ],
+          "loop": false,
+          "durationMs": 1240
+        },
+        "hurt": {
+          "name": "被ダメージ",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            180,
+            700
+          ],
+          "loop": false,
+          "durationMs": 1140
+        },
+        "cast": {
+          "name": "力の発動",
+          "sequence": [
+            0,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            720,
+            600
+          ],
+          "loop": false,
+          "durationMs": 1600
+        }
+      }
+    },
+    {
+      "id": "aria_d1",
+      "name": "アリア・右下",
+      "category": "ally",
+      "source": "source/aria_d1.png",
+      "sheet": "sheets/aria_d1.png",
+      "frames": [
+        "frames/aria_d1/000.png",
+        "frames/aria_d1/001.png",
+        "frames/aria_d1/002.png",
+        "frames/aria_d1/003.png",
+        "frames/aria_d1/004.png",
+        "frames/aria_d1/005.png",
+        "frames/aria_d1/006.png",
+        "frames/aria_d1/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          288,
+          384
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            1,
+            0
+          ],
+          "durationsMs": [
+            1100,
+            160,
+            900
+          ],
+          "loop": true,
+          "durationMs": 2160
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            100,
+            150,
+            100
+          ],
+          "loop": true,
+          "durationMs": 500
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            180,
+            600
+          ],
+          "loop": false,
+          "durationMs": 1240
+        },
+        "hurt": {
+          "name": "被ダメージ",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            180,
+            700
+          ],
+          "loop": false,
+          "durationMs": 1140
+        },
+        "cast": {
+          "name": "力の発動",
+          "sequence": [
+            0,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            720,
+            600
+          ],
+          "loop": false,
+          "durationMs": 1600
+        }
+      }
+    },
+    {
+      "id": "aria_d2",
+      "name": "アリア・左下",
+      "category": "ally",
+      "source": "source/aria_d2.png",
+      "sheet": "sheets/aria_d2.png",
+      "frames": [
+        "frames/aria_d2/000.png",
+        "frames/aria_d2/001.png",
+        "frames/aria_d2/002.png",
+        "frames/aria_d2/003.png",
+        "frames/aria_d2/004.png",
+        "frames/aria_d2/005.png",
+        "frames/aria_d2/006.png",
+        "frames/aria_d2/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          288,
+          384
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            1,
+            0
+          ],
+          "durationsMs": [
+            1100,
+            160,
+            900
+          ],
+          "loop": true,
+          "durationMs": 2160
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            100,
+            150,
+            100
+          ],
+          "loop": true,
+          "durationMs": 500
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            180,
+            600
+          ],
+          "loop": false,
+          "durationMs": 1240
+        },
+        "hurt": {
+          "name": "被ダメージ",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            180,
+            700
+          ],
+          "loop": false,
+          "durationMs": 1140
+        },
+        "cast": {
+          "name": "力の発動",
+          "sequence": [
+            0,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            720,
+            600
+          ],
+          "loop": false,
+          "durationMs": 1600
+        }
+      }
+    },
+    {
+      "id": "aria_d3",
+      "name": "アリア・左上",
+      "category": "ally",
+      "source": "source/aria_d3.png",
+      "sheet": "sheets/aria_d3.png",
+      "frames": [
+        "frames/aria_d3/000.png",
+        "frames/aria_d3/001.png",
+        "frames/aria_d3/002.png",
+        "frames/aria_d3/003.png",
+        "frames/aria_d3/004.png",
+        "frames/aria_d3/005.png",
+        "frames/aria_d3/006.png",
+        "frames/aria_d3/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          288,
+          384
+        ],
+        "order": "row-major"
+      },
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            1,
+            0
+          ],
+          "durationsMs": [
+            1100,
+            160,
+            900
+          ],
+          "loop": true,
+          "durationMs": 2160
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            100,
+            150,
+            100
+          ],
+          "loop": true,
+          "durationMs": 500
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            180,
+            600
+          ],
+          "loop": false,
+          "durationMs": 1240
+        },
+        "hurt": {
+          "name": "被ダメージ",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            180,
+            700
+          ],
+          "loop": false,
+          "durationMs": 1140
+        },
+        "cast": {
+          "name": "力の発動",
+          "sequence": [
+            0,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            720,
+            600
+          ],
+          "loop": false,
+          "durationMs": 1600
+        }
+      }
     }
   ]
 }
