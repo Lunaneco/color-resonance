@@ -473,7 +473,7 @@ const Board = (() => {
     const t = (now - t0) / 1000;
     if (reducedMotion()) cam.z = cam.tz = 1;
     if (viewAnim) {
-      const k = Math.min(1, (now - viewAnim.t0) / viewAnim.dur), e = k < .5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2;
+      const k = Math.max(0, Math.min(1, (now - viewAnim.t0) / viewAnim.dur)), e = k < .5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2;
       viewQ = k >= 1 ? viewRotation : viewAnim.from + (viewAnim.to - viewAnim.from) * e;
       if (k >= 1) viewAnim = null;
       updateOx(); orderCells(); showCompass();

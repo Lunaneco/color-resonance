@@ -18,7 +18,10 @@ const hook=`__viewQA: {
   pick(x,y){const c=pick(x,y);return c&&{r:c.r,c:c.c};},
   damage(){return calcDamage(ariaU(),units.find(u=>u.side==='enemy'),{normal:true},null,false);},
   command(k,arg){command(k,arg);},
-  refresh(){refreshHud();}
+  refresh(){refreshHud();},
+  // 回転の長さを、テストの側から伸ばす・すぐ終える（遅いCIでも、途中の状態を確かめられるように）
+  stretch(ms){if(viewAnim)viewAnim.dur=ms;},
+  finishTurn(){if(viewAnim)viewAnim.dur=1;}
 }, `;
 before(async()=>{
   const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp','.gif':'image/gif','.mp3':'audio/mpeg'};
@@ -144,12 +147,14 @@ for(const engine of ['chromium','webkit']){
       const btn = document.getElementById('rotateRight');
       btn.click();
       btn.click();   // 回っている途中の2回目は受け付けない
+      Board.__viewQA.stretch(8000);
       await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
       return Board.__viewQA.state();
     });
     assert.equal(mid.rotation, 1, 'the turn is committed at once, and a second press mid-turn is ignored');
     assert(mid.turning && mid.viewQ > 0 && mid.viewQ < 1, `the picture is part-way (${mid.viewQ})`);
     assert.notEqual(mid.compass, before, 'the compass is turning too');
+    await page.evaluate(() => Board.__viewQA.finishTurn());
     await page.waitForFunction(() => !Board.__viewQA.state().turning, null, { timeout: 3000 });
     const done = await state(page);
     assert.equal(done.rotation, 1);assert.equal(done.viewQ, 1);assert.match(done.compass, /135deg/);
