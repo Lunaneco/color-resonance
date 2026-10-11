@@ -158,7 +158,7 @@ for(const engine of ['chromium','webkit']){
     const round = await state(page);
     assert.equal(round.rotation, 0);assert.equal(round.viewQ, 0);
     assert.deepEqual([aria(round).r, aria(round).c], [3, 4]);
-  }, { }));
+  }, { reduceMotion: false }));   // 設定が空だと、ブラウザの「視差効果を減らす」に従う（CIのWebKitは減らす側）
   test(`${engine}: each defeated summoned spirit locks both routes for later turns without spending resonance or training`,async()=>session(engine,{width:1440,height:900},async(page,viewport)=>{
     for(const id of ['gran','ivy','spinel','king']){
       await fixture(page);assert.deepEqual((await state(page)).fallen,[],'A new battle must clear the previous restriction');await page.evaluate(id=>Board.__viewQA.ally(id,2,3,{hp:1,mhp:1,def:0,until:4,summon:3}),id);
