@@ -139,14 +139,17 @@ for(const engine of ['chromium','webkit']){
   test(`${engine}: with motion on, the view turns smoothly through the quarter and lands exactly on it, and the compass follows`, async () => session(engine, { width: 1440, height: 900 }, async page => {
     await fixture(page);
     const before = (await state(page)).compass;
-    await page.locator('#rotateRight').click();
-    await page.waitForTimeout(120);
-    let mid = await state(page);
-    assert.equal(mid.rotation, 1, 'the turn is committed at once');
+    // 押した直後の数フレームを、ページの中で続けて測る（CIの遅さで、回りきってしまわないように）
+    const mid = await page.evaluate(async () => {
+      const btn = document.getElementById('rotateRight');
+      btn.click();
+      btn.click();   // 回っている途中の2回目は受け付けない
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+      return Board.__viewQA.state();
+    });
+    assert.equal(mid.rotation, 1, 'the turn is committed at once, and a second press mid-turn is ignored');
     assert(mid.turning && mid.viewQ > 0 && mid.viewQ < 1, `the picture is part-way (${mid.viewQ})`);
     assert.notEqual(mid.compass, before, 'the compass is turning too');
-    // 途中の入力は受けず、もう一度押しても重ならない
-    await page.locator('#rotateRight').click({ force: true });
     await page.waitForFunction(() => !Board.__viewQA.state().turning, null, { timeout: 3000 });
     const done = await state(page);
     assert.equal(done.rotation, 1);assert.equal(done.viewQ, 1);assert.match(done.compass, /135deg/);
