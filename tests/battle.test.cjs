@@ -19,7 +19,8 @@ const hook = `__test: {
   addAlly(kind,r,c,extra={}) { const u=makeUnit(kind,'ally',1,cellAt(r,c),extra);units.push(u);refreshHud();return u.id; },
   command(k,arg) { command(k,arg); },
   damage(fromId,toId) { return calcDamage(units.find(u=>u.id===fromId),units.find(u=>u.id===toId),{},null,false); },
-  pick(x,y){const c=pick(x,y);return c&&{r:c.r,c:c.c};}
+  pick(x,y){const c=pick(x,y);return c&&{r:c.r,c:c.c};},
+  cast(id){const u=ariaU();const skill=learnedForBattle().find(s=>s.id===id);const foe=live().find(o=>o.side==='enemy'&&!o.dead);const cell=skill&&(skill.target==='ally'?cellOf(u):cellOf(foe||u));if(!skill||!cell)return null;sp=Math.max(sp,skill.cost);u.acted=false;return spiritSkill(u,skill,cell).then(()=>id);}
 },
 `;
 
@@ -727,6 +728,76 @@ test('All enemy types use their generated art and load only the current battle�
   for(const id of ['shade','thorn','lead','boss','membrane','chrome'])await drew(id,0);
   assert(!await page.evaluate(()=>GameArt.available('lila')),'Story characters should not delay battle loading');
   assert(await page.locator('#unitInfo .art-portrait').evaluate(e=>e.complete&&e.naturalWidth>0));
+});
+
+test('Attack cut-ins and stage effects follow the chosen attack', async () => {
+  await boot('cove', { width: 1440, height: 900 }, { cr_party: partyWithTraining(40) });
+  await fixture('cove', { spStart: 12 });
+  await recordArt();
+  await page.evaluate(() => Board.__test.arrange([{ kind: 'aria', r: 5, c: 4, atk: 18, moved: false, acted: false, normalAttacks: 0 }, { kind: 'shade', r: 4, c: 4, hp: 500, mhp: 500 }]));
+  const shown = (form, name, sub) => page.waitForFunction(({ form, name, sub }) => {
+    const el = document.querySelector('#cutin');
+    return el?.classList.contains('attack') && el.dataset.form === form && el.querySelector('.ci-name')?.textContent === name && el.querySelector('.ci-sub')?.textContent === sub;
+  }, { form, name, sub });
+  let cue = shown('sweep', '心剣', '斬撃');
+  await attack();
+  await cue;
+  await drewFx('crystal_slash');
+  await page.screenshot({ path: '/tmp/cr-cut-heart.png' });
+  await idle();
+  await page.evaluate(() => { window.artCels = []; Board.__test.arrange([{ kind: 'aria', moved: false, acted: false, normalAttacks: 0, enchant: { id: 'gran', turns: 3, from: 1 } }]); });
+  cue = shown('rings', '深碧の刃', '心剣');
+  await attack();
+  await cue;
+  await drewFx('gran_tide');
+  assert.equal(await page.locator('#cutin').evaluate(el => getComputedStyle(el).getPropertyValue('--c').trim()), '#3fb4c9');
+  await page.screenshot({ path: '/tmp/cr-cut-tide.png' });
+  await idle();
+  await page.evaluate(() => { window.artCels = []; Board.__test.arrange([{ kind: 'aria', moved: false, acted: false, normalAttacks: 0, enchant: null }]); });
+  cue = shown('bolt', '水鏡の矢', '魔法');
+  await openMenu();
+  await chooseLearned('gran_wave');
+  await clickUnit(enemy(await state()), true);
+  await cue;
+  await drewFx('gran_tide');
+  await page.screenshot({ path: '/tmp/cr-cut-wave.png' });
+  await idle();
+  await page.evaluate(() => { window.artCels = []; Board.__test.arrange([{ kind: 'aria', hp: 20, mhp: 99, moved: false, acted: false }]); });
+  cue = shown('bloom', '花守り', 'スキル');
+  await openMenu();
+  await chooseLearned('ivy_bloom');
+  await clickUnit(aria(await state()), true);
+  await cue;
+  await drewFx('ivy_vines');
+  await page.screenshot({ path: '/tmp/cr-cut-bloom.png' });
+});
+
+test('Every learned skill shows its own cut-in and a stage effect', { timeout: 180000 }, async () => {
+  const party = partyWithTraining(40);
+  for (const id of ['vard', 'mari']) party.spirits[id] = { lv: 1, exp: 0, bond: 40, uses: 0, training: { enchant: 40, summon: 40 } };
+  await boot('cove', { width: 1440, height: 900 }, { cr_party: party, cr_unlocked: ['prologue', 'act1', 'act2', 'act3', 'act4', 'act5', 'finale', 'epilogue', 'done', 'vardbond', 'maribond'] });
+  await fixture('cove', { spStart: 12, spirits: ['gran', 'ivy', 'spinel', 'king', 'vard', 'mari'] });
+  await recordArt();
+  await page.evaluate(() => Board.__test.arrange([{ kind: 'aria', atk: 8, hp: 40, mhp: 99, moved: false, acted: false }, { kind: 'shade', hp: 9000, mhp: 9000, armor: 0 }]));
+  const skills = await page.evaluate(() => Progression.skills.map(s => ({ id: s.id, name: s.name, type: s.type, spirit: s.spirit })));
+  const shots = new Set(['gran_mend', 'gran_tide', 'ivy_bind', 'spinel_break', 'king_prism', 'king_resonance', 'vard_roar', 'mari_feather']);
+  const seen = new Set();
+  for (const skill of skills) {
+    await page.evaluate(() => { window.artCels = []; });
+    const shown = page.waitForFunction(({ name, sub }) => {
+      const el = document.querySelector('#cutin');
+      return el?.classList.contains('attack') && el.querySelector('.ci-name')?.textContent === name && el.querySelector('.ci-sub')?.textContent === sub && el.dataset.form;
+    }, { name: skill.name, sub: skill.type });
+    const cast = page.evaluate(id => Board.__test.cast(id), skill.id);
+    await shown;
+    const form = await page.locator('#cutin').getAttribute('data-form');
+    assert.equal(seen.has(form), false, `${skill.id} should not reuse ${form}`);
+    seen.add(form);
+    if (shots.has(skill.id)) await page.screenshot({ path: `/tmp/cr-skill-${skill.id}.png` });
+    const fx = await page.evaluate(id => GameArt.spiritEffects[id], skill.spirit);
+    await drewFx(fx);
+    assert.equal(await cast, skill.id);
+  }
 });
 
 test('Walking, attacking, taking damage and the slash effect play on the game canvas',async()=>{

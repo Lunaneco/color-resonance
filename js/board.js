@@ -1030,6 +1030,127 @@ const Board = (() => {
   }
 
   // ---------- 粒子 ----------
+  function drawCast(p, k) {
+    const fade = Math.sin(Math.PI * Math.min(1, k));
+    const col = p.col || '190,220,255';
+    const R = p.rad || 48;
+    const hues = ['255,110,140', '255,176,70', '255,236,110', '110,220,150', '110,196,255', '176,140,255', '255,150,210'];
+    g.save();
+    g.translate(p.x, p.y);
+    g.globalCompositeOperation = 'lighter';
+    g.lineCap = 'round';
+    g.lineJoin = 'round';
+    const stroke = (alpha, w, c = col) => { g.strokeStyle = `rgba(${c},${alpha})`; g.lineWidth = Math.max(2, w * 1.4); };
+    const ring = (rx, ry, rot = 0) => { g.beginPath(); g.ellipse(0, 0, Math.max(1, rx), Math.max(1, ry), rot, 0, 6.29); g.stroke(); };
+    const ground = (scale = 1) => { g.fillStyle = `rgba(${col},${fade * 0.42})`; g.beginPath(); g.ellipse(0, 4, R * 0.72 * scale, R * 0.34 * scale, 0, 0, 6.29); g.fill(); };
+    const f = p.form;
+    ground(f === 'canvas' || f === 'embrace' || f === 'rush' ? 1.35 : 1);
+    if (f === 'bolt' || f === 'focus') {
+      g.rotate(p.ang || 0);
+      const t = Math.min(1, k * (f === 'focus' ? 3 : 2.2));
+      stroke(fade, f === 'focus' ? 2 : 5);
+      g.beginPath(); g.moveTo(-R * 0.2, 0); g.lineTo(-R * 0.2 + t * R * 1.8, 0); g.stroke();
+      if (f === 'bolt') {
+        g.fillStyle = `rgba(255,255,255,${fade})`;
+        const x = -R * 0.2 + t * R * 1.8;
+        g.beginPath(); g.moveTo(x + 8, 0); g.lineTo(x - 12, -8); g.lineTo(x - 12, 8); g.fill();
+      }
+    } else if (f === 'rings' || f === 'roar' || f === 'pool' || f === 'embrace') {
+      const n = f === 'roar' ? 2 : f === 'pool' ? 1 : f === 'embrace' ? 4 : 3;
+      for (let i = 0; i < n; i++) {
+        const t = f === 'pool' ? 0.55 + Math.sin(k * 6) * 0.08 : Math.max(0, Math.min(1, k * 1.5 - i * 0.12));
+        stroke((f === 'pool' ? 0.9 : 1 - t) * fade, f === 'roar' ? 9 : 3);
+        ring(R * (0.25 + t * (f === 'pool' ? 0.35 : 0.9)), R * 0.16 * (0.4 + t));
+      }
+      if (f === 'embrace') for (let i = 0; i < 6; i++) { g.fillStyle = `rgba(255,255,255,${fade})`; g.beginPath(); g.arc(Math.cos(i) * R * 0.3, -k * R * 0.8 - i * 4, 3, 0, 6.29); g.fill(); }
+    } else if (f === 'mist' || f === 'spark' || f === 'motes' || f === 'song') {
+      const n = f === 'song' ? 5 : f === 'spark' ? 14 : 10;
+      for (let i = 0; i < n; i++) {
+        const a = i / n * 6.28;
+        const rise = f === 'mist' ? k * 18 : -k * (f === 'song' ? R : R * 0.7);
+        const x = Math.cos(a + k) * R * (f === 'spark' ? k : 0.45);
+        const y = Math.sin(a) * R * 0.2 + rise;
+        g.fillStyle = `rgba(${f === 'song' ? hues[i % 7] : col},${fade})`;
+        g.beginPath();
+        if (f === 'song') g.ellipse(x, y, 4, 7, a, 0, 6.29);
+        else g.arc(x, y, f === 'spark' ? 2 + (1 - k) * 3 : 3, 0, 6.29);
+        g.fill();
+      }
+    } else if (f === 'vine' || f === 'grove' || f === 'breath' || f === 'waltz' || f === 'bloom' || f === 'sanctuary') {
+      const n = f === 'breath' ? 3 : f === 'grove' ? 5 : 6;
+      g.rotate(f === 'waltz' ? k * 4 : 0);
+      for (let i = 0; i < n; i++) {
+        const a = i / n * 6.28;
+        stroke(fade, f === 'grove' ? 4 : 2);
+        g.beginPath();
+        if (f === 'grove') { g.moveTo(Math.cos(a) * 8, 6); g.lineTo(Math.cos(a) * 8, -R * k); }
+        else if (f === 'vine') { g.arc(0, 0, R * (0.25 + k * 0.6), a, a + 1.1); }
+        else { g.ellipse(Math.cos(a) * R * (0.2 + k * 0.45), Math.sin(a) * R * 0.2 - (f === 'breath' ? k * 20 : 0), f === 'bloom' || f === 'sanctuary' ? 8 : 5, 14, a, 0, 6.29); }
+        g.stroke();
+      }
+      if (f === 'sanctuary') { stroke(fade, 3); ring(R * (0.4 + k * 0.4), R * 0.2); }
+    } else if (f === 'line' || f === 'flash' || f === 'spectrum' || f === 'glide') {
+      g.rotate(p.ang || 0);
+      const L = R * (f === 'flash' || f === 'spectrum' || f === 'glide' ? 1.8 : 1.15);
+      if (f === 'spectrum') hues.forEach((c, i) => { stroke(fade, 3, c); g.beginPath(); g.moveTo(-L, (i - 3) * 3); g.lineTo(L * k, (i - 3) * 3); g.stroke(); });
+      else { stroke(fade, f === 'flash' ? 2 : 6); g.beginPath(); g.moveTo(-L * 0.2, 0); g.lineTo(L * k, 0); g.stroke(); }
+    } else if (f === 'hex' || f === 'polish' || f === 'mantle') {
+      const rad = R * (f === 'polish' ? 0.45 : f === 'mantle' ? 0.7 : 0.6) * (0.7 + (f === 'polish' ? 0 : k) * 0.3);
+      stroke(0.95, f === 'mantle' ? 5 : 3);
+      g.beginPath();
+      if (f === 'mantle') g.ellipse(0, -R * 0.35, rad * 0.7, R * 0.85, 0, 0, 6.29);
+      else for (let i = 0; i < 6; i++) { const a = -Math.PI / 2 + i / 6 * 6.28; g.lineTo(Math.cos(a) * rad, Math.sin(a) * rad * 0.55); }
+      g.closePath(); g.stroke();
+    } else if (f === 'rays' || f === 'dawn') {
+      const n = f === 'dawn' ? 8 : 12;
+      for (let i = 0; i < n; i++) {
+        const a = -Math.PI / 2 + i / n * 6.28;
+        stroke(fade, 3);
+        g.beginPath(); g.moveTo(Math.cos(a) * R * 0.15, Math.sin(a) * R * 0.08); g.lineTo(Math.cos(a) * R * k, Math.sin(a) * R * 0.45 * k); g.stroke();
+      }
+      if (f === 'dawn') { stroke(fade, 4); ring(R * k * 0.7, R * k * 0.32); }
+    } else if (f === 'prism' || f === 'canvas' || f === 'resonance' || f === 'edge') {
+      if (f === 'canvas') hues.forEach((c, i) => { stroke(fade, 3, c); ring(R * (0.35 + k * 0.7), R * 0.16, i * 0.04); });
+      else if (f === 'resonance') for (let i = 0; i < 4; i++) { g.save(); g.rotate(i * 0.8 + k); stroke(fade, 5, hues[i]); g.beginPath(); g.moveTo(-R, 0); g.lineTo(R, 0); g.stroke(); g.restore(); }
+      else {
+        g.rotate(f === 'edge' ? (p.ang || 0) : k * 2);
+        hues.forEach((c, i) => { stroke(fade, f === 'edge' ? 4 : 3, c); g.beginPath(); g.arc(0, 0, R * (0.2 + i * 0.08) * (0.4 + k), -0.8, 0.8); g.stroke(); });
+      }
+    } else if (f === 'horn' || f === 'fury' || f === 'verdict' || f === 'sweep') {
+      g.rotate(p.ang || -0.6);
+      const n = f === 'fury' ? 2 : 1;
+      for (let i = 0; i < n; i++) {
+        stroke(fade, f === 'verdict' ? 8 : 5);
+        g.beginPath(); g.ellipse(0, i * 10, R * (f === 'verdict' ? 1.15 : 0.85) * (0.3 + k), 5 + 8 * fade, 0, 0, 6.29); g.stroke();
+      }
+    } else if (f === 'rush') {
+      stroke(fade, 6);
+      ring(R * (0.2 + k), R * 0.16 * (0.2 + k));
+      stroke(fade * 0.7, 2);
+      g.beginPath(); g.moveTo(-R * k, 6); g.lineTo(R * k, 6); g.stroke();
+    } else if (f === 'feather' || f === 'step' || f === 'breeze' || f === 'ringwind') {
+      const n = f === 'breeze' ? 8 : f === 'ringwind' ? 10 : 4;
+      for (let i = 0; i < n; i++) {
+        const a = i / n * 6.28 + (f === 'ringwind' ? k * 5 : 0);
+        const y = f === 'step' ? 0 : -k * R * 0.5;
+        stroke(fade, 2);
+        g.beginPath();
+        g.ellipse(Math.cos(a) * R * (f === 'step' ? k : 0.4), Math.sin(a) * R * 0.15 + y, Math.max(1, f === 'step' ? R * k : 14), 3, a, 0, 6.29);
+        g.stroke();
+      }
+    } else if (f === 'sky') {
+      for (let i = 0; i < 12; i++) {
+        const a = i / 12 * 6.28;
+        g.fillStyle = `rgba(240,245,255,${fade})`;
+        g.fillRect(Math.cos(a) * R * k - 1.5, Math.sin(a) * R * 0.45 * k - R * 0.2, 3, 3);
+      }
+    } else {
+      stroke(fade, 4);
+      g.rotate(p.ang || 0);
+      g.beginPath(); g.ellipse(0, 0, Math.max(1, R * (0.3 + k * 0.6)), 6, 0, 0, 6.29); g.stroke();
+    }
+    g.restore();
+  }
   function drawParticles() {
     for (let i = fxp.length - 1; i >= 0; i--) {
       const p = fxp[i];
@@ -1052,7 +1173,8 @@ const Board = (() => {
         g.fillStyle = 'rgba(10,8,16,.9)'; g.beginPath(); g.arc(x, y, 5 * (1 - k * 0.5), 0, 6.29); g.fill();
         g.strokeStyle = 'rgba(150,140,200,.5)'; g.stroke();
         if (k > 0.97 && !p.done) { p.done = 1; Renoir.gulp(); Audio2.sfx.absorb(); }
-      } else if (p.k === 'slash') {
+      } else if (p.k === 'cast') drawCast(p, k);
+      else if (p.k === 'slash') {
         g.save(); g.translate(p.x, p.y); g.rotate(p.rot || -0.6);
         const L = tw * (p.len || 1.3), a = 1 - k;
         const grd = g.createLinearGradient(-L, 0, L, 0);
@@ -1169,24 +1291,65 @@ const Board = (() => {
     cutinCancel?.(); cutinCancel = null;
     cutinEl.className = '';
   }
-  // 攻撃の顔と、その向きの斬り。手番は止めず、次の演出が来たら消さない。
+  // 選んだ攻撃ごとのカットと、盤上に出す形。
   const SLASH_ROT = [-0.85, 0.7, 2.35, -2.45];
-  function attackCutIn(u, label) {
-    if (u.side !== 'ally') return;
+  const SPIRIT_FORM = { gran: 'rings', ivy: 'vine', spinel: 'line', king: 'prism', vard: 'roar', mari: 'feather' };
+  const SKILL_FORM = {
+    gran_wave: 'bolt', gran_mend: 'motes', gran_tide: 'rings', gran_current: 'pool', gran_spray: 'mist', gran_ocean: 'embrace',
+    ivy_bind: 'vine', ivy_bloom: 'bloom', ivy_dance: 'waltz', ivy_renew: 'breath', ivy_grove: 'grove', ivy_sanctuary: 'sanctuary',
+    spinel_break: 'line', spinel_guard: 'hex', spinel_sun: 'rays', spinel_polish: 'polish', spinel_verdict: 'verdict', spinel_spark: 'spark',
+    king_prism: 'prism', king_canvas: 'canvas', king_resonance: 'resonance', king_edge: 'edge', king_mantle: 'mantle', king_spectrum: 'spectrum',
+    vard_horn: 'horn', vard_focus: 'focus', vard_edge: 'fury', vard_roar: 'roar', vard_rush: 'rush', vard_dawn: 'dawn',
+    mari_feather: 'feather', mari_step: 'step', mari_edge: 'glide', mari_breeze: 'breeze', mari_ring: 'ringwind', mari_song: 'song',
+  };
+  function spiritLook(id, name, sub, radius) {
+    const s = SPIRITS[id];
+    return { name, sub, color: s.color, rgb: s.rgb, art: GameArt.spiritEffects[id], form: SPIRIT_FORM[id] || 'sweep', action: 'attack', radius: radius || 0 };
+  }
+  function attackLook(u, opt = {}) {
+    if (opt.cast) return opt.cast;
+    if (u.side !== 'ally') return null;
+    if (opt.normal && u.enchant && SPIRITS[u.enchant.id]) return spiritLook(u.enchant.id, SPIRITS[u.enchant.id].enchant.name, '心剣', 1);
+    if (SPIRITS[u.kind]) return spiritLook(u.kind, u.name || SPIRITS[u.kind].name, '斬撃', 0);
+    if (u.kind === 'chrome_human') return { name: u.name || '攻撃', sub: '斬撃', color: '#e8eeff', rgb: '225,232,255', art: 'crystal_slash', form: 'sweep', action: 'attack', radius: 0 };
+    return { name: '心剣', sub: '斬撃', color: '#b9dcff', rgb: '150,200,255', art: 'crystal_slash', form: 'sweep', action: 'attack', radius: 0 };
+  }
+  function skillLook(skill) {
+    const s = SPIRITS[skill.spirit];
+    return { name: skill.name, sub: skill.type, color: s.color, rgb: s.rgb, art: GameArt.spiritEffects[skill.spirit], form: SKILL_FORM[skill.id] || 'sweep', action: skill.type === '技' ? 'attack' : 'cast', radius: skill.radius || 0, spread: Math.max(skill.radius || 0, skill.paint || 0) };
+  }
+  function stageCast(look, cell, from) {
+    if (!look || !cell) return;
+    const reach = look.spread || 0;
+    const spots = reach > 0 ? areaCells(cell, reach) : [cell];
+    const origin = from ? unitXY(from) : topOf(cell);
+    artEffect(look.art, cell, 1.55 + Math.min(1.35, reach * 0.4));
+    spots.forEach((c, i) => {
+      const p = topOf(c);
+      fxp.push({ k: 'cast', form: look.form, x: p.x, y: p.y, col: look.rgb, rad: tw * (c === cell ? 1.15 : 0.78), ang: Math.atan2(p.y - origin.y, p.x - origin.x), life: 0, max: ['hex', 'polish', 'mantle', 'sanctuary', 'pool'].includes(look.form) ? 1.2 : 0.98, delay: i * 0.035 });
+    });
+  }
+  function attackCutIn(u, look) {
+    if (!look || u.side !== 'ally') return;
     const face = u.kind === 'aria' ? 'aria' : (u.artId && GameArt.available(u.artId) ? u.artId : (GameArt.available(u.kind) ? u.kind : null));
     if (!face || !GameArt.available(face)) return;
     const dir = viewDir(u.dir);
-    const motion = u.kind === 'aria' && GameArt.available('aria_d' + dir) ? 'aria_d' + dir : face;
+    let motion = u.kind === 'aria' && GameArt.available('aria_d' + dir) ? 'aria_d' + dir : face;
+    let action = look.action || 'attack';
+    if (!GameArt.animation(motion, action)) {
+      if (u.kind === 'aria' && GameArt.animation('aria', action)) motion = 'aria';
+      else action = GameArt.animation(motion, 'attack') ? 'attack' : 'idle';
+    }
     const token = ++cutinToken;
-    const name = label || (u.kind === 'aria' ? '心剣' : (u.name || '攻撃'));
-    cutinEl.innerHTML = `<div class="ci-dim"></div><div class="ci-band"></div><div class="ci-face" style="background-image:url('assets/generated/frames/${face}/000.png')"></div><div class="ci-art"><canvas class="ci-generated" width="384" height="480" aria-label="攻撃"></canvas></div><div class="ci-text"><div class="ci-sub">斬撃</div><div class="ci-name">${name}</div></div>`;
-    cutinEl.style.setProperty('--c', '#b9dcff');
-    cutinEl.style.setProperty('--rgb', '150,200,255');
+    cutinEl.innerHTML = `<div class="ci-dim"></div><div class="ci-band"></div><div class="ci-face" style="background-image:url('assets/generated/frames/${face}/000.png')"></div><div class="ci-art"><canvas class="ci-generated" width="384" height="480" aria-label="${look.name}"></canvas></div><div class="ci-text"><div class="ci-sub">${look.sub}</div><div class="ci-name">${look.name}</div></div>`;
+    cutinEl.style.setProperty('--c', look.color);
+    cutinEl.style.setProperty('--rgb', look.rgb);
+    cutinEl.dataset.form = look.form;
     cutinEl.className = '';
     void cutinEl.offsetWidth;
     cutinEl.className = 'show attack' + (dir === 2 || dir === 3 ? ' left' : '');
     cutinCancel?.();
-    cutinCancel = GameArt.available(motion) ? GameArt.mount(cutinEl.querySelector('canvas'), motion, 'attack', { rate: 1.35, once: true }) : null;
+    cutinCancel = GameArt.available(motion) ? GameArt.mount(cutinEl.querySelector('canvas'), motion, action, { rate: action === 'attack' ? 1.35 : 1.15, once: true }) : null;
     later(() => {
       if (cutinToken !== token || !cutinEl.classList.contains('attack')) return;
       cutinEl.className = 'out attack';
@@ -1414,10 +1577,11 @@ const Board = (() => {
     focus((pa.x + pd.x) / 2, (pa.y + pd.y) / 2 - tw * 0.5, 1.18);
     const en = opt.normal && a.enchant ? SPIRITS[a.enchant.id] : null;
     if (en) { opt.col = en.rgb; opt.skill = opt.skill || en.enchant.name; opt.color = en.color; }
+    const look = attackLook(a, opt);
     if (opt.skill) await skillBanner(opt.skill, opt.color);
     else await wait(160);
     if (my !== sess) return;
-    attackCutIn(a, opt.skill);
+    if (look) { attackCutIn(a, look); stageCast(look, cellOf(d), a); }
     const dx = pd.x - pa.x, dy = pd.y - pa.y, L = Math.hypot(dx, dy) || 1;
     const ranged = dist(cellOf(a), cellOf(d)) > 1;
     const reach = ranged ? tw * 0.18 : Math.min(L * 0.45, tw * 0.45);
@@ -1430,12 +1594,7 @@ const Board = (() => {
     await wait(180);
     if (my !== sess) return;
     const r = strike(a, d, opt);
-    if (!r.miss) {
-      if (a.kind === 'chrome') artEffect('chrome_wave', cellOf(d), 2.3);
-      else if (en) artEffect(GameArt.spiritEffects[a.enchant.id], cellOf(d), 1.8);
-      else if (SPIRITS[a.kind]) artEffect(GameArt.spiritEffects[a.kind], cellOf(d), 1.2);
-      else if (a.kind === 'aria' || a.kind === 'chrome_human') artEffect('crystal_slash', cellOf(d), 1.1);
-    }
+    if (!r.miss && !look && a.kind === 'chrome') artEffect('chrome_wave', cellOf(d), 2.3);
     if (r.pass) { await wait(700); unfocus(); return 'phase0'; }
     if (!r.miss && a.side === 'ally') {
       if (SPIRITS[a.kind]) gainBond(a.kind, 1, true, a.until ? 'summon' : null);
@@ -1584,12 +1743,14 @@ const Board = (() => {
     focus((pa.x + end.x) / 2, (pa.y + end.y) / 2 - tw * 0.5, 1.15);
     await skillBanner('透明の一閃', '#e6f2ff');
     if (my !== sess) return;
+    const flashLook = { name: '透明の一閃', sub: '技', color: '#e6f2ff', rgb: '230,240,255', art: 'crystal_slash', form: 'flash', action: 'flash', radius: 1 };
+    attackCutIn(a, flashLook);
+    stageCast(flashLook, cell, a);
     a.lunge = { dx: (end.x - pa.x) * 0.3, dy: (end.y - pa.y) * 0.3, t0: performance.now(), dur: 380 };
     playMotion(a, 'flash', 2.5);
     Audio2.sfx.sword();
     fxp.push({ k: 'line', x: pa.x, y: pa.y - tw * 0.6, tx: end.x, ty: end.y - tw * 0.4, col: '230,240,255', life: 0, max: 0.6 });
     await wait(200);
-    artEffect('crystal_slash', cell, 2.1);
     line.forEach((c, i) => paint(c, 'rainbow', i * 80));
     const hit = [];
     for (const c of line) { const o = unitAt(c); if (o && foe(a, o)) { const r = strike(a, o, { power: 1.35, sure: true, col: '230,240,255' }); if (r.pass) { await wait(700); unfocus(); return 'phase0'; } hit.push(o); await wait(130); } }
@@ -1646,13 +1807,14 @@ const Board = (() => {
   async function spiritSkill(a, skill, cell) {
     const s = SPIRITS[skill.spirit], p = topOf(cell);
     face(a, cell); focus(p.x, p.y - tw * 0.5, 1.15);
+    const look = skillLook(skill);
     await skillBanner(skill.name, s.color);
-    playMotion(a, 'cast', 1.8, 280); artEffect(GameArt.spiritEffects[skill.spirit], cell, 1.6 + Math.min(1, (skill.radius || 0) * .3));
+    attackCutIn(a, look);
+    playMotion(a, look.action, 1.8, 280);
+    stageCast(look, cell, a);
     gainBond(skill.spirit, 2, true); stats.spiritUses++; stats.skillUses++;
     stats.skillBySpirit[skill.spirit] = (stats.skillBySpirit[skill.spirit] || 0) + 1;
     Audio2.sfx.skill();
-    fxp.push({ k: 'ring', x: p.x, y: p.y, r: tw * 0.2, grow: tw * (1.5 + (skill.radius || 0)), col: s.rgb, life: 0, max: 1, w: 4 });
-    fxp.push({ k: 'beam', x: p.x, y: p.y, col: s.rgb, w: 0.5, life: 0, max: 1 });
     paintArea(cell, skill.paint, 'rainbow', 60);
     const targets = live().filter(o => dist(o, cell) <= (skill.radius || 0) && (skill.target === 'ally' ? o.side === 'ally' : foe(a, o)));
     let damage = 0;
@@ -1689,7 +1851,10 @@ const Board = (() => {
     const p = topOf(cell);
     focus(p.x, p.y - tw * 0.4, 1.12);
     await skillBanner('小さな夜空', '#cfd8ff');
-    playMotion(a, 'cast', 1.8, 280); artEffect('night_sky', cell, 2.6);
+    const skyLook = { name: '小さな夜空', sub: '魔法', color: '#cfd8ff', rgb: '200,215,255', art: 'night_sky', form: 'sky', action: 'cast', radius: 2 };
+    attackCutIn(a, skyLook);
+    playMotion(a, 'cast', 1.8, 280);
+    stageCast(skyLook, cell, a);
     Audio2.sfx.star(3); Renoir.skyCast();
     for (let i = 0; i < 16; i++) fxp.push({ k: 'starburst', x: p.x, y: p.y - tw * 0.3, vx: Math.cos(i * 0.39) * 1.6, vy: Math.sin(i * 0.39) * 0.9, life: 0, max: 1.5 });
     paintArea(cell, 2, 'rainbow', 80);
@@ -1790,6 +1955,7 @@ const Board = (() => {
     else if (cmd === 'pray') areaCells(cell, 1).forEach(add);
     else if (cmd.startsWith('item:')) { const it = ITEMS[cmd.slice(5)]; if (it && it.paint) areaCells(cell, it.paint).forEach(add); else add(cell); }
     else if (cmd.startsWith('summon:')) { const id = cmd.slice(7); areaCells(cell, SPIRITS[id].summon.rad).forEach(add); }
+    else if (cmd.startsWith('skill:')) { const skill = learnedForBattle().find(s => s.id === cmd.slice(6)); areaCells(cell, Math.max(skill?.radius || 0, skill?.paint || 0)).forEach(add); }
     else add(cell);
     return s;
   }

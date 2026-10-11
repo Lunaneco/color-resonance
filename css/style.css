@@ -477,6 +477,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 #cutin.attack.left:has(.ci-generated) .ci-art{left:auto;right:14vw;justify-content:flex-end}
 #cutin.attack:has(.ci-generated) .ci-text{bottom:24%;left:40vw;right:8vw;text-align:left}
 #cutin.attack.left:has(.ci-generated) .ci-text{left:8vw;right:40vw;text-align:right}
+#cutin.attack .ci-sub{font-family:var(--mincho);letter-spacing:.28em;font-size:15px}
 #cutin.attack .ci-name{font-size:clamp(28px,4.4vw,46px)}
 #cutin.attack .ci-text{animation:ciTextFast .42s ease forwards}
 @keyframes ciTextFast{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
