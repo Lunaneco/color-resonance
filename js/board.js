@@ -157,7 +157,9 @@ const Board = (() => {
   // ---------- 状態 ----------
   let cfg = null, baseCfg = null, onDone = null;
   let cells = [], cellsFront = [], cellsOrder = [], cols = 0, rows = 0, units = [], uid = 1;
-  let viewRotation = 0;
+  // 視点はFFタクティクスと同じ。4方向のどれかへ90度ずつ回り、回るあいだだけ滑らかに動く。
+  // viewRotation は確定した向き（入力や向きの計算に使う）、viewQ は表示中の角度（90度を1とした小数）。
+  let viewRotation = 0, viewQ = 0, viewAnim = null;
   const defeatedSpirits = new Set();
   let tw = 80, th = 43, hStep = 18, ox = 0, oy = 0, W = 0, H = 0, dpr = 1;
   const cam = { z: 1, x: 0, y: 0, tz: 1, tx: 0, ty: 0 };
@@ -358,16 +360,25 @@ const Board = (() => {
     const span = (cols + rows) / 2;
     tw = Math.min(availW / span, availH / (span * 0.54 + 1.05), 116);
     th = tw * 0.54; hStep = th * 0.44;
-    ox = W / 2 + (viewRotation % 2 ? cols - rows : rows - cols) * tw / 4;
+    updateOx();
     oy = top + (availH - span * th) / 2 + th / 2 + tw * 0.62;
   }
+  // 縦長・横長の盤が回っても、盤の中心が画面の同じ場所に残るように
+  function updateOx() { const k = Math.sin(viewQ * Math.PI / 2) ** 2; ox = W / 2 + (rows - cols) * (1 - 2 * k) * tw / 4; }
+  const quarter = () => ((Math.round(viewQ) % 4) + 4) % 4;
   function viewCell(r, c) {
+    if (viewQ !== viewRotation) {
+      // 回っている途中：盤の中心を軸に、実際の角度で回す
+      const a = viewQ * Math.PI / 2, cs = Math.cos(a), sn = Math.sin(a), k = sn * sn;
+      const rc = (rows - 1) / 2, cc = (cols - 1) / 2, dr = r - rc, dc = c - cc;
+      return { r: dr * cs + dc * sn + rc * (1 - k) + cc * k, c: -dr * sn + dc * cs + cc * (1 - k) + rc * k };
+    }
     if (viewRotation === 1) return { r: c, c: rows - 1 - r };
     if (viewRotation === 2) return { r: rows - 1 - r, c: cols - 1 - c };
     if (viewRotation === 3) return { r: cols - 1 - c, c: r };
     return { r, c };
   }
-  const viewDir = dir => (dir + viewRotation) % 4;
+  const viewDir = dir => (dir + quarter()) % 4;
   const worldDir = dir => (dir - viewRotation + 4) % 4;
   const facingOf = dir => FACING[viewDir(dir)];
   const viewDepth = cell => { const p = viewCell(cell.r, cell.c); return p.r + p.c; };
@@ -461,6 +472,12 @@ const Board = (() => {
     if (!running) return;
     const t = (now - t0) / 1000;
     if (reducedMotion()) cam.z = cam.tz = 1;
+    if (viewAnim) {
+      const k = Math.min(1, (now - viewAnim.t0) / viewAnim.dur), e = k < .5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2;
+      viewQ = k >= 1 ? viewRotation : viewAnim.from + (viewAnim.to - viewAnim.from) * e;
+      if (k >= 1) viewAnim = null;
+      updateOx(); orderCells(); showCompass();
+    }
     cam.z += (cam.tz - cam.z) * 0.12; cam.x += (cam.tx - cam.x) * 0.12; cam.y += (cam.ty - cam.y) * 0.12;
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     g.clearRect(0, 0, W, H);
@@ -2708,40 +2725,29 @@ const Board = (() => {
   });
   cv.addEventListener('mouseleave', () => { hover = null; });
   cv.addEventListener('contextmenu', e => e.preventDefault());
-  // マップの中心を回すドラッグで、90度ずつ視点をくるくる回す。短いタップは今まで通り床を選ぶ。
+  // 盤を横へはらうと、視点が90度ずつ回る（FFタクティクスのL/Rと同じ。1回のはらいで1段）。
+  // 動かさずに離す短いタップは、今までどおり床や人を選ぶ。
   let spin = null;
-  const spinAngle = (x, y) => Math.atan2(y - H / 2, x - W / 2);
   function trackSpin(x, y) {
-    if (!spin) return;
-    if (!spin.dragged && Math.hypot(x - spin.x, y - spin.y) < 16) return;
-    if (!spin.dragged) {
-      spin.dragged = true;
-      spin.angle = spinAngle(x, y);
-      cv.classList.add('turning');
-      return;
-    }
-    const angle = spinAngle(x, y);
-    let delta = angle - spin.angle;
-    if (delta > Math.PI) delta -= Math.PI * 2;
-    if (delta < -Math.PI) delta += Math.PI * 2;
-    spin.angle = angle;
-    spin.accum += delta;
-    const step = Math.PI / 2;
-    while (spin.accum >= step) { spin.accum -= step; rotateView(1); }
-    while (spin.accum <= -step) { spin.accum += step; rotateView(-1); }
+    if (!spin || spin.dragged) return;
+    const dx = x - spin.x, dy = y - spin.y;
+    if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
+    spin.dragged = true;
+    cv.classList.add('turning');
+    rotateView(dx < 0 ? 1 : -1);   // 手前の角が、指と同じ向きへ動く
   }
   function endSpin(x, y, click) {
     if (!spin) return;
-    const dragged = spin.dragged;
+    const moved = spin.dragged || Math.hypot(x - spin.x, y - spin.y) > 16;
     spin = null;
     cv.classList.remove('turning');
-    if (!dragged && click) onClick(pick(x, y));
+    if (!moved && click) onClick(pick(x, y));
   }
   cv.addEventListener('mousedown', e => {
     if (!running) return;
     if (e.button === 2) { cancel(); return; }
     if (e.button !== 0) return;
-    spin = { id: 'mouse', x: e.clientX, y: e.clientY, angle: spinAngle(e.clientX, e.clientY), accum: 0, dragged: false };
+    spin = { id: 'mouse', x: e.clientX, y: e.clientY, dragged: false };
   });
   addEventListener('mousemove', e => { if (spin?.id === 'mouse') trackSpin(e.clientX, e.clientY); });
   addEventListener('mouseup', e => { if (spin?.id === 'mouse' && e.button === 0) endSpin(e.clientX, e.clientY, true); });
@@ -2750,7 +2756,7 @@ const Board = (() => {
     const t = e.touches[0];
     touchCell = pick(t.clientX, t.clientY); hover = touchCell;
     const u = touchCell && unitAt(touchCell); if (u) showInfo(u);
-    spin = { id: 'touch', x: t.clientX, y: t.clientY, angle: spinAngle(t.clientX, t.clientY), accum: 0, dragged: false };
+    spin = { id: 'touch', x: t.clientX, y: t.clientY, dragged: false };
     e.preventDefault();
   }, { passive: false });
   addEventListener('touchmove', e => {
@@ -2791,13 +2797,23 @@ const Board = (() => {
   $id('boardMenu').onclick = () => Main.gameMenu();
   $id('rotateLeft').onclick = () => rotateView(-1);
   $id('rotateRight').onclick = () => rotateView(1);
+  // FFタクティクスの羅針盤のように、いまの向きを小さな菱形で見せる
+  function showCompass() {
+    const el = $id('viewCompass'); if (!el) return;
+    el.style.transform = `rotate(${45 + viewQ * 90}deg)`;
+  }
   function rotateView(step) {
-    if (!running || busy || over || paused || Panel.isOpen()) return;
+    if (!running || busy || over || paused || viewAnim || Panel.isOpen()) return;
+    step = ((step % 4) + 4) % 4; if (step === 3) step = -1;
     const next = (viewRotation + step + 4) % 4;
     if (next === viewRotation) return;
     const active = document.activeElement;
     const focused = active.closest?.('#cmdMenu') ? { k: active.dataset.k, a: active.dataset.a } : null;
-    viewRotation = next; orderCells(); layout();
+    const from = viewQ;
+    viewRotation = next;
+    // 確定は一度に。見た目だけ、いまの角度から90度分を滑らかに回す（動きを減らす設定のときは、すぐに切り替える）
+    if (reducedMotion()) { viewQ = viewRotation; viewAnim = null; } else { viewAnim = { from, to: from + step, t0: performance.now(), dur: 320 }; }
+    orderCells(); layout(); showCompass();
     cam.z = cam.tz = 1; cam.x = cam.tx = cam.y = cam.ty = 0;
     hover = null; touchCell = null; fxp.length = 0; floatLayer.innerHTML = '';
     units.forEach(u => { u.lunge = u.knock = null; });
@@ -2812,7 +2828,7 @@ const Board = (() => {
     Panel.open('戦い方', `
       <h4>目的</h4>盤のどこかにいる<b>穢れの影</b>を、すべて心剣で切り分けてください。アリアが倒れると、やり直しになります。復興編はクロムも毎ターン操作でき、二人のどちらかが倒れると再挑戦です。
       <h4>動かし方</h4>味方に触れると、<b>光る床</b>が歩ける場所。床に触れると移動し、そのあとメニューが開きます。<br>動かずに行動したいときは、本人にもう一度触れるか「その場で行動」。届く敵に直接触れても攻撃できます。<br><b>待機は4方向から向きを選んで確定</b>。Esc／戻るで取り消しても行動は消費せず、移動も戻せます。方向キーで選び、Enterで確定できます。<br>右クリック／Esc／「選び直す」：戻る　E：ターン終了　A：攻撃　W：待機の向き選び
-      <h4>マップの回転</h4>マップを<b>ドラッグしてくるくる回す</b>と、指の向きに合わせて視点が90度ずつ回ります。短いタップは今まで通り、床や人を選びます。<b>↶／↷</b>ボタンでも左右に90度ずつ回転します。キーボードは<b>Q：左、R：右、0：初期の視点</b>。回転は移動や行動を使わず、位置・射程・正面／背後の判定はそのままです。移動や攻撃の演出中は回転できません。
+      <h4>マップの回転</h4>ファイナルファンタジータクティクスと同じく、視点は<b>90度ずつ、4方向</b>に回ります。<b>↶／↷</b>ボタン（キーボードは<b>Q：左、R：右、0：初期の視点</b>）か、盤を<b>横へはらう</b>と、盤が滑らかに回ります。ボタンの間の菱形は、いまの向きです（黄色い印が、元の「奥」の角）。短いタップは、今までどおり床や人を選びます。回転は移動や行動を使わず、位置・射程・正面／背後の判定はそのままです。移動や攻撃の演出中は回転できません。
       <div class="tip-tiles"><div><span class="tip-rainbow-floor${cfg.inverted ? ' night' : ''}"><img src="assets/tiles/dark_land_flat.png" alt=""></span>${floorNames()[0]}の床（味方）</div><div><img src="assets/tiles/dark_land_flat.png" alt="">${floorNames()[1]}の床（穢れ）</div></div>
       <h4>床の割合と加護</h4>味方が歩いた床・攻撃した床は<b>虹色</b>に、穢れが立つ床は<b>くすみ</b>ます。盤全体の割合が<b>25%・45%・65%</b>を超えるたびに、その側の攻撃・守り・共鳴が強くなります（65%で毎ターン回復）。<br>自分の色の床に立つと攻撃+10%、相手の色の床では守り-10%。
       <h4>位置どり</h4>敵の足元の<b style="color:#ffd07a">橙の矢印が正面</b>、<b style="color:#81e7ff">青の二本線が背後</b>です。HPの横にも正面を向く矢印が表示されます。敵の情報欄では、選んだ味方の現在位置が正面・側面・背後のどれかを確認できます。<br>高い場所から打つと+15%。敵の<b>背後</b>から+25%（会心も出やすい）、側面から+10%。
@@ -2853,7 +2869,7 @@ const Board = (() => {
     guardianHistory = [];
     screen.classList.toggle('guardian-battle',!!(cfg.guardian || cfg.finale));
     cols = cfg.cols; rows = cfg.rows;
-    viewRotation = 0; defeatedSpirits.clear(); renoirUsed = false;
+    viewRotation = 0; viewQ = 0; viewAnim = null; showCompass(); defeatedSpirits.clear(); renoirUsed = false;
     $id('boardView').setAttribute('aria-label', '戦闘マップの視点 · 表示角度0度');
     difficulty = cfg.difficulty;
     party = loadParty();

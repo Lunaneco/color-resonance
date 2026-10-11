@@ -3,6 +3,12 @@
 #boardView button{width:44px;min-height:44px;padding:0;border:1px solid #8dbfd055;border-radius:12px;background:linear-gradient(145deg,#2b465a,#15273d);color:#c5eef5;font:26px/1 sans-serif}
 #boardView button:hover:not(:disabled){border-color:#d2eff5;background:#355368}
 #boardView button:disabled{opacity:.3}
+#boardView{align-items:center}
+/* FFタクティクスの羅針盤のように、いまの向きを菱形で見せる。印の角が、元の「奥」の角 */
+#viewCompass{position:relative;display:block;flex:0 0 auto;width:18px;height:18px;margin:0 6px;border:1.5px solid #8dd0e0aa;background:linear-gradient(135deg,#2b465a99,#15273d99);box-shadow:0 0 8px #6fd0e855;transform:rotate(45deg)}
+#viewCompass::after{content:"";position:absolute;left:-4px;top:-4px;width:7px;height:7px;border-radius:50%;background:#ffe08a;box-shadow:0 0 6px #ffe08a}
+#boardCanvas.turning{cursor:grabbing}
+#boardScreen.compact.short #viewCompass{display:none}
 #boardScreen:not(.compact) #cmdBar{max-width:calc(100vw - 260px)}
 #boardScreen:not(.compact) #phaseLabel{white-space:normal;max-width:180px}
 #boardScreen.compact:not(.short) #cmdBar{left:6px;grid-template-columns:88px repeat(3,minmax(0,1fr))}

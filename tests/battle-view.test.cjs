@@ -8,7 +8,7 @@ let server,base,browsers;
 // Private command calls verify that disabled actions cannot bypass the rules.
 // No test API is included in the deployed game.
 const hook=`__viewQA: {
-  state(){return {running,busy,paused,over,phase,turn,mode,sp,rotation:viewRotation,down:stats?.down,uses:stats?.spiritUses,fallen:[...defeatedSpirits],
+  state(){return {running,busy,paused,over,phase,turn,mode,sp,rotation:viewRotation,viewQ,turning:!!viewAnim,compass:document.getElementById('viewCompass')?.style.transform,down:stats?.down,uses:stats?.spiritUses,fallen:[...defeatedSpirits],
     units:units.map(u=>({id:u.id,kind:u.kind,side:u.side,r:u.r,c:u.c,dir:u.dir,hp:u.hp,moved:u.moved,acted:u.acted,dead:u.dead,enchant:u.enchant,undo:!!u.undo,normalAttacks:u.normalAttacks,
       ...toScreen(unitXY(u).x,unitXY(u).y),bodyY:toScreen(unitXY(u).x,unitXY(u).y-tw*u.hgt*.5).y})),
     cells:cells.map((c,i)=>({id:i,r:c.r,c:c.c,floor:c.floor,...toScreen(topOf(c).x,topOf(c).y)})),ends:moveInfo?[...moveInfo.ends]:[],targets:targets?[...targets]:[]};},
@@ -31,10 +31,10 @@ before(async()=>{
   browsers={chromium:await chromium.launch(),webkit:await webkit.launch()};
 });
 after(async()=>{for(const b of Object.values(browsers||{}))await b.close();if(server)await new Promise(r=>server.close(r));});
-async function session(engine,viewport,run){
+async function session(engine,viewport,run,settings={reduceMotion:true}){
   const context=await browsers[engine].newContext({viewport,hasTouch:viewport.width<900}),page=await context.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.url().startsWith(base)&&r.status()>=400)errors.push(`${r.status()} ${r.url()}`);});
-  await context.addInitScript(()=>localStorage.setItem('cr_settings',JSON.stringify({reduceMotion:true})));
+  await context.addInitScript(s=>localStorage.setItem('cr_settings',JSON.stringify(s)),settings);
   const source=await fs.readFile(path.join(root,'js/board.js'),'utf8'),marker='    start, enterPhase1, help, stop,';
   assert(source.includes(marker));await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:source.replace(marker,hook+marker)}));
   await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({contentType:'text/css',body:''}));
@@ -117,19 +117,45 @@ for(const engine of ['chromium','webkit']){
       assert.match(await page.locator('.ui-facing').textContent(),/↗.*右上/);
     }
   }));
-  if (engine === 'chromium') test('dragging around the map turns the view without moving Aria', async () => session(engine, { width: 1440, height: 900 }, async page => {
+  if (engine === 'chromium') test('flicking the map sideways turns the view one 90-degree step at a time, like Final Fantasy Tactics, without moving Aria', async () => session(engine, { width: 1440, height: 900 }, async page => {
     await fixture(page);
-    const box = page.viewportSize(), cx = box.width / 2, cy = box.height / 2;
-    await page.mouse.move(cx + 180, cy);
-    await page.mouse.down();
-    await page.mouse.move(cx, cy + 180, { steps: 12 });
-    await page.mouse.move(cx - 180, cy, { steps: 12 });
-    await page.mouse.up();
-    const s = await state(page);
-    assert.ok(s.rotation >= 1 && s.rotation <= 3, 'A sweeping drag should turn the map');
+    const box = page.viewportSize(), cx = box.width / 2, y = box.height / 2 + 120;
+    const flick = async (from, to, dy = 0) => { await page.mouse.move(from, y); await page.mouse.down(); await page.mouse.move(to, y + dy, { steps: 8 }); await page.mouse.up(); };
+    await flick(cx + 100, cx - 100);
+    let s = await state(page);
+    assert.equal(s.rotation, 1, 'one flick is exactly one quarter turn');
+    await flick(cx - 100, cx + 100);
+    s = await state(page);
+    assert.equal(s.rotation, 0, 'flicking back returns to the first view');
+    await flick(cx, cx + 6, 160);
+    s = await state(page);
+    assert.equal(s.rotation, 0, 'a vertical drag does not turn the map');
     assert.deepEqual([aria(s).r, aria(s).c], [3, 4]);
     assert.equal(s.mode, 'selected');
+    await flick(cx + 300, cx - 300);
+    s = await state(page);
+    assert.equal(s.rotation, 1, 'a long sweep is still a single step');
   }));
+  test(`${engine}: with motion on, the view turns smoothly through the quarter and lands exactly on it, and the compass follows`, async () => session(engine, { width: 1440, height: 900 }, async page => {
+    await fixture(page);
+    const before = (await state(page)).compass;
+    await page.locator('#rotateRight').click();
+    await page.waitForTimeout(120);
+    let mid = await state(page);
+    assert.equal(mid.rotation, 1, 'the turn is committed at once');
+    assert(mid.turning && mid.viewQ > 0 && mid.viewQ < 1, `the picture is part-way (${mid.viewQ})`);
+    assert.notEqual(mid.compass, before, 'the compass is turning too');
+    // 途中の入力は受けず、もう一度押しても重ならない
+    await page.locator('#rotateRight').click({ force: true });
+    await page.waitForFunction(() => !Board.__viewQA.state().turning, null, { timeout: 3000 });
+    const done = await state(page);
+    assert.equal(done.rotation, 1);assert.equal(done.viewQ, 1);assert.match(done.compass, /135deg/);
+    // 4回で元の向き
+    for (let i = 0; i < 3; i++) { await page.locator('#rotateRight').click(); await page.waitForFunction(() => !Board.__viewQA.state().turning, null, { timeout: 3000 }); }
+    const round = await state(page);
+    assert.equal(round.rotation, 0);assert.equal(round.viewQ, 0);
+    assert.deepEqual([aria(round).r, aria(round).c], [3, 4]);
+  }, { }));
   test(`${engine}: each defeated summoned spirit locks both routes for later turns without spending resonance or training`,async()=>session(engine,{width:1440,height:900},async(page,viewport)=>{
     for(const id of ['gran','ivy','spinel','king']){
       await fixture(page);assert.deepEqual((await state(page)).fallen,[],'A new battle must clear the previous restriction');await page.evaluate(id=>Board.__viewQA.ally(id,2,3,{hp:1,mhp:1,def:0,until:4,summon:3}),id);
