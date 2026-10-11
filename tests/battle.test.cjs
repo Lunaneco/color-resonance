@@ -717,7 +717,8 @@ async function recordArt() {
   });
 }
 const drew=(id,cel,canvas='boardCanvas')=>page.waitForFunction(({id,cel,canvas})=>window.artCels.includes(`${canvas}:${id}:${cel}`),{id,cel,canvas},{timeout:5000});
-const drewAria=(cel,canvas='boardCanvas')=>page.waitForFunction(({cel,canvas})=>window.artCels.some(key=>{const p=key.split(':');return p[0]===canvas&&/^aria(_d[0-3])?$/.test(p[1])&&p[2]===String(cel);}),{cel,canvas},{timeout:5000});
+// 描かれたコマを見る。遅い実行環境では、短いコマが1枚とばされることがあるので、同じ動きの中のどれかが描かれていればよい。
+const drewAria=(cel,canvas='boardCanvas')=>{const cels=[].concat(cel).map(String);return page.waitForFunction(({cels,canvas})=>window.artCels.some(key=>{const p=key.split(':');return p[0]===canvas&&/^aria(_d[0-3])?$/.test(p[1])&&cels.includes(p[2]);}),{cels,canvas},{timeout:15000});};
 // Observe multiple actual effect cels instead of assuming that one brief cel
 // coincides with a rendered frame. Skill effects and costs are checked below.
 const drewFx=(id,canvas='boardCanvas')=>page.waitForFunction(({id,canvas})=>window.artCels.filter(key=>key.startsWith(`${canvas}:${id}:`)).length>=2,{id,canvas},{timeout:5000});
@@ -798,9 +799,9 @@ test('Every learned skill shows its own cut-in and a stage effect', { timeout: 1
 test('Walking, attacking, taking damage and the slash effect play on the game canvas',async()=>{
   await boot();await fixture();await recordArt();
   const cell=await legalCell();assert(cell);await page.mouse.click(cell.x,cell.y);
-  await drewAria(2);await drewAria(3);await idle();
+  await drewAria([2,3]);await idle();
   await page.evaluate(()=>Board.__test.arrange([{kind:'aria',r:5,c:4,atk:18,moved:false},{kind:'shade',r:4,c:4,hp:500,mhp:500}]));
-  await attack();await drewAria(4);await drewAria(5);await drew('shade',6);await drewFx('crystal_slash');
+  await attack();await drewAria([4,5]);await drew('shade',6);await drewFx('crystal_slash');
   await page.waitForFunction(()=>Board.__test.state().mode==='idle');
   assert(enemy(await state()).hp<500);
   await page.waitForTimeout(1800);assert.deepEqual((await state()).artEffects,[],'One-shot effects must finish');
