@@ -20,7 +20,8 @@ const hook = `__test: {
   command(k,arg) { command(k,arg); },
   damage(fromId,toId) { return calcDamage(units.find(u=>u.id===fromId),units.find(u=>u.id===toId),{},null,false); },
   pick(x,y){const c=pick(x,y);return c&&{r:c.r,c:c.c};},
-  cast(id){const u=ariaU();const skill=learnedForBattle().find(s=>s.id===id);const foe=live().find(o=>o.side==='enemy'&&!o.dead);const cell=skill&&(skill.target==='ally'?cellOf(u):cellOf(foe||u));if(!skill||!cell)return null;sp=Math.max(sp,skill.cost);u.acted=false;return spiritSkill(u,skill,cell).then(()=>id);}
+  cast(id){const u=ariaU();const skill=learnedForBattle().find(s=>s.id===id);const foe=live().find(o=>o.side==='enemy'&&!o.dead);const cell=skill&&(skill.target==='ally'?cellOf(u):cellOf(foe||u));if(!skill||!cell)return null;sp=Math.max(sp,skill.cost);u.acted=false;return spiritSkill(u,skill,cell).then(()=>id);},
+  hit(id){const a=ariaU();const d=units.find(u=>u.id===id);if(!a||!d)return null;return attack(a,d,{normal:true}).then(()=>id);}
 },
 `;
 
@@ -738,38 +739,32 @@ test('Attack cut-ins and stage effects follow the chosen attack', async () => {
   const shown = (form, name, sub) => page.waitForFunction(({ form, name, sub }) => {
     const el = document.querySelector('#cutin');
     return el?.classList.contains('attack') && el.dataset.form === form && el.querySelector('.ci-name')?.textContent === name && el.querySelector('.ci-sub')?.textContent === sub;
-  }, { form, name, sub });
+  }, { form, name, sub }, { timeout: 10000 });
+  const foe = async () => enemy(await state());
   let cue = shown('sweep', '心剣', '斬撃');
-  await attack();
+  let done = page.evaluate(id => Board.__test.hit(id), (await foe()).id);
   await cue;
   await drewFx('crystal_slash');
-  await page.screenshot({ path: '/tmp/cr-cut-heart.png' });
-  await idle();
-  await page.evaluate(() => { window.artCels = []; Board.__test.arrange([{ kind: 'aria', moved: false, acted: false, normalAttacks: 0, enchant: { id: 'gran', turns: 3, from: 1 } }]); });
+  assert.equal(await done, (await foe()).id);
+  await page.evaluate(() => { window.artCels = []; Board.__test.arrange([{ kind: 'aria', moved: false, acted: false, normalAttacks: 0, enchant: { id: 'gran', turns: 3, from: 1 } }, { kind: 'shade', hp: 500, mhp: 500 }]); });
   cue = shown('rings', '深碧の刃', '心剣');
-  await attack();
+  done = page.evaluate(id => Board.__test.hit(id), (await foe()).id);
   await cue;
   await drewFx('gran_tide');
   assert.equal(await page.locator('#cutin').evaluate(el => getComputedStyle(el).getPropertyValue('--c').trim()), '#3fb4c9');
-  await page.screenshot({ path: '/tmp/cr-cut-tide.png' });
-  await idle();
+  assert.equal(await done, (await foe()).id);
   await page.evaluate(() => { window.artCels = []; Board.__test.arrange([{ kind: 'aria', moved: false, acted: false, normalAttacks: 0, enchant: null }]); });
   cue = shown('bolt', '水鏡の矢', '魔法');
-  await openMenu();
-  await chooseLearned('gran_wave');
-  await clickUnit(enemy(await state()), true);
+  done = page.evaluate(id => Board.__test.cast(id), 'gran_wave');
   await cue;
   await drewFx('gran_tide');
-  await page.screenshot({ path: '/tmp/cr-cut-wave.png' });
-  await idle();
+  assert.equal(await done, 'gran_wave');
   await page.evaluate(() => { window.artCels = []; Board.__test.arrange([{ kind: 'aria', hp: 20, mhp: 99, moved: false, acted: false }]); });
   cue = shown('bloom', '花守り', 'スキル');
-  await openMenu();
-  await chooseLearned('ivy_bloom');
-  await clickUnit(aria(await state()), true);
+  done = page.evaluate(id => Board.__test.cast(id), 'ivy_bloom');
   await cue;
   await drewFx('ivy_vines');
-  await page.screenshot({ path: '/tmp/cr-cut-bloom.png' });
+  assert.equal(await done, 'ivy_bloom');
 });
 
 test('Every learned skill shows its own cut-in and a stage effect', { timeout: 180000 }, async () => {
