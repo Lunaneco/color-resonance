@@ -1,0 +1,298 @@
+/* スマホ縦画面。戦闘の操作は下の親指の届く帯に集め、盤の左右は空けておく。
+   横向き（.short）とPCはここを使わない。
+   カメラの余白は js/board.js の layout() と揃える。
+   下帯: 安全域6 + 操作76 + 隙4 + 精霊50 + 隙4 + 情報60 = 画面下から200px。 */
+
+#boardScreen.compact:not(.short){
+  --safe-t:max(6px,env(safe-area-inset-top));
+  --safe-b:max(6px,env(safe-area-inset-bottom));
+  --dock-bar:76px;
+  --dock-spirits:50px;
+  --dock-unit:60px;
+}
+
+#boardScreen.compact:not(.short)::before{
+  content:"";
+  position:absolute;
+  left:0;right:0;bottom:0;
+  height:210px;
+  pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(5,8,18,.55) 26%,rgba(5,8,18,.94));
+}
+
+/* 上段は1行。章名・床・ターン。ヘルプは右上の44px。 */
+#boardScreen.compact:not(.short) #boardTop{
+  top:var(--safe-t);
+  left:8px;
+  right:102px;
+  gap:6px;
+  flex-wrap:nowrap;
+  align-items:center;
+}
+#boardScreen.compact:not(.short) #boardTitle{flex:0 1 34%;min-width:0;max-width:38%}
+#boardScreen.compact:not(.short) .bt-act{font-size:9px;letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#boardScreen.compact:not(.short) .bt-name{font-size:14px;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#boardScreen.compact:not(.short) #floorBar{order:0;flex:1 1 auto;flex-basis:auto;max-width:none;min-width:0;padding:4px 8px;border-radius:12px}
+#boardScreen.compact:not(.short) .fb-row{gap:4px}
+#boardScreen.compact:not(.short) .fb-l{min-width:0;font-size:10px;letter-spacing:0}
+#boardScreen.compact:not(.short) .fb-l b{font-size:13px}
+#boardScreen.compact:not(.short) .fb-buff{display:none}
+#boardScreen.compact:not(.short) #kegareCount{flex:none;min-width:0;margin:0;padding:0;font-size:10px;letter-spacing:0;white-space:nowrap}
+#boardScreen.compact:not(.short) #kegareCount b{font-size:15px;margin:0 2px}
+#boardScreen.compact:not(.short) #boardHelp,
+#boardScreen.compact:not(.short) #boardMenu{
+  top:var(--safe-t);
+  bottom:auto;
+  width:44px;
+  height:44px;
+  z-index:8;
+}
+#boardScreen.compact:not(.short) #boardHelp{left:auto;right:56px}
+#boardScreen.compact:not(.short) #boardMenu{left:auto;right:8px}
+
+/* 共鳴とミッションは盤の右を塞がず、上のチップ列。閉じたときは1行。 */
+#boardScreen.compact:not(.short) #boardSide{
+  top:calc(var(--safe-t) + 48px);
+  left:8px;
+  right:8px;
+  width:auto;
+  max-height:none;
+  flex-direction:row;
+  align-items:stretch;
+  justify-content:flex-start;
+  gap:6px;
+  z-index:6;
+}
+#boardScreen.compact:not(.short) #resonance{flex:none;align-self:stretch;padding:0 12px;min-height:44px}
+#boardScreen.compact:not(.short) .rs-label{font-size:12px;letter-spacing:.12em}
+#boardScreen.compact:not(.short) .rs-val{font-size:20px}
+#boardScreen.compact:not(.short) #missionBox{
+  flex:1;
+  width:auto;
+  min-width:0;
+  min-height:44px;
+  max-height:44px;
+  margin:0;
+  padding:4px 10px;
+  overflow:hidden;
+}
+#boardScreen.compact:not(.short) #missionBox:not(.closed){max-height:min(168px,30vh);overflow:auto}
+#boardScreen.compact:not(.short) #missionBox .mb-h{margin:0;min-height:34px;align-items:center}
+#boardScreen.compact:not(.short) #missionBox.closed .mb-h::after{content:"見る";margin-left:8px;font-size:11px;letter-spacing:.12em;color:#d5e6ff}
+#boardScreen.guardian-battle.compact:not(.short) #guardianHud{
+  top:calc(var(--safe-t) + 48px);
+  left:8px;
+  right:8px;
+  width:auto;
+  transform:none;
+  z-index:6;
+  padding:4px 8px;
+}
+#boardScreen.guardian-battle.compact:not(.short) #boardSide{top:calc(var(--safe-t) + 100px)}
+
+/* 説明は上のチップの下。下の操作帯には被せない。 */
+#boardScreen.compact:not(.short) #hint{
+  top:calc(var(--safe-t) + 98px);
+  bottom:auto;
+  left:8px;
+  right:8px;
+  width:auto;
+  max-height:min(150px,28vh);
+  overflow-y:auto;
+  transform:none;
+  z-index:8;
+}
+#boardScreen.guardian-battle.compact:not(.short) #hint{top:calc(var(--safe-t) + 150px)}
+#boardScreen.compact:not(.short) #skillName{top:38%}
+
+/* 選択中のユニット。戦闘に必要な行だけ。 */
+#boardScreen.compact:not(.short) #unitInfo{
+  left:6px;
+  right:6px;
+  bottom:calc(var(--safe-b) + var(--dock-bar) + 4px + var(--dock-spirits) + 4px);
+  width:auto;
+  height:var(--dock-unit);
+  max-height:var(--dock-unit);
+  padding:4px 8px;
+  gap:8px;
+  overflow:hidden;
+  align-items:center;
+  z-index:6;
+  border-radius:14px;
+}
+#boardScreen.compact:not(.short) #unitInfo .ui-port{width:36px;height:36px}
+#boardScreen.compact:not(.short) #unitInfo .ui-word,
+#boardScreen.compact:not(.short) #unitInfo .ui-bar.exp,
+#boardScreen.compact:not(.short) #unitInfo .ui-tags,
+#boardScreen.compact:not(.short) #unitInfo .ui-trait,
+#boardScreen.compact:not(.short) #unitInfo .ui-fury{display:none}
+#boardScreen.compact:not(.short) #unitInfo .ui-main{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  grid-template-rows:16px 14px 16px;
+  gap:1px 8px;
+  align-items:center;
+}
+#boardScreen.compact:not(.short) #unitInfo .ui-top{grid-column:1;grid-row:1;min-width:0}
+#boardScreen.compact:not(.short) #unitInfo .ui-name{font-size:13px;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#boardScreen.compact:not(.short) #unitInfo .ui-lv b{font-size:16px}
+#boardScreen.compact:not(.short) #unitInfo .ui-facing{grid-column:2;grid-row:1;font-size:11px}
+#boardScreen.compact:not(.short) #unitInfo .ui-facing b{width:18px;height:18px;font-size:16px}
+#boardScreen.compact:not(.short) #unitInfo .ui-approach{grid-column:1/-1;grid-row:2;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#boardScreen.compact:not(.short) #unitInfo .ui-bar.hp{grid-column:1;grid-row:3;height:14px}
+#boardScreen.compact:not(.short) #unitInfo .ui-st{grid-column:2;grid-row:3;gap:6px;font-size:10px;flex-wrap:nowrap}
+#boardScreen.compact:not(.short) #unitInfo .ui-st b{font-size:13px;margin-left:2px}
+
+/* 精霊は縦の列ではなく、横に払って選ぶ。 */
+#boardScreen.compact:not(.short) #skills{
+  top:auto;
+  left:6px;
+  right:6px;
+  bottom:calc(var(--safe-b) + var(--dock-bar) + 4px);
+  width:auto;
+  height:var(--dock-spirits);
+  max-height:var(--dock-spirits);
+  display:flex;
+  flex-direction:row;
+  align-items:stretch;
+  gap:6px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  overscroll-behavior-x:contain;
+  touch-action:pan-x;
+  z-index:6;
+  padding:0 0 2px;
+  scrollbar-width:none;
+}
+#boardScreen.compact:not(.short) #skills .skill{
+  flex:0 0 auto;
+  width:auto;
+  min-width:118px;
+  max-width:168px;
+  height:46px;
+  min-height:46px;
+  padding:4px 10px 4px 36px;
+  overflow:hidden;
+  justify-content:center;
+}
+#boardScreen.compact:not(.short) #skills .skill.spirit .sk-n{font-size:13px;letter-spacing:.04em;white-space:nowrap}
+#boardScreen.compact:not(.short) #skills .skill.spirit .sk-c{display:none}
+#boardScreen.compact:not(.short) #skills .skill.spirit .sk-d,
+#boardScreen.compact:not(.short) #skills .skill.spirit.fallen .sk-d{
+  display:block;
+  font-size:10px;
+  line-height:1.2;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#boardScreen.compact:not(.short) #skills .sk-art{top:5px;width:26px;height:34px}
+#boardScreen.compact:not(.short) .battle-companion{min-width:132px}
+#boardScreen.compact:not(.short) .battle-companion small{display:block;font-size:10px;white-space:nowrap}
+
+/* 操作バー。案内1行 + 行動と回転。回転は上ではなく親指の位置。高さは76px。 */
+#boardScreen.compact:not(.short) #cmdBar{
+  left:6px;
+  right:6px;
+  bottom:var(--safe-b);
+  width:auto;
+  height:var(--dock-bar);
+  max-height:var(--dock-bar);
+  display:flex;
+  align-items:flex-end;
+  gap:4px;
+  padding:22px 4px 4px;
+  border-radius:18px;
+  z-index:8;
+}
+#boardScreen.compact:not(.short) #phaseLabel{
+  position:absolute;
+  top:3px;
+  left:8px;
+  right:8px;
+  height:16px;
+  min-height:0;
+  padding:0;
+  display:block;
+  font-size:11px;
+  line-height:16px;
+  letter-spacing:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  pointer-events:none;
+}
+#boardScreen.compact:not(.short) #cmdBar>.cb-b,
+#boardScreen.compact:not(.short) #endTurn{
+  flex:1 1 0;
+  width:auto;
+  min-width:0;
+  min-height:48px;
+  height:48px;
+  padding:4px 4px;
+  border-radius:12px;
+  font-size:13px;
+  line-height:1.15;
+  letter-spacing:.02em;
+}
+#boardScreen.compact:not(.short) #endTurn{background:linear-gradient(180deg,rgba(190,215,255,.32),rgba(190,215,255,.1))}
+#boardScreen.compact:not(.short) #boardView{
+  position:static;
+  top:auto;
+  right:auto;
+  flex:none;
+  height:48px;
+  gap:2px;
+}
+#boardScreen.compact:not(.short) #viewCompass{width:14px;height:14px;margin:0 1px}
+#boardScreen.compact:not(.short):has(#cmdMenu.facing:not(.hidden)) #cmdBar{display:none}
+
+/* 行動メニューは下から出る。ボタンは2列で、1つが指の幅。 */
+#boardScreen.compact:not(.short) #cmdMenu.sheet{
+  left:6px;
+  right:6px;
+  bottom:calc(var(--safe-b) + var(--dock-bar) + 6px);
+  width:auto;
+  max-height:min(420px,calc(100% - 168px));
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;
+  padding:8px;
+  z-index:9;
+  border-radius:16px;
+}
+#boardScreen.compact:not(.short) #cmdMenu.sheet .cm-b{
+  min-height:52px;
+  padding:10px 8px;
+  font-size:15px;
+  border-radius:12px;
+}
+/* 習得技は名前と効果文を読むので、1行を画面幅いっぱいにする。 */
+#boardScreen.compact:not(.short) #cmdMenu.sheet.learned{
+  grid-template-columns:minmax(0,1fr);
+}
+#boardScreen.compact:not(.short) #cmdMenu.sheet.learned .cm-learned{
+  min-height:52px;
+  text-align:left;
+  justify-content:flex-start;
+}
+#boardScreen.compact:not(.short) #cmdMenu.sheet.facing{
+  bottom:var(--safe-b);
+  max-height:calc(100% - 108px);
+  display:flex;
+  flex-direction:column;
+}
+#boardScreen.compact:not(.short) #cmdMenu.sheet.facing .cm-face{min-height:64px;min-width:0}
+#boardScreen.compact:not(.short) #cmdMenu.sheet.facing [data-k=back]{min-height:48px}
+
+/* 縦の地図・会話。ボタンは指の幅。 */
+@media(max-width:600px) and (orientation:portrait){
+  #wmTop{padding:8px}
+  .wm-btns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible;gap:6px}
+  .wm-btns button{min-height:44px;min-width:0;white-space:normal;line-height:1.25;padding:6px 4px;font-size:12px}
+  #wmViewport,#world:has(#wmPanel:not(.hidden)) #wmViewport{top:196px}
+  .wm-pan-note{top:auto;bottom:max(8px,env(safe-area-inset-bottom));left:0;right:0;text-align:center}
+  #tbButtons{top:-56px}
+  #tbButtons button{min-height:44px;padding:8px 12px;font-size:12px}
+  #choiceBox button{min-height:48px}
+  #textbox{bottom:max(10px,env(safe-area-inset-bottom))}
+}

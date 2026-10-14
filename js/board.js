@@ -100,7 +100,8 @@ const Board = (() => {
   const ROMAN = ['', 'Ⅰ', 'Ⅱ', 'Ⅲ'];
   const SP_MAX = 12, COST_SUMMON = 6, COST_ENCHANT = 3, COST_PRAY = 2;
   const spCap = () => SP_MAX + GB.spMax;
-  const flashCost = () => Math.max(1, 3 - GB.flashCost);
+  // 貫く技（line）だけ、透明の鞘などの共鳴軽減を受ける。
+  const skillPay = skill => Math.max(1, skill.cost - (skill.line ? GB.flashCost || 0 : 0));
 
   // ---------- 仲間の記録（LV） ----------
   const PARTY_KEY = 'cr_party';
@@ -354,7 +355,11 @@ const Board = (() => {
     const short = narrow && H <= 500 && W > H;
     screen.classList.toggle('compact', narrow);
     screen.classList.toggle('short', short);
-    const top = (narrow ? (short ? 74 : 128) : 96) + ((cfg.guardian || cfg.finale) && !short ? 44 : 0), bottom = narrow ? (short ? 70 : (cfg.guardian || cfg.finale) && H<600?180:200) : 84;
+    // 縦画面の余白は css/portrait.css の下帯（操作76+精霊50+情報60）と上のチップ列に合わせる。
+    const portrait = narrow && !short;
+    const bossBand = (cfg.guardian || cfg.finale) && !short;
+    const top = portrait ? (bossBand ? 156 : 100) : (narrow ? 74 : 96) + (bossBand ? 44 : 0);
+    const bottom = portrait ? 208 : (narrow ? 70 : 84);
     const availW = Math.max(80, narrow ? W - (short ? 340 : 12) : W - 60);
     const availH = Math.max(60, H - top - bottom);
     const span = (cols + rows) / 2;
@@ -1538,6 +1543,7 @@ const Board = (() => {
       floatText(pd.x, pd.y - tw * d.hgt * 1.2, '金膜が、割れた', 'sys');
     }
     if (d.trait === 'plate' && !d.plateUsed) { d.plateUsed = true; dmg = Math.max(1, Math.round(dmg * 0.5)); floatText(pd.x, pd.y - tw * d.hgt * 1.2, '金の被膜', 'sys'); }
+    if (d.plate > 0) { d.plate--; dmg = Math.max(1, Math.round(dmg * 0.5)); floatText(pd.x, pd.y - tw * d.hgt * 1.15, '金継ぎが、傷を受け止めた', 'sys'); }
     if (d.guardian) dmg = GuardianCombat.damage(d.hp,d.mhp,d.guardianPhase,dmg);
     if (crit) { FX.flash('255,255,255', 0.55); shake(11); Audio2.sfx.crit(); popNum(pd.x, pd.y - tw * d.hgt - 26, 'CRITICAL!', 'critw'); }
     else { Audio2.sfx.hit(); shake(4); }
@@ -1734,32 +1740,36 @@ const Board = (() => {
   }
 
   // ---------- 技 ----------
-  async function flashStrike(a, cell) {
-    const my = sess;
-    face(a, cell);
-    const v = [cell.r - a.r, cell.c - a.c];
-    const line = [cell, cellAt(cell.r + v[0], cell.c + v[1])].filter(Boolean);
-    const pa = unitXY(a), end = topOf(line[line.length - 1]);
-    focus((pa.x + end.x) / 2, (pa.y + end.y) / 2 - tw * 0.5, 1.15);
-    await skillBanner('透明の一閃', '#e6f2ff');
-    if (my !== sess) return;
-    const flashLook = { name: '透明の一閃', sub: '技', color: '#e6f2ff', rgb: '230,240,255', art: 'crystal_slash', form: 'flash', action: 'flash', radius: 1 };
-    attackCutIn(a, flashLook);
-    stageCast(flashLook, cell, a);
-    a.lunge = { dx: (end.x - pa.x) * 0.3, dy: (end.y - pa.y) * 0.3, t0: performance.now(), dur: 380 };
-    playMotion(a, 'flash', 2.5);
-    Audio2.sfx.sword();
-    fxp.push({ k: 'line', x: pa.x, y: pa.y - tw * 0.6, tx: end.x, ty: end.y - tw * 0.4, col: '230,240,255', life: 0, max: 0.6 });
-    await wait(200);
-    line.forEach((c, i) => paint(c, 'rainbow', i * 80));
-    const hit = [];
-    for (const c of line) { const o = unitAt(c); if (o && foe(a, o)) { const r = strike(a, o, { power: 1.35, sure: true, col: '230,240,255' }); if (r.pass) { await wait(700); unfocus(); return 'phase0'; } hit.push(o); await wait(130); } }
-    if (!hit.length) floatText(end.x, end.y - tw, '光だけが、床を澄ませた', 'sys');
-    if (hit.length >= 2) stats.flashMulti++;
-    refreshHud();
-    await wait(450);
-    for (const o of hit) if (o.hp <= 0 && !o.dead) await defeat(o, a);
-    unfocus(); await wait(150);
+  // 選んだマスの先を、使用者から見た方向へ n マス。壁と盤外で止まる。
+  function beyondCells(from, cell, n) {
+    const dr = Math.sign(cell.r - from.r), dc = Math.sign(cell.c - from.c);
+    if ((!dr && !dc) || !n) return [];
+    const out = [];
+    for (let i = 1; i <= n; i++) {
+      const c = cellAt(cell.r + dr * i, cell.c + dc * i);
+      if (!c || !c.walk) break;
+      out.push(c);
+    }
+    return out;
+  }
+  function giveWind(o, n) {
+    if (!o || !n) return;
+    o.windTurns = Math.max(o.windTurns || 0, n);
+    o.windFrom = turn;
+  }
+  async function shoveFrom(a, d) {
+    if (!d || d.dead || d.hp <= 0) return;
+    const dc = cellOf(d);
+    const dr = Math.sign(d.r - a.r), dcc = Math.sign(d.c - a.c);
+    const v = Math.abs(d.r - a.r) >= Math.abs(d.c - a.c) ? [dr, 0] : [0, dcc];
+    if (!v[0] && !v[1]) return;
+    const n = cellAt(d.r + v[0], d.c + v[1]);
+    if (!(n && n.walk && !unitAt(n) && Math.abs(n.h - dc.h) <= 1)) return;
+    const from = topOf(dc), to = topOf(n);
+    d.dk = viewDepth(n) >= viewDepth(dc) ? idx(n.r, n.c) : idx(dc.r, dc.c);
+    await tween(180, k => { d.mv = { x: from.x + (to.x - from.x) * k, y: from.y + (to.y - from.y) * k }; });
+    d.r = n.r; d.c = n.c; d.mv = null; d.dk = null;
+    floatText(to.x, to.y - tw, '押し流した', 'sys');
   }
   function doRenoir(u) { return runTask((async () => {
     const my = sess; busy = true; hideMenu(); endBtn.disabled = true;
@@ -1788,7 +1798,7 @@ const Board = (() => {
   async function pray(a, target) {
     const p = unitXY(target);
     focus(p.x, p.y - tw * 0.5, 1.12);
-    await skillBanner(a.kind === 'chrome_human' ? '夜の祈り' : '凪の祈り', '#bfffd6');
+    await skillBanner('夜の祈り', '#bfffd6');
     playMotion(a, 'pray', 2, 500); artEffect('pray_heal', cellOf(target), 1.6);
     Audio2.sfx.heal();
     fxp.push({ k: 'beam', x: p.x, y: p.y, col: '170,255,210', w: 0.5, life: 0, max: 1.1 });
@@ -1815,25 +1825,58 @@ const Board = (() => {
     gainBond(skill.spirit, 2, true); stats.spiritUses++; stats.skillUses++;
     stats.skillBySpirit[skill.spirit] = (stats.skillBySpirit[skill.spirit] || 0) + 1;
     Audio2.sfx.skill();
+    const rainbowBefore = skill.rainbow ? new Set(cells.filter(c => c.floor === 'rainbow').map(c => idx(c.r, c.c))) : null;
     paintArea(cell, skill.paint, 'rainbow', 60);
-    const targets = live().filter(o => dist(o, cell) <= (skill.radius || 0) && (skill.target === 'ally' ? o.side === 'ally' : foe(a, o)));
-    let damage = 0;
-    for (const o of targets) {
-      if (skill.heal) heal(o, Math.round(o.mhp * Math.min(0.8, skill.heal * (1 + (bondRank(skill.spirit) - 1) * 0.04))));
-      if (skill.wind){o.windTurns=Math.max(o.windTurns||0,skill.wind);o.windFrom=turn;}
+    if (skill.selfWind) giveWind(a, skill.selfWind);
+    if (skill.allyWind) live().filter(o => o.side === 'ally' && dist(o, cell) <= (skill.radius || 0)).forEach(o => giveWind(o, skill.allyWind));
+    const hitsSide = o => skill.target === 'ally' ? o.side === 'ally' : foe(a, o);
+    const targets = live().filter(o => dist(o, cell) <= (skill.radius || 0) && hitsSide(o));
+    const lineCells = skill.line ? beyondCells(a, cell, skill.line) : [];
+    lineCells.forEach((c, i) => paint(c, 'rainbow', i * 80));
+    const struck = [];
+    let damage = 0, hits = 0;
+    const affect = async (o) => {
+      if (skill.heal) {
+        let ratio = skill.heal * (1 + (bondRank(skill.spirit) - 1) * 0.04);
+        if (skill.fury) ratio *= Progression.furyPower(o.hp, o.mhp);
+        heal(o, Math.round(o.mhp * Math.min(0.8, ratio)));
+      }
+      if (skill.wind) giveWind(o, skill.wind);
       if (skill.guard) o.guard = Math.max(o.guard, skill.guard);
+      if (skill.cleanse) o.root = 0;
+      if (skill.plate) o.plate = Math.max(o.plate || 0, skill.plate);
       if (skill.power) {
-        const r = strike(a, o, { power: skill.power * (1 + (bondRank(skill.spirit) - 1) * 0.03), pierce: skill.pierce, sure: true, col: s.rgb, quiet: true });
+        let power = skill.power * (1 + (bondRank(skill.spirit) - 1) * 0.03);
+        if (skill.fury) power *= Progression.furyPower(a.hp, a.mhp);
+        if (rainbowBefore && rainbowBefore.has(idx(o.r, o.c))) power *= 1.25;
+        const r = strike(a, o, { power, pierce: skill.pierce, sure: true, col: s.rgb, quiet: true });
         damage += r.dmg || 0;
+        if (r && !r.pass && !r.miss) hits++;
         if (skill.root && o.hp > 0) o.root = Math.max(o.root, skill.root);
       }
+      struck.push(o);
       await wait(100);
+    };
+    for (const o of targets) await affect(o);
+    if (skill.line) {
+      const seen = new Set(targets.map(o => o.id));
+      for (const c of lineCells) {
+        const o = unitAt(c);
+        if (!o || !hitsSide(o) || seen.has(o.id)) continue;
+        seen.add(o.id);
+        await affect(o);
+      }
+    }
+    if (skill.line && hits >= 2) stats.flashMulti++;
+    if (skill.push) {
+      const movers = struck.filter(o => o.side !== a.side && o.hp > 0 && !o.dead);
+      for (let i = movers.length - 1; i >= 0; i--) await shoveFrom(a, movers[i]);
     }
     if (skill.drain && damage) heal(a, Math.round(damage * skill.drain));
     if (skill.heal) gainExp('aria', 10, a);
     gainExp(skill.spirit, 6, null);
     refreshHud(); await wait(450);
-    for (const o of targets) if (o.hp <= 0 && !o.dead) await defeat(o, a);
+    for (const o of struck) if (o.hp <= 0 && !o.dead) await defeat(o, a);
     unfocus(); await wait(150);
   }
   async function useItem(a, id, cell) {
@@ -1950,12 +1993,15 @@ const Board = (() => {
     if (!cmd || !cell || !targets || !targets.has(idx(cell.r, cell.c))) return null;
     const s = new Set();
     const add = (c) => { if (c) s.add(idx(c.r, c.c)); };
-    if (cmd === 'flash' && sel) { const v = [cell.r - sel.r, cell.c - sel.c]; add(cell); add(cellAt(cell.r + v[0], cell.c + v[1])); }
-    else if (cmd === 'sky' || cmd === 'purify') areaCells(cell, 2).forEach(add);
+    if (cmd === 'sky' || cmd === 'purify') areaCells(cell, 2).forEach(add);
     else if (cmd === 'pray') areaCells(cell, 1).forEach(add);
     else if (cmd.startsWith('item:')) { const it = ITEMS[cmd.slice(5)]; if (it && it.paint) areaCells(cell, it.paint).forEach(add); else add(cell); }
     else if (cmd.startsWith('summon:')) { const id = cmd.slice(7); areaCells(cell, SPIRITS[id].summon.rad).forEach(add); }
-    else if (cmd.startsWith('skill:')) { const skill = learnedForBattle().find(s => s.id === cmd.slice(6)); areaCells(cell, Math.max(skill?.radius || 0, skill?.paint || 0)).forEach(add); }
+    else if (cmd.startsWith('skill:')) {
+      const skill = learnedForBattle().find(s => s.id === cmd.slice(6));
+      areaCells(cell, Math.max(skill?.radius || 0, skill?.paint || 0)).forEach(add);
+      if (skill?.line && sel) beyondCells(sel, cell, skill.line).forEach(add);
+    }
     else add(cell);
     return s;
   }
@@ -2270,7 +2316,6 @@ const Board = (() => {
     if (mode === 'facing' && k !== 'facewait' && k !== 'back') return;
     Audio2.sfx.choose();
     if (k === 'attack') enterTarget('attack', attackTargets(u));
-    else if (k === 'flash') { const s = new Set(); nb4(cellOf(u)).forEach(c => s.add(idx(c.r, c.c))); enterTarget('flash', s); }
     else if (k === 'renoir') {
       if (!cfg.postgame || u.kind !== 'chrome_human' || renoirUsed || sp < 6) return;
       doRenoir(u);
@@ -2280,13 +2325,13 @@ const Board = (() => {
       const set = new Set(cells.filter(c => c.walk && dist(c, u) <= 2).map(c => idx(c.r, c.c)));
       enterTarget('purify', set);
     }
-    else if (k === 'pray') { const s = new Set(); live().filter(o => o.side === 'ally' && dist(o, u) <= 1).forEach(o => s.add(idx(o.r, o.c))); enterTarget('pray', s); }
+    else if (k === 'pray' && u.kind === 'chrome_human') { const s = new Set(); live().filter(o => o.side === 'ally' && dist(o, u) <= 1).forEach(o => s.add(idx(o.r, o.c))); enterTarget('pray', s); }
     else if (k === 'spirit') showMenu(u, 'spirit');
     else if (k === 'learned' && u.kind === 'aria' && stage) { if (!learnedForBattle(null, learnedRoute).length && learnedForBattle().length) learnedRoute = learnedForBattle()[0].route; showMenu(u, 'learned'); }
     else if (k === 'learnedroute' && u.kind === 'aria' && stage && Object.hasOwn(Progression.routes, arg)) { learnedRoute = arg; showMenu(u, 'learned'); }
     else if (k === 'skill') {
       const skill = learnedForBattle().find(s => s.id === arg);
-      if (u.kind !== 'aria' || !stage || !skill || sp < skill.cost) return;
+      if (u.kind !== 'aria' || !stage || !skill || sp < skillPay(skill)) return;
       enterTarget('skill:' + arg, skillTargets(u, skill));
     }
     else if (k === 'item') showMenu(u, 'item');
@@ -2309,16 +2354,15 @@ const Board = (() => {
     const u = sel, cmd = targetCmd, o = unitAt(cell);
     if (!u || u.acted || !cmd || (followUpPending(u) && cmd !== 'attack')) return;
     if (cmd === 'attack' && o && foe(u, o) && attackTargets(u).has(idx(cell.r, cell.c))) act(u, () => attack(u, o, { normal: true }), true);
-    else if (cmd === 'flash') { sp -= flashCost(); act(u, () => flashStrike(u, cell)); }
     else if (cmd === 'purify') {
       if (!cfg.postgame || !['aria', 'chrome_human'].includes(u.kind) || sp < 2 || !cell.walk || dist(cell, u) > 2) return;
       sp -= 2; act(u, () => purify(u, cell));
     }
-    else if (cmd === 'pray' && o) { sp -= COST_PRAY; act(u, () => pray(u, o)); }
+    else if (cmd === 'pray' && o && u.kind === 'chrome_human') { sp -= COST_PRAY; act(u, () => pray(u, o)); }
     else if (cmd.startsWith('skill:')) {
       const skill = learnedForBattle().find(s => s.id === cmd.slice(6));
-      if (!skill || sp < skill.cost || !skillTargets(u, skill).has(idx(cell.r, cell.c))) return;
-      sp -= skill.cost; act(u, () => spiritSkill(u, skill, cell));
+      if (!skill || sp < skillPay(skill) || !skillTargets(u, skill).has(idx(cell.r, cell.c))) return;
+      sp -= skillPay(skill); act(u, () => spiritSkill(u, skill, cell));
     }
     else if (cmd.startsWith('summon:')) { const id = cmd.slice(7); if (defeatedSpirits.has(id) || sp < COST_SUMMON || live().some(x => x.until && x.kind === id)) return; sp -= COST_SUMMON; act(u, () => summon(u, id, cell)); }
     else if (cmd === 'sky') { skyCharges--; act(u, () => nightSky(u, cell)); }
@@ -2436,7 +2480,7 @@ const Board = (() => {
       if (!list.length) it.push(`<div class="cm-note">${Progression.routes[learnedRoute].name}の熟練度8・20・40で技を覚えます。「仲間・絆」で進みぐあいを確認できます。</div>`);
       list.forEach(s => {
         it.push(`<div class="cm-skill-label" style="color:${SPIRITS[s.spirit].color}">${SPIRITS[s.spirit].name}・${Progression.routes[s.route].name}で習得・${s.type}</div>`);
-        it.push(`<button class="cm-b cm-learned" data-k="skill" data-a="${s.id}" data-d="" ${sp < s.cost || !skillTargets(u, s).size ? 'disabled' : ''}><span>${s.name}<em>${s.cost}</em></span><small>${s.desc}</small></button>`);
+        it.push(`<button class="cm-b cm-learned" data-k="skill" data-a="${s.id}" data-d="" ${sp < skillPay(s) || !skillTargets(u, s).size ? 'disabled' : ''}><span>${s.name}<em>${skillPay(s)}</em></span><small>${s.desc}</small></button>`);
       });
       it.push(btn('back', 'もどる'));
     } else if (sub === 'item') {
@@ -2457,8 +2501,6 @@ const Board = (() => {
         it.push(btn('item', '道具 ▸', { d: '共有の道具を使う（行動を使う）' }));
       }
       if (u.kind === 'aria' && !followUp) {
-        if (stage) it.push(btn('flash', '透明の一閃', { cost: flashCost(), dis: sp < flashCost(), d: '前方2マスを貫く一閃。必中・威力1.35倍、通り道を虹に染める' }));
-        it.push(btn('pray', '凪の祈り', { cost: COST_PRAY, dis: sp < COST_PRAY, d: '自分か隣の味方のHPを35%癒し、周りを虹に染める' }));
         if (stage && spiritPool().length) it.push(btn('spirit', '精霊 ▸', { d: '召喚6：大技＋精霊の別行動／宿す3：通常攻撃が毎ターン2回（宿しながら、ほかの精霊を召喚できる）' }));
         if (stage && learnedForBattle().length) it.push(btn('learned', '覚えた技 ▸', { d: 'エンチャントと召喚、それぞれの熟練で覚えた技。習得後は宿しや召喚なしでも使える' }));
         const nItems = Object.keys(party.items).filter(k => party.items[k] > 0 && typeof ITEMS !== 'undefined' && ITEMS[k]).length;
@@ -2521,6 +2563,7 @@ const Board = (() => {
     if (u.root) st.push('<span style="--c:#7fd67a">縛られている</span>');
     if (u.guard) st.push('<span style="--c:#ffd25e">守り</span>');
     if (u.armor) st.push(`<span style="--c:#b8bcc8">鉛×${u.armor}</span>`);
+    if (u.plate) st.push(`<span style="--c:#ffd25e">金継ぎ×${u.plate}</span>`);
     const f = cellOf(u).floor, fn = floorNames();
     const ft = f === 'rainbow' ? `<span class="ft rainbow">${fn[0]}の床</span>` : f === 'dull' ? `<span class="ft dull">${fn[1]}の床</span>` : '<span class="ft">素の床</span>';
     const rng = effRng(u);
@@ -2719,7 +2762,7 @@ const Board = (() => {
       case 'crit': return `会心の一撃を${m.n}回出す`;
       case 'summonKill': return `召喚した精霊で${m.n}体倒す`;
       case 'enchantKill': return cfg.postgame ? `宿した心剣・四響の剣で${m.n}体倒す` : `精霊を宿した心剣で${m.n}体倒す`;
-      case 'flashMulti': return '透明の一閃で2体を同時に斬る';
+      case 'flashMulti': return '覚えた貫く技で、2体を同時に斬る';
       case 'noSpirit': return '精霊の力を借りずにクリア';
       case 'noItem': return '道具を使わずにクリア';
       case 'noDown': return '召喚した精霊を倒させない';
@@ -3002,7 +3045,7 @@ const Board = (() => {
       <p><b>召喚した精霊が倒されたら、その戦闘中は再召喚も心剣に宿すこともできません。</b>他の精霊は使えます。召喚の期限で帰還した精霊は再び使え、再挑戦・次の戦闘では戦闘不能の制限を解除します。</p>
       <h4>道具とミッション</h4>町で買った道具は、メニューの「道具」から使えます（行動を使う）。<br>右上のミッションをすべて達成するとSランク。S評価の報酬は難易度別。<b>ハードのボス戦はユニーク装備、通常戦は通常装備。ふつう・やさしいはアイテム</b>です。各難易度で1回ずつ受け取れ、所持済みの通常装備は価格の半分のしずくになります。
       <h4>LV</h4>攻撃と撃破で経験値が入り、100たまるとLVが上がります。精霊は、召喚や宿しで育ちます。
-      <h4>精霊との絆・覚えた技</h4>召喚で絆+3、心剣に宿すと+2。召喚した精霊の攻撃や、宿した心剣が命中すると+1、覚えた技を使うと+2。絆は精霊と技の強さを育てます。<b>習得はエンチャントと召喚の熟練を別々に判定</b>し、それぞれ8・20・40で3種ずつ、全24種。宿すとエンチャント熟練+2、宿した通常攻撃の命中で+1。召喚すると召喚熟練+3、精霊の命中で+1。覚えた技の使用は熟練に入りません。<br>習得後は「覚えた技」から、召喚や宿しをせずに使えます。絆が深まるほど精霊のHP・攻撃・守りと、宿した心剣・覚えた技の効果が育ちます。負けても絆と習得は残ります。
+      <h4>精霊との絆・覚えた技</h4>召喚で絆+3、心剣に宿すと+2。召喚した精霊の攻撃や、宿した心剣が命中すると+1、覚えた技を使うと+2。絆は精霊と技の強さを育てます。<b>習得はエンチャントと召喚の熟練を別々に判定</b>し、それぞれ8・20・40で3種ずつ、6精霊で36種。貫く一閃と近い癒やしは、精霊ごとに覚えて使います。宿すとエンチャント熟練+2、宿した通常攻撃の命中で+1。召喚すると召喚熟練+3、精霊の命中で+1。覚えた技の使用は熟練に入りません。<br>習得後は「覚えた技」から、召喚や宿しをせずに使えます。絆が深まるほど精霊のHP・攻撃・守りと、宿した心剣・覚えた技の効果が育ちます。負けても絆と習得は残ります。
       <h4>ルノワールの四響エンチャント</h4>クロムだけが使う切り札です。共鳴6・1戦闘に1回。3ターン、4精霊のエンチャント効果をまとめて宿し、通常攻撃が毎ターン2回になります。宿す行動は消費しません。吸収して身につけたルノワール自身の能力なので、他の精霊の召喚中・戦闘不能でも使えます。クロム自身に精霊の召喚能力はありません。再挑戦・次の戦闘で使用回数は戻ります。<h4>復興の灯</h4>復興編は敵の全滅と、番号のついた灯をすべて点けることが目的です。アリアとクロムの<b>「浄化」（共鳴2）</b>で2マス以内の灯そのものを選んでください。周り2マスも虹に戻ります。防壁を持つ核は、灯が全部点くまで攻撃が届きません。<h4>難易度・依頼</h4>マップの戦場や依頼でやさしい・ふつう・ハードの3段階の難易度を選べます。適正LV・報酬・ミッション実績は難易度ごとに表示されます。戦闘開始後は再挑戦も同じ難易度です。町の「依頼」でサブクエストを探せます。
       <h4>国の色の敵</h4>敵は、戦う土地の色に染まっています。名前と色がちがい、<b>特性</b>を一つ持つ種類がいます（押し流し・燠火・絡め取り・金の被膜・色吸い・霞）。敵を選ぶと、特性の内容が見られます。
       <p style="margin-top:12px;color:#ffd98a">「切るのは穢れだけ。その人の色は、一滴も切らない」</p>`);
@@ -3089,7 +3132,7 @@ const Board = (() => {
     bannerEl.className = ''; dismissCutin(); skillEl.className = '';
     buildSubject();
     layout();
-    missionOpen = !screen.classList.contains('short') && !((cfg.guardian || cfg.finale) && screen.classList.contains('compact'));
+    missionOpen = !screen.classList.contains('compact');
     hudReady = false; refreshHud(); hudReady = true;
     showInfo(units[0]);
     if (cfg.tutorial) { tut = { steps: cfg.tutorial, i: 0 }; const s = tut.steps[0]; say(s.who, s.text); }

@@ -16,7 +16,7 @@ test('Vard uses the original fruit boss reward, three charge phases and two batt
 });
 test('Fury rises with missing HP, falls with healing, and is independent from Spinel protection',async()=>{
  const c=await content();const r=JSON.parse(vm.runInContext(`JSON.stringify([100,50,1,0,150].map(h=>Progression.furyPower(h,100)))`,c));assert.deepEqual(r,[1.15,1.3499999999999999,1.5459999999999998,1.5499999999999998,1.15]);
- const s=JSON.parse(vm.runInContext(`JSON.stringify(Progression.skills.find(s=>s.id==='spinel_guard'))`,c));assert.equal(s.guard,3);assert.equal(s.heal,.25);assert(!s.power);
+ const s=JSON.parse(vm.runInContext(`JSON.stringify(Progression.skills.find(s=>s.id==='spinel_guard'))`,c));assert.equal(s.guard,3);assert.equal(s.heal,undefined);assert(!s.power);
 });
 test('Both orders share one meeting; Ivy remembers Marii before the restoration reunion',async()=>{
  const c=await content();vm.runInContext(`globalThis.journeyKeys=['act3'];globalThis.Engine={unlocked:()=>journeyKeys,load:()=>({colors:['teal']})}`,c);

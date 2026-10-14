@@ -189,11 +189,15 @@ test('Attack and enemy turn finish and restore the next player turn',async()=>{
   const s=await state();assert(enemy(s).hp<500);assert(aria(s).hp<1000);assert(!aria(s).acted&&!aria(s).moved);assert(s.sp>=0);
 });
 
-test('Prayer targets the selected character’s body and consumes resonance once',async()=>{
-  await boot();await fixture('cove',{spStart:6});await page.evaluate(()=>Board.__test.arrange([{kind:'aria',hp:10}]));
-  const before=await state();await openMenu();await page.locator('[data-k=pray]').click();await clickUnit(aria(await state()),true);
+test('Gran’s learned prayer targets the selected character’s body and consumes resonance once',async()=>{
+  const party=partyWithBond(0);party.aria.skills=['gran_current'];
+  await boot('cove',{width:1440,height:900},{cr_party:party});
+  await fixture('cove',{spStart:6});await page.evaluate(()=>Board.__test.arrange([{kind:'aria',hp:10}]));
+  const before=await state();await openMenu();
+  assert.equal(await page.locator('[data-k=pray],[data-k=flash]').count(),0);
+  await chooseLearned('gran_current');await clickUnit(aria(await state()),true);
   await page.waitForFunction(()=>Board.__test.state().mode==='idle');const s=await state();
-  assert.equal(s.sp,before.sp-2);assert.equal(aria(s).hp,10+Math.round(aria(s).mhp*.35));
+  assert.equal(s.sp,before.sp-3);assert.equal(aria(s).hp,10+Math.round(aria(s).mhp*.35));assert.equal(aria(s).guard,1);
 });
 
 for(const viewport of [{width:1440,height:900},{width:320,height:480},{width:667,height:375}])test(`Illustrated healing items are selectable, consumed once and saved at ${viewport.width} × ${viewport.height}`,async()=>{
@@ -207,15 +211,18 @@ for(const viewport of [{width:1440,height:900},{width:320,height:480},{width:667
   assert(aria(await state()).hp>10);assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('cr_party')).items.i_tea),1);
 });
 
-test('Transparent strike targets a direction and paints its path',async()=>{
-  await boot();await fixture('cove',{spStart:6});await page.evaluate(()=>Board.__test.arrange([{kind:'aria',atk:25},{kind:'shade',hp:500,mhp:500}]));
-  await openMenu();await page.locator('[data-k=flash]').click();const target=enemy(await state());await clickUnit(target,true);
+test('A learned water line strikes through a direction and paints its path',async()=>{
+  const party=partyWithBond(0);party.aria.skills=['gran_wave'];
+  await boot('cove',{width:1440,height:900},{cr_party:party});
+  await fixture('cove',{spStart:6});await page.evaluate(()=>Board.__test.arrange([{kind:'aria',atk:25},{kind:'shade',hp:500,mhp:500}]));
+  await openMenu();await chooseLearned('gran_wave');const target=enemy(await state());await clickUnit(target,true);
   await page.waitForFunction(()=>Board.__test.state().mode==='idle');const s=await state();
   assert(enemy(s).hp<500);assert.equal(s.sp,4);assert.equal(s.cells.find(c=>c.r===target.r&&c.c===target.c).floor,'rainbow');
 });
 
 test('Leaving target selection through a spirit badge preserves movement choices',async()=>{
-  await boot('king');const before=await state();await openMenu();await page.locator('[data-k=flash]').click();
+  await boot('king',{width:1440,height:900},{cr_party:{aria:{lv:1,exp:0},items:{i_powder:1}}});
+  const before=await state();await openMenu();await page.locator('[data-k=item]').click();await page.locator('[data-k=useitem][data-a=i_powder]').click();
   await page.locator('#skills .skill').first().click();await page.locator('[data-k=back]').click();await page.keyboard.press('Escape');
   const after=await state();assert.equal(after.mode,'selected');assert.equal(after.ends.length,before.ends.length);assert(after.ends.length>0);
 });
@@ -318,9 +325,15 @@ test('Enchanted attacks reset on the next turn and return to one attack after th
   assert.equal(await page.locator('.cm-combo').count(),0);await enchantedHit();assert(aria(await state()).acted);assert.equal(aria(await state()).normalAttacks,1);
 });
 
-test('Using a skill while enchanted still consumes the whole action',async()=>{
-  await enchantBattle();await page.evaluate(()=>Board.__test.addAlly('gran',1,1));
-  await page.locator('[data-k=flash]').click();await clickUnit(enemy(await state()),true);await idle();
+test('Using a learned skill while enchanted still consumes the whole action',async()=>{
+  const party=partyWithBond(0);party.aria.skills=['gran_wave'];
+  await boot('king',{width:1440,height:900},{cr_party:party});
+  await fixture('king',{spStart:6,spirits:['gran','ivy','spinel','king']});
+  await page.evaluate(()=>Board.__test.arrange([{kind:'aria',atk:25,hp:200,mhp:1000},{kind:'shade',hp:1000,mhp:1000,atk:1,dir:2}]));
+  await openMenu();await page.locator('[data-k=spirit]').click();await page.locator('[data-k=enchant][data-a=king]').click();await idle();
+  await page.evaluate(()=>Board.__test.addAlly('gran',1,1));
+  if(!await page.locator('#cmdMenu').isVisible())await openMenu();
+  await chooseLearned('gran_wave');await clickUnit(enemy(await state()),true);await idle();
   const end=await state();assert(aria(end).acted);assert.equal(aria(end).normalAttacks,0);assert.equal(end.sp,1);assert(await page.locator('#cmdMenu').evaluate(e=>e.classList.contains('hidden')));
 });
 

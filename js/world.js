@@ -50,7 +50,7 @@ function fxText(fx) {
     spMax: v => `共鳴の上限+${v}`, spTurn: v => `毎ターン共鳴+${v}`, spStart: v => `開始時の共鳴+${v}`, back: v => `背後からの攻撃+${v}%`,
     enchantTurns: v => `心剣に宿す時間+${v}ターン`, summonTurns: v => `召喚の時間+${v}ターン`, paintStep: () => '歩いた床のまわりも虹に',
     splash: () => '攻撃した場所のまわりも虹に', dullGuard: () => 'くすんだ床でも守りが下がらない', killHeal: v => `倒すとHPを${v}%回復`,
-    evade: v => `かわしやすさ+${v}%`, rng: v => `心剣の射程+${v}`, flashCost: v => `透明の一閃の共鳴-${v}`, regen: v => `毎ターンHPを${v}%回復`, killSp: v => `倒すと共鳴+${v}`,
+    evade: v => `かわしやすさ+${v}%`, rng: v => `心剣の射程+${v}`, flashCost: v => `貫く技の共鳴-${v}`, regen: v => `毎ターンHPを${v}%回復`, killSp: v => `倒すと共鳴+${v}`,
   };
   return Object.keys(fx).map(k => L[k] ? L[k](fx[k]) : '').filter(Boolean).join('・');
 }
@@ -349,7 +349,7 @@ const World = (() => {
     const f = conf.inverted ? ['夜空', '白い膜'] : ['虹', 'くすみ'];
     return ({
       turns: `${m.n}ターン以内にクリア`, hp: `アリアのHPを${m.n}%以上残す`, back: `背後から${m.n}回攻撃する`, crit: `会心の一撃を${m.n}回出す`,
-      summonKill: `召喚した精霊で${m.n}体倒す`, enchantKill: `精霊を宿した心剣で${m.n}体倒す`, flashMulti: '透明の一閃で2体を同時に斬る',
+      summonKill: `召喚した精霊で${m.n}体倒す`, enchantKill: `精霊を宿した心剣で${m.n}体倒す`, flashMulti: '覚えた貫く技で、2体を同時に斬る',
       noSpirit: '精霊の力を借りずにクリア', noItem: '道具を使わずにクリア', noDown: '召喚した精霊を倒させない',
       rainbow: `クリア時に${f[0]}の床${m.n}%以上`, dullMax: `${f[1]}を${m.n}%未満に保つ`, bossLast: '核を最後に倒す', guardianVoice: '守り手の理性を3段階取り戻す',
       spiritUse: `${Progression.spirits[m.spirit]?.name}の力を${m.n}回使う`, skillUse: `${m.spirit ? Progression.spirits[m.spirit].name + 'から' : ''}覚えた技を${m.n}回使う`,
@@ -584,7 +584,7 @@ const World = (() => {
       <header class="au-banner"><small>THE COLOURS THAT WALK WITH YOU</small><h3>ともに育つ、色の絆。</h3><p>精霊との絆と、二つの習得経路を見渡す。</p></header>
       <div class="pt-row"><span class="pt-name">${GameArt.portrait('aria', 'pt-art')}<b>アリア</b></span><span>LV ${party.aria.lv}</span><span class="pt-exp"><i style="width:${party.aria.exp}%"></i></span></div>
       ${Restoration.joined() ? `<div class="pt-row"><span class="pt-name">${GameArt.portrait('chrome_human', 'pt-art')}<b>クロム</b></span><span>LV ${party.chrome.lv}</span><span class="pt-exp"><i style="width:${party.chrome.exp}%"></i></span></div><p class="wp-note">人間の仲間として復興編・伝説級の戦場に同行。ルノワールの剣で浄化と夜の祈りを使います。召喚の期限はありません。</p>` : ''}
-      <details class="pt-guide"><summary>絆と技の育て方 <span aria-hidden="true">＋</span></summary><p class="wp-note">絆は共通で育ち、精霊と技の力が強くなります。技の習得は「エンチャント」「召喚」の熟練度を別々に育て、各8・20・40で3種類ずつ。覚えた技の使用は絆+2で、系統の熟練には入りません。以前覚えた技はそのまま使えます。</p></details>
+      <details class="pt-guide"><summary>絆と技の育て方 <span aria-hidden="true">＋</span></summary><p class="wp-note">絆は共通で育ち、精霊と技の力が強くなります。技の習得は「エンチャント」「召喚」の熟練度を別々に育て、各8・20・40で3種類ずつ。覚えた技の使用は絆+2で、系統の熟練には入りません。以前覚えた技はそのまま使えます。貫く技と近い癒やしは、精霊ごとに覚えます。</p></details>
       <button class="sf-upgrade" id="ptForge">素材でスキルを強化する</button>
       <div class="bond-garden">${sp.map(id => {
         const r = party.spirits[id] || { lv: party.aria.lv, exp: 0, bond: 0, uses: 0 }, rank = Progression.rank(r.bond), next = Progression.thresholds[rank];
