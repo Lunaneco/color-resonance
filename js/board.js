@@ -358,11 +358,17 @@ const Board = (() => {
     // 縦画面の余白は css/portrait.css の下帯（操作76+精霊50+情報60）と上のチップ列に合わせる。
     const portrait = narrow && !short;
     const bossBand = (cfg.guardian || cfg.finale) && !short;
-    const top = portrait ? (bossBand ? 156 : 100) : (narrow ? 74 : 96) + (bossBand ? 44 : 0);
+    let top = portrait ? (bossBand ? 156 : 100) : (narrow ? 74 : 96) + (bossBand ? 44 : 0);
     const bottom = portrait ? 208 : (narrow ? 70 : 84);
     const availW = Math.max(80, narrow ? W - (short ? 340 : 12) : W - 60);
-    const availH = Math.max(60, H - top - bottom);
     const span = (cols + rows) / 2;
+    // 縦のボス戦で盤が大きいとき、上の余白だけを縮めてマスが指で選べる大きさに保つ。下の操作帯は動かさない。
+    if (portrait && bossBand && span > 0) {
+      const need = 18 * (span * 0.54 + 1.05);
+      const avail = H - top - bottom;
+      if (avail < need) top = Math.max(128, top - (need - avail));
+    }
+    const availH = Math.max(60, H - top - bottom);
     tw = Math.min(availW / span, availH / (span * 0.54 + 1.05), 116);
     th = tw * 0.54; hStep = th * 0.44;
     updateOx();
@@ -2943,7 +2949,7 @@ const Board = (() => {
     if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
     spin.dragged = true;
     cv.classList.add('turning');
-    rotateView(dx < 0 ? 1 : -1);   // 手前の角が、指と同じ向きへ動く
+    rotateView(dx < 0 ? -1 : 1);   // 手前の角が、指と反対へ動く
   }
   function endSpin(x, y, click) {
     if (!spin) return;

@@ -126,7 +126,7 @@ for(const engine of ['chromium','webkit']){
     const flick = async (from, to, dy = 0) => { await page.mouse.move(from, y); await page.mouse.down(); await page.mouse.move(to, y + dy, { steps: 8 }); await page.mouse.up(); };
     await flick(cx + 100, cx - 100);
     let s = await state(page);
-    assert.equal(s.rotation, 1, 'one flick is exactly one quarter turn');
+    assert.equal(s.rotation, 3, 'one flick is exactly one quarter turn, opposite the finger');
     await flick(cx - 100, cx + 100);
     s = await state(page);
     assert.equal(s.rotation, 0, 'flicking back returns to the first view');
@@ -137,7 +137,7 @@ for(const engine of ['chromium','webkit']){
     assert.equal(s.mode, 'selected');
     await flick(cx + 300, cx - 300);
     s = await state(page);
-    assert.equal(s.rotation, 1, 'a long sweep is still a single step');
+    assert.equal(s.rotation, 3, 'a long sweep is still a single step');
   }));
   test(`${engine}: with motion on, the view turns smoothly through the quarter and lands exactly on it, and the compass follows`, async () => session(engine, { width: 1440, height: 900 }, async page => {
     await fixture(page);
