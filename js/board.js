@@ -88,7 +88,7 @@ const Board = (() => {
     enchant:{name:'渡りの羽',desc:'移動+1。命中した周り1マスを虹に戻す。追い風とは重複しない'} };
   const effMov=u=>u.mov+(u.windTurns>0||u.kind==='aria'&&u.enchant?.id==='mari'?1:0);
   const furyBonus = u => u.side === 'ally' && (u.kind === 'vard' || u.kind === 'aria' && u.enchant?.id === 'vard') ? Progression.furyPower(u.hp,u.mhp) : 1;
-  const learnedForBattle=(id,route)=>Progression.learned(party,id,route).filter(s=>!['vard','mari'].includes(s.spirit)||cfg?.spirits?.includes(s.spirit));
+  const learnedForBattle=(id,route)=>Progression.learned(party,id,route).filter(s=>s.spirit!=='king'&&(!['vard','mari'].includes(s.spirit)||cfg?.spirits?.includes(s.spirit)));
   // 床の加護（割合 25% / 45% / 65%）
   const TIER = [
     { atk: 1, def: 1, sp: 0, regen: 0 },
@@ -171,9 +171,11 @@ const Board = (() => {
   let t0 = performance.now(), running = false, sess = 0, renderFrame = null;
   let turn = 0, phase = 'player', stage = 1, busy = false, over = false, paused = false;
   let sel = null, mode = 'idle', moveInfo = null, targets = null, targetCmd = null, hover = null, threat = null, menuSub = null, infoU = null;
-  let sp = 0, skyCharges = 0, enchantUsed = false, renoirUsed = false;
+  let sp = 0, skyCharges = 0, enchantUsed = false, renoirUsed = false, summonsThisTurn = 0;
+  // パレット王の宝具「双彩の王笏」：1ターンに2体まで召喚できる（1体目の召喚では手番が残り、2体目の召喚か待機だけを選べる）。
+  const hasRelic = () => typeof Progression.paletteRelic === 'function' && Progression.paletteRelic(Engine.unlocked());
   let region = null, drained = 0; // 国の色：敵のバリエーションと特性（regions.js）
-  let rescueTurn = 0, awakened = 0; // 終章：ルノワールの救援が入ったターンと、夜空に還った精霊の数
+  let rescueTurn = 0, awakened = 0; // 終章：ノアールの救援が入ったターンと、夜空に還った精霊の数
   let stats = null, difficulty = 'normal', tierA = 0, tierE = 0, ratioA = 0, ratioE = 0, kegIdx = 0, colorIdx = 0, totalFoes = 0;
   let hudReady = false;
   let guardianHistory = [];
@@ -295,7 +297,7 @@ const Board = (() => {
   }
   function initFloors(plan) {
     cells.forEach(c => { c.floor = c.prev = c.walk ? 'neutral' : 'none'; c.flipT = 0; });
-    // 終章：はじめは盤のすべてが白い膜。夜空はルノワールが連れてくる。
+    // 終章：はじめは盤のすべてが白い膜。夜空はノアールが連れてくる。
     if (cfg.finale) { cells.forEach(c => { if (c.walk) c.floor = c.prev = 'dull'; }); return; }
     const set = (c, f) => { if (c.walk) c.floor = c.prev = f; };
     areaCells(plan.aria, 2).forEach(c => set(c, 'rainbow'));
@@ -1695,7 +1697,7 @@ const Board = (() => {
       if (d.kind === 'chrome') live().filter(m => m.kind === 'membrane').forEach(m => { m.dead = true; m.dieT = performance.now(); const q = unitXY(m); smoke(q.x, q.y - tw * 0.4, 12, '245,248,255'); });
       if (d.guardian) {
         const p = GuardianCombat.profile(d.guardian);
-        const lines = [[p.name,p.freed],['アリア',d.kind==='chrome'?'白い膜だけ、切り分けられた。あなたの黒は、残ってる。':'穢れだけ、切り分けられた。あなたの色は残ってる。']];
+        const lines = [[p.name,p.freed],['アリア',p.freedReply||(d.kind==='chrome'?'白い膜だけ、切り分けられた。あなたの黒は、残ってる。':'穢れだけ、切り分けられた。あなたの色は残ってる。')]];
         guardianHistory.push({phase:3,lines}); say('戻ってきた声',lines.map(([who,text])=>`<b>${who}</b> ${text}`).join('<br>'),9000);
         d.intent = null;
       }
@@ -1780,7 +1782,7 @@ const Board = (() => {
   function doRenoir(u) { return runTask((async () => {
     const my = sess; busy = true; hideMenu(); endBtn.disabled = true;
     renoirUsed = true; sp -= 6;
-    await skillBanner('ルノワール · 四響エンチャント', '#dac1fa');
+    await skillBanner('ノアール · 四響エンチャント', '#dac1fa');
     if (my !== sess) return;
     u.resonance = { turns: 3, from: turn }; playMotion(u, 'purify', 1.5);
     for (const id of Object.values(GameArt.spiritEffects)) artEffect(id, cellOf(u), 1.5);
@@ -1790,13 +1792,13 @@ const Board = (() => {
   })()); }
   async function purify(a, cell) {
     const my = sess;
-    await skillBanner(a.kind === 'chrome_human' ? 'ルノワールの浄化' : '透明の浄化', '#dacfff');
+    await skillBanner(a.kind === 'chrome_human' ? 'ノアールの浄化' : '透明の浄化', '#dacfff');
     if (my !== sess) return;
     playMotion(a, 'purify', 1.5); artEffect('night_sky', cell, 1.8); Audio2.sfx.heal();
     paintArea(cell, 2, 'rainbow', 60); stats.purify++;
     if (cell.beacon && !cell.beaconOn) {
       cell.beaconOn = true; const p = topOf(cell); floatText(p.x, p.y - tw, '復興の灯が、つながった', 'color', '#bfe9d0');
-      if (!cells.some(c => c.beacon && !c.beaconOn) && cfg.bossShield) say('ルノワール', '灯が届いた。防壁が開く、核に届くよ。', 4500);
+      if (!cells.some(c => c.beacon && !c.beaconOn) && cfg.bossShield) say('ノアール', '灯が届いた。防壁が開く、核に届くよ。', 4500);
     }
     gainExp(a.kind, 10, a); refreshHud(); await wait(700);
     if (my === sess && !live().some(u => u.side === 'enemy')) win();
@@ -2015,13 +2017,13 @@ const Board = (() => {
   // ---------- 手番 ----------
   async function playerPhase() {
     const my = sess;
-    turn++; phase = 'player'; enchantUsed = false;
+    turn++; phase = 'player'; enchantUsed = false; summonsThisTurn = 0;
     units = units.filter(u => !u.dead || performance.now() - u.dieT < 1000);
     if (turn > 1) {
       for (const u of live().filter(u => u.until)) { u.summon = u.until - turn; if (u.summon < 0) await departSpirit(u); }
       const a = ariaU();
       const ch = live().find(u => u.kind === 'chrome_human');
-      if (ch?.resonance && turn > ch.resonance.from) { ch.resonance.turns--; if (ch.resonance.turns <= 0) { ch.resonance = null; say('ルノワール', '四つの光が、静かな剣へ戻った。四響はこの戦闘では使用済み。', 4000); } }
+      if (ch?.resonance && turn > ch.resonance.from) { ch.resonance.turns--; if (ch.resonance.turns <= 0) { ch.resonance = null; say('ノアール', '四つの光が、静かな剣へ戻った。四響はこの戦闘では使用済み。', 4000); } }
       if (a && a.enchant && turn > a.enchant.from) {
         a.enchant.turns--;
         if (a.enchant.turns <= 0) { const p = unitXY(a); floatText(p.x, p.y - tw * 1.5, `${SPIRITS[a.enchant.id].name}が、心剣から離れた`, 'sys'); a.enchant = null; }
@@ -2032,7 +2034,7 @@ const Board = (() => {
       const ar = ariaU(); if (ar && GB.regen && ar.hp < ar.mhp) heal(ar, Math.round(ar.mhp * GB.regen / 100));
       if (T.regen) live().filter(u => u.side === 'ally' && u.hp < u.mhp).forEach(u => heal(u, Math.round(u.mhp * T.regen)));
     }
-    live().filter(u => u.side === 'ally').forEach(u => { u.moved = false; u.acted = false; u.normalAttacks = 0; u.undo = null; if (u.hazardRootUntil != null && turn > u.hazardRootUntil) { u.root = 0; u.hazardRootUntil = null; } });
+    live().filter(u => u.side === 'ally').forEach(u => { u.moved = false; u.acted = false; u.normalAttacks = 0; u.undo = null; u.summonChain = false; if (u.hazardRootUntil != null && turn > u.hazardRootUntil) { u.root = 0; u.hazardRootUntil = null; } });
     if (cfg.finale && stage === 1 && turn > rescueTurn + 1 && awakened < (cfg.spirits || []).length) awaken();
     live().filter(u=>u.guardian).forEach(e=>guardianIntent(e));
     refreshHud();
@@ -2187,7 +2189,7 @@ const Board = (() => {
     danger.forEach((c,i)=>paint(c,'dull',i*12));
     if(p.id==='vard')playMotion(e,'attack');
     if(p.id==='chrome')playMotion(e,'wave',2.5);
-    const q=unitXY(e); artEffect(p.id==='chrome'?'chrome_wave':GameArt.spiritEffects[p.id==='vard'?'vard':p.material==='m_teal'?'gran':p.material==='m_green'?'ivy':p.material==='m_gold'?'spinel':'king'],cellOf(e),2.4);
+    const q=unitXY(e); artEffect(p.id==='chrome'||p.id==='kaoru'?'chrome_wave':GameArt.spiritEffects[p.id==='vard'?'vard':p.material==='m_teal'?'gran':p.material==='m_green'?'ivy':p.material==='m_gold'?'spinel':'king'],cellOf(e),2.4);
     fxp.push({k:'ring',x:q.x,y:q.y,r:tw*.3,grow:tw*2,col:p.id==='vard'?'245,121,101':p.id==='chrome'?'225,232,255':'210,155,200',life:0,max:1});
     for (const u of hit) {
       let damage=Math.max(1,Math.round(Math.min(u.mhp*(.08+intent.phase*.02),e.atk*.7)*(difficulty==='gentle'?.6:1)*(u.guard?.65:1)));
@@ -2268,6 +2270,8 @@ const Board = (() => {
     // 空振りも1回に数える。1撃目を確定したら、移動や別の行動には戻せない。
     if (normal) u.normalAttacks++;
     u.acted = !(normal && u.normalAttacks < normalAttackLimit(u));
+    u.summonChain = r === 'chainSummon';
+    if (u.summonChain) u.acted = false;
     u.moved = true; u.undo = null;
     if (over) return;
     busy = false; endBtn.disabled = false;
@@ -2281,6 +2285,7 @@ const Board = (() => {
     }
     void r;
     if (followUpPending(u)) { select(u, true); return; }
+    if (u.summonChain && !u.acted) { select(u, true); phaseLabel.textContent = '双彩の王笏：もう1体召喚できる（または待機）'; return; }
     autoEnd();
   })()); }
   function autoEnd() {
@@ -2319,6 +2324,7 @@ const Board = (() => {
     hideSay();
     const u = sel;
     if (u.acted || (followUpPending(u) && !['attack', 'wait', 'facewait', 'back'].includes(k))) return;
+    if (u.summonChain && !['spirit', 'summon', 'wait', 'facewait', 'back'].includes(k)) return;
     if (mode === 'facing' && k !== 'facewait' && k !== 'back') return;
     Audio2.sfx.choose();
     if (k === 'attack') enterTarget('attack', attackTargets(u));
@@ -2358,7 +2364,7 @@ const Board = (() => {
   }
   function execTarget(cell) {
     const u = sel, cmd = targetCmd, o = unitAt(cell);
-    if (!u || u.acted || !cmd || (followUpPending(u) && cmd !== 'attack')) return;
+    if (!u || u.acted || !cmd || (followUpPending(u) && cmd !== 'attack') || (u.summonChain && !cmd.startsWith('summon:'))) return;
     if (cmd === 'attack' && o && foe(u, o) && attackTargets(u).has(idx(cell.r, cell.c))) act(u, () => attack(u, o, { normal: true }), true);
     else if (cmd === 'purify') {
       if (!cfg.postgame || !['aria', 'chrome_human'].includes(u.kind) || sp < 2 || !cell.walk || dist(cell, u) > 2) return;
@@ -2370,7 +2376,7 @@ const Board = (() => {
       if (!skill || sp < skillPay(skill) || !skillTargets(u, skill).has(idx(cell.r, cell.c))) return;
       sp -= skillPay(skill); act(u, () => spiritSkill(u, skill, cell));
     }
-    else if (cmd.startsWith('summon:')) { const id = cmd.slice(7); if (defeatedSpirits.has(id) || sp < COST_SUMMON || live().some(x => x.until && x.kind === id)) return; sp -= COST_SUMMON; act(u, () => summon(u, id, cell)); }
+    else if (cmd.startsWith('summon:')) { const id = cmd.slice(7); if (defeatedSpirits.has(id) || sp < COST_SUMMON || live().some(x => x.until && x.kind === id)) return; sp -= COST_SUMMON; act(u, async () => { await summon(u, id, cell); summonsThisTurn++; if (summonsThisTurn === 2) { stats.doubleSummons = (stats.doubleSummons || 0) + 1; renderMissions(); } return u.kind === 'aria' && hasRelic() && summonsThisTurn === 1 && !u.summonChain ? 'chainSummon' : undefined; }); }
     else if (cmd === 'sky') { skyCharges--; act(u, () => nightSky(u, cell)); }
     else if (cmd.startsWith('item:')) {
       const id = cmd.slice(5);
@@ -2464,6 +2470,7 @@ const Board = (() => {
     } else if (sub === 'spirit') {
       it.push(`<div class="cm-head">精霊<small>共鳴 ${sp}</small></div>`);
       it.push('<div class="cm-note cm-spirit-choice"><b>召喚 6</b>：登場の大技＋精霊が別行動<br><b>宿す 3</b>：アリアの通常攻撃が毎ターン2回</div>');
+      if (hasRelic() && u.kind === 'aria') it.push(`<div class="cm-note cm-relic">${u.summonChain ? '双彩の王笏：2体目の召喚を選んでください' : '双彩の王笏：このターンは2体まで召喚できる（1体目のあとも手番が残る）'}</div>`);
       const summoned = live().find(x => x.until);
       const enchanted = u.enchant;
       if (summoned || enchanted) it.push(`<div class="cm-note">${[enchanted ? `${SPIRITS[enchanted.id].name}が心剣に宿っている` : '', summoned ? `${live().filter(x => x.until).map(x => x.name).join('・')}を召喚している` : ''].filter(Boolean).join('。')}。宿しも召喚も、ほかの精霊なら続けて使える（同じ精霊は同時に1つまで）</div>`);
@@ -2471,9 +2478,9 @@ const Board = (() => {
         const s = SPIRITS[id];
         const fallen = defeatedSpirits.has(id);
         const out = live().some(x => x.until && x.kind === id), inSword = enchanted && enchanted.id === id, canSum = !fallen && !out && !inSword && sp >= COST_SUMMON && summonCells(u).size > 0;
-        const canEn = !fallen && !out && !enchantUsed && sp >= COST_ENCHANT && !inSword;
+        const canEn = !fallen && !out && !enchantUsed && sp >= COST_ENCHANT && !inSword && !u.summonChain;
         const why = (k) => fallen ? '（戦闘不能：この戦闘中は使えない）' : k === 'summon' ? (out ? '（すでに召喚中）' : inSword ? '（心剣に宿っている間は召喚できない）' : sp < COST_SUMMON ? '（共鳴が足りない）' : '')
-          : (out ? '（召喚している間は宿せない）' : inSword ? '（すでに宿っている）' : enchantUsed ? '（このターンはもう宿した）' : sp < COST_ENCHANT ? '（共鳴が足りない）' : '');
+          : (out ? '（召喚している間は宿せない）' : inSword ? '（すでに宿っている）' : u.summonChain ? '（王笏の2体目を選んでいる間は宿せない）' : enchantUsed ? '（このターンはもう宿した）' : sp < COST_ENCHANT ? '（共鳴が足りない）' : '');
         it.push(`<div class="cm-sp${fallen ? ' fallen' : ''}" style="--sc:${s.color}"><div class="cm-spn">${s.name}<small>${fallen ? '戦闘不能 · この戦闘中は使用不可' : `Lv${rec(id).lv}・絆${bondRank(id)}`}</small></div>
           <button class="cm-s" data-k="summon" data-a="${id}" ${canSum ? '' : 'disabled'} data-d="【召喚】${s.summon.name}：${s.summon.desc}。${3 + GB.summonTurns}ターン共に戦う（行動を使う）${why('summon')}">召喚<em>${COST_SUMMON}</em></button>
           <button class="cm-s" data-k="enchant" data-a="${id}" ${canEn ? '' : 'disabled'} data-d="【心剣に宿す】${s.enchant.name}：${s.enchant.desc}。${3 + GB.enchantTurns}ターン、通常攻撃が毎ターン2回（移動は1回・技や道具は1回）。宿す行動は消費なし・1ターンに1度${why('enchant')}">宿す<em>${COST_ENCHANT}</em></button></div>`);
@@ -2496,14 +2503,19 @@ const Board = (() => {
     } else {
       const atk = attackTargets(u).size > 0;
       it.push(`<div class="cm-head">${u.name}<small>Lv${u.lv}</small></div>`);
+      if (u.summonChain) {
+        it.push('<div class="cm-note cm-relic">双彩の王笏：もう1体、別の精霊を召喚できます（ほかの行動はできません）</div>');
+        if (spiritPool().length) it.push(btn('spirit', '精霊 ▸ 2体目の召喚', { d: '別の精霊をもう1体召喚する（共鳴6）' }));
+        it.push(btn('wait', '待機 · 向きを選ぶ', { key: 'W', d: '2体目を呼ばずに、向きを選んで行動を終える' }));
+      } else {
       if (normalAttackLimit(u) === 2) it.push(`<div class="cm-combo" role="status" aria-live="polite"><span>通常攻撃</span><b>残り${2 - u.normalAttacks}回</b><small>${followUp ? (atk ? '同じ敵にも、別の敵にも追撃できます。' : '届く敵がいません。待機で向きを選べます。') : '1ターンに2回。技・道具を選ぶと行動終了。'}</small></div>`);
       it.push(btn('attack', (followUp ? '追撃 · ' : '') + (u.kind === 'aria' ? (u.enchant ? SPIRITS[u.enchant.id].enchant.name : '心剣') : '攻撃'), { dis: !atk, key: 'A', d: atk ? '届く敵を選んで攻撃する。敵に直接触れても攻撃できる' : '届く場所に敵がいない' }));
       if (cfg.postgame && ['aria', 'chrome_human'].includes(u.kind) && !followUp) it.push(btn('purify', '浄化 · 灯を繋ぐ', { cost: 2, dis: sp < 2, d: '2マス以内の床を選び、周り2マスを虹に。選んだ復興の灯を点ける（行動を使う）' }));
       if (u.kind === 'chrome_human' && !followUp) {
         const why = renoirUsed ? '使用済み · 1戦闘に1回' : '1戦闘に1回 · 3ターン';
-        it.push(btn('renoir', '四響エンチャント', { cost: 6, dis: renoirUsed || sp < 6, d: `${why}。精霊から吸収して身につけたルノワール自身の能力。精霊の戦闘不能に影響されない。射程2・攻撃+25%・守りと鉛を貫通・押し流し・拘束・30%吸収・虹床拡張。通常攻撃は毎ターン2回。宿す時は行動を使わない` }));
-        it.push(`<div class="cm-note">ルノワール · ${why}</div>`);
-        it.push(btn('pray', '夜の祈り', { cost: COST_PRAY, dis: sp < COST_PRAY, d: '自分か隣の味方を35%癒す。ルノワールが夜に灯を残す' }));
+        it.push(btn('renoir', '四響エンチャント', { cost: 6, dis: renoirUsed || sp < 6, d: `${why}。精霊から吸収して身につけたノアール自身の能力。精霊の戦闘不能に影響されない。射程2・攻撃+25%・守りと鉛を貫通・押し流し・拘束・30%吸収・虹床拡張。通常攻撃は毎ターン2回。宿す時は行動を使わない` }));
+        it.push(`<div class="cm-note">ノアール · ${why}</div>`);
+        it.push(btn('pray', '夜の祈り', { cost: COST_PRAY, dis: sp < COST_PRAY, d: '自分か隣の味方を35%癒す。ノアールが夜に灯を残す' }));
         it.push(btn('item', '道具 ▸', { d: '共有の道具を使う（行動を使う）' }));
       }
       if (u.kind === 'aria' && !followUp) {
@@ -2511,10 +2523,11 @@ const Board = (() => {
         if (stage && learnedForBattle().length) it.push(btn('learned', '覚えた技 ▸', { d: 'エンチャントと召喚、それぞれの熟練で覚えた技。習得後は宿しや召喚なしでも使える' }));
         const nItems = Object.keys(party.items).filter(k => party.items[k] > 0 && typeof ITEMS !== 'undefined' && ITEMS[k]).length;
         it.push(btn('item', '道具 ▸', { dis: !nItems, d: nItems ? '道具を使う（行動を使う）' : '道具を持っていない' }));
-        if (stage && skyCharges > 0) it.push(btn('sky', '小さな夜空', { cost: '×' + skyCharges, d: 'ルノワールの夜空。周り2マスを夜空に変え、白い膜を打つ' }));
+        if (stage && skyCharges > 0) it.push(btn('sky', '小さな夜空', { cost: '×' + skyCharges, d: 'ノアールの夜空。周り2マスを夜空に変え、白い膜を打つ' }));
       }
       it.push(btn('wait', '待機 · 向きを選ぶ', { key: 'W', d: '4方向から正面を向ける方向を選んで、行動を終える' }));
       if (u.moved && u.undo && !u.normalAttacks) it.push(btn('undo', '移動を戻す', { d: '歩く前の場所に戻る' }));
+      }
     }
     it.push('<div class="cm-desc"></div>');
     cmdMenu.innerHTML = it.join('');
@@ -2591,7 +2604,7 @@ const Board = (() => {
       <div class="ui-tags">${ft}${st.join('')}</div></div>`;
   }
   // 精霊が増えても、右側のミッション欄と重ならないようにする。
-  // 余白が足りなければ、ルノワールを小さく → 精霊の札を一行に → それでも足りなければ札の中だけ縦にスクロール。
+  // 余白が足りなければ、ノアールを小さく → 精霊の札を一行に → それでも足りなければ札の中だけ縦にスクロール。
   let fitQueued = false, fitTimers = [];
   function fitSide() {
     // 文字や画像の読み込みで高さが変わることがあるので、少し遅れてもう一度測る。
@@ -2707,7 +2720,7 @@ const Board = (() => {
     guardianHud.classList.toggle('hidden',!e);
     if (!e) return;
     const p=gProfile(e), real=GuardianCombat.profile(e.guardian), chrome=e.kind==='chrome', unknown=chrome&&stage<2;
-    const names=real.phaseNames||GuardianCombat.phaseNames, label=chrome?'白い膜HP':'穢れHP';
+    const names=real.phaseNames||GuardianCombat.phaseNames, label=real.hpLabel||(chrome?'白い膜HP':'穢れHP');
     const phaseText=unknown?(stage===0?'絶望 · 刃が届かない':'夜が戻る · 黒の奥の声を探す'):`${['Ⅰ','Ⅱ','Ⅲ'][e.guardianPhase]} ${names[e.guardianPhase]}`;
     const hint=chrome&&stage===0?'予告の床の外へ逃げる':`${chrome?'夜空':'虹'}で防ぐ`;
     guardianHud.dataset.phase=String(e.guardianPhase+1);
@@ -2767,6 +2780,7 @@ const Board = (() => {
       case 'back': return `背後から${m.n}回攻撃する`;
       case 'crit': return `会心の一撃を${m.n}回出す`;
       case 'summonKill': return `召喚した精霊で${m.n}体倒す`;
+      case 'doubleSummon': return `双彩の王笏で、1ターンに2体を${m.n}回召喚する`;
       case 'enchantKill': return cfg.postgame ? `宿した心剣・四響の剣で${m.n}体倒す` : `精霊を宿した心剣で${m.n}体倒す`;
       case 'flashMulti': return '覚えた貫く技で、2体を同時に斬る';
       case 'noSpirit': return '精霊の力を借りずにクリア';
@@ -2794,6 +2808,7 @@ const Board = (() => {
       case 'back': return count(stats.back);
       case 'crit': return count(stats.crit);
       case 'summonKill': return count(stats.summonKills);
+      case 'doubleSummon': return count(stats.doubleSummons || 0);
       case 'enchantKill': return count(stats.enchantKills);
       case 'flashMulti': return { ok: stats.flashMulti ? true : fin ? false : null, prog: '' };
       case 'noSpirit': return never(stats.spiritUses);
@@ -2823,7 +2838,7 @@ const Board = (() => {
   // ---------- 勝敗 ----------
   function win() {
     if (over) return;
-    if (cells.some(c => c.beacon && !c.beaconOn)) { say('ルノワール', '穢れは消えた。残った復興の灯に「浄化」を届けよう。', 5000); return; }
+    if (cells.some(c => c.beacon && !c.beaconOn)) { say('ノアール', '穢れは消えた。残った復興の灯に「浄化」を届けよう。', 5000); return; }
     over = true;
     hideMenu(); deselect();
     stats.rainbowEnd = ratioA;
@@ -3052,7 +3067,7 @@ const Board = (() => {
       <h4>道具とミッション</h4>町で買った道具は、メニューの「道具」から使えます（行動を使う）。<br>右上のミッションをすべて達成するとSランク。S評価の報酬は難易度別。<b>ハードのボス戦はユニーク装備、通常戦は通常装備。ふつう・やさしいはアイテム</b>です。各難易度で1回ずつ受け取れ、所持済みの通常装備は価格の半分のしずくになります。
       <h4>LV</h4>攻撃と撃破で経験値が入り、100たまるとLVが上がります。精霊は、召喚や宿しで育ちます。
       <h4>精霊との絆・覚えた技</h4>召喚で絆+3、心剣に宿すと+2。召喚した精霊の攻撃や、宿した心剣が命中すると+1、覚えた技を使うと+2。絆は精霊と技の強さを育てます。<b>習得はエンチャントと召喚の熟練を別々に判定</b>し、それぞれ8・20・40で3種ずつ、6精霊で36種。貫く一閃と近い癒やしは、精霊ごとに覚えて使います。宿すとエンチャント熟練+2、宿した通常攻撃の命中で+1。召喚すると召喚熟練+3、精霊の命中で+1。覚えた技の使用は熟練に入りません。<br>習得後は「覚えた技」から、召喚や宿しをせずに使えます。絆が深まるほど精霊のHP・攻撃・守りと、宿した心剣・覚えた技の効果が育ちます。負けても絆と習得は残ります。
-      <h4>ルノワールの四響エンチャント</h4>クロムだけが使う切り札です。共鳴6・1戦闘に1回。3ターン、4精霊のエンチャント効果をまとめて宿し、通常攻撃が毎ターン2回になります。宿す行動は消費しません。吸収して身につけたルノワール自身の能力なので、他の精霊の召喚中・戦闘不能でも使えます。クロム自身に精霊の召喚能力はありません。再挑戦・次の戦闘で使用回数は戻ります。<h4>復興の灯</h4>復興編は敵の全滅と、番号のついた灯をすべて点けることが目的です。アリアとクロムの<b>「浄化」（共鳴2）</b>で2マス以内の灯そのものを選んでください。周り2マスも虹に戻ります。防壁を持つ核は、灯が全部点くまで攻撃が届きません。<h4>難易度・依頼</h4>マップの戦場や依頼でやさしい・ふつう・ハードの3段階の難易度を選べます。適正LV・報酬・ミッション実績は難易度ごとに表示されます。戦闘開始後は再挑戦も同じ難易度です。町の「依頼」でサブクエストを探せます。
+      <h4>ノアールの四響エンチャント</h4>クロムだけが使う切り札です。共鳴6・1戦闘に1回。3ターン、4精霊のエンチャント効果をまとめて宿し、通常攻撃が毎ターン2回になります。宿す行動は消費しません。吸収して身につけたノアール自身の能力なので、他の精霊の召喚中・戦闘不能でも使えます。クロム自身に精霊の召喚能力はありません。再挑戦・次の戦闘で使用回数は戻ります。<h4>復興の灯</h4>復興編は敵の全滅と、番号のついた灯をすべて点けることが目的です。アリアとクロムの<b>「浄化」（共鳴2）</b>で2マス以内の灯そのものを選んでください。周り2マスも虹に戻ります。防壁を持つ核は、灯が全部点くまで攻撃が届きません。<h4>難易度・依頼</h4>マップの戦場や依頼でやさしい・ふつう・ハードの3段階の難易度を選べます。適正LV・報酬・ミッション実績は難易度ごとに表示されます。戦闘開始後は再挑戦も同じ難易度です。町の「依頼」でサブクエストを探せます。
       <h4>国の色の敵</h4>敵は、戦う土地の色に染まっています。名前と色がちがい、<b>特性</b>を一つ持つ種類がいます（押し流し・燠火・絡め取り・金の被膜・色吸い・霞）。敵を選ぶと、特性の内容が見られます。
       <p style="margin-top:12px;color:#ffd98a">「切るのは穢れだけ。その人の色は、一滴も切らない」</p>`);
   }
@@ -3066,7 +3081,8 @@ const Board = (() => {
     party = loadParty();
     const joined = Progression.companions(Engine.unlocked(),Engine.load()?.colors), extra=['vard','mari'].filter(id=>joined.includes(id));
     const baseSpirits = conf.chapterGate==='fury' ? joined : conf.spirits||[];
-    conf = { ...conf, spirits:[...new Set([...baseSpirits.filter(id=>!['vard','mari'].includes(id)||joined.includes(id)),...extra])] };
+    // パレット王は精霊として仲間にならない。どの戦場の精霊一覧からも外す。
+    conf = { ...conf, spirits:[...new Set([...baseSpirits.filter(id=>id!=='king'&&(!['vard','mari'].includes(id)||joined.includes(id))),...extra])] };
     const key = conf.hardOnly ? 'hard' : Progression.normalize(conf.difficulty || Progression.selected(party, conf.id));
     baseCfg = { ...conf, difficulty: key }; onDone = done;
     const my = sess;
@@ -3122,8 +3138,8 @@ const Board = (() => {
     orderCells();
     turn = 0; phase = 'player'; busy = true; over = false; paused = false;
     sel = null; mode = 'idle'; moveInfo = null; targets = null; targetCmd = null; hover = null; threat = null; menuSub = null; infoU = null;
-    sp = Math.min(spCap(), (cfg.spStart != null ? cfg.spStart : 3) + GB.spStart); skyCharges = 0; enchantUsed = false;
-    stats = { purify: 0, kills: 0, taken: 0, down: 0, start: performance.now(), levelUps: [], expA: 0, phase0: 0, back: 0, crit: 0, items: 0, spiritUses: 0, summonKills: 0, enchantKills: 0, flashMulti: 0, dullMax: 0, lastBoss: false, bossEarly: false, gold: 0, bondUses: {}, bondGains: {}, trainingGains: {}, learned: [], skillUses: 0, skillBySpirit: {} };
+    sp = Math.min(spCap(), (cfg.spStart != null ? cfg.spStart : 3) + GB.spStart); skyCharges = 0; enchantUsed = false; summonsThisTurn = 0;
+    stats = { purify: 0, kills: 0, taken: 0, down: 0, start: performance.now(), levelUps: [], expA: 0, phase0: 0, back: 0, crit: 0, items: 0, spiritUses: 0, summonKills: 0, doubleSummons: 0, enchantKills: 0, flashMulti: 0, dullMax: 0, lastBoss: false, bossEarly: false, gold: 0, bondUses: {}, bondGains: {}, trainingGains: {}, learned: [], skillUses: 0, skillBySpirit: {} };
     units.filter(u=>u.guardian).forEach(u=>guardianTransition(u,true));
     learnedRoute = 'enchant';
     fxp.length = 0; floatLayer.innerHTML = '';
@@ -3147,7 +3163,7 @@ const Board = (() => {
     runTask(playerPhase());
   }
   // ---------- 終章：クロム戦の流れ ----------
-  // 0 絶望（刃は届かない・盤は白い膜）→ ルノワールの救援 → 1 夜が戻る（精霊が一人ずつ還る）
+  // 0 絶望（刃は届かない・盤は白い膜）→ ノアールの救援 → 1 夜が戻る（精霊が一人ずつ還る）
   //   → 刃が黒を通り抜ける → 2 クロムに貼りついた白い膜を切り分ける本戦（3フェーズ）
   const rescueDue = () => { const a = ariaU(); return turn >= 2 || !!a && a.hp / a.mhp <= 0.45; };
   // 物語の場面（Engine）が無いとき（ワールドマップからの再戦）は、短い一言で代える
@@ -3164,7 +3180,7 @@ const Board = (() => {
     if (my !== sess || over) return;
     await playEvent('rescue1', { who: '', text: '膝をついたアリアの前に、小さな黒いものが転がり出た。' });
     if (my !== sess || over) return;
-    // ルノワールの夜空
+    // ノアールの夜空
     if (a) {
       const q = topOf(cellOf(a));
       artEffect('night_sky', cellOf(a), 3.4);
@@ -3185,7 +3201,7 @@ const Board = (() => {
     await playEvent('rescue2', { who: 'クロム', text: '……なんで。なんで、おまえの中に、星が' });
     if (my !== sess || over) return;
     paused = false;
-    say('アリア', 'ルノワールの夜空が、床を取り戻していく。<br><small>夜空にした床の上なら、クロムの波は止まる。精霊の色が、ターンごとに一つずつ還ってくる</small>', 9000);
+    say('アリア', 'ノアールの夜空が、床を取り戻していく。<br><small>夜空にした床の上なら、クロムの波は止まる。精霊の色が、ターンごとに一つずつ還ってくる</small>', 9000);
     unfocus();
     await wait(500);
   }
@@ -3232,7 +3248,7 @@ const Board = (() => {
     const ch = units.find(u => u.kind === 'chrome');
     if (ch) ch.word = '';
     if (opt.skyCharges != null) skyCharges = opt.skyCharges;
-    // ルノワールの夜空が、波で貼り直された白い膜をほどく。膜の影は、そのあとで自分の足元だけを塗る
+    // ノアールの夜空が、波で貼り直された白い膜をほどく。膜の影は、そのあとで自分の足元だけを塗る
     cells.forEach(c => { if (c.walk && c.floor === 'dull') paint(c, 'neutral', Math.random() * 300); });
     units.filter(u => u.hidden).forEach(u => {
       // 第一段のあいだに誰かが立っていたら、近くの空いた床へ

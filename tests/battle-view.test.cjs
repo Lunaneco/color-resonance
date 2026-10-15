@@ -37,7 +37,7 @@ after(async()=>{for(const b of Object.values(browsers||{}))await b.close();if(se
 async function session(engine,viewport,run,settings={reduceMotion:true}){
   const context=await browsers[engine].newContext({viewport,hasTouch:viewport.width<900}),page=await context.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.url().startsWith(base)&&r.status()>=400)errors.push(`${r.status()} ${r.url()}`);});
-  await context.addInitScript(s=>localStorage.setItem('cr_settings',JSON.stringify(s)),settings);
+  await context.addInitScript(s=>{localStorage.setItem('cr_settings',JSON.stringify(s));localStorage.setItem('cr_unlocked',JSON.stringify(['prologue','act1','act2','act3','fury','vardbond']));},settings);
   const source=await fs.readFile(path.join(root,'js/board.js'),'utf8'),marker='    start, enterPhase1, help, stop,';
   assert(source.includes(marker));await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:source.replace(marker,hook+marker)}));
   await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({contentType:'text/css',body:''}));
@@ -50,7 +50,7 @@ const aria=s=>s.units.find(u=>u.kind==='aria');
 const enemy=s=>s.units.find(u=>u.side==='enemy');
 const logical=s=>({sp:s.sp,turn:s.turn,mode:s.mode,units:s.units.map(({x,y,bodyY,...u})=>u),floors:s.cells.map(c=>c.floor),ends:s.ends,targets:s.targets});
 async function fixture(page,extra={}){
-  await page.evaluate(extra=>Board.start({...BOARDS.king,cols:9,rows:7,spirits:['gran','ivy','spinel','king'],map:{low:['land_flat'],mid:['land_flat'],high:['land_flat'],hills:0,obsAmt:0,water:null},enemies:[{kind:'shade',lv:1}],intro:null,tutorial:null,beats:[],spStart:12,...extra}),extra);
+  await page.evaluate(extra=>Board.start({...BOARDS.king,cols:9,rows:7,spirits:['gran','ivy','spinel','vard'],map:{low:['land_flat'],mid:['land_flat'],high:['land_flat'],hills:0,obsAmt:0,water:null},enemies:[{kind:'shade',lv:1}],intro:null,tutorial:null,beats:[],spStart:12,...extra}),extra);
   await idle(page);await page.evaluate(()=>Board.__viewQA.arrange());
 }
 async function press(page,selector,viewport){if(viewport.width<900)await page.locator(selector).tap();else await page.locator(selector).click();}
@@ -165,7 +165,7 @@ for(const engine of ['chromium','webkit']){
     assert.deepEqual([aria(round).r, aria(round).c], [3, 4]);
   }, { reduceMotion: false }));   // 設定が空だと、ブラウザの「視差効果を減らす」に従う（CIのWebKitは減らす側）
   test(`${engine}: each defeated summoned spirit locks both routes for later turns without spending resonance or training`,async()=>session(engine,{width:1440,height:900},async(page,viewport)=>{
-    for(const id of ['gran','ivy','spinel','king']){
+    for(const id of ['gran','ivy','spinel','vard']){
       await fixture(page);assert.deepEqual((await state(page)).fallen,[],'A new battle must clear the previous restriction');await page.evaluate(id=>Board.__viewQA.ally(id,2,3,{hp:1,mhp:1,def:0,until:4,summon:3}),id);
       await press(page,'#endTurn',viewport);await page.waitForFunction(()=>Board.__viewQA.state().turn===2&&!Board.__viewQA.state().busy);
       let s=await state(page);assert(s.fallen.includes(id));assert.equal(s.down,1);assert(!s.over);assert(!s.units.some(u=>u.kind===id&&!u.dead));
@@ -199,7 +199,7 @@ for(const engine of ['chromium','webkit']){
   }));
   test(`${engine}: four defeated spirits remain readable without covering touch controls on a small phone`,async()=>session(engine,{width:320,height:480},async(page,viewport)=>{
     await fixture(page);
-    for(const [index,id] of ['gran','ivy','spinel','king'].entries()){
+    for(const [index,id] of ['gran','ivy','spinel','vard'].entries()){
       await page.evaluate(id=>Board.__viewQA.ally(id,2,3,{hp:1,mhp:1,def:0,until:20,summon:20}),id);
       await press(page,'#endTurn',viewport);await page.waitForFunction(turn=>Board.__viewQA.state().turn===turn&&!Board.__viewQA.state().busy,index+2);
     }

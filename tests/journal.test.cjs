@@ -10,7 +10,7 @@ test('Journal marks derive from completed play and do not award drops or invent 
     p.stages={one:{cleared:true,best:'S',difficulties:{expert:{cleared:true}}},two:{cleared:true},three:{cleared:true}};
     for(const id of Object.keys(Progression.spirits))p.spirits[id]={lv:4,exp:0,bond:40,training:{enchant:40,summon:40}};
     for(const id of ['lantern','echo','voyage','crystal'])for(const tier of ['gentle','normal','hard'])p.minigames.records[id][tier]={clears:1};
-    Progression.migrate(p);const rich=JSON.stringify(p),complete=Journal.achievements(p,['prologue','act1','act2','act4','act5','finale','done']);
+    Progression.migrate(p);const rich=JSON.stringify(p),complete=Journal.achievements(p,['prologue','act1','act2','act4','vardbond','act5','finale','done']);
     const six=Journal.achievements(p,['prologue','act1','act2','act4','act5','finale','done','vardbond','maribond']);return {empty,complete,six,unchanged:rich===JSON.stringify(p),gold:p.gold};})()`,c);
   assert(result.empty.every(m=>m.now===0));assert(result.complete.every(m=>m.now===m.total));assert(result.six.every(m=>m.now===m.total));assert(result.unchanged);assert.equal(result.gold,42);
 });
@@ -55,9 +55,9 @@ test('The notebook is Kaoru\'s: his name, portrait and margin notes appear only 
 test('Vard and Marii have three letters each after recruitment; unjoined training records reveal neither',async()=>{
   await boot(undefined,['prologue','act1','act2','act3','act4','act5','finale','epilogue','done'],40);
   await page.evaluate(()=>{for(const id of ['vard','mari'])Board.party.spirits[id]={lv:26,exp:0,bond:40,training:{enchant:40,summon:40}};Journal.open('letters');});
-  assert.equal(await page.locator('.jn-spirit').count(),4);assert.doesNotMatch(await page.locator('.jn-letters').textContent(),/風の先の人たち|潮の友の分/);
+  assert.equal(await page.locator('.jn-spirit').count(),3);assert.doesNotMatch(await page.locator('.jn-letters').textContent(),/風の先の人たち|潮の友の分/);
   await page.evaluate(()=>{localStorage.cr_unlocked=JSON.stringify([...Engine.unlocked(),'vardbond','maribond']);Journal.open('letters');});
-  assert.equal(await page.locator('.jn-spirit').count(),6);assert.equal(await page.locator('.jn-letter').count(),18);assert.equal(await page.locator('.jn-letter.opened').count(),9);
+  assert.equal(await page.locator('.jn-spirit').count(),5);assert.equal(await page.locator('.jn-letter').count(),15);assert.equal(await page.locator('.jn-letter.opened').count(),9);
   const prose=await page.locator('.jn-letters').textContent();assert.match(prose,/潮の友の分/);assert.match(prose,/ネリのお母さん/);assert.match(prose,/クリスタリアの王妃/);assert.match(prose,/時計師/);
   assert.equal(await page.evaluate(()=>Board.party.gold),42);
 });

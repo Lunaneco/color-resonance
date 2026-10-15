@@ -16,7 +16,7 @@ const Progression = (() => {
     m_teal: { name: '潮の雫晶', spirit: 'gran', color: '#65d7ed', price: 55, desc: 'グランの技を強化する素材', source: '入り江・鐘楼・港の依頼・灯台の色つなぎ・灰色の街の店' },
     m_green: { name: '若葉の結晶', spirit: 'ivy', color: '#90dcaa', price: 55, desc: 'アイビーの技を強化する素材', source: '森・果実の丘・森の依頼・精霊のこだま・灰色の街の店' },
     m_gold: { name: '金継ぎの欠片', spirit: 'spinel', color: '#f6d16f', price: 70, desc: 'スピネルの技を強化する素材', source: '石の谷・時計や橋の依頼・灯台の色つなぎ・石の村の店' },
-    m_violet: { name: '虹彩の結晶', spirit: 'king', color: '#c4adff', price: 85, desc: 'パレット王の技を強化する素材', source: '城・夜空・終盤の依頼・精霊のこだま・虹の城下町の店' },
+    m_violet: { name: '虹彩の結晶', spirit: 'mari', color: '#c4adff', price: 85, desc: '七色の光や羽の技を磨く強化素材', source: '城・夜空・終盤の依頼・精霊のこだま・虹の城下町の店' },
     m_core: { name: '澄明の核', color: '#f5e9ff', price: 300, desc: '+3への仕上げに使う希少素材', source: '各戦場・各難易度の初S評価・遊びの初S評価・虹の城下町の店' },
   };
   // 仲間の顔・名前は物語で加入してから表示する。成長用の記録だけでは加入扱いにしない。
@@ -26,12 +26,18 @@ const Progression = (() => {
     const chapters = ['prologue', 'act1', 'act2', 'act3', 'act4', 'act5', 'finale', 'epilogue', 'done'];
     const reached = Math.max(-1, ...(Array.isArray(unlocked) ? unlocked : []).map(key => chapters.indexOf(key)));
     const held = Array.isArray(colors) ? colors : [];
-    return Object.keys(spirits).filter(id => {
+    // パレット王は精霊として仲間にならない（第五幕で宝具「双彩の王笏」を託す）。
+    return Object.keys(spirits).filter(id => id !== 'king').filter(id => {
       const chapter = chapters.indexOf(joinedAt[id]);
       return chapter >= 0 ? reached >= chapter || held.includes(spiritColors[id]) : Array.isArray(unlocked) && unlocked.includes(joinedAt[id]);
     });
   }
-  // グラン → 森と赤い丘（順不同）→ スピネル → 王。加入は戦績ではなく物語で決まる。
+  // 双彩の王笏は、第五幕でパレット王から受け取る（第五幕を読み終えて終章が開いた旅）。
+  function paletteRelic(unlocked = []) {
+    const chapters = ['prologue', 'act1', 'act2', 'act3', 'act4', 'act5', 'finale', 'epilogue', 'done'];
+    return Array.isArray(unlocked) && unlocked.some(key => chapters.indexOf(key) >= chapters.indexOf('finale'));
+  }
+  // グラン → 森と赤い丘（順不同）→ スピネル。パレット王は仲間にならず、宝具を託す。加入は戦績ではなく物語で決まる。
   function journeyGate(chapter, unlocked = [], colors = []) {
     const required = { act4: ['gran','ivy','vard'], act5: ['gran','ivy','vard','spinel'] }[chapter] || [];
     const joined = companions(unlocked, colors), missing = required.filter(id => !joined.includes(id));
@@ -78,7 +84,7 @@ const Progression = (() => {
     { id: 'vard_horn', spirit: 'vard', route: 'enchant', at: 8, name: '紅角の斬り', type: '技', cost: 3, target: 'enemy', range: 2, power: 1.35, fury: true, paint: 0, desc: '2マス先の敵一人へ威力1.35倍の必中斬撃。失ったHPが多いほど、さらに強くなる' },
     { id: 'vard_focus', spirit: 'vard', route: 'enchant', at: 20, name: '怒りの照準', type: '魔法', cost: 4, target: 'enemy', range: 3, power: 1.6, fury: true, paint: 1, desc: '3マス先の敵一人へ威力1.6倍。守りは貫かない。失ったHPが多いほど強い' },
     { id: 'vard_edge', spirit: 'vard', route: 'enchant', at: 40, name: '憤怒の心剣', type: '技', cost: 6, target: 'enemy', range: 2, power: 2.1, fury: true, paint: 1, desc: '2マス先の敵一人へ威力2.1倍の必中斬撃。失ったHPが多いほど、紅角の刃が強くなる' },
-    { id: 'vard_roar', spirit: 'vard', route: 'summon', at: 8, name: '猛牛の咆哮', type: '魔法', cost: 3, target: 'area', range: 3, radius: 1, power: 1.0, fury: true, paint: 1, desc: '周り1マスの敵を威力1倍の咆哮で打つ。失ったHPが多いほど強い' },
+    { id: 'vard_roar', spirit: 'vard', route: 'summon', at: 8, name: '紅竜の咆哮', type: '魔法', cost: 3, target: 'area', range: 3, radius: 1, power: 1.0, fury: true, paint: 1, desc: '周り1マスの敵を威力1倍の咆哮で打つ。失ったHPが多いほど強い' },
     { id: 'vard_rush', spirit: 'vard', route: 'summon', at: 20, name: '紅角の突進', type: '技', cost: 5, target: 'enemy', range: 3, power: 1.4, line: 1, push: true, fury: true, paint: 1, desc: '狙った敵と、その向こう1マスへ威力1.4倍で突進する。敵を押し流し、傷が深いほど強い' },
     { id: 'vard_dawn', spirit: 'vard', route: 'summon', at: 40, name: '紅角の夜明け', type: 'スキル', cost: 7, target: 'ally', range: 1, heal: 0.3, fury: true, paint: 1, desc: '自分か隣の味方を30%回復する。その人の傷が深いほど、回復が大きい' },
     { id: 'mari_feather', spirit: 'mari', route: 'enchant', at: 8, name: '風切りの羽', type: '技', cost: 3, target: 'enemy', range: 2, power: 1.1, line: 1, selfWind: 2, paint: 1, desc: '2マス先の敵と、その向こう1マスへ風の刃。威力1.1倍。あと2ターン、自分の移動+1' },
@@ -332,5 +338,5 @@ const Progression = (() => {
     return copy;
   }
   return { furyPower, difficulties, spirits, routes, skills, thresholds, normalize, selected, level, rank, learned, training, practice, rewards, isBossStage, ordinaryEquipment, reconcileRewards, migrate, prepare,
-    companions, journeyGate, materialDescription, materials, MATERIAL_MAX, skillLevel, skill, enhancement, recipe, upgrade, awardMaterials, battleMaterials, collectBattleMaterials, leisureMaterials, leisureHardBonus };
+    companions, paletteRelic, journeyGate, materialDescription, materials, MATERIAL_MAX, skillLevel, skill, enhancement, recipe, upgrade, awardMaterials, battleMaterials, collectBattleMaterials, leisureMaterials, leisureHardBonus };
 })();

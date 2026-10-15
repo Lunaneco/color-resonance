@@ -141,7 +141,10 @@ test('Minigame migration bounds rewards and preserves only usable partial sessio
 
 
 test('Companion visibility follows story joins and held colors instead of unearned growth records',()=>{
-  for(const [chapters,expected] of [[['act1'],[]],[['act2'],['gran']],[['act3'],['gran']],[['act4'],['gran','ivy']],[['act5'],['gran','ivy','spinel']],[['finale'],['gran','ivy','spinel','king']],[['done'],['gran','ivy','spinel','king']]])assert.deepEqual(plain(P.companions(chapters)),expected);
+  for(const [chapters,expected] of [[['act1'],[]],[['act2'],['gran']],[['act3'],['gran']],[['act4'],['gran','ivy']],[['act5'],['gran','ivy','spinel']],[['finale'],['gran','ivy','spinel']],[['done'],['gran','ivy','spinel']],[['done','vardbond'],['gran','ivy','spinel','vard']]])assert.deepEqual(plain(P.companions(chapters)),expected);
+  // パレット王は仲間にならない。代わりに第五幕の終わりから双彩の王笏を持つ。
+  assert(!P.companions(['done','vardbond','maribond'],['teal','green','gold','violet']).includes('king'));
+  assert.equal(P.paletteRelic(['act5']),false);assert.equal(P.paletteRelic(['finale']),true);assert.equal(P.paletteRelic(['done']),true);
   assert.deepEqual(plain(P.companions(['act1'],['teal'])),['gran']);assert.deepEqual(plain(P.companions(['act3'],['green'])),['gran','ivy']);assert.deepEqual(plain(P.companions(null,null)),[]);
   assert.equal(P.materialDescription('m_green',['gran']),'これから覚える技を強化する素材');assert.match(P.materialDescription('m_green',['gran','ivy']),/アイビー/);
 });

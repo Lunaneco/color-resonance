@@ -248,8 +248,8 @@ test('A summoned spirit and an enchanted sword fight together without doubling o
   assert(await page.locator('[data-k=summon][data-a=gran]').isDisabled(),'the enchanted spirit cannot also be summoned');
 });
 
-async function enchantBattle(id='king',viewport={width:1440,height:900}) {
-  await boot('king',viewport);await fixture('king',{spStart:6,spirits:['gran','ivy','spinel','king']});
+async function enchantBattle(id='spinel',viewport={width:1440,height:900}) {
+  await boot('king',viewport);await fixture('king',{spStart:6,spirits:['gran','ivy','spinel']});
   await page.evaluate(()=>Board.__test.arrange([{kind:'aria',atk:25,hp:200,mhp:1000},{kind:'shade',hp:1000,mhp:1000,atk:1,dir:2}]));
   await openMenu();await page.locator('[data-k=spirit]').click();
   assert.match(await page.locator('.cm-spirit-choice').textContent(),/通常攻撃が毎ターン2回/);
@@ -262,7 +262,7 @@ async function enchantedHit(target) {
   await page.waitForFunction(()=>{const s=Board.__test.state();return !s.busy||s.over;},{},{timeout:15000});
 }
 
-for(const id of ['gran','ivy','spinel','king']) {
+for(const id of ['gran','ivy','spinel']) {
   test(`Enchanted ${id} grants exactly two normal attacks with its effect on both hits`,async()=>{
     await enchantBattle(id);await page.evaluate(()=>Board.__test.addAlly('gran',1,1));
     if(id==='spinel'){await page.evaluate(()=>Board.__test.arrange([{kind:'shade',armor:3,def:999}]));await openMenu();}
@@ -328,9 +328,9 @@ test('Enchanted attacks reset on the next turn and return to one attack after th
 test('Using a learned skill while enchanted still consumes the whole action',async()=>{
   const party=partyWithBond(0);party.aria.skills=['gran_wave'];
   await boot('king',{width:1440,height:900},{cr_party:party});
-  await fixture('king',{spStart:6,spirits:['gran','ivy','spinel','king']});
+  await fixture('king',{spStart:6,spirits:['gran','ivy','spinel']});
   await page.evaluate(()=>Board.__test.arrange([{kind:'aria',atk:25,hp:200,mhp:1000},{kind:'shade',hp:1000,mhp:1000,atk:1,dir:2}]));
-  await openMenu();await page.locator('[data-k=spirit]').click();await page.locator('[data-k=enchant][data-a=king]').click();await idle();
+  await openMenu();await page.locator('[data-k=spirit]').click();await page.locator('[data-k=enchant][data-a=spinel]').click();await idle();
   await page.evaluate(()=>Board.__test.addAlly('gran',1,1));
   if(!await page.locator('#cmdMenu').isVisible())await openMenu();
   await chooseLearned('gran_wave');await clickUnit(enemy(await state()),true);await idle();
@@ -350,14 +350,14 @@ test('A summoned spirit still has one normal attack per turn',async()=>{
 test('The first enchanted hit can win immediately and an interrupted hit cannot grant the next battle a follow-up',async()=>{
   await enchantBattle();await page.evaluate(()=>Board.__test.arrange([{kind:'shade',hp:1}]));await enchantedHit();await page.locator('#resNext').waitFor({timeout:12000});assert((await state()).over);
   assert(await page.locator('#cmdMenu').evaluate(e=>e.classList.contains('hidden')));await page.locator('#resNext').click();
-  await fixture('king',{spStart:6});await page.evaluate(()=>Board.__test.arrange([{kind:'aria',enchant:{id:'king',turns:3,from:1}},{kind:'shade',hp:1000}]));
+  await fixture('king',{spStart:6});await page.evaluate(()=>Board.__test.arrange([{kind:'aria',enchant:{id:'spinel',turns:3,from:1}},{kind:'shade',hp:1000}]));
   await openMenu();await page.locator('[data-k=attack]').click();await clickUnit(enemy(await state()),true);await page.evaluate(()=>Board.stop());await fixture('cove');await page.waitForTimeout(1500);
   const fresh=await state();assert.equal(fresh.cfg,'cove');assert.equal(aria(fresh).normalAttacks,0);assert(!aria(fresh).acted&&!aria(fresh).enchant);assert.equal(enemy(fresh).hp,1);
 });
 
 for(const viewport of [{width:320,height:480},{width:390,height:844},{width:667,height:375}]) {
   test(`Enchanted follow-up is visible and tappable at ${viewport.width}×${viewport.height}`,async()=>{
-    await enchantBattle('king',viewport);await page.evaluate(()=>Board.__test.addAlly('gran',1,1));
+    await enchantBattle('spinel',viewport);await page.evaluate(()=>Board.__test.addAlly('gran',1,1));
     await page.locator('[data-k=attack]').tap();await page.touchscreen.tap(enemy(await state()).x,enemy(await state()).bodyY);await idle();
     await inViewport('cmdMenu');assert.match(await page.locator('.cm-combo').textContent(),/残り1回/);
     await page.screenshot({path:`/tmp/cr-balance-followup-${viewport.width}.png`});
@@ -637,7 +637,7 @@ test('Summoning and a summoned attack train only the summon route and unlock its
   assert.equal(await page.evaluate(()=>Board.party.spirits.ivy.training.summon),0);
 });
 
-const skillIds=['gran_wave','gran_mend','gran_tide','ivy_bind','ivy_bloom','ivy_dance','spinel_break','spinel_guard','spinel_sun','king_prism','king_canvas','king_resonance','gran_current','gran_spray','gran_ocean','ivy_renew','ivy_grove','ivy_sanctuary','spinel_polish','spinel_verdict','spinel_spark','king_edge','king_mantle','king_spectrum'];
+const skillIds=['gran_wave','gran_mend','gran_tide','ivy_bind','ivy_bloom','ivy_dance','spinel_break','spinel_guard','spinel_sun','gran_current','gran_spray','gran_ocean','ivy_renew','ivy_grove','ivy_sanctuary','spinel_polish','spinel_verdict','spinel_spark'];
 test('Ivy’s learned bind prevents movement for two enemy turns, then expires',async()=>{
   await boot('cove',{width:1440,height:900},{cr_party:partyWithBond(40)});
   await fixture('cove',{spStart:12});
@@ -662,22 +662,22 @@ test('A quest requiring Ivy’s learned skills does not count another spirit’s
   assert.equal(progress[0].ok,null);assert.equal(progress[0].prog,'0/1');assert.equal(progress[1].ok,true);
 });
 
-test('All twenty-four learned skills, route tabs and the back button can be reached on a small touchscreen',async()=>{
+test('All eighteen learned skills (the Palette King teaches none), route tabs and the back button can be reached on a small touchscreen',async()=>{
   await boot('cove',{width:320,height:480},{cr_party:partyWithTraining(40)});
   await fixture('cove',{spStart:12});await openMenu();await page.locator('[data-k=learned]').click();
-  assert.equal(await page.locator('[data-k=skill]').count(),12);
+  assert.equal(await page.locator('[data-k=skill]').count(),9);
   await inViewport('cmdMenu');
   const widths=await page.locator('#cmdMenu').evaluate(e=>({menu:e.clientWidth,button:e.querySelector('[data-k=skill]').clientWidth}));
   assert(widths.button>=widths.menu-24,'Each learned skill must have a readable full-width row');
   await page.waitForTimeout(200);
   await page.screenshot({path:'/tmp/cr-skills-320.png'});
   await page.locator('[data-k=learnedroute][data-a=summon]').tap();
-  assert.equal(await page.locator('[data-k=skill]').count(),12);
-  await page.locator('[data-k=skill][data-a=king_resonance]').scrollIntoViewIfNeeded();
-  assert(await page.locator('[data-k=skill][data-a=king_resonance]').isVisible());
-  await page.locator('[data-k=skill][data-a=king_resonance]').hover();
+  assert.equal(await page.locator('[data-k=skill]').count(),9);assert.equal(await page.locator('[data-k=skill][data-a^=king_]').count(),0);
+  await page.locator('[data-k=skill][data-a=spinel_sun]').scrollIntoViewIfNeeded();
+  assert(await page.locator('[data-k=skill][data-a=spinel_sun]').isVisible());
+  await page.locator('[data-k=skill][data-a=spinel_sun]').hover();
   assert.equal(await page.locator('#cmdMenu .cm-desc').evaluate(e=>getComputedStyle(e).display),'none');
-  assert.match(await page.locator('[data-k=skill][data-a=king_resonance] small').textContent(),/七色の斬撃/);
+  assert.match(await page.locator('[data-k=skill][data-a=spinel_sun] small').textContent(),/黄金の光/);
   await page.locator('[data-k=back]').click();assert(await page.locator('[data-k=learned]').isVisible());
 });
 
@@ -785,11 +785,12 @@ test('Every learned skill shows its own cut-in and a stage effect', { timeout: 1
   const party = partyWithTraining(40);
   for (const id of ['vard', 'mari']) party.spirits[id] = { lv: 1, exp: 0, bond: 40, uses: 0, training: { enchant: 40, summon: 40 } };
   await boot('cove', { width: 1440, height: 900 }, { cr_party: party, cr_unlocked: ['prologue', 'act1', 'act2', 'act3', 'act4', 'act5', 'finale', 'epilogue', 'done', 'vardbond', 'maribond'] });
-  await fixture('cove', { spStart: 12, spirits: ['gran', 'ivy', 'spinel', 'king', 'vard', 'mari'] });
+  await fixture('cove', { spStart: 12, spirits: ['gran', 'ivy', 'spinel', 'vard', 'mari'] });
   await recordArt();
   await page.evaluate(() => Board.__test.arrange([{ kind: 'aria', atk: 8, hp: 40, mhp: 99, moved: false, acted: false }, { kind: 'shade', hp: 9000, mhp: 9000, armor: 0 }]));
-  const skills = await page.evaluate(() => Progression.skills.map(s => ({ id: s.id, name: s.name, type: s.type, spirit: s.spirit })));
-  const shots = new Set(['gran_mend', 'gran_tide', 'ivy_bind', 'spinel_break', 'king_prism', 'king_resonance', 'vard_roar', 'mari_feather']);
+  // パレット王は仲間にならないので、王の技は戦闘で使えない。
+  const skills = await page.evaluate(() => Progression.skills.filter(s => s.spirit !== 'king').map(s => ({ id: s.id, name: s.name, type: s.type, spirit: s.spirit })));
+  const shots = new Set(['gran_mend', 'gran_tide', 'ivy_bind', 'spinel_break', 'vard_roar', 'mari_feather']);
   const seen = new Set();
   for (const skill of skills) {
     await page.evaluate(() => { window.artCels = []; });
@@ -822,8 +823,8 @@ test('Walking, attacking, taking damage and the slash effect play on the game ca
 
 test('Each spirit has an animated enchant cut-in and no effect survives leaving battle',async()=>{
   await boot('king');await recordArt();
-  for(const id of ['gran','ivy','spinel','king']){
-    await fixture('king',{spStart:12,spirits:['gran','ivy','spinel','king']});await openMenu();await page.locator('[data-k=spirit]').click();await page.locator(`[data-k=enchant][data-a=${id}]`).click();
+  for(const id of ['gran','ivy','spinel']){
+    await fixture('king',{spStart:12,spirits:['gran','ivy','spinel']});await openMenu();await page.locator('[data-k=spirit]').click();await page.locator(`[data-k=enchant][data-a=${id}]`).click();
     await page.locator('#cutin canvas').waitFor();await drew('aria',7,'aria');
     const fx=await page.evaluate(id=>GameArt.spiritEffects[id],id);await drewFx(fx,'aria');
     await idle();assert.equal(aria(await state()).enchant.id,id);

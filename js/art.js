@@ -3,7 +3,7 @@ const GameArt = (() => {
   const ROOT = 'assets/generated/';
   const assets = new Map(), cache = new Map(), mounts = new WeakMap();
   const spiritEffects = { gran: 'gran_tide', ivy: 'ivy_vines', spinel: 'spinel_shield', king: 'king_prism', vard: 'crystal_slash', mari:'pray_heal' };
-  const speakers = { アリア: 'aria', リラ: 'lila', 老漁師: 'fisher', ルミナ: 'lumina', 石の子: 'stone_child', 馨: 'kaoru', マリー: 'mari', グラン: 'gran', アイビー: 'ivy', スピネル: 'spinel', パレット王: 'king', クロム: 'chrome', ルノワール: 'renoir', アクロマ: 'achroma', ヴァルド: 'vard', 紅角のヴァルド: 'vard' };
+  const speakers = { アリア: 'aria', リラ: 'lila', 老漁師: 'fisher', ルミナ: 'lumina', 石の子: 'stone_child', 馨: 'kaoru', マリー: 'mari', グラン: 'gran', アイビー: 'ivy', スピネル: 'spinel', パレット王: 'king', クロム: 'chrome', ノアール: 'renoir', ノア: 'renoir', アクロマ: 'achroma', ヴァルド: 'vard', 紅角のヴァルド: 'vard' };
   const ready = fetch(ROOT + 'manifest.json?v=20261011-aria4', { signal: AbortSignal.timeout(8000) })
     .then(r => { if (!r.ok) throw new Error('art manifest'); return r.json(); })
     .then(m => m.assets.forEach(a => assets.set(a.id, a))).catch(() => {});
@@ -139,7 +139,7 @@ const GameArt = (() => {
     const regional = region ? ['shade', 'thorn', 'lead', 'membrane'].map(k => region + '_' + k) : [];
     return load(['aria', 'aria_d0', 'aria_d1', 'aria_d2', 'aria_d3', 'renoir', ...(conf.enemies || []).map(e => e.kind), conf.bossArt, ...(conf.companion ? ['chrome_human'] : []), ...spirits,
       'crystal_slash', 'pray_heal', 'night_sky', ...(conf.guardian ? Object.values(spiritEffects) : []), ...[...spirits, ...learnedSpirits].map(id => spiritEffects[id]),
-      ...((conf.enemies || []).some(e => e.kind === 'chrome') ? ['chrome_wave'] : []), ...regional]);
+      ...((conf.enemies || []).some(e => e.kind === 'chrome') || conf.guardian === 'kaoru' ? ['chrome_wave'] : []), ...regional]);
   }
   const portrait = (id, cls = '') => `<img class="art-portrait ${cls}" src="${ROOT}frames/${id}/000.png" alt="" loading="lazy">`;
   return { ready, load, loadBattle, available, animation, sample, draw, drawMotion, mount, unmount, portrait, spiritEffects, speakers };

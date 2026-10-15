@@ -24,7 +24,7 @@ const EQUIP = {
   u_vine: { slot: 'charm', unique: true, name: '姉妹の蔦冠', fx: { enchantTurns: 2, regen: 3 }, lore: 'ひと冬かけて編んだドレスの、残った糸で編んだ冠。' },
   u_kintsugi: { slot: 'cloth', unique: true, name: '金継ぎの衣', fx: { def: 20, hp: 50, dullGuard: 1 }, lore: '割れたところを、金でつないだ衣。傷のところがいちばん強い。' },
   u_palette: { slot: 'blade', unique: true, name: '王のパレット', fx: { atk: 28, splash: 1 }, lore: '世界の色の調和を守ってきた、王の絵の具皿。' },
-  u_nightsky: { slot: 'charm', unique: true, name: '小さな夜空のかけら', fx: { crit: 15, killSp: 2 }, lore: '星が光るための黒。ルノワールの中で灯った夜空の一粒。' },
+  u_nightsky: { slot: 'charm', unique: true, name: '小さな夜空のかけら', fx: { crit: 15, killSp: 2 }, lore: '星が光るための黒。ノアールの中で灯った夜空の一粒。' },
   u_mist: { slot: 'cloth', unique: true, name: '霧のヴェール', fx: { def: 14, hp: 30, evade: 10 }, lore: 'グランが灯台に預けた霧の、ひとすじ。' },
   u_fruit: { slot: 'charm', unique: true, name: '赤い果実のブローチ', fx: { killHeal: 12 }, lore: '怒ったあとほど甘い、という赤い国の果実をかたどったもの。' },
   u_compass: { slot: 'charm', unique: true, name: '迷子の羅針盤', fx: { mov: 1, jump: 1 }, lore: '居心地がよすぎて出口を忘れた森で、マリーが落としたもの。' },
@@ -349,7 +349,7 @@ const World = (() => {
     const f = conf.inverted ? ['夜空', '白い膜'] : ['虹', 'くすみ'];
     return ({
       turns: `${m.n}ターン以内にクリア`, hp: `アリアのHPを${m.n}%以上残す`, back: `背後から${m.n}回攻撃する`, crit: `会心の一撃を${m.n}回出す`,
-      summonKill: `召喚した精霊で${m.n}体倒す`, enchantKill: `精霊を宿した心剣で${m.n}体倒す`, flashMulti: '覚えた貫く技で、2体を同時に斬る',
+      summonKill: `召喚した精霊で${m.n}体倒す`, doubleSummon: `双彩の王笏で、1ターンに2体を${m.n}回召喚する`, enchantKill: `精霊を宿した心剣で${m.n}体倒す`, flashMulti: '覚えた貫く技で、2体を同時に斬る',
       noSpirit: '精霊の力を借りずにクリア', noItem: '道具を使わずにクリア', noDown: '召喚した精霊を倒させない',
       rainbow: `クリア時に${f[0]}の床${m.n}%以上`, dullMax: `${f[1]}を${m.n}%未満に保つ`, bossLast: '核を最後に倒す', guardianVoice: '守り手の理性を3段階取り戻す',
       spiritUse: `${Progression.spirits[m.spirit]?.name}の力を${m.n}回使う`, skillUse: `${m.spirit ? Progression.spirits[m.spirit].name + 'から' : ''}覚えた技を${m.n}回使う`,
@@ -412,16 +412,18 @@ const World = (() => {
     }
     if (n.type === 'town' && questsAt(n.id).length) body += `<div class="wp-sec">町の依頼<small>${questsAt(n.id).length}件</small></div>${questList(n.id)}`;
     if(n.id==='f_fruit' && Fury.available()){
-      body+=`<div class="wp-sec">紅角の精霊<small>憤怒を攻撃力へ</small></div><p class="wp-note">${Fury.joined()?'ヴァルドは仲間になった。怒りを攻撃力に変える精霊で、傷を負うほど強くなる。':'影を払う通常戦と、汚染された猛牛のボス戦。物語の結末でヴァルドが仲間になります。森の物語と、どちらが先でもかまいません。'}</p>`;
+      body+=`<div class="wp-sec">紅角の精霊<small>憤怒を攻撃力へ</small></div><p class="wp-note">${Fury.joined()?'ヴァルドは仲間になった。怒りを攻撃力に変える精霊で、傷を負うほど強くなる。':'影を払う通常戦と、汚染された紅い竜のボス戦。物語の結末でヴァルドが仲間になります。森の物語と、どちらが先でもかまいません。'}</p>`;
       if(Fury.reunionReady())acts.push('<button class="wb" data-a="furychat">精霊たちの語らい</button>');
     }
     if(n.id==='grey'){
-      body+=`<div class="wp-sec">馨のカフェ<small>戦わない町</small></div><p class="wp-note">${Kaoru.available()?'復興の頁が書き上がった。馨が、窓際の席で待っている。':'ここに戦場はない。馨が書いている手帳は、地図の「手帳」からいつでも読める。'}</p>`;
-      if(Kaoru.available())acts.push('<button class="wb main" data-a="cafe">馨のカフェへ</button>');
+      const sealed=typeof Seam!=='undefined'&&Seam.sealed(), seamOpen=typeof Seam!=='undefined'&&Seam.available();
+      body+=`<div class="wp-sec">馨のカフェ<small>${sealed?'思い出':'戦わない町'}</small></div><p class="wp-note">${sealed?'時計の音が止んだ街。窓際の席には、カモミールが三杯。馨の手帳は、アリアが書き継いでいる。':Kaoru.available()?'復興の頁が書き上がった。馨が、窓際の席で待っている。':'ここに戦場はない。馨が書いている手帳は、地図の「手帳」からいつでも読める。'}</p>`;
+      if(Kaoru.available())acts.push(`<button class="wb${seamOpen&&!sealed?'':' main'}" data-a="cafe">${sealed?'思い出：馨のカフェ':'馨のカフェへ'}</button>`);
+      if(seamOpen){body+=`<div class="wp-sec">最終章 灰色の継ぎ目<small>${sealed?'読み終えた':'物語'}</small></div><p class="wp-note">${sealed?'向こうから来た灰色は、向こうへ帰った。物語と馨との戦いを、もう一度読める。':'時計が止まらないまま、遅れていく。馨からの手紙が、アリアを呼んでいる。'}</p>`;acts.push(`<button class="wb${sealed?'':' main'}" data-a="seam">${sealed?'最終章を読み返す':'最終章へ'}</button>`);}
       acts.push('<button class="wb" data-a="notebook">馨の手帳を開く</button>');
     }
     const guardianRoute=GUARDIANS.find(p=>!p.chapter.startsWith('restore')&&p.town===n.id&&GuardianJourney.available(GUARDIAN_STAGES['gp_'+p.id]));
-    if(guardianRoute){body+=`<div class="wp-sec">章の戦場<small>通常戦と精霊ボス戦</small></div><p class="wp-note">${guardianRoute.name} · 適正LV ${guardianRoute.lv}〜${guardianRoute.lv+3}。${guardianRoute.counter}</p>`;acts.push(`<button class="wb" data-a="guardians" data-chapter="${guardianRoute.chapter}">この章の戦場を選ぶ</button>`);}
+    if(guardianRoute){body+=`<div class="wp-sec">章の戦場<small>${guardianRoute.id==='king'?'通常戦とボス戦':'通常戦と精霊ボス戦'}</small></div><p class="wp-note">${guardianRoute.name} · 適正LV ${guardianRoute.lv}〜${guardianRoute.lv+3}。${guardianRoute.counter}</p>`;acts.push(`<button class="wb" data-a="guardians" data-chapter="${guardianRoute.chapter}">この章の戦場を選ぶ</button>`);}
     if (Restoration.joined()) {
       const legend = LEGEND_QUESTS.find(q => q.town === n.id);
       if (legend) {
@@ -449,6 +451,7 @@ const World = (() => {
       if (a === 'dismiss') dismissPanel();
       else if (a === 'furychat') Fury.start(true);
       else if (a === 'cafe') Kaoru.start();
+      else if (a === 'seam') Seam.start();
       else if (a === 'restoration') Restoration.open();
       else if (a === 'notebook') Journal.open();
       else if (a === 'journey') go(b.dataset.node);
@@ -583,7 +586,7 @@ const World = (() => {
     Panel.open('仲間', `<div class="pt">
       <header class="au-banner"><small>THE COLOURS THAT WALK WITH YOU</small><h3>ともに育つ、色の絆。</h3><p>精霊との絆と、二つの習得経路を見渡す。</p></header>
       <div class="pt-row"><span class="pt-name">${GameArt.portrait('aria', 'pt-art')}<b>アリア</b></span><span>LV ${party.aria.lv}</span><span class="pt-exp"><i style="width:${party.aria.exp}%"></i></span></div>
-      ${Restoration.joined() ? `<div class="pt-row"><span class="pt-name">${GameArt.portrait('chrome_human', 'pt-art')}<b>クロム</b></span><span>LV ${party.chrome.lv}</span><span class="pt-exp"><i style="width:${party.chrome.exp}%"></i></span></div><p class="wp-note">人間の仲間として復興編・伝説級の戦場に同行。ルノワールの剣で浄化と夜の祈りを使います。召喚の期限はありません。</p>` : ''}
+      ${Restoration.joined() ? `<div class="pt-row"><span class="pt-name">${GameArt.portrait('chrome_human', 'pt-art')}<b>クロム</b></span><span>LV ${party.chrome.lv}</span><span class="pt-exp"><i style="width:${party.chrome.exp}%"></i></span></div><p class="wp-note">人間の仲間として復興編・伝説級の戦場に同行。ノアールの剣で浄化と夜の祈りを使います。召喚の期限はありません。</p>` : ''}
       <details class="pt-guide"><summary>絆と技の育て方 <span aria-hidden="true">＋</span></summary><p class="wp-note">絆は共通で育ち、精霊と技の力が強くなります。技の習得は「エンチャント」「召喚」の熟練度を別々に育て、各8・20・40で3種類ずつ。覚えた技の使用は絆+2で、系統の熟練には入りません。以前覚えた技はそのまま使えます。貫く技と近い癒やしは、精霊ごとに覚えます。</p></details>
       <button class="sf-upgrade" id="ptForge">素材でスキルを強化する</button>
       <div class="bond-garden">${sp.map(id => {

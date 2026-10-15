@@ -51,6 +51,9 @@ const GuardianCombat = (() => {
     freed:'……星が、見える。黒いままで、ちゃんと。',
   };
   const CHROME_DESPAIR={...CHROME, pattern:'despair', effect:'drain', phaseNames:['すべてを呑む黒','',''], skills:['すべてを呑む黒','','']};
-  const profile=id=>id==='chrome'?CHROME:id==='chrome_despair'?CHROME_DESPAIR:GUARDIANS.find(p=>p.id===id);
-  return {phaseNames,phase,damage,plan,mode,profile};
+  // 精霊の守り手ではない特別なボス（最終章の馨など）は、ここへ登録する。
+  const EXTRA={};
+  const register=p=>{EXTRA[p.id]=p;return p;};
+  const profile=id=>id==='chrome'?CHROME:id==='chrome_despair'?CHROME_DESPAIR:EXTRA[id]||GUARDIANS.find(p=>p.id===id);
+  return {phaseNames,phase,damage,plan,mode,profile,register};
 })();

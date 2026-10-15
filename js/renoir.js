@@ -1,4 +1,4 @@
-// ルノワール：見るたびに形が少しずつ違う、小さな黒
+// ノアール：見るたびに形が少しずつ違う、小さな黒
 const Renoir = (() => {
   const state = { colors: [], gulp: 0, sky: 0, mood: 0 };
   let castT = -Infinity;

@@ -40,9 +40,9 @@ const Panel = (() => {
 
 const Engine = (() => {
   // 本編の合間に読む物語。読み終えたら、読み始める前の記録へ戻る。
-  const SIDE_STORIES=['fury','fury_reunion','mari_reunion','kaoru_cafe'];
-  const SIDE_HOME={fury:'f_fruit',fury_reunion:'f_fruit',mari_reunion:null,kaoru_cafe:'grey'};
-  const SIDE_OPEN={fury:()=>Fury.available(),fury_reunion:()=>Fury.available()&&Fury.reunionReady(),mari_reunion:()=>MariReturn.available()&&MariReturn.joined(),kaoru_cafe:()=>Kaoru.available()};
+  const SIDE_STORIES=['fury','fury_reunion','mari_reunion','kaoru_cafe','seam'];
+  const SIDE_HOME={fury:'f_fruit',fury_reunion:'f_fruit',mari_reunion:null,kaoru_cafe:'grey',seam:'grey'};
+  const SIDE_OPEN={fury:()=>Fury.available(),fury_reunion:()=>Fury.available()&&Fury.reunionReady(),mari_reunion:()=>MariReturn.available()&&MariReturn.joined(),kaoru_cafe:()=>Kaoru.available(),seam:()=>typeof Seam!=='undefined'&&Seam.available()};
   const BG = { rain: 'rain', cave_sky: 'cave_sky', canyon: 'canyon', teal: 'teal', forest: 'forest', stars: 'stars', glass: 'glass' };
   const PRESET = {
     none: 'none', dim: 'brightness(.72)', night: 'brightness(.55) saturate(.85) hue-rotate(-8deg)', storm: 'brightness(.32) saturate(.45) contrast(1.15)',
@@ -419,7 +419,7 @@ const Engine = (() => {
     const conf = BOARDS[key];
     return new Promise(res => {
       if (key === 'chrome') {
-        // 戦闘の中で起こる場面（ルノワールの救援・刃が黒を通り抜ける）を、盤の上に重ねて読む
+        // 戦闘の中で起こる場面（ノアールの救援・刃が黒を通り抜ける）を、盤の上に重ねて読む
         conf.onEvent = async (name) => {
           if (mine !== token || !Board.running || !FINALE_EVENTS[name]) return false;
           inlineMode = true;
@@ -468,6 +468,7 @@ const Engine = (() => {
       case 'furychat': { const mine=token;for(const line of parse(Fury.chat(a[0]))){if(mine!==token)return 'stop';await runLine(line);}break;}
       case 'marichat': {const mine=token;for(const line of parse(MariReturn.chat(a[0]))){if(mine!==token)return 'stop';await runLine(line);}break;}
       case 'maribond': if(chapter==='restore4'){unlock('maribond');Board.saveParty();toast('マリーが精霊として仲間になった');} break;
+      case 'sealed': if(chapter==='seam'){unlock('sealed');Board.saveParty();toast('最終章「灰色の継ぎ目」を読み終えた');} break;
       case 'vardbond': if(chapter==='fury'){unlock('vardbond');Board.saveParty();toast('紅角のヴァルドが仲間になった');} break;
       case 'route': arrival = a[0] || null; break;
       case 'sideend': {
@@ -594,7 +595,7 @@ const Engine = (() => {
   }
   function load() { try { const value = SaveData.story(JSON.parse(localStorage.getItem('cr_save') || 'null')); return Object.hasOwn(SCRIPT, value.chapter) ? value : null; } catch (e) { return null; } }
   // 森（第三幕）が開いたら、赤い丘の章も同時に開く。どちらから読んでもよい。
-  function unlocked() { try { const value = JSON.parse(localStorage.getItem('cr_unlocked') || '["prologue"]'); if (!Array.isArray(value)) return ['prologue']; const list = [...new Set(['prologue', ...value.filter(k => k === 'done' || k === 'vardbond' || k === 'maribond' || Object.hasOwn(SCRIPT, k))])]; if (list.includes('act3') && !list.includes('fury')) list.push('fury'); return list; } catch (e) { return ['prologue']; } }
+  function unlocked() { try { const value = JSON.parse(localStorage.getItem('cr_unlocked') || '["prologue"]'); if (!Array.isArray(value)) return ['prologue']; const list = [...new Set(['prologue', ...value.filter(k => k === 'done' || k === 'vardbond' || k === 'maribond' || k === 'sealed' || Object.hasOwn(SCRIPT, k))])]; if (list.includes('act3') && !list.includes('fury')) list.push('fury'); return list; } catch (e) { return ['prologue']; } }
   function unlock(k) { try { const u = unlocked(); if (!u.includes(k)) u.push(k); localStorage.setItem('cr_unlocked', JSON.stringify(u)); } catch (e) {} }
   function cont() {
     const s = load(); if (!s) return false;

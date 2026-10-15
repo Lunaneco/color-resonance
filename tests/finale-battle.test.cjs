@@ -5,7 +5,7 @@ const {chromium}=require('playwright');
 const root=path.resolve(__dirname,'..');
 let server,base,browser,context,page,errors;
 
-// 終章のクロム戦：絶望 → ルノワールの救援 → 夜が戻る → 白い膜を切り分ける本戦
+// 終章のクロム戦：絶望 → ノアールの救援 → 夜が戻る → 白い膜を切り分ける本戦
 const hook=`__t: {
   state(){const ch=units.find(u=>u.kind==='chrome');return {running,turn,busy,over,paused,stage,sp,skyCharges,awakened,rescueTurn,pool:cfg?spiritPool():[],
     units:units.map(u=>({id:u.id,kind:u.kind,side:u.side,hp:u.hp,mhp:u.mhp,r:u.r,c:u.c,dead:!!u.dead,hidden:!!u.hidden,gp:u.guardianPhase,...toScreen(unitXY(u).x,unitXY(u).y),bodyY:toScreen(unitXY(u).x,unitXY(u).y-tw*u.hgt*.5).y})),
@@ -23,7 +23,7 @@ before(async()=>{
 afterEach(async()=>{if(context)await context.close();context=null;assert.deepEqual(errors||[],[],'The final battle must have no runtime errors or failed requests');});
 after(async()=>{if(browser)await browser.close();if(server)await new Promise(r=>server.close(r));});
 
-const base_store={cr_unlocked:['prologue','act1','act2','act3','fury','act4','act5','finale'],cr_speed:'0',cr_settings:{reduceMotion:true,textSize:'normal'},cr_party:{aria:{lv:16,exp:0},gold:100}};
+const base_store={cr_unlocked:['prologue','act1','act2','act3','fury','vardbond','act4','act5','finale'],cr_speed:'0',cr_settings:{reduceMotion:true,textSize:'normal'},cr_party:{aria:{lv:16,exp:0},gold:100}};
 async function open({hash='#board=chrome',save}={}){
   errors=[];
   context=await browser.newContext({viewport:{width:1440,height:900}});
@@ -94,7 +94,7 @@ test('The first cut at Chrome after the rescue passes through his black, reveals
   await page.waitForFunction(()=>Board.__t.state().stage===2&&!Board.__t.state().busy&&!Board.__t.state().paused,{},{timeout:30000});
   const s=await S();
   assert.equal(membranes(s).length,6);assert.equal(chrome(s).hp,chrome(s).mhp,'the first cut did not touch him');assert.equal(chrome(s).side,'enemy');
-  assert.equal(s.pool.length,4,'every spirit has returned');
+  assert.equal(s.pool.length,4,'every spirit has returned (Gran, Ivy, Spinel, Vard — the king never joins)');assert(!s.pool.includes('king'));
   const hud=await page.locator('#guardianHud').textContent();assert(hud.includes('Ⅰ')&&hud.includes('黒を塗る声'),hud);assert(!hud.includes('？？？'));
 });
 
@@ -129,7 +129,7 @@ test('In the story, the rescue and the cut that passes through play over the bat
   assert.equal((await S()).stage,0);
   await standInDanger(20);
   await page.locator('#endTurn').click();
-  // ルノワールの場面が、盤の上に重なる
+  // ノアールの場面が、盤の上に重なる
   await page.waitForFunction(()=>/漆黒の波が、また/.test(document.getElementById('text').textContent)&&!document.getElementById('textbox').classList.contains('hidden'),{},{timeout:30000});
   assert((await S()).paused);
   await advance(()=>Board.__t.state().stage===1&&!Board.__t.state().paused&&!Board.__t.state().busy);

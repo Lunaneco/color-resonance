@@ -156,7 +156,7 @@ test('Unjoined characters stay absent from the workshop, party and letters even 
 
 test('All companion screens reveal only joined spirits and reset a stale workshop selection after importing earlier progress',async()=>{
   await boot(undefined,'act1',{cr_party:craftParty()});
-  const stages=[['act2',['gran']],['act4',['gran','ivy']],['act5',['gran','ivy','spinel']],['finale',['gran','ivy','spinel','king']],['act2',['gran']]];
+  const stages=[['act2',['gran']],['act4',['gran','ivy']],['act5',['gran','ivy','spinel']],['finale',['gran','ivy','spinel']],['act2',['gran']]];
   for(const [chapter,expected] of stages){
     await page.evaluate(chapter=>{Panel.close();localStorage.setItem('cr_unlocked',JSON.stringify(['prologue','act1',chapter]));localStorage.removeItem('cr_save');World.open();},chapter);
     await page.locator('[data-w=forge]').click();assert.deepEqual(await page.locator('[data-forge-spirit]').evaluateAll(es=>es.map(e=>e.dataset.forgeSpirit)),expected);
