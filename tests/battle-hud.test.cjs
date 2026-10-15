@@ -48,7 +48,8 @@ test(`${engine}: when the mission list grows after the first layout, the spirit 
     await page.locator('#skills .skill.spirit').nth(3).waitFor();await page.waitForTimeout(1500);
     // 初回の配置が終わったあとで、ミッション欄を高くする（フォントや折り返しの変化を模す）
     await page.evaluate(()=>{const m=document.getElementById('missionBox');m.style.paddingBottom='150px';});
-    await page.waitForTimeout(700);
+    // 遅いCIでも、測り直しが終わるまで待つ（固定の待ち時間にしない）。
+    await page.waitForFunction(()=>document.getElementById('skills').getBoundingClientRect().top>=document.getElementById('missionBox').getBoundingClientRect().bottom-1,{},{timeout:8000}).catch(()=>{});
     const r=await page.evaluate(()=>{const rect=e=>{const b=e.getBoundingClientRect();return {top:b.top,bottom:b.bottom,left:b.left,right:b.right}};return {mission:rect(document.getElementById('missionBox')),cards:[...document.querySelectorAll('#skills .skill.spirit')].map(rect),skills:rect(document.getElementById('skills'))};});
     assert(r.skills.top>=r.mission.bottom-1,`the spirit column starts below the taller mission list: ${JSON.stringify({skills:r.skills,mission:r.mission})}`);
     for(const [i,c] of r.cards.entries())assert(!overlap(c,r.mission),`card ${i} must not cover the mission list`);
