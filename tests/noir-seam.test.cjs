@@ -86,7 +86,7 @@ after(async()=>{if(browser)await browser.close();if(server)await new Promise(r=>
 // テストだけで使う戦闘の窓口。公開するJavaScriptには入れない。
 const hook=`__noir: {
   state(){return {running,busy,paused,phase,turn,sp,spirits:cfg&&cfg.spirits,menu:document.getElementById('cmdMenu').classList.contains('hidden')?'':document.getElementById('cmdMenu').innerText,
-    units:units.map(u=>({id:u.id,kind:u.kind,side:u.side,acted:u.acted,chain:!!u.summonChain,until:u.until||0,dead:!!u.dead})),dbl:missionState({type:'doubleSummon',n:1},false)};},
+    units:(units||[]).map(u=>({id:u.id,kind:u.kind,side:u.side,acted:u.acted,chain:!!u.summonChain,until:u.until||0,dead:!!u.dead})),dbl:stats?missionState({type:'doubleSummon',n:1},false):null};},
   prep(){sp=30;refreshHud();select(ariaU(),true);},
   summon(id){select(ariaU(),true);command('summon',id);const t=targets&&[...targets][0];if(t==null)return false;execTarget(cells[t]);return true;},
   command(k,a){command(k,a);},
@@ -102,7 +102,7 @@ async function battle(id,unlocked,run){
   await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:source.replace(marker,hook+marker)}));
   try{
     await page.goto(base+'#board='+id,{waitUntil:'networkidle'});await page.locator('#gate').click();
-    await page.waitForFunction(()=>Board.__noir&&Board.__noir.state().running&&!Board.__noir.state().busy);
+    await page.waitForFunction(()=>{try{const s=Board.__noir&&Board.__noir.state();return s&&s.running&&!s.busy&&s.units.some(u=>u.kind==='aria');}catch{return false;}});
     await run(page);assert.deepEqual(errors,[]);
   }finally{await ctx.close();}
 }
