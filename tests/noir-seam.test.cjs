@@ -68,7 +68,7 @@ test('The final chapter makes Kaoru the last boss: only the poured darkness is c
   assert.equal(r.b.guardian,'kaoru');assert.equal(r.b.bossArt,'kaoru');assert(r.b.postgame&&r.b.companion,'Aria and Chrome fight together');assert.equal(r.b.restoreBeacons,0);assert.equal(r.b.unique,'u_sheath');
   assert.equal(r.p.hpLabel,'降り注いだ闇HP');assert.equal(r.p.lines.length,3);assert(r.plan.every(n=>n>0));
   const s=r.s;
-  for(const words of [/向こう側から、こぼれ落ちた街/,/それが、十六年前の夜です/,/わたしが、生まれた夜/,/俺ごと、向こうとここを、切り離してくれ/,/混ざりこんだものだけを、通さずに分ける/,/わたしは、嫌だ/,/誰の分かは、今日、決めた/,/乾いた土の茶色/])assert.match(s,words);
+  for(const words of [/あなたが、クロムさんですね/,/会うのは、初めてです/,/向こう側から、こぼれ落ちた街/,/それが、十六年前の夜です/,/わたしが、生まれた夜/,/俺ごと、向こうとここを、切り離してくれ/,/混ざりこんだものだけを、通さずに分ける/,/わたしは、嫌だ/,/誰の分かは、今日、決めた/,/乾いた土の茶色/])assert.match(s,words);
   const order=['@board seam','俺ごと','@sfx sword','@sealed','@sideend'].map(w=>s.indexOf(w));
   assert(order.every((n,i)=>n>=0&&(i===0||n>order[i-1])),'the battle comes before the request, and the cut before the end: '+order);
 });
@@ -155,10 +155,10 @@ async function clickThrough(page,done,limit=1500){
   }
   throw new Error('story did not reach the expected point: '+JSON.stringify(await page.evaluate(()=>({chapter:Engine.chapter,text:document.getElementById('textbox').innerText.slice(0,80),world:World.isOpen,running:Board.running}))));
 }
-test('The final chapter opens at Terra Cotta after the café, returns to the same checkpoint and turns the café into a memory',async()=>{
+test('The final chapter opens at Terra Cotta once the restoration is read, and returns to the same checkpoint',async()=>{
   await session(async page=>{
-    await page.evaluate(()=>World.open({at:'grey'}));await page.locator('#wmPanel:not(.hidden) .wp-name').waitFor();
-    assert.equal(await page.locator('#wmPanel [data-a=seam]').count(),0,'the café comes first');
+    await page.evaluate(()=>{const p=JSON.parse(localStorage.cr_party);p.postgame.finished=false;localStorage.cr_party=JSON.stringify(p);Board.reloadParty();World.open({at:'grey'});});await page.locator('#wmPanel:not(.hidden) .wp-name').waitFor();
+    assert.equal(await page.locator('#wmPanel [data-a=seam]').count(),0,'the restoration comes first');
   },restored);
   await session(async page=>{
     await page.evaluate(()=>World.open({at:'grey'}));await page.locator('#wmPanel:not(.hidden) .wp-name').waitFor();
@@ -173,13 +173,13 @@ test('The final chapter opens at Terra Cotta after the café, returns to the sam
     assert(await page.evaluate(()=>Engine.unlocked().includes('sealed')));
     await page.evaluate(()=>World.open({at:'grey'}));await page.locator('#wmPanel:not(.hidden) .wp-name').waitFor();
     assert.match(await page.locator('#wmPanel [data-a=seam]').textContent(),/読み返す/);
-    assert.match(await page.locator('#wmPanel [data-a=cafe]').textContent(),/思い出/);
-  },[...restored,'kaoru_cafe']);
+    assert.equal(await page.locator('#wmPanel [data-a=cafe]').count(),0,'the café scene lives inside the final chapter now');
+  },restored);
 });
 test('Kaoru fights as a guardian boss whose HP is the darkness poured on him',async()=>{
   const ctx=await browser.newContext({viewport:{width:1440,height:900}}),page=await ctx.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
-  await ctx.addInitScript(u=>{localStorage.setItem('cr_unlocked',JSON.stringify(u));localStorage.setItem('cr_save',JSON.stringify({chapter:'restored',idx:0,map:true,at:9}));localStorage.setItem('cr_party',JSON.stringify({aria:{lv:34,exp:0},chrome:{lv:34,exp:0},postgame:{started:true,progress:8,finished:true},gold:100}));localStorage.setItem('cr_settings',JSON.stringify({reduceMotion:true,textSize:'normal'}));},[...restored,'kaoru_cafe']);
+  await ctx.addInitScript(u=>{localStorage.setItem('cr_unlocked',JSON.stringify(u));localStorage.setItem('cr_save',JSON.stringify({chapter:'restored',idx:0,map:true,at:9}));localStorage.setItem('cr_party',JSON.stringify({aria:{lv:34,exp:0},chrome:{lv:34,exp:0},postgame:{started:true,progress:8,finished:true},gold:100}));localStorage.setItem('cr_settings',JSON.stringify({reduceMotion:true,textSize:'normal'}));},restored);
   await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({contentType:'text/css',body:''}));
   try{
     await page.goto(base+'#world',{waitUntil:'networkidle'});await page.locator('#gate').click();await page.locator('#world').waitFor({state:'visible'});

@@ -42,7 +42,7 @@ const Engine = (() => {
   // 本編の合間に読む物語。読み終えたら、読み始める前の記録へ戻る。
   const SIDE_STORIES=['fury','fury_reunion','mari_reunion','kaoru_cafe','seam'];
   const SIDE_HOME={fury:'f_fruit',fury_reunion:'f_fruit',mari_reunion:null,kaoru_cafe:'grey',seam:'grey'};
-  const SIDE_OPEN={fury:()=>Fury.available(),fury_reunion:()=>Fury.available()&&Fury.reunionReady(),mari_reunion:()=>MariReturn.available()&&MariReturn.joined(),kaoru_cafe:()=>Kaoru.available(),seam:()=>typeof Seam!=='undefined'&&Seam.available()};
+  const SIDE_OPEN={fury:()=>Fury.available(),fury_reunion:()=>Fury.available()&&Fury.reunionReady(),mari_reunion:()=>MariReturn.available()&&MariReturn.joined(),kaoru_cafe:()=>true,seam:()=>typeof Seam!=='undefined'&&Seam.available()};
   const BG = { rain: 'rain', cave_sky: 'cave_sky', canyon: 'canyon', teal: 'teal', forest: 'forest', stars: 'stars', glass: 'glass' };
   const PRESET = {
     none: 'none', dim: 'brightness(.72)', night: 'brightness(.55) saturate(.85) hue-rotate(-8deg)', storm: 'brightness(.32) saturate(.45) contrast(1.15)',

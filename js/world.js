@@ -417,9 +417,8 @@ const World = (() => {
     }
     if(n.id==='grey'){
       const sealed=typeof Seam!=='undefined'&&Seam.sealed(), seamOpen=typeof Seam!=='undefined'&&Seam.available();
-      body+=`<div class="wp-sec">馨のカフェ<small>${sealed?'思い出':'戦わない町'}</small></div><p class="wp-note">${sealed?'時計の音が止んだ街。窓際の席には、カモミールが三杯。馨の手帳は、アリアが書き継いでいる。':Kaoru.available()?'復興の頁が書き上がった。馨が、窓際の席で待っている。':'ここに戦場はない。馨が書いている手帳は、地図の「手帳」からいつでも読める。'}</p>`;
-      if(Kaoru.available())acts.push(`<button class="wb${seamOpen&&!sealed?'':' main'}" data-a="cafe">${sealed?'思い出：馨のカフェ':'馨のカフェへ'}</button>`);
-      if(seamOpen){body+=`<div class="wp-sec">最終章 灰色の継ぎ目<small>${sealed?'読み終えた':'物語'}</small></div><p class="wp-note">${sealed?'向こうから来た灰色は、向こうへ帰った。物語と馨との戦いを、もう一度読める。':'時計が止まらないまま、遅れていく。馨からの手紙が、アリアを呼んでいる。'}</p>`;acts.push(`<button class="wb${sealed?'':' main'}" data-a="seam">${sealed?'最終章を読み返す':'最終章へ'}</button>`);}
+      body+=`<div class="wp-sec">${seamOpen?'最終章 灰色の継ぎ目':'馨のカフェ'}<small>${sealed?'読み終えた':seamOpen?'物語':'戦わない町'}</small></div><p class="wp-note">${sealed?'向こうから来た灰色は、向こうへ帰った。時計の音が止んだ街で、手帳はアリアが書き継いでいる。物語と馨との戦いを、もう一度読める。':seamOpen?'観測塔のレンズに映った黒い糸は、この街の真ん中へ続いていた。時計が止まらないまま、遅れていく。':'ここに戦場はない。馨が書いている手帳は、地図の「手帳」からいつでも読める。'}</p>`;
+      if(seamOpen)acts.push(`<button class="wb${sealed?'':' main'}" data-a="seam">${sealed?'最終章を読み返す':'最終章へ'}</button>`);
       acts.push('<button class="wb" data-a="notebook">馨の手帳を開く</button>');
     }
     const guardianRoute=GUARDIANS.find(p=>!p.chapter.startsWith('restore')&&p.town===n.id&&GuardianJourney.available(GUARDIAN_STAGES['gp_'+p.id]));
@@ -450,7 +449,6 @@ const World = (() => {
       const a = b.dataset.a;
       if (a === 'dismiss') dismissPanel();
       else if (a === 'furychat') Fury.start(true);
-      else if (a === 'cafe') Kaoru.start();
       else if (a === 'seam') Seam.start();
       else if (a === 'restoration') Restoration.open();
       else if (a === 'notebook') Journal.open();

@@ -13,7 +13,7 @@ test('Postgame adds a full campaign, twelve gated requests and five distinct har
   for(const ch of data.chapters){assert(data.scripts[ch.key].includes('@board '+ch.key));assert(data.scripts[ch.key].includes('@restore '));assert(ch.note.length>30);}
   for(const stage of Object.values(data.stages)){assert(stage.companion&&stage.postgame);assert(stage.restoreBeacons>=2);assert.equal(stage.missions.length,3);assert(stage.enemies.length>=3);}
   for(const q of data.legends){assert(q.hardOnly);assert(data.gear[q.unique].legendary);const d=vm.runInContext(`Progression.prepare(RESTORATION_STAGES.${q.id},'gentle')`,c);assert.equal(d.difficulty,'hard');assert.equal(d.recommendedLv,q.lv+3);}
-  assert(data.scripts.finale.includes('リラは戻らない'));assert(data.scripts.restore4.includes('街を壊すと決めたのは僕だ'));assert(data.scripts.restore5.includes('リラがここにいることは'));assert(data.scripts.restore8.includes('機構そのものは壊さず'));assert(data.scripts.restore1.includes('僕自身の力'));assert(data.scripts.restore1.includes('みんなが倒れても消えない'));
+  assert(data.scripts.finale.includes('リラは戻らない'));assert(data.scripts.restore4.includes('だから、出どころを見なかった'));assert(data.scripts.restore5.includes('リラがここにいることは'));assert(data.scripts.restore8.includes('僕は、その街を知らない'));assert(!Object.values(data.scripts).some(t=>/アクロマ|均彩/.test(t)),'the Achroma story is gone');assert(data.scripts.restore1.includes('僕自身の力'));assert(data.scripts.restore1.includes('みんなが倒れても消えない'));
 });
 test('Portable saves preserve the human companion, restoration choice, progress and independent S claims',async()=>{
   const c=vm.createContext({localStorage:{getItem:k=>data.get(k)||null,setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)},Date,Intl}),data=new Map();
@@ -123,7 +123,7 @@ for(const engine of ['chromium','webkit']){
 }
 
 async function advanceUntil(page,predicate){
-  for(let i=0;i<160;i++){
+  for(let i=0;i<400;i++){
     if(await page.evaluate(predicate))return;
     if(await page.locator('#choiceBox:not(.hidden)').count())await page.locator('#choiceBox button').nth(1).click();
     else if(await page.locator('#textbox:not(.hidden),#centerText.show').count()) {await page.evaluate(()=>document.activeElement?.blur());await page.keyboard.press('Enter');}

@@ -11,7 +11,7 @@ const MariReturn = (() => {
   const shared={difficultyFrom:'restore4',act:p.act,chapterGate:'mari_return',guardianRoute:p.id,postgame:true,companion:true,gate:2,lv:22,recLv:22,cols:9,rows:9,spStart:6,
     map:{low:['land_flat'],mid:['land_step','land_flat'],high:['land_high'],hills:.15,obsAmt:.015,waterAmt:0},
     material:'m_violet',hue:'#dbc4ef',decor:['rocks'],theme:{bg:'cave_sky',preset:'dark',fx:'ash:.4',bgm:'fate'},
-    spirits:['gran','ivy','spinel','king'],ordinaryReward:'a_star',reward:400,firstItems:{i_tea:1,i_shard:1},
+    spirits:['gran','ivy','spinel'],ordinaryReward:'a_star',reward:400,firstItems:{i_tea:1,i_shard:1},
     kegWords:['帰るな','声を消せ','誰も待っていない'],colorWords:['届いた声','帰る道','待っていた場所'],loseText:'羽音へ届く道が途切れた。二人の浄化で、もう一度。'};
   const path={...shared,id:p.pathId,title:'苗床の奥・帰らない羽音',desc:'通常戦。苗床の地下で、声を塞ぐ影を払い、古い羽音へ進む。',
     enemies:[{kind:'shade',lv:21,n:3},{kind:'membrane',lv:22,n:2}],
@@ -64,7 +64,8 @@ const MariReturn = (() => {
 グランは何も言えなかった。待つのをやめたのは、自分のほうだった。
 グラン「羽根には、帰ったら全部話すと残っていた。私は、それを最後の別れだと思い込んだ。……待たなかった。すまない」
 マリー「謝らないで。……あたしも、帰ってきたのに、怖いの」
-マリー「嵐の黒い波にさらわれたとき、羽根に声を乗せたの。そしたら闇が閉じた。昨日も明日も来ない場所で、あたしはずっと、ひとりで羽ばたいてた」
+マリー「この国が黒に覆われたって聞いて、確かめに来たの。王妃の窓が、まだあるかどうか。その帰り道、海の上で、黒い嵐にさらわれた」
+マリー「羽根に声を乗せたら、闇が閉じた。昨日も明日も来ない場所で、あたしはずっと、ひとりで羽ばたいてた」
 マリーの羽の端から、黒い滴が落ちた。落ちた先の床が、ひとつずつ、くすんでいった。
 マリー「ほら。あたしのまわり、みんな黒くなる。これを連れて、グランの隣にいられない」
 アリア「それは、あなたの色じゃない。長い間、貼りついていた闇だよ」
@@ -83,6 +84,13 @@ const MariReturn = (() => {
 グラン「私たちは、精霊として旅をしている。だが、おまえの行き先は、おまえが決めていい」
 マリーは長いあいだ、黙っていた。それから、羽をたたんで、顔を上げた。
 マリー「じゃあ、あたしも旅する。全部の色を見たいって、まだ言い終わってないもの」
+クロムが、一歩だけ前に出た。剣は下ろしたままだった。
+クロム「マリー。あなたをさらった嵐は、僕がこの国へ流した黒だ」
+マリーは、クロムを見た。羽が、わずかに逆立った。
+マリー「……知ってる。闇の中で、ずっと、あんたの黒の匂いがしてた」
+クロム「許してほしいとは言わない。……ただ、グランがあなたを待っていた年月まで、黒のせいにはさせない」
+グラン「……待つのをやめたのは、私だ。それは、私が背負う」
+マリー「許すかどうかは、まだ決めない。……でも、今日は、グランと帰る」
 @bg restoration clear
 @bgm forest
 @fx motes:0.2
@@ -101,7 +109,7 @@ const MariReturn = (() => {
 @fx none
 `;
   SCRIPT.restore3=SCRIPT.restore3.replace('@next restore4','葉の下の灰黄色の羽根が震えた。風の止んだ地下から、帰りたい声がする。\nグラン「この羽音は……マリー。まだ、そこにいるのか」\n@next restore4');
-  SCRIPT.restore4=SCRIPT.restore4.replace('記録院には、同じ日付の設計図が二枚あった。',rescue+'\n記録院には、同じ日付の設計図が二枚あった。');
+  SCRIPT.restore4=SCRIPT.restore4.replace('記録院の扉は、十六年前の夜から、一度も開いていなかった。',rescue+'\n記録院の扉は、十六年前の夜から、一度も開いていなかった。');
   SCRIPT.mari_reunion=`
 @chapter マリーと仲間たち | ただいまの、その先
 @bg restoration clear

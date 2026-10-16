@@ -28,15 +28,15 @@ test('The Terra Cotta chapter ends with a two-way choice, and the red hill is a 
   assert.equal(d.choice.options.length,2);assert(d.choice.options.every(o=>o.ok));assert.deepEqual(d.choice.options.map(o=>o.lines[0]),['@route thorn','@route f_fruit']);
   assert.deepEqual(d.chapters.slice(2,6),['act2','act3','fury','act4']);assert.equal(d.fury.title,'怒りの向け先');assert.match(d.fury.act,/第三幕/);assert.deepEqual(d.state,{colors:['teal'],shavings:1});
 });
-test('Every restoration episode gives Kaoru a speaking part and the notebook line is written by him',async()=>{
+test('Kaoru stays in Terra Cotta during the restoration, and the restoration traces the black to his town without Achroma',async()=>{
   const c=await content();
   const s=JSON.parse(vm.runInContext(`JSON.stringify(Object.fromEntries(['restore1','restore2','restore3','restore4','restore5','restore6','restore7','restore8','restored'].map(k=>[k,SCRIPT[k]])))`,c));
-  for(const [k,text] of Object.entries(s))assert(/^馨「/m.test(text)||k==='restored'&&text.includes('馨は'),k+' has Kaoru');
-  for(const k of ['restore1','restore2','restore3','restore4','restore5','restore6','restore7','restore8'])assert((s[k].match(/^馨「/gm)||[]).length>=2,k+' lets him speak more than once');
-  assert.match(s.restore1,/手帳のほうも続けています/);assert.match(s.restored,/地図の上でも、読めるようにしておきました/);
-  assert.match(s.restore4,/窓の歌を、最初から歌った/);assert.match(s.restore5,/書けません/);assert.match(s.restore6,/不一致は、誤りではなく、記録です/);assert.match(s.restore8,/保護対象は、読み上げるのに時間がかかります/);
-  // 既存の差し込み位置は壊さない
-  assert(s.restore4.includes('記録院には、同じ日付の設計図が二枚あった。'));assert(s.restore3.includes('@next restore4'));
+  for(const [k,text] of Object.entries(s)){assert(!/^馨「/m.test(text),k+' has no line by Kaoru: he does not come along');assert(!/アクロマ|均彩|校正/.test(text),k+' no longer tells the Achroma story');}
+  assert.match(s.restore1,/僕はもう、何も流していない/,'the black keeps seeping after Chrome stopped');
+  assert.match(s.restore2,/チクタク/);assert.match(s.restore3,/正しく写せ/);assert.match(s.restore4,/東の海より、黒い霧来たる/);
+  assert.match(s.restore8,/テラ・コッタ/);assert.match(s.restore8,/僕は、その街を知らない/);assert.match(s.restored,/テラ・コッタへ行こう/);
+  // 差し込み位置は、マリーの救出が使う
+  assert(s.restore4.includes('記録院の扉は、十六年前の夜から、一度も開いていなかった。'));assert(s.restore3.includes('@next restore4'));
 });
 test('Kaoru is drawn from the supplied pixel-art sheet, kept on the standard cel grid with real transparency',async()=>{
   const m=JSON.parse(await fs.readFile(path.join(root,'assets/generated/manifest.json'),'utf8')),a=m.assets.find(x=>x.id==='kaoru');
@@ -131,17 +131,15 @@ test('Terra Cotta shows no battle: the town offers the shop, games, forge and Ka
     for(const id of ['q_clock','q_orchard'])assert(quests.includes(id),id+' moved to the harbour');
   },{unlocked:all.slice(0,4)});
 });
-test('The finished restoration opens Kaoru\'s café, which returns to the same checkpoint and recolours the town',async()=>{
+test('The finished restoration opens the final chapter at Terra Cotta, and the old café only returns to the checkpoint',async()=>{
   await session(async page=>{
     await page.evaluate(()=>World.open({at:'grey'}));await page.locator('#wmPanel:not(.hidden) .wp-name').waitFor();
-    assert.equal(await page.locator('#wmPanel [data-a=cafe]').count(),1);
+    assert.equal(await page.locator('#wmPanel [data-a=cafe]').count(),0,'the café scene now opens the final chapter');
+    assert.equal(await page.locator('#wmPanel [data-a=seam]').count(),1);
     const land=await page.evaluate(()=>[...document.querySelectorAll('#wmSvg path')].map(p=>p.getAttribute('stroke')).filter(Boolean));assert(land.includes('#c97a52'),'Terra Cotta takes its own colour back');
-    await page.locator('#wmPanel [data-a=cafe]').click();await page.locator('#textbox:not(.hidden)').waitFor();
-    assert.equal(await page.evaluate(()=>Engine.chapter),'kaoru_cafe');
-    await clickThrough(page,()=>World.isOpen&&!Board.running,300);
-    assert.equal(await page.evaluate(()=>JSON.parse(localStorage.cr_save).chapter),'restored');assert(await page.evaluate(()=>JSON.parse(localStorage.cr_save).map===true));assert(!await page.evaluate(()=>JSON.parse(localStorage.cr_save).returnStory));
-    assert(await page.evaluate(()=>Engine.unlocked().includes('kaoru_cafe')));
-    assert.equal(await page.locator('#wmPanel [data-a=cafe]').count(),1,'the scene can be read again');
+    // 旧版のカフェを読みかけていた記録は、開いても元の場所へ戻るだけ
+    await page.evaluate(()=>Engine.play('kaoru_cafe'));await page.waitForFunction(()=>World.isOpen);
+    assert.equal(await page.evaluate(()=>JSON.parse(localStorage.cr_save).chapter),'restored');assert(!await page.evaluate(()=>JSON.parse(localStorage.cr_save).returnStory));
   },{unlocked:[...all,'restore1','restore2','restore3','restore4','restore5','restore6','restore7','restore8','restored','maribond','vardbond'],save:{chapter:'restored',idx:0,map:true,at:9},party:{aria:{lv:30,exp:0},chrome:{lv:30,exp:0},postgame:{started:true,progress:8,finished:true},gold:100}});
 });
 test('Kaoru\'s pixel-art sprite is shown while he speaks in the Terra Cotta chapter',async()=>{
