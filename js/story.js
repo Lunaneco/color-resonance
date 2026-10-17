@@ -34,7 +34,7 @@ const SPEAKERS = {
 const BOARDS = {
   cove: {
     id: 'cove', missions: [{ type: 'turns', n: 6 }, { type: 'back', n: 1 }, { type: 'rainbow', n: 40 }], unique: 'u_knot',
-    act: '序章', title: '入り江の黒いにじみ', cols: 8, rows: 8, recLv: 1, par: 6, spStart: 2,
+    act: '序章', title: '入り江の黒いにじみ', cols: 8, rows: 8, recLv: 1, par: 6, spStart: 2, introStage: true,
     map: { low: ['sea_calm', 'sea_flat', 'sea_shallow', 'sea_calm', 'sea_wave1'], mid: ['land_flat'], high: ['land_high'], water: 'sea_deep', waterAmt: 0.05, hills: 0.22, obstacles: ['rocks'], obsAmt: 0.03 },
     enemies: [{ kind: 'shade', lv: 1, n: 3 }],
     decor: ['rocks', 'mt_small'], hue: '#bfe3ff', hideSide: true, renoir: false,

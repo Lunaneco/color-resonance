@@ -460,14 +460,14 @@ for(const viewport of [{width:1440,height:900},{width:390,height:844},{width:320
     assert.equal(await page.locator('#wmPanel [data-reward-kind=unique]').count(),0);
     assert.equal(await page.locator('#wmPanel [data-reward-kind=equipment]').count(),1);
     assert.match(await page.locator('#wmPanel [data-reward-kind=equipment]').textContent(),/潮の刻印/);
-    assert.match(await page.locator('#wmPanel').textContent(),/適正LV 8/);
+    assert.match(await page.locator('#wmPanel').textContent(),/適正LV 10/);
     assert(await page.locator('#wmPanel [data-diff=hard]').getAttribute('aria-pressed')==='true');
     const panelBounds=await inViewport('wmPanel');
     if(viewport.width===320)assert(panelBounds.w>=viewport.width-20,'Small portrait screens need a full-width stage panel to read difficulty and reward labels');
     if(viewport.width===390)await page.screenshot({path:'/tmp/cr-map-390.png'});
     if(viewport.width===1440)await page.screenshot({path:'/tmp/cr-map-desktop.png'});
     await page.locator('#wmPanel [data-a=sortie]').click();await idle();
-    assert.equal((await state()).cfg,'q_tide');assert.equal((await state()).difficulty,'hard');assert.equal((await state()).recommendedLv,8);
+    assert.equal((await state()).cfg,'q_tide');assert.equal((await state()).difficulty,'hard');assert.equal((await state()).recommendedLv,10);
     assert.equal(await page.evaluate(()=>JSON.parse(localStorage.cr_party).stageDifficulty.q_tide),'hard');
   });
 }

@@ -2,8 +2,9 @@
 const Progression = (() => {
   const difficulties = {
     gentle: { name: 'やさしい', level: -1, enemyLevel: -1, hp: 0.85, atk: 1, reward: 0.8, desc: '敵のHPが少なく、受ける傷も軽い' },
-    normal: { name: 'ふつう', level: 0, enemyLevel: 0, hp: 1, atk: 1, reward: 1, desc: '標準の敵と報酬' },
-    hard: { name: 'ハード', level: 3, enemyLevel: 2, hp: 1.15, atk: 1.08, reward: 1.5, desc: '敵が強くなる・しずく1.5倍・ボスSでユニーク／通常戦Sで通常装備' },
+    // 1.21.0：ふつうを旧ハードの強さに、ハードをその上に引き上げた。
+    normal: { name: 'ふつう', level: 2, enemyLevel: 2, hp: 1.15, atk: 1.08, reward: 1, desc: '標準の敵と報酬' },
+    hard: { name: 'ハード', level: 5, enemyLevel: 4, hp: 1.3, atk: 1.18, reward: 1.5, desc: '敵がさらに強くなる・しずく1.5倍・ボスSでユニーク／通常戦Sで通常装備' },
   };
   const spirits = {
     gran: { name: 'グラン', color: '#3fb4c9' }, ivy: { name: 'アイビー', color: '#5fd07a' },
@@ -105,7 +106,10 @@ const Progression = (() => {
     try { fallback = localStorage.getItem('cr_diff'); } catch (e) {}
     return normalize(party.stageDifficulty?.[id] || fallback);
   }
-  const level = (conf, key) => Math.max(1, (conf.recLv || conf.lv || 1) + difficulties[normalize(key)].level);
+  // 序章の入り江（introStage）は最初の一戦なので、ふつう・ハードとも旧来の強さのまま。ハード専用の伝説も旧ハードの強さのまま。
+  const INTRO_NORMAL = { level: 0, enemyLevel: 0, hp: 1, atk: 1 }, LEGACY_HARD = { level: 3, enemyLevel: 2, hp: 1.15, atk: 1.08 };
+  const tableFor = (conf, key) => { const k = normalize(key), d = difficulties[k]; return conf && (conf.hardOnly || conf.introStage && k === 'hard') ? { ...d, ...LEGACY_HARD } : conf && conf.introStage && k === 'normal' ? { ...d, ...INTRO_NORMAL } : d; };
+  const level = (conf, key) => Math.max(1, (conf.recLv || conf.lv || 1) + tableFor(conf, key).level);
   const rank = points => thresholds.filter(n => (points || 0) >= n).length;
   const learned = (party, id, route) => skills.filter(s => (!id || s.spirit === id) && (!route || s.route === route) && party.aria.skills.includes(s.id)).sort((a, b) => Object.keys(spirits).indexOf(a.spirit) - Object.keys(spirits).indexOf(b.spirit) || a.at - b.at).map(s => skill(party, s.id));
   const skillLevel = (party, id) => count(party.aria.skillLevels?.[id], 0, 3);
@@ -332,7 +336,7 @@ const Progression = (() => {
   function prepare(conf, key) {
     const copy = JSON.parse(JSON.stringify(conf));
     copy.difficulty = copy.hardOnly ? 'hard' : normalize(key);
-    const d = difficulties[copy.difficulty];
+    const d = tableFor(conf, copy.difficulty);
     copy.recommendedLv = level(conf, copy.difficulty);
     copy.enemies = (copy.enemies || []).map(e => ({ ...e, lv: Math.max(1, (e.lv || 1) + d.enemyLevel) }));
     copy.enemyBoost = { hp: d.hp, atk: d.atk };
