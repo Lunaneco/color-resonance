@@ -14,7 +14,7 @@ test('Original Gran, Ivy, Spinel and Palette King are the actual corrupted bosse
   assert(script.indexOf('@board '+p.pathId)<script.indexOf('@board '+id));assert(!data.boards['gb_'+id]);
  }
  for(const p of data.profiles){assert.equal(p.lines.length,3);assert.equal(p.skills.length,3);for(const lines of p.lines){assert.equal(lines.length,2);assert(lines[1][1].length>6);}const script=data.scripts[p.chapter];assert(script.includes('@board '+p.pathId));assert(script.includes('@board '+p.bossId));assert(script.indexOf('@board '+p.pathId)<script.indexOf('@board '+p.bossId));}
- assert(!data.scripts.act2.includes('@board'),'The Terra Cotta chapter contains no battle');assert(data.scripts.act2.indexOf('@choice route3')>data.scripts.act2.indexOf('翌朝'));assert(data.scripts.restore1.indexOf('@board gp_farol')>data.scripts.restore1.indexOf('二人で。一振りも、一緒に'));
+ assert(!data.scripts.act2.includes('@board'),'The Terra Cotta chapter contains no battle');assert(data.scripts.act2.indexOf('@choice route3')>data.scripts.act2.indexOf('翌朝'));assert(data.scripts.restore1.indexOf('@board gp_farol')>data.scripts.restore1.indexOf('剣はクロムの。これは、わたしの'));
 });
 test('Every HP threshold, armour phase and thirteen distinct forecasts use walkable stable map coordinates',async()=>{
  const c=await content();vm.runInContext(`

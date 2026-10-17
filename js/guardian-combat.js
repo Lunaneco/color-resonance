@@ -37,6 +37,40 @@ const GuardianCombat = (() => {
     return cells.filter(c=>c.walk&&pattern(c)).map(c=>({r:c.r,c:c.c}));
   }
   function mode(profile,index) { return {mov:index?2:1,rng:[1,index+1],power:(profile.id==='vard'?[.65,.8,.9]:[.75,.7,.6])[index],armor:profile.effect==='armor'?(profile.id==='spinel'?[3,2,0]:[2,1,0])[index]:0}; }
+  // 復興編とネフラの固有ルール。段階の境界より前に掛け、理性の飛び越しは起こさない。
+  function tune(profile, dmg, a, d, allies, cells) {
+    if (!profile || !a || a.side !== 'ally') return { dmg, note: '' };
+    const cell = cells.find(c => c.r === a.r && c.c === a.c);
+    const maxR = Math.max(...cells.map(c => c.r)), maxC = Math.max(...cells.map(c => c.c));
+    let m = 1, note = '';
+    if (profile.id === 'farol' && cell && cell.floor === 'rainbow') { m = 1.25; note = '灯列が、刃を通した'; }
+    if (profile.id === 'rivela') {
+      const rows = new Set(allies.filter(u => !u.dead).map(u => u.r));
+      if (rows.size >= 2) { m = 1.25; note = '二つの水路が、ほどけた'; }
+      else { m = 0.7; note = '同じ水路では、結び目が戻る'; }
+    }
+    if (profile.id === 'pomela' && a.root) { m = 0.55; note = '苗の輪が、名札を隠す'; }
+    if (profile.id === 'folio') {
+      const edge = a.r <= 1 || a.c <= 1 || a.r >= maxR - 1 || a.c >= maxC - 1;
+      const fold = a.r === d.r || a.c === d.c;
+      if (edge && !fold) { m = 1.3; note = '余白から、頁が開いた'; }
+      else if (fold) { m = 0.75; note = '折り目が、刃をはじく'; }
+    }
+    if (profile.id === 'fiamma' && cell && cell.floor === 'rainbow') { m = 1.2; note = '生きている炉が、刃を温めた'; }
+    if (profile.id === 'lucerna') {
+      const floors = new Set(allies.filter(u => !u.dead).map(u => { const c = cells.find(x => x.r === u.r && x.c === u.c); return c && c.floor; }));
+      if (floors.size >= 2) { m = 1.25; note = '違う灯が、扇を割った'; }
+      else { m = 0.8; note = '同じ灯では、正解が閉じる'; }
+    }
+    if (profile.id === 'coronel') note = a.moved ? '自分の歩幅が、列を割った' : '揃えた歩幅は、冠に弾かれる';
+    if (profile.id === 'aster' && cell && cell.floor === 'rainbow') { m = 1.2; note = 'ずれた星が、正しい'; }
+    if (profile.id === 'nephra') {
+      const edge = a.r === 0 || a.c === 0 || a.r === maxR || a.c === maxC;
+      if (!edge && cell && cell.floor === 'rainbow') { m = 1.3; note = '橋の内側で、夜が残った'; }
+      else if (edge) { m = 0.75; note = '縁の声が、夜を閉じようとする'; }
+    }
+    return { dmg: Math.max(1, Math.round(dmg * m)), note };
+  }
   // 終章のクロム。精霊の守護者ではないので GUARDIANS には入れず、ここだけで持つ。
   const CHROME={
     id:'chrome', name:'クロム', art:'chrome', pattern:'blackwave', effect:'sp', colour:'#cfd8ff',
@@ -55,5 +89,5 @@ const GuardianCombat = (() => {
   const EXTRA={};
   const register=p=>{EXTRA[p.id]=p;return p;};
   const profile=id=>id==='chrome'?CHROME:id==='chrome_despair'?CHROME_DESPAIR:EXTRA[id]||GUARDIANS.find(p=>p.id===id);
-  return {phaseNames,phase,damage,plan,mode,profile,register};
+  return {phaseNames,phase,damage,plan,mode,tune,profile,register};
 })();

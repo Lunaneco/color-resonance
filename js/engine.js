@@ -458,6 +458,19 @@ const Engine = (() => {
       case 'choice': await choice(a[0]); break;
       case 'item': prog.shavings++; updatePouch(); toast(`黒い削りかすを、布に包んだ（${prog.shavings}）`); break;
       case 'pouch': scene.pouch = a[0] === 'show'; updatePouch(); break;
+      case 'noirjoin': {
+        const p = Board.party;
+        if (!p.noir || p.noir.joined !== true) {
+          const lv = p.aria && p.aria.lv || 1;
+          const base = p.noir && typeof p.noir === 'object' ? p.noir : {};
+          base.joined = true;
+          if (base.lv == null) base.lv = lv;
+          p.noir = typeof NoirAbsorb !== 'undefined' ? NoirAbsorb.sanitize(Object.assign(NoirAbsorb.blank(lv), base, { joined: true }), lv) : Object.assign({ joined: true, lv, exp: 0, skills: [], known: {} }, base, { joined: true });
+          Board.saveParty();
+          toast('ノアールが、布の中から戦えるようになった');
+        }
+        break;
+      }
       case 'toast': toast(arg); Audio2.sfx.skill(); break;
       case 'tint': tints[a[0]] = a[1]; break;
       case 'flash': FX.flash(a[0] === 'black' ? '0,0,0' : '255,255,255', 1); break;

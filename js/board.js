@@ -56,8 +56,9 @@ const Board = (() => {
     boss: { hp: [60, 14], atk: [12, 3], def: [5, 1.8], mov: 2, jump: 1, rng: [1, 2], h: 1.1 },
     membrane: { hp: [20, 5], atk: [9, 2.4], def: [3, 1.2], mov: 3, jump: 1, rng: [1, 2], h: 0.82 },
     chrome: { hp: [60, 24], atk: [14, 2.6], def: [4, 1.6], mov: 2, jump: 2, rng: [1, 2], h: 1.3 },
+    noir: { hp: [36, 6], atk: [8, 1.6], def: [4, 1.2], mov: 4, jump: 1, rng: [1, 1], h: 0.7 },
   };
-  const KIND_NAME = { aria: 'アリア', chrome_human: 'クロム', shade: '穢れの影', thorn: '茨の影', lead: '鉛の殻', boss: '穢れの核', membrane: '白い膜', chrome: 'クロム' };
+  const KIND_NAME = { aria: 'アリア', chrome_human: 'クロム', noir: 'ノアール', shade: '穢れの影', thorn: '茨の影', lead: '鉛の殻', boss: '穢れの核', membrane: '白い膜', chrome: 'クロム' };
   const SPIRITS = {
     gran: {
       name: 'グラン', color: '#3fb4c9', rgb: '110,205,240',
@@ -134,7 +135,7 @@ const Board = (() => {
   let GB = gearBonus(null);
   function saveParty() { try { localStorage.setItem(PARTY_KEY, JSON.stringify(party)); } catch (e) {} }
   let party = loadParty();
-  function rec(kind) { if (kind === 'aria') return party.aria; if (kind === 'chrome_human') return party.chrome; return party.spirits[kind] || (party.spirits[kind] = { lv: party.aria.lv, exp: 0, bond: 0, uses: 0, training: { enchant: 0, summon: 0 } }); }
+  function rec(kind) { if (kind === 'aria') return party.aria; if (kind === 'chrome_human') return party.chrome; if (kind === 'noir') return party.noir; return party.spirits[kind] || (party.spirits[kind] = { lv: party.aria.lv, exp: 0, bond: 0, uses: 0, training: { enchant: 0, summon: 0 } }); }
   const bondRank = id => Progression.rank(rec(id).bond);
   function gainBond(id, amount, use = false, route = null) {
     const r = rec(id), before = bondRank(id);
@@ -1535,6 +1536,7 @@ const Board = (() => {
       floatText(pd.x, pd.y - tw * 1.3, '防壁：復興の灯をすべて浄化して解除', 'sys');
       Audio2.sfx.miss(); return { pass: true };
     }
+    if (d.guardian === 'coronel' && a.side === 'ally' && a.moved) opt = Object.assign({}, opt, { pierce: true });
     const res = calcDamage(a, d, opt);
     const mistFloor = cellOf(a);
     const misty = !!(mistFloor && mistFloor.gimmick && mistFloor.gimmick.id === 'mist' && mistFloor.floor !== 'rainbow');
@@ -1552,6 +1554,11 @@ const Board = (() => {
     }
     if (d.trait === 'plate' && !d.plateUsed) { d.plateUsed = true; dmg = Math.max(1, Math.round(dmg * 0.5)); floatText(pd.x, pd.y - tw * d.hgt * 1.2, '金の被膜', 'sys'); }
     if (d.plate > 0) { d.plate--; dmg = Math.max(1, Math.round(dmg * 0.5)); floatText(pd.x, pd.y - tw * d.hgt * 1.15, '金継ぎが、傷を受け止めた', 'sys'); }
+    if (d.guardian && GuardianCombat.tune) {
+      const tuned = GuardianCombat.tune(GuardianCombat.profile(d.guardian), dmg, a, d, live().filter(u => u.side === 'ally' && !u.dead), cells);
+      dmg = tuned.dmg;
+      if (tuned.note && !opt.quiet) floatText(pd.x, pd.y - tw * d.hgt * 1.35, tuned.note, 'sys');
+    }
     if (d.guardian) dmg = GuardianCombat.damage(d.hp,d.mhp,d.guardianPhase,dmg);
     if (crit) { FX.flash('255,255,255', 0.55); shake(11); Audio2.sfx.crit(); popNum(pd.x, pd.y - tw * d.hgt - 26, 'CRITICAL!', 'critw'); }
     else { Audio2.sfx.hit(); shake(4); }
@@ -1732,6 +1739,12 @@ const Board = (() => {
     } else if (d.kind === 'aria' || d.kind === 'chrome_human') {
       smoke(p.x, p.y - tw * 0.5, 20, '20,10,30');
       lose();
+    } else if (d.kind === 'noir') {
+      smoke(p.x, p.y - tw * 0.4, 16, '20,16,32');
+      floatText(p.x, p.y - tw, 'ノアールは、布の中へ戻った', 'color', '#d8d0ea');
+      fxp.push({ k: 'beam', x: p.x, y: p.y, col: '180,170,210', w: 0.35, life: 0, max: 0.9 });
+      refreshHud();
+      await wait(300);
     } else {
       stats.down++;
       if (d.until && SPIRITS[d.kind]) defeatedSpirits.add(d.kind);
@@ -2126,7 +2139,7 @@ const Board = (() => {
       for (const a of allies) {
         if (!inRange(e, cell, cellOf(a))) continue;
         const est = calcDamage(e, a, {}, cell, false).dmg;
-        const score = est + (est >= a.hp ? 60 : 0) + (a.kind === 'aria' ? 6 : 0) + (cell.floor === 'dull' ? 4 : 0) + (cell.h - cellOf(a).h) * 2 - (rch.d.get(id) || 0) * 0.3 + Math.random();
+        const score = est + (est >= a.hp ? 60 : 0) + (a.kind === 'aria' ? 6 : 0) + (a.kind === 'noir' ? -8 : 0) + (cell.floor === 'dull' ? 4 : 0) + (cell.h - cellOf(a).h) * 2 - (rch.d.get(id) || 0) * 0.3 + Math.random();
         if (!best || score > best.score) best = { score, id, a };
       }
     }
@@ -2205,8 +2218,29 @@ const Board = (() => {
     }
     if (p.effect==='sp'&&hit.length) sp=Math.max(0,sp-1);
     if (p.effect==='drain'&&hit.length) sp=0;
-    if (p.effect==='guard'&&danger.length) e.guard=1;
-    if (p.effect==='ember') danger.forEach(c=>nb4(c).forEach(n=>{if(n.floor!=='rainbow')paint(n,'dull');}));
+    if (p.effect==='guard'&&danger.length) {
+      let allow = true;
+      if (p.id === 'lucerna') {
+        const floors = new Set(live().filter(u => u.side === 'ally' && !u.dead).map(u => cellOf(u).floor));
+        allow = floors.size < 2;
+      }
+      if (allow) e.guard = 1;
+    }
+    if (p.effect==='ember') {
+      if (p.id === 'fiamma' && (stats.purify || 0) > 0) floatText(q.x, q.y - tw, '浄化が、火床を止めた', 'sys');
+      else danger.forEach(c=>nb4(c).forEach(n=>{if(n.floor!=='rainbow')paint(n,'dull');}));
+    }
+    if (p.id === 'nephra') {
+      const maxR = Math.max(...cells.map(c => c.r)), maxC = Math.max(...cells.map(c => c.c));
+      for (const u of hit) {
+        const edge = u.r === 0 || u.c === 0 || u.r === maxR || u.c === maxC;
+        if (!edge) continue;
+        const extra = Math.max(1, Math.round(u.mhp * 0.04));
+        u.hp = Math.max(0, u.hp - extra); stats.taken += extra;
+        const t = unitXY(u); popNum(t.x, t.y - tw * u.hgt, extra, 'hurt');
+        floatText(t.x, t.y - tw, '縁の夜が、厚い', 'sys');
+      }
+    }
     e.intent=null;refreshHud();await wait(420);
     for (const u of hit) if(u.hp<=0&&!u.dead){await defeat(u);if(over)return;}
   }
@@ -2319,6 +2353,90 @@ const Board = (() => {
     endBtn.disabled = false;
     deselect(); showInfo(u); refreshHud(); autoEnd();
   }
+  function absorbBlocked(o) {
+    if (veiled(o)) return '夜の奥で、形がまだ見えない';
+    if (o.kind === 'boss' && cfg.bossShield && cells.some(c => c.beacon && !c.beaconOn)) return '防壁が、澱を渡さない';
+    return '';
+  }
+  function absorbTargets(u) {
+    const set = new Set();
+    if (typeof NoirAbsorb === 'undefined') return set;
+    live().forEach(o => {
+      if (!foe(u, o) || dist(u, o) > NoirAbsorb.RANGE || !NoirAbsorb.nearDeath(o) || absorbBlocked(o)) return;
+      set.add(idx(o.r, o.c));
+    });
+    return set;
+  }
+  function absorbHint(u) {
+    if (typeof NoirAbsorb === 'undefined') return '吸収は、まだ使えない';
+    const near = live().filter(o => foe(u, o) && NoirAbsorb.nearDeath(o));
+    if (!near.length) return 'HPが30%以下の穢れがいない';
+    const inRange = near.filter(o => dist(u, o) <= NoirAbsorb.RANGE);
+    if (!inRange.length) return '2マス以内に、瀕死の穢れがいない';
+    const blocked = inRange.map(absorbBlocked).find(Boolean);
+    return blocked || 'HP30%以下・2マス以内の穢れを飲み、消す';
+  }
+  function noirSkillTargets(u, skill) {
+    const set = new Set();
+    if (!skill) return set;
+    const [a, b] = skill.range;
+    live().forEach(o => {
+      const d = dist(u, o);
+      if (d < a || d > b) return;
+      if (skill.target === 'ally' ? o.side === 'ally' : foe(u, o)) set.add(idx(o.r, o.c));
+    });
+    return set;
+  }
+  async function pushFrom(a, d) {
+    if (!d || d.dead || d.hp <= 0) return;
+    const dc = cellOf(d);
+    const dr = Math.sign(d.r - a.r), dcc = Math.sign(d.c - a.c);
+    const v = Math.abs(d.r - a.r) >= Math.abs(d.c - a.c) ? [dr || 1, 0] : [0, dcc || 1];
+    const n = cellAt(d.r + v[0], d.c + v[1]);
+    if (!(n && n.walk && !unitAt(n) && Math.abs(n.h - dc.h) <= 1)) return;
+    const from = topOf(dc), to = topOf(n);
+    d.dk = viewDepth(n) >= viewDepth(dc) ? idx(n.r, n.c) : idx(dc.r, dc.c);
+    await tween(180, k => { d.mv = { x: from.x + (to.x - from.x) * k, y: from.y + (to.y - from.y) * k }; });
+    d.r = n.r; d.c = n.c; d.mv = null; d.dk = null;
+    floatText(to.x, to.y - tw, '押し流した', 'sys');
+  }
+  async function absorbEnemy(u, d) {
+    if (typeof NoirAbsorb === 'undefined' || !party.noir || !NoirAbsorb.nearDeath(d) || absorbBlocked(d) || dist(u, d) > NoirAbsorb.RANGE) return;
+    face(u, cellOf(d));
+    const pd = unitXY(d);
+    focus(pd.x, pd.y - tw * 0.4, 1.16);
+    await skillBanner('吸収', '#1a1028');
+    if (typeof Renoir !== 'undefined') Renoir.gulp();
+    Audio2.sfx.absorb();
+    const result = NoirAbsorb.absorb(party.noir, d, cfg && cfg.id);
+    saveParty();
+    const line = result.learned ? `「${result.skill.name}」を預かった` : result.duplicate ? 'その力は、もう預かっている' : '同じ形は、もう知っている';
+    floatText(pd.x, pd.y - tw * 1.15, line, 'color', '#d2beff');
+    if (typeof Engine !== 'undefined') Engine.toast(result.learned ? `ノアールが「${result.skill.name}」を預かった` : result.duplicate ? 'その形の力は、もうノアールが預かっている' : 'その種類は、もう知っている');
+    d.hp = 0;
+    await defeat(d, u);
+  }
+  async function useNoirSkill(u, skill, cell) {
+    const o = unitAt(cell);
+    if (skill.target === 'ally') {
+      const ally = o && o.side === 'ally' && !o.dead ? o : u;
+      await skillBanner(skill.name, '#c8b6ff');
+      Audio2.sfx.skill();
+      if (skill.heal) heal(ally, Math.max(1, Math.round(ally.mhp * skill.heal)));
+      if (skill.plate) { ally.plate = (ally.plate || 0) + skill.plate; const p = unitXY(ally); floatText(p.x, p.y - tw, '金の膜', 'sys'); }
+      refreshHud();
+      return;
+    }
+    if (!o || !foe(u, o)) return;
+    await attack(u, o, { power: skill.power || 0.55, sure: !!skill.sure, pierce: !!skill.pierce, skill: skill.name, color: '#c8b6ff', col: '190,170,230' });
+    if (!running) return;
+    if (skill.sp) { sp = Math.min(spCap(), sp + skill.sp); floatText(unitXY(u).x, unitXY(u).y - tw, `共鳴+${skill.sp}`, 'sys'); }
+    if (skill.selfHeal) heal(u, Math.max(1, Math.round(u.mhp * skill.selfHeal)));
+    if (skill.paint) paintArea(cell, skill.paint, 'rainbow', 50);
+    if (skill.root && o.hp > 0 && !o.dead && Math.random() < skill.root) { o.root = 1; floatText(unitXY(o).x, unitXY(o).y - tw, '絡みついた', 'sys'); }
+    if (skill.push) await pushFrom(u, o);
+    refreshHud();
+  }
   function command(k, arg) {
     if (!running || phase !== 'player' || busy || !sel || over || paused || Panel.isOpen()) return;
     hideSay();
@@ -2328,6 +2446,13 @@ const Board = (() => {
     if (mode === 'facing' && k !== 'facewait' && k !== 'back') return;
     Audio2.sfx.choose();
     if (k === 'attack') enterTarget('attack', attackTargets(u));
+    else if (k === 'absorb' && u.kind === 'noir') { const set = absorbTargets(u); if (set.size) enterTarget('absorb', set); }
+    else if (k === 'noirskills' && u.kind === 'noir') showMenu(u, 'noirskills');
+    else if (k === 'noirskill' && u.kind === 'noir') {
+      const skill = typeof NoirAbsorb !== 'undefined' && NoirAbsorb.get(arg);
+      if (!skill || !noirSkillTargets(u, skill).size) return;
+      enterTarget('noirskill:' + arg, noirSkillTargets(u, skill));
+    }
     else if (k === 'renoir') {
       if (!cfg.postgame || u.kind !== 'chrome_human' || renoirUsed || sp < 6) return;
       doRenoir(u);
@@ -2366,6 +2491,12 @@ const Board = (() => {
     const u = sel, cmd = targetCmd, o = unitAt(cell);
     if (!u || u.acted || !cmd || (followUpPending(u) && cmd !== 'attack') || (u.summonChain && !cmd.startsWith('summon:'))) return;
     if (cmd === 'attack' && o && foe(u, o) && attackTargets(u).has(idx(cell.r, cell.c))) act(u, () => attack(u, o, { normal: true }), true);
+    else if (cmd === 'absorb' && o && u.kind === 'noir' && foe(u, o) && absorbTargets(u).has(idx(cell.r, cell.c))) act(u, () => absorbEnemy(u, o));
+    else if (cmd.startsWith('noirskill:')) {
+      const skill = typeof NoirAbsorb !== 'undefined' && NoirAbsorb.get(cmd.slice(10));
+      if (!skill || u.kind !== 'noir' || !noirSkillTargets(u, skill).has(idx(cell.r, cell.c))) return;
+      act(u, () => useNoirSkill(u, skill, cell));
+    }
     else if (cmd === 'purify') {
       if (!cfg.postgame || !['aria', 'chrome_human'].includes(u.kind) || sp < 2 || !cell.walk || dist(cell, u) > 2) return;
       sp -= 2; act(u, () => purify(u, cell));
@@ -2496,6 +2627,15 @@ const Board = (() => {
         it.push(`<button class="cm-b cm-learned" data-k="skill" data-a="${s.id}" data-d="" ${sp < skillPay(s) || !skillTargets(u, s).size ? 'disabled' : ''}><span>${s.name}<em>${skillPay(s)}</em></span><small>${s.desc}</small></button>`);
       });
       it.push(btn('back', 'もどる'));
+    } else if (sub === 'noirskills') {
+      const learned = typeof NoirAbsorb !== 'undefined' ? NoirAbsorb.list(party.noir) : [];
+      it.push(`<div class="cm-head">預かった技<small>${learned.length}種・共鳴0</small></div>`);
+      if (!learned.length) it.push('<div class="cm-note">まだ形を預かっていない。HPが30%以下の穢れを吸収すると、その種類の初回だけ技が残る。</div>');
+      learned.forEach(s => {
+        const ok = noirSkillTargets(u, s).size > 0;
+        it.push(`<button class="cm-b cm-learned" data-k="noirskill" data-a="${s.id}" data-d="${s.desc}" ${ok ? '' : 'disabled'}><span>${s.name}<em>0</em></span><small>${s.desc}</small></button>`);
+      });
+      it.push(btn('back', 'もどる'));
     } else if (sub === 'item') {
       it.push(`<div class="cm-head">道具<small>いくつ持っているか</small></div>`);
       Object.keys(party.items).filter(k => party.items[k] > 0 && ITEMS[k]).forEach(k => it.push(btn('useitem', ITEMS[k].name, { a: k, art: k, cost: '×' + party.items[k], d: ITEMS[k].desc })));
@@ -2510,10 +2650,16 @@ const Board = (() => {
       } else {
       if (normalAttackLimit(u) === 2) it.push(`<div class="cm-combo" role="status" aria-live="polite"><span>通常攻撃</span><b>残り${2 - u.normalAttacks}回</b><small>${followUp ? (atk ? '同じ敵にも、別の敵にも追撃できます。' : '届く敵がいません。待機で向きを選べます。') : '1ターンに2回。技・道具を選ぶと行動終了。'}</small></div>`);
       it.push(btn('attack', (followUp ? '追撃 · ' : '') + (u.kind === 'aria' ? (u.enchant ? SPIRITS[u.enchant.id].enchant.name : '心剣') : '攻撃'), { dis: !atk, key: 'A', d: atk ? '届く敵を選んで攻撃する。敵に直接触れても攻撃できる' : '届く場所に敵がいない' }));
+      if (u.kind === 'noir' && !followUp && party.noir) {
+        const canAbsorb = absorbTargets(u).size > 0;
+        it.push(btn('absorb', '吸収', { dis: !canAbsorb, d: canAbsorb ? 'HP30%以下・2マス以内の穢れを飲み、消す。初めての形は技になる（行動を使う・共鳴0）' : absorbHint(u) }));
+        const held = typeof NoirAbsorb !== 'undefined' ? NoirAbsorb.list(party.noir).length : 0;
+        it.push(btn('noirskills', '預かった技 ▸', { d: `吸収して残った技 ${held}種。共鳴は使わない` }));
+      }
       if (cfg.postgame && ['aria', 'chrome_human'].includes(u.kind) && !followUp) it.push(btn('purify', '浄化 · 灯を繋ぐ', { cost: 2, dis: sp < 2, d: '2マス以内の床を選び、周り2マスを虹に。選んだ復興の灯を点ける（行動を使う）' }));
       if (u.kind === 'chrome_human' && !followUp) {
         const why = renoirUsed ? '使用済み · 1戦闘に1回' : '1戦闘に1回 · 3ターン';
-        it.push(btn('renoir', '四響エンチャント', { cost: 6, dis: renoirUsed || sp < 6, d: `${why}。精霊から吸収して身につけたノアール自身の能力。精霊の戦闘不能に影響されない。射程2・攻撃+25%・守りと鉛を貫通・押し流し・拘束・30%吸収・虹床拡張。通常攻撃は毎ターン2回。宿す時は行動を使わない` }));
+        it.push(btn('renoir', '四響エンチャント', { cost: 6, dis: renoirUsed || sp < 6, d: `${why}。アリアの隣でノアールが身につけた浄化と精霊の力が、クロムの剣に宿っている。ノアール自身は剣ではない。精霊の戦闘不能に影響されない。射程2・攻撃+25%・守りと鉛を貫通・押し流し・拘束・30%吸収・虹床拡張。通常攻撃は毎ターン2回。宿す時は行動を使わない` }));
         it.push(`<div class="cm-note">ノアール · ${why}</div>`);
         it.push(btn('pray', '夜の祈り', { cost: COST_PRAY, dis: sp < COST_PRAY, d: '自分か隣の味方を35%癒す。ノアールが夜に灯を残す' }));
         it.push(btn('item', '道具 ▸', { d: '共有の道具を使う（行動を使う）' }));
@@ -2598,6 +2744,7 @@ const Board = (() => {
       ${neutral ? '<div class="ui-word">——その人の色は、切らない</div>' : `<div class="ui-bar hp"><i style="width:${unknown ? 100 : Math.round(u.hp / u.mhp * 100)}%"></i><span>${u.kind==='chrome'?'白い膜HP':u.guardian?'穢れHP':'HP'} ${unknown ? '？？？' : `${u.hp} / ${u.mhp}`}</span></div>`}
       ${r ? `<div class="ui-bar exp"><i style="width:${r.lv >= MAX_LV ? 100 : r.exp}%"></i><span>${r.lv >= MAX_LV ? 'EXP MAX · 成長上限' : `EXP ${r.exp} / 100`}</span></div>` : ''}
       ${neutral ? '' : `<div class="ui-st"><span>攻<b>${u.atk}</b></span><span>防<b>${unknown ? '?' : u.def}</b></span><span>移<b>${effMov(u)}</b></span><span>射<b>${rng[0] === rng[1] ? rng[0] : rng[0] + '-' + rng[1]}</b></span></div>`}
+      ${u.kind === 'noir' && party.noir ? `<div class="ui-word">預かった技 ${(party.noir.skills || []).length}種 · 吸収はHP30%以下・2マス</div>` : ''}
       ${u.trait && typeof Regions !== 'undefined' ? `<div class="ui-trait" style="--c:${Regions.REGIONS[region].color}">特性・${Regions.TRAITS[u.trait].name}<small>${Regions.TRAITS[u.trait].desc}</small></div>` : ''}
       ${u.windTurns>0?`<div class="ui-word">追い風 · 移動+1 · 残り${u.windTurns}ターン</div>`:''}
       ${furyBonus(u)>1?`<div class="ui-fury">憤怒 · 攻撃+${Math.round((furyBonus(u)-1)*100)}%<small>失ったHPを攻撃力へ変える</small></div>`:''}
@@ -2647,11 +2794,21 @@ const Board = (() => {
   }
   function renderSpirits() {
     const list = spiritPool();
+    const noirU = units.find(u => u.kind === 'noir' && !u.hidden);
+    const chromeU = cfg && cfg.companion && live().find(u => u.kind === 'chrome_human');
     spiritBox.innerHTML = '';
-    if (!list.length) { spiritBox.style.display = 'none'; return; }
+    if (!list.length && !noirU && !chromeU) { spiritBox.style.display = 'none'; return; }
     spiritBox.style.display = '';
     fitSide();
     const a = ariaU();
+    if (noirU) {
+      const held = party.noir && party.noir.skills ? party.noir.skills.length : 0;
+      const b = document.createElement('button'); b.className = 'skill battle-companion' + (noirU.dead ? ' fallen' : '');
+      b.innerHTML = `${GameArt.portrait('renoir', 'skill-face')}<span>ノアール<small>${noirU.dead ? '布の中' : `HP ${noirU.hp}/${noirU.mhp}`} · 技${held}</small></span>`;
+      b.disabled = noirU.dead || noirU.acted || busy || phase !== 'player' || over;
+      b.onclick = e => { e.stopPropagation(); if (!busy && !paused && !noirU.dead && !noirU.acted && phase === 'player' && !over && mode !== 'facing' && !Panel.isOpen()) { hideSay(); select(noirU); } };
+      spiritBox.appendChild(b);
+    }
     if (cfg.companion) {
       const ch = live().find(u => u.kind === 'chrome_human');
       if (ch) {
@@ -3067,7 +3224,8 @@ const Board = (() => {
       <h4>道具とミッション</h4>町で買った道具は、メニューの「道具」から使えます（行動を使う）。<br>右上のミッションをすべて達成するとSランク。S評価の報酬は難易度別。<b>ハードのボス戦はユニーク装備、通常戦は通常装備。ふつう・やさしいはアイテム</b>です。各難易度で1回ずつ受け取れ、所持済みの通常装備は価格の半分のしずくになります。
       <h4>LV</h4>攻撃と撃破で経験値が入り、100たまるとLVが上がります。精霊は、召喚や宿しで育ちます。
       <h4>精霊との絆・覚えた技</h4>召喚で絆+3、心剣に宿すと+2。召喚した精霊の攻撃や、宿した心剣が命中すると+1、覚えた技を使うと+2。絆は精霊と技の強さを育てます。<b>習得はエンチャントと召喚の熟練を別々に判定</b>し、それぞれ8・20・40で3種ずつ、6精霊で36種。貫く一閃と近い癒やしは、精霊ごとに覚えて使います。宿すとエンチャント熟練+2、宿した通常攻撃の命中で+1。召喚すると召喚熟練+3、精霊の命中で+1。覚えた技の使用は熟練に入りません。<br>習得後は「覚えた技」から、召喚や宿しをせずに使えます。絆が深まるほど精霊のHP・攻撃・守りと、宿した心剣・覚えた技の効果が育ちます。負けても絆と習得は残ります。
-      <h4>ノアールの四響エンチャント</h4>クロムだけが使う切り札です。共鳴6・1戦闘に1回。3ターン、4精霊のエンチャント効果をまとめて宿し、通常攻撃が毎ターン2回になります。宿す行動は消費しません。吸収して身につけたノアール自身の能力なので、他の精霊の召喚中・戦闘不能でも使えます。クロム自身に精霊の召喚能力はありません。再挑戦・次の戦闘で使用回数は戻ります。<h4>復興の灯</h4>復興編は敵の全滅と、番号のついた灯をすべて点けることが目的です。アリアとクロムの<b>「浄化」（共鳴2）</b>で2マス以内の灯そのものを選んでください。周り2マスも虹に戻ります。防壁を持つ核は、灯が全部点くまで攻撃が届きません。<h4>難易度・依頼</h4>マップの戦場や依頼でやさしい・ふつう・ハードの3段階の難易度を選べます。適正LV・報酬・ミッション実績は難易度ごとに表示されます。戦闘開始後は再挑戦も同じ難易度です。町の「依頼」でサブクエストを探せます。
+      <h4>ノアールの四響エンチャント</h4>クロムだけが使う切り札です。共鳴6・1戦闘に1回。3ターン、4精霊のエンチャント効果をまとめて宿し、通常攻撃が毎ターン2回になります。宿す行動は消費しません。アリアの隣でノアールが身につけた浄化と精霊の力が剣に宿っているので、他の精霊の召喚中・戦闘不能でも使えます。ノアール自身は剣ではありません。クロム自身に精霊の召喚能力はありません。再挑戦・次の戦闘で使用回数は戻ります。
+      <h4>ノアール</h4>序章で名前を聞いたあと、布の中から一緒に戦う。終章の絶望では出ない。<b>吸収</b>（2マス・HP30%以下）で瀕死の穢れを消し、その形を一度だけ技として残す。二度目は残らない。覚えた技は共鳴を使わず「預かった技」から。倒されると、その戦闘だけ布へ戻る。<h4>復興の灯</h4>復興編は敵の全滅と、番号のついた灯をすべて点けることが目的です。アリアとクロムの<b>「浄化」（共鳴2）</b>で2マス以内の灯そのものを選んでください。周り2マスも虹に戻ります。防壁を持つ核は、灯が全部点くまで攻撃が届きません。<h4>難易度・依頼</h4>マップの戦場や依頼でやさしい・ふつう・ハードの3段階の難易度を選べます。適正LV・報酬・ミッション実績は難易度ごとに表示されます。戦闘開始後は再挑戦も同じ難易度です。町の「依頼」でサブクエストを探せます。
       <h4>国の色の敵</h4>敵は、戦う土地の色に染まっています。名前と色がちがい、<b>特性</b>を一つ持つ種類がいます（押し流し・燠火・絡め取り・金の被膜・色吸い・霞）。敵を選ぶと、特性の内容が見られます。
       <p style="margin-top:12px;color:#ffd98a">「切るのは穢れだけ。その人の色は、一滴も切らない」</p>`);
   }
@@ -3113,6 +3271,11 @@ const Board = (() => {
     const plan = genMap();
     initFloors(plan);
     units = [makeUnit('aria', 'ally', party.aria.lv, plan.aria)];
+    // 加入フラグだけで出す。終章の絶望は、ノアールが夜空になる場面なので出さない。
+    if (party.noir && party.noir.joined === true && !cfg.finale && cfg.renoir !== false) {
+      const free = cells.filter(c => c.walk && !unitAt(c) && Math.abs(c.h - plan.aria.h) <= 1).sort((a, b) => dist(a, plan.aria) - dist(b, plan.aria));
+      if (free[0]) units.push(makeUnit('noir', 'ally', Math.max(1, party.noir.lv || party.aria.lv), free[0], { artId: 'renoir' }));
+    }
     if (cfg.companion && Restoration.joined()) {
       party.chrome.lv = Math.max(party.chrome.lv, cfg.recLv || 1);
       const free = cells.filter(c => c.walk && !unitAt(c) && Math.abs(c.h - plan.aria.h) <= 1).sort((a, b) => dist(a, plan.aria) - dist(b, plan.aria));

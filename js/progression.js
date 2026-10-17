@@ -256,6 +256,7 @@ const Progression = (() => {
       priority: ['bridge', 'garden'].includes(post.priority) ? post.priority : null };
     const human = isRecord(party.chrome) ? party.chrome : {};
     party.chrome = { lv: Math.max(1, count(human.lv, party.aria.lv, 99)), exp: count(human.exp, 0, 99) };
+    if (isRecord(party.noir) && typeof NoirAbsorb !== 'undefined') party.noir = NoirAbsorb.sanitize(party.noir, party.aria.lv);
     party.spirits = isRecord(party.spirits) ? party.spirits : {};
     party.owned = [...new Set(Array.isArray(party.owned) ? party.owned.filter(id => typeof id === 'string' && /^[a-z][a-z0-9_]{0,63}$/.test(id)) : [])];
     const equipment = isRecord(party.equip) ? party.equip : {};
