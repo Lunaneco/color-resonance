@@ -21,7 +21,7 @@ const Fury = (() => {
     desc:'通常戦。果樹園を荒らす影を払い、丘の奥の紅角へ声を届ける。'};
   const boss={...ref,act:p.act,guardian:'vard',guardianRoute:'vard',chapterGate:'fury',bossArt:'vard',bossName:'汚染された紅角のヴァルド',
     bossHP:1.05,spawnCap:3,recLv:8,lv:8,map:{...ref.map,hills:.2,obsAmt:.015,waterAmt:0},material:'m_gold',ordinaryReward:'e_tide',spirits:['gran'],
-    enemies:[{kind:'boss',lv:9},{kind:'shade',lv:8,n:3},{kind:'thorn',lv:8,n:2}],
+    enemies:[{kind:'boss',lv:9},{kind:'shade',lv:8,n:2},{kind:'thorn',lv:8,n:1}],
     missions:[{type:'turns',n:12},{type:'hp',n:65},{type:'back',n:3}],
     missionGuide:'くすみの最大値は条件にしない。突進線を横へ避け、背後から3回命中させよう。怒りが強まる終盤に備え、アリアのHP65%以上を守る。',
     intro:{who:'戦場の声',text:'<b>ヴァルド</b> 返せ……全部、壊せ……！<br><b>アリア</b> 怒っていいよ。それだけ大切だったんでしょう。<small>穢れHPの2/3・1/3で突進線と会話が変化。予告の床を虹に戻すと特殊攻撃を防げる。</small>'},

@@ -1515,6 +1515,8 @@ const Board = (() => {
     const G = GROW[kind], s = statsFor(kind, lv), ar = kind === 'aria';
     const v = side === 'enemy' && region && typeof Regions !== 'undefined' ? Regions.variant(region, kind) : null;
     if (side === 'enemy' && cfg.enemyBoost) { s.mhp = Math.round(s.mhp * cfg.enemyBoost.hp); s.atk = Math.round(s.atk * cfg.enemyBoost.atk); }
+    // 序盤の戦場だけ、敵の強さを戦場ごとに下げる（LV1のアリアがひとりでもノーコンで越えられるように）。
+    if (side === 'enemy' && cfg.enemyScale) { s.mhp = Math.max(1, Math.round(s.mhp * (cfg.enemyScale.hp || 1))); s.atk = Math.max(1, Math.round(s.atk * (cfg.enemyScale.atk || 1))); }
     return Object.assign({
       id: uid++, kind, side, lv, r: cell.r, c: cell.c, hp: s.mhp, mhp: s.mhp, atk: s.atk, def: s.def, mov: G.mov + (ar ? GB.mov : 0), jump: G.jump + (ar ? GB.jump : 0), rng: G.rng, fly: !!G.fly, armor: G.armor || 0, hgt: G.h,
       dir: side === 'ally' ? 0 : 2, moved: false, acted: false, normalAttacks: 0, root: 0, guard: 0, enchant: null, summon: 0, name: (v && v.name) || KIND_NAME[kind] || (SPIRITS[kind] && SPIRITS[kind].name) || kind, word: '', variant: v, trait: v ? v.trait : null, artId: v && v.art ? v.art : null,

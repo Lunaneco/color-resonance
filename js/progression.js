@@ -336,6 +336,12 @@ const Progression = (() => {
     copy.recommendedLv = level(conf, copy.difficulty);
     copy.enemies = (copy.enemies || []).map(e => ({ ...e, lv: Math.max(1, (e.lv || 1) + d.enemyLevel) }));
     copy.enemyBoost = { hp: d.hp, atk: d.atk };
+    // 序盤の補正：推奨LVが低い戦場ほど敵の攻撃とHPを下げる（LV1で攻撃0.5倍・HP0.75倍、LV12で補正なし）。
+    // 依頼を済ませたLVなら、ふつうのメインをノーコンで越えられる強さにする。ハードはこの上に敵LV+2・HP・攻撃の上乗せが残る。
+    if (!copy.enemyScale) {
+      const base = Math.max(1, conf.recLv || conf.lv || 1), t = Math.min(1, (base - 1) / 11);
+      if (t < 1) copy.enemyScale = { hp: +(0.75 + 0.25 * t).toFixed(3), atk: +(0.5 + 0.5 * t).toFixed(3) };
+    }
     return copy;
   }
   return { furyPower, difficulties, spirits, routes, skills, thresholds, normalize, selected, level, rank, learned, training, practice, rewards, isBossStage, ordinaryEquipment, reconcileRewards, migrate, prepare,
