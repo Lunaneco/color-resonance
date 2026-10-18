@@ -2429,6 +2429,13 @@ const Board = (() => {
     Audio2.sfx.absorb();
     const result = NoirAbsorb.absorb(party.noir, d, cfg && cfg.id);
     saveParty();
+    // 守り手・ボス・クロムを飲んだときは、ふつうの穢れより多くを受け取る：大技、HP30%回復、共鳴+2、経験の上乗せ。
+    if (NoirAbsorb.isMajor(d)) {
+      heal(u, Math.max(1, Math.round(u.mhp * 0.3)));
+      sp = Math.min(spCap(), sp + 2);
+      const q = unitXY(u); floatText(q.x, q.y - tw * 1.4, '大きな澱を飲んだ · 共鳴+2', 'color', '#e6d4ff');
+      gainExp('noir', 60, u);
+    }
     const line = result.learned ? `「${result.skill.name}」を預かった` : result.duplicate ? 'その力は、もう預かっている' : '同じ形は、もう知っている';
     floatText(pd.x, pd.y - tw * 1.15, line, 'color', '#d2beff');
     if (typeof Engine !== 'undefined') Engine.toast(result.learned ? `ノアールが「${result.skill.name}」を預かった` : result.duplicate ? 'その形の力は、もうノアールが預かっている' : 'その種類は、もう知っている');
@@ -2438,16 +2445,27 @@ const Board = (() => {
   async function useNoirSkill(u, skill, cell) {
     const o = unitAt(cell);
     if (skill.target === 'ally') {
-      const ally = o && o.side === 'ally' && !o.dead ? o : u;
+      const first = o && o.side === 'ally' && !o.dead ? o : u;
+      const allies = skill.radius ? live().filter(x => x.side === 'ally' && dist(x, first) <= skill.radius) : [first];
       await skillBanner(skill.name, '#c8b6ff');
       Audio2.sfx.skill();
-      if (skill.heal) heal(ally, Math.max(1, Math.round(ally.mhp * skill.heal)));
-      if (skill.plate) { ally.plate = (ally.plate || 0) + skill.plate; const p = unitXY(ally); floatText(p.x, p.y - tw, '金の膜', 'sys'); }
+      for (const ally of allies) {
+        if (skill.heal) heal(ally, Math.max(1, Math.round(ally.mhp * skill.heal)));
+        if (skill.plate) { ally.plate = (ally.plate || 0) + skill.plate; const p = unitXY(ally); floatText(p.x, p.y - tw, '金の膜', 'sys'); }
+      }
       refreshHud();
       return;
     }
     if (!o || !foe(u, o)) return;
-    await attack(u, o, { power: skill.power || 0.55, sure: !!skill.sure, pierce: !!skill.pierce, skill: skill.name, color: '#c8b6ff', col: '190,170,230' });
+    const others = skill.radius ? live().filter(x => x !== o && foe(u, x) && dist(x, o) <= skill.radius) : [];
+    await attack(u, o, { power: skill.power || 1, sure: !!skill.sure, pierce: !!skill.pierce, skill: skill.name, color: '#c8b6ff', col: '190,170,230' });
+    for (const x of others) {
+      if (!running) return;
+      if (x.dead || x.hp <= 0) continue;
+      await attack(u, x, { power: skill.power || 1, sure: true, pierce: !!skill.pierce, color: '#c8b6ff', col: '190,170,230' });
+      if (skill.root && x.hp > 0 && !x.dead && Math.random() < skill.root) { x.root = 1; floatText(unitXY(x).x, unitXY(x).y - tw, '絡みついた', 'sys'); }
+      if (skill.push && x.hp > 0 && !x.dead) await pushFrom(o, x);
+    }
     if (!running) return;
     if (skill.sp) { sp = Math.min(spCap(), sp + skill.sp); floatText(unitXY(u).x, unitXY(u).y - tw, `共鳴+${skill.sp}`, 'sys'); }
     if (skill.selfHeal) heal(u, Math.max(1, Math.round(u.mhp * skill.selfHeal)));
@@ -2469,7 +2487,7 @@ const Board = (() => {
     else if (k === 'noirskills' && u.kind === 'noir') showMenu(u, 'noirskills');
     else if (k === 'noirskill' && u.kind === 'noir') {
       const skill = typeof NoirAbsorb !== 'undefined' && NoirAbsorb.get(arg);
-      if (!skill || !noirSkillTargets(u, skill).size) return;
+      if (!skill || sp < NoirAbsorb.costOf(skill) || !noirSkillTargets(u, skill).size) return;
       enterTarget('noirskill:' + arg, noirSkillTargets(u, skill));
     }
     else if (k === 'renoir') {
@@ -2513,8 +2531,8 @@ const Board = (() => {
     else if (cmd === 'absorb' && o && u.kind === 'noir' && foe(u, o) && absorbTargets(u).has(idx(cell.r, cell.c))) act(u, () => absorbEnemy(u, o));
     else if (cmd.startsWith('noirskill:')) {
       const skill = typeof NoirAbsorb !== 'undefined' && NoirAbsorb.get(cmd.slice(10));
-      if (!skill || u.kind !== 'noir' || !noirSkillTargets(u, skill).has(idx(cell.r, cell.c))) return;
-      act(u, () => useNoirSkill(u, skill, cell));
+      if (!skill || u.kind !== 'noir' || sp < NoirAbsorb.costOf(skill) || !noirSkillTargets(u, skill).has(idx(cell.r, cell.c))) return;
+      sp -= NoirAbsorb.costOf(skill); act(u, () => useNoirSkill(u, skill, cell));
     }
     else if (cmd === 'purify') {
       if (!cfg.postgame || !['aria', 'chrome_human'].includes(u.kind) || sp < 2 || !cell.walk || dist(cell, u) > 2) return;
@@ -2648,11 +2666,12 @@ const Board = (() => {
       it.push(btn('back', 'もどる'));
     } else if (sub === 'noirskills') {
       const learned = typeof NoirAbsorb !== 'undefined' ? NoirAbsorb.list(party.noir) : [];
-      it.push(`<div class="cm-head">預かった技<small>${learned.length}種・共鳴0</small></div>`);
+      it.push(`<div class="cm-head">預かった技<small>${learned.length}種・共鳴 ${sp}</small></div>`);
       if (!learned.length) it.push('<div class="cm-note">まだ形を預かっていない。HPが30%以下の穢れを吸収すると、その種類の初回だけ技が残る。</div>');
       learned.forEach(s => {
-        const ok = noirSkillTargets(u, s).size > 0;
-        it.push(`<button class="cm-b cm-learned" data-k="noirskill" data-a="${s.id}" data-d="${s.desc}" ${ok ? '' : 'disabled'}><span>${s.name}<em>0</em></span><small>${s.desc}</small></button>`);
+        const cost = NoirAbsorb.costOf(s), ok = sp >= cost && noirSkillTargets(u, s).size > 0;
+        if (s.tier === 'boss') it.push(`<div class="cm-skill-label" style="color:#d9c4ff">守り手から預かった大技</div>`);
+        it.push(`<button class="cm-b cm-learned" data-k="noirskill" data-a="${s.id}" data-d="${s.desc}" ${ok ? '' : 'disabled'}><span>${s.name}<em>${cost}</em></span><small>${s.desc}${sp < cost ? '（共鳴が足りない）' : ''}</small></button>`);
       });
       it.push(btn('back', 'もどる'));
     } else if (sub === 'item') {
@@ -2671,9 +2690,9 @@ const Board = (() => {
       it.push(btn('attack', (followUp ? '追撃 · ' : '') + (u.kind === 'aria' ? (u.enchant ? SPIRITS[u.enchant.id].enchant.name : '心剣') : '攻撃'), { dis: !atk, key: 'A', d: atk ? '届く敵を選んで攻撃する。敵に直接触れても攻撃できる' : '届く場所に敵がいない' }));
       if (u.kind === 'noir' && !followUp && party.noir) {
         const canAbsorb = absorbTargets(u).size > 0;
-        it.push(btn('absorb', '吸収', { dis: !canAbsorb, d: canAbsorb ? 'HP30%以下・2マス以内の穢れを飲み、消す。初めての形は技になる（行動を使う・共鳴0）' : absorbHint(u) }));
+        it.push(btn('absorb', '吸収', { dis: !canAbsorb, d: canAbsorb ? 'HP30%以下・2マス以内の穢れを飲み、消す。初めての形は技になる。守り手やボスなら大技になり、HP30%回復・共鳴+2（行動を使う・共鳴0）' : absorbHint(u) }));
         const held = typeof NoirAbsorb !== 'undefined' ? NoirAbsorb.list(party.noir).length : 0;
-        it.push(btn('noirskills', '預かった技 ▸', { d: `吸収して残った技 ${held}種。共鳴は使わない` }));
+        it.push(btn('noirskills', '預かった技 ▸', { d: `吸収して残った技 ${held}種。技ごとに共鳴を使う（ふつうの技2〜3、守り手の大技4〜6）` }));
       }
       if (cfg.postgame && ['aria', 'chrome_human'].includes(u.kind) && !followUp) it.push(btn('purify', '浄化 · 灯を繋ぐ', { cost: 2, dis: sp < 2, d: '2マス以内の床を選び、周り2マスを虹に。選んだ復興の灯を点ける（行動を使う）' }));
       if (u.kind === 'chrome_human' && !followUp) {
@@ -3264,7 +3283,7 @@ const Board = (() => {
       <h4>LV</h4>攻撃と撃破で経験値が入り、100たまるとLVが上がります。精霊は、召喚や宿しで育ちます。
       <h4>精霊との絆・覚えた技</h4>召喚で絆+3、心剣に宿すと+2。召喚した精霊の攻撃や、宿した心剣が命中すると+1、覚えた技を使うと+2。絆は精霊と技の強さを育てます。<b>習得はエンチャントと召喚の熟練を別々に判定</b>し、それぞれ8・20・40で3種ずつ、6精霊で36種。貫く一閃と近い癒やしは、精霊ごとに覚えて使います。宿すとエンチャント熟練+2、宿した通常攻撃の命中で+1。召喚すると召喚熟練+3、精霊の命中で+1。覚えた技の使用は熟練に入りません。<br>習得後は「覚えた技」から、召喚や宿しをせずに使えます。絆が深まるほど精霊のHP・攻撃・守りと、宿した心剣・覚えた技の効果が育ちます。負けても絆と習得は残ります。
       <h4>ノアールの四響エンチャント</h4>クロムだけが使う切り札です。共鳴6・1戦闘に1回。3ターン、4精霊のエンチャント効果をまとめて宿し、通常攻撃が毎ターン2回になります。宿す行動は消費しません。アリアの隣でノアールが身につけた浄化と精霊の力が剣に宿っているので、他の精霊の召喚中・戦闘不能でも使えます。ノアール自身は剣ではありません。クロム自身に精霊の召喚能力はありません。再挑戦・次の戦闘で使用回数は戻ります。
-      <h4>ノアール</h4>序章で名前を聞いたあと、布の中から一緒に戦う。終章の絶望では出ない。<b>吸収</b>（2マス・HP30%以下）で瀕死の穢れを消し、その形を一度だけ技として残す。二度目は残らない。覚えた技は共鳴を使わず「預かった技」から。倒されると、その戦闘だけ布へ戻る。<h4>復興の灯</h4>復興編は敵の全滅と、番号のついた灯をすべて点けることが目的です。アリアとクロムの<b>「浄化」（共鳴2）</b>で2マス以内の灯そのものを選んでください。周り2マスも虹に戻ります。防壁を持つ核は、灯が全部点くまで攻撃が届きません。<h4>難易度・依頼</h4>マップの戦場や依頼でやさしい・ふつう・ハードの3段階の難易度を選べます。適正LV・報酬・ミッション実績は難易度ごとに表示されます。戦闘開始後は再挑戦も同じ難易度です。町の「依頼」でサブクエストを探せます。
+      <h4>ノアール</h4>序章で名前を聞いたあと、布の中から一緒に戦う。終章の絶望では出ない。<b>吸収</b>（2マス・HP30%以下）で瀕死の穢れを消し、その形を一度だけ技として残す。二度目は残らない。守り手・ボス・クロムを飲むと、その相手だけの大技を覚え、ノアールのHPが30%戻り、共鳴が2増える。覚えた技は「預かった技」から、共鳴を使って出す（ふつうの技は2〜3、大技は4〜6）。倒されると、その戦闘だけ布へ戻る。<h4>復興の灯</h4>復興編は敵の全滅と、番号のついた灯をすべて点けることが目的です。アリアとクロムの<b>「浄化」（共鳴2）</b>で2マス以内の灯そのものを選んでください。周り2マスも虹に戻ります。防壁を持つ核は、灯が全部点くまで攻撃が届きません。<h4>難易度・依頼</h4>マップの戦場や依頼でやさしい・ふつう・ハードの3段階の難易度を選べます。適正LV・報酬・ミッション実績は難易度ごとに表示されます。戦闘開始後は再挑戦も同じ難易度です。町の「依頼」でサブクエストを探せます。
       <h4>国の色の敵</h4>敵は、戦う土地の色に染まっています。名前と色がちがい、<b>特性</b>を一つ持つ種類がいます（押し流し・燠火・絡め取り・金の被膜・色吸い・霞）。敵を選ぶと、特性の内容が見られます。
       <p style="margin-top:12px;color:#ffd98a">「切るのは穢れだけ。その人の色は、一滴も切らない」</p>`);
   }

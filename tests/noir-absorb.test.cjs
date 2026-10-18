@@ -37,9 +37,9 @@ test('the first absorb of a type teaches its skill and the same type never teach
   assert.equal(r.known.k_thorn, 'n_thorn');
 });
 
-test('a shared skill id is kept once, bosses teach their own skill, and 30% is the line', async () => {
+test('each guardian and boss teaches its own big skill, stronger and costlier than any ordinary one, and 30% is the line', async () => {
   const c = await load();
-  const r = vm.runInContext(`(() => {
+  const raw = vm.runInContext(`(() => {
     const rec = NoirAbsorb.blank(8);
     const gran = NoirAbsorb.absorb(rec, { kind: 'boss', guardian: 'gran', hp: 10, mhp: 100 }, 'gran');
     const rivela = NoirAbsorb.absorb(rec, { kind: 'boss', guardian: 'rivela', hp: 9, mhp: 90 }, 'gb_rivela');
@@ -48,30 +48,36 @@ test('a shared skill id is kept once, bosses teach their own skill, and 30% is t
     const core = NoirAbsorb.absorb(rec, { kind: 'boss', hp: 3, mhp: 30 }, 'cove');
     const unknown = NoirAbsorb.absorb(rec, { kind: 'boss', guardian: 'zzz', hp: 2, mhp: 20 }, 'x');
     const sea = NoirAbsorb.absorb(rec, { kind: 'shade', variant: { art: 'sea_shade' }, trait: 'push', hp: 1, mhp: 10 }, 'cove');
+    const all = Object.values(NoirAbsorb.CATALOG), boss = all.filter(s => s.tier === 'boss'), plain = all.filter(s => s.tier !== 'boss');
     return {
-      gran: gran.skill.id, rivela: { learned: rivela.learned, duplicate: rivela.duplicate, id: rivela.skill.id },
-      vard: vard.skill.id, chrome: chrome.skill.id, core: core.skill.id, unknown: unknown.skill.id,
-      sea: { learned: sea.learned, duplicate: sea.duplicate, key: sea.key, id: sea.skill.id },
-      skills: rec.skills,
-      line: [30, 31, 0].map(hp => NoirAbsorb.nearDeath({ hp, mhp: 100 })),
-      range: NoirAbsorb.RANGE, threshold: NoirAbsorb.THRESHOLD,
+      ids: [gran, rivela, vard, chrome, core, unknown].map(x => x.skill.id), learned: [gran, rivela, vard, chrome, core, unknown].map(x => x.learned),
+      tiers: [gran, rivela, vard, chrome, core, unknown].map(x => x.skill.tier), sea: { learned: sea.learned, id: sea.skill.id, tier: sea.skill.tier || null },
+      majors: [{ kind: 'boss', guardian: 'gran' }, { kind: 'boss' }, { kind: 'chrome' }, { kind: 'shade' }].map(e => NoirAbsorb.isMajor(e)),
+      everyCost: all.every(s => s.cost >= 2), plainCost: [Math.min(...plain.map(s => s.cost)), Math.max(...plain.map(s => s.cost))], bossCost: [Math.min(...boss.map(s => s.cost)), Math.max(...boss.map(s => s.cost))],
+      plainPower: Math.max(...plain.filter(s => s.power).map(s => s.power)), bossPower: Math.min(...boss.filter(s => s.power && !s.radius).map(s => s.power)),
+      line: [30, 31, 0].map(hp => NoirAbsorb.nearDeath({ hp, mhp: 100 })), range: NoirAbsorb.RANGE, threshold: NoirAbsorb.THRESHOLD,
     };
   })()`, c);
-  assert.equal(r.gran, 'n_push');
-  assert.equal(r.rivela.learned, false);
-  assert.equal(r.rivela.duplicate, true);
-  assert.equal(r.rivela.id, 'n_push');
-  assert.equal(r.vard, 'n_roar');
-  assert.notEqual(r.vard, r.gran);
-  assert.equal(r.chrome, 'n_wave');
-  assert.equal(r.core, 'n_core');
-  assert.equal(r.unknown, 'n_gulp');
-  assert.equal(r.sea.duplicate, true);
-  assert.equal(r.sea.key, 'v_sea_shade');
-  assert.equal(r.skills.filter(id => id === 'n_push').length, 1);
+  const r = JSON.parse(JSON.stringify(raw));
+  assert.deepEqual(r.ids, ['n_tidal', 'n_current', 'n_roar', 'n_wave', 'n_core', 'n_gulp']);
+  assert(r.learned.every(Boolean), 'every guardian and boss teaches something new');
+  assert(r.tiers.every(t => t === 'boss'));
+  assert.deepEqual(r.sea, { learned: true, id: 'n_push', tier: null }, 'an ordinary shade no longer shares a skill with a guardian');
+  assert.deepEqual(r.majors, [true, true, true, false]);
+  assert(r.everyCost, 'every skill now costs resonance');
+  assert.deepEqual(r.plainCost, [2, 3]); assert.deepEqual(r.bossCost, [4, 6]);
+  assert(r.bossPower > r.plainPower, 'a single-target big skill hits harder than any ordinary skill');
+  assert(r.plainPower >= 1.4 && r.plainPower > 1, 'ordinary skills beat a normal attack');
   assert.equal(JSON.stringify(r.line), JSON.stringify([true, false, false]));
   assert.equal(r.range, 2);
   assert.equal(r.threshold, 0.3);
+});
+test('a guardian absorbed before 1.22.0 is upgraded to its big skill, and the old skill stays', async () => {
+  const c = await load();
+  const noir = vm.runInContext(`JSON.stringify(NoirAbsorb.sanitize({ joined: true, lv: 9, exp: 0, skills: ['n_push'], known: { g_gran: 'n_push' } }, 9))`, c);
+  const r = JSON.parse(noir);
+  assert.equal(r.known.g_gran, 'n_tidal');
+  assert.deepEqual(r.skills, ['n_push', 'n_tidal']);
 });
 
 test('old saves without noir stay without it, and a present record is cleaned without growing twice', async () => {
@@ -97,6 +103,7 @@ const hook = `__noirQA: {
   state() { return { running, phase, busy, over, paused, allies: units.filter(u => u.side === 'ally' && !u.hidden).map(u => u.kind),
     units: units.map(u => ({ id: u.id, kind: u.kind, side: u.side, hp: u.hp, mhp: u.mhp, r: u.r, c: u.c, dead: !!u.dead, acted: !!u.acted })) }; },
   place(id, extra) { Object.assign(units.find(u => u.id === id), extra); refreshHud(); },
+  sp() { return sp; }, setSp(n) { sp = n; refreshHud(); }, info() { return { mode, targetCmd, targets: targets ? [...targets] : [], sel: sel && { kind: sel.kind, r: sel.r, c: sel.c, acted: sel.acted }, foes: units.filter(u => u.side === 'enemy').map(u => ({ id: u.id, r: u.r, c: u.c, dead: !!u.dead, idx: idx(u.r, u.c) })) }; }, exec(id) { const u = units.find(x => x.id === id); execTarget(cellOf(u)); },
   pick(kind) { select(units.find(u => u.kind === kind && !u.dead), true); showMenu(sel); },
   screen(id) { const u = units.find(x => x.id === id); const p = toScreen(unitXY(u).x, unitXY(u).y - tw * u.hgt * 0.45); return { x: p.x, y: p.y }; },
 },
@@ -222,3 +229,64 @@ test('Noir joins a battle only when flagged, absorbs a dying shade, and lists th
   await page.waitForFunction(() => Board.__noirQA.state().running && !Board.__noirQA.state().busy && Board.__noirQA.state().phase === 'player', null, { timeout: 20000 });
   assert.deepEqual(await page.evaluate(() => Board.__noirQA.state().allies), ['aria'], 'the finale despair is still Aria alone');
 });
+
+test('Swallowing a boss heals Noir, returns resonance and teaches a big skill; skills cost resonance and big ones also hit around the target', async () => {
+  errors = [];
+  context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  await context.addInitScript(() => localStorage.setItem('cr_speed', '0'));
+  page = await context.newPage();
+  page.on('pageerror', e => errors.push(e.message));
+  await page.route('https://fonts.googleapis.com/**', r => r.fulfill({ contentType: 'text/css', body: '' }));
+  const source = await fs.readFile(path.join(root, 'js/board.js'), 'utf8'), marker = '    start, enterPhase1, help, stop,';
+  await page.route('**/js/board.js*', r => r.fulfill({ contentType: 'application/javascript', body: source.replace(marker, hook + marker) }));
+  await page.goto(base + '#board=cove', { waitUntil: 'networkidle' });
+  await page.locator('#gate').click();
+  await page.waitForFunction(() => Board.__noirQA.state().running && !Board.__noirQA.state().busy, null, { timeout: 20000 });
+  await page.evaluate(() => {
+    Board.party.noir = NoirAbsorb.blank(Board.party.aria.lv); Board.saveParty();
+    Board.start({ ...BOARDS.cove, id: 'qa_core', region: false, renoir: true, hideSide: false, tutorial: null, intro: null, beats: [], spStart: 0,
+      map: { low: ['land_flat'], mid: ['land_flat'], high: ['land_flat'], hills: 0, obsAmt: 0, water: null },
+      enemies: [{ kind: 'boss', lv: 1 }, { kind: 'shade', lv: 1 }, { kind: 'shade', lv: 1 }] }, () => {});
+  });
+  await page.waitForFunction(() => Board.__noirQA.state().running && !Board.__noirQA.state().busy, null, { timeout: 20000 });
+  const ids = await page.evaluate(() => {
+    Math.random = () => 0.5;
+    const s = Board.__noirQA.state(), noir = s.units.find(u => u.kind === 'noir'), boss = s.units.find(u => u.kind === 'boss'), shades = s.units.filter(u => u.kind === 'shade');
+    Board.__noirQA.place(noir.id, { r: 5, c: 5, acted: false, moved: false, hp: Math.ceil(noir.mhp * 0.4) });
+    Board.__noirQA.place(boss.id, { r: 4, c: 5, hp: Math.floor(boss.mhp * 0.3) });
+    Board.__noirQA.place(shades[0].id, { r: 1, c: 1 }); Board.__noirQA.place(shades[1].id, { r: 1, c: 2 });
+    Board.__noirQA.setSp(0); Board.__noirQA.pick('noir');
+    return { noir: noir.id, boss: boss.id, a: shades[0].id, b: shades[1].id, hp0: Math.ceil(noir.mhp * 0.4), mhp: noir.mhp };
+  });
+  await page.locator('[data-k=absorb]').click();
+  const p = await page.evaluate(id => Board.__noirQA.screen(id), ids.boss);
+  await page.mouse.click(p.x, p.y);
+  await page.waitForFunction(() => { const s = Board.__noirQA.state(); return s.running && !s.busy; }, null, { timeout: 20000 });
+  const after = await page.evaluate(id => ({ noir: Board.__noirQA.state().units.find(u => u.id === id), sp: Board.__noirQA.sp(), skills: Board.party.noir.skills.slice() }), ids.noir);
+  assert(after.noir.hp >= ids.hp0 + Math.round(ids.mhp * 0.3) - 1, 'Noir recovers 30% of her HP: ' + JSON.stringify(after.noir));
+  assert(after.sp >= 2, 'resonance +2 after swallowing a boss: ' + after.sp);
+  assert(after.skills.includes('n_core'), 'the boss teaches its big skill');
+
+  // 共鳴が足りなければ使えず、足りれば消費する。大技は周りの相手にも当たる。
+  await page.evaluate(ids => {
+    Board.party.noir.skills.push('n_wave'); Board.saveParty();
+    Board.__noirQA.place(ids.noir, { r: 3, c: 2, acted: false, moved: false });
+    Board.__noirQA.place(ids.a, { r: 1, c: 1, hp: 999, mhp: 999 }); Board.__noirQA.place(ids.b, { r: 1, c: 2, hp: 999, mhp: 999 });
+    Board.__noirQA.setSp(3); Board.__noirQA.pick('noir');
+  }, ids);
+  await page.locator('[data-k=noirskills]').click();
+  assert(await page.locator('[data-k=noirskill][data-a=n_wave]').isDisabled(), 'a 6-resonance skill is disabled at 3');
+  assert.match(await page.locator('[data-k=noirskill][data-a=n_wave] em').innerText(), /^6$/);
+  await page.evaluate(() => { Board.__noirQA.setSp(12); Board.__noirQA.pick('noir'); });
+  await page.locator('[data-k=noirskills]').click();
+  const before = await page.evaluate(ids => Board.__noirQA.state().units.filter(u => u.id === ids.a || u.id === ids.b).map(u => u.hp), ids);
+  await page.locator('[data-k=noirskill][data-a=n_wave]').click();
+  const info = await page.evaluate(() => Board.__noirQA.info());
+  assert.equal(info.targetCmd, 'noirskill:n_wave', JSON.stringify(info));
+  await page.evaluate(id => Board.__noirQA.exec(id), ids.a);
+  await page.waitForFunction(() => { const s = Board.__noirQA.state(); return s.over || (s.running && !s.busy); }, null, { timeout: 20000 });
+  const hit = await page.evaluate(ids => ({ sp: Board.__noirQA.sp(), hp: Board.__noirQA.state().units.filter(u => u.id === ids.a || u.id === ids.b).map(u => u.dead ? 0 : u.hp) }), ids);
+  assert.equal(hit.sp, 8, 'the big skill spent 6 resonance; each of the two hits gave 1 back, as every hit does');
+  assert(hit.hp[0] < before[0] && hit.hp[1] < before[1], 'both the target and its neighbour were hit: ' + JSON.stringify({ before, after: hit.hp }));
+});
+
