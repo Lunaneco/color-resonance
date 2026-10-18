@@ -165,6 +165,8 @@ const Board = (() => {
   const defeatedSpirits = new Set();
   let tw = 80, th = 43, hStep = 18, ox = 0, oy = 0, W = 0, H = 0, dpr = 1;
   const cam = { z: 1, x: 0, y: 0, tz: 1, tx: 0, ty: 0 };
+  // 指でつまむ拡大縮小（演出のカメラとは別の層）。画面座標 = 演出後の座標 × z + o
+  const view = { z: 1, ox: 0, oy: 0 }, VIEW_MIN = 0.75, VIEW_MAX = 2.5;
   const fxp = [];
   const artEffects = [];
   let cutinCancel = null, cutinToken = 0;
@@ -404,8 +406,23 @@ const Board = (() => {
   }
   const base = (r, c) => { const p = viewCell(r, c); return { x: ox + (p.c - p.r) * tw / 2, y: oy + (p.c + p.r) * th / 2 }; };
   function topOf(cell) { const b = base(cell.r, cell.c); return { x: b.x, y: b.y - cell.h * hStep }; }
-  const toScreen = (x, y) => ({ x: (x - cam.x) * cam.z + cam.x, y: (y - cam.y) * cam.z + cam.y });
-  const toWorld = (x, y) => ({ x: (x - cam.x) / cam.z + cam.x, y: (y - cam.y) / cam.z + cam.y });
+  const toScreen = (x, y) => ({ x: ((x - cam.x) * cam.z + cam.x) * view.z + view.ox, y: ((y - cam.y) * cam.z + cam.y) * view.z + view.oy });
+  const toWorld = (x, y) => { const vx = (x - view.ox) / view.z, vy = (y - view.oy) / view.z; return { x: (vx - cam.x) / cam.z + cam.x, y: (vy - cam.y) / cam.z + cam.y }; };
+  // 盤が画面の外へ飛んでいかないよう、画面の真ん中に盤のどこかが残る範囲へ収める。
+  function clampView() {
+    view.z = Math.max(VIEW_MIN, Math.min(VIEW_MAX, view.z));
+    if (Math.abs(view.z - 1) < 0.04) view.z = 1;
+    if (view.z === 1) { view.ox = view.oy = 0; return; }
+    const fit = (o, size) => Math.min(Math.max(o, size * 0.5 - size * view.z), size * 0.5);
+    view.ox = fit(view.ox, W); view.oy = fit(view.oy, H);
+  }
+  function zoomView(z, cx, cy) {
+    const qx = (cx - view.ox) / view.z, qy = (cy - view.oy) / view.z;
+    view.z = Math.max(VIEW_MIN, Math.min(VIEW_MAX, z));
+    view.ox = cx - qx * view.z; view.oy = cy - qy * view.z;
+    clampView();
+  }
+  function resetView() { view.z = 1; view.ox = view.oy = 0; }
   const reducedMotion = () => document.documentElement.dataset.motion === 'reduced';
   function focus(x, y, z = 1.15) { cam.tx = x; cam.ty = y; cam.tz = reducedMotion() ? 1 : z; }
   function unfocus() { cam.tz = 1; }
@@ -495,7 +512,7 @@ const Board = (() => {
     cam.z += (cam.tz - cam.z) * 0.12; cam.x += (cam.tx - cam.x) * 0.12; cam.y += (cam.ty - cam.y) * 0.12;
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     g.clearRect(0, 0, W, H);
-    g.setTransform(dpr * cam.z, 0, 0, dpr * cam.z, dpr * cam.x * (1 - cam.z), dpr * cam.y * (1 - cam.z));
+    g.setTransform(dpr * cam.z * view.z, 0, 0, dpr * cam.z * view.z, dpr * (view.z * cam.x * (1 - cam.z) + view.ox), dpr * (view.z * cam.y * (1 - cam.z) + view.oy));
     const inv = cfg.inverted;
     // 足元の影
     const bc = base((rows - 1) / 2, (cols - 1) / 2);
@@ -3113,6 +3130,8 @@ const Board = (() => {
     }
   });
   cv.addEventListener('mouseleave', () => { hover = null; });
+  // トラックパッドのピンチ（ctrl＋ホイール）でも拡大縮小する。
+  cv.addEventListener('wheel', e => { if (!running || !e.ctrlKey) return; e.preventDefault(); zoomView(view.z * Math.exp(-e.deltaY * 0.01), e.clientX, e.clientY); }, { passive: false });
   cv.addEventListener('contextmenu', e => e.preventDefault());
   // 盤を横へはらうと、視点が90度ずつ回る（FFタクティクスのL/Rと同じ。1回のはらいで1段）。
   // 動かさずに離す短いタップは、今までどおり床や人を選ぶ。
@@ -3140,8 +3159,17 @@ const Board = (() => {
   });
   addEventListener('mousemove', e => { if (spin?.id === 'mouse') trackSpin(e.clientX, e.clientY); });
   addEventListener('mouseup', e => { if (spin?.id === 'mouse' && e.button === 0) endSpin(e.clientX, e.clientY, true); });
-  let touchCell = null;
+  let touchCell = null, pinch = null, pinched = false;
+  const touchMid = ts => ({ x: (ts[0].clientX + ts[1].clientX) / 2, y: (ts[0].clientY + ts[1].clientY) / 2, d: Math.hypot(ts[0].clientX - ts[1].clientX, ts[0].clientY - ts[1].clientY) });
   cv.addEventListener('touchstart', e => {
+    // 2本指：つまんで拡大縮小、そのまま動かして盤を動かす。床の選択や回転はしない。
+    if (e.touches.length >= 2) {
+      const m = touchMid(e.touches);
+      pinch = { d0: Math.max(10, m.d), z0: view.z, qx: (m.x - view.ox) / view.z, qy: (m.y - view.oy) / view.z };
+      pinched = true; spin = null; touchCell = null; cv.classList.remove('turning');
+      e.preventDefault(); return;
+    }
+    if (pinched) { e.preventDefault(); return; }
     const t = e.touches[0];
     touchCell = pick(t.clientX, t.clientY); hover = touchCell;
     const u = touchCell && unitAt(touchCell); if (u) showInfo(u);
@@ -3149,12 +3177,20 @@ const Board = (() => {
     e.preventDefault();
   }, { passive: false });
   addEventListener('touchmove', e => {
+    if (pinch && e.touches.length >= 2) {
+      const m = touchMid(e.touches);
+      view.z = Math.max(VIEW_MIN, Math.min(VIEW_MAX, pinch.z0 * m.d / pinch.d0));
+      view.ox = m.x - pinch.qx * view.z; view.oy = m.y - pinch.qy * view.z;
+      clampView(); e.preventDefault(); return;
+    }
     if (spin?.id !== 'touch') return;
     const t = e.touches[0]; if (!t) return;
     trackSpin(t.clientX, t.clientY);
     if (spin?.dragged) e.preventDefault();
   }, { passive: false });
   cv.addEventListener('touchend', e => {
+    // つまむ操作のあとは、すべての指が離れるまで、タップとして扱わない。
+    if (pinched) { if (e.touches.length < 2) pinch = null; if (!e.touches.length) pinched = false; spin = null; touchCell = null; e.preventDefault(); return; }
     const dragged = spin?.id === 'touch' && spin.dragged;
     if (spin?.id === 'touch') endSpin(0, 0, false);
     e.preventDefault();
@@ -3180,7 +3216,7 @@ const Board = (() => {
     else if ((e.key === 'w' || e.key === 'W') && sel && mode === 'selected' && !busy) command('wait');
     else if (e.key === 'e' || e.key === 'E') endPlayerPhase();
   });
-  addEventListener('resize', () => { if (running) { layout(); if (sel && !cmdMenu.classList.contains('hidden')) showMenu(sel, menuSub); } });
+  addEventListener('resize', () => { if (running) { layout(); clampView(); if (sel && !cmdMenu.classList.contains('hidden')) showMenu(sel, menuSub); } });
   endBtn.addEventListener('click', e => { e.stopPropagation(); Audio2.sfx.choose(); endPlayerPhase(); });
   $id('boardHelp').onclick = () => help();
   $id('boardMenu').onclick = () => Main.gameMenu();
@@ -3204,6 +3240,7 @@ const Board = (() => {
     if (reducedMotion()) { viewQ = viewRotation; viewAnim = null; } else { viewAnim = { from, to: from + step, t0: performance.now(), dur: 320 }; }
     orderCells(); layout(); showCompass();
     cam.z = cam.tz = 1; cam.x = cam.tx = cam.y = cam.ty = 0;
+    if (view.z !== 1) { view.ox = W * (1 - view.z) / 2; view.oy = H * (1 - view.z) / 2; clampView(); }
     hover = null; touchCell = null; fxp.length = 0; floatLayer.innerHTML = '';
     units.forEach(u => { u.lunge = u.knock = null; });
     $id('boardView').setAttribute('aria-label', `戦闘マップの視点 · 表示角度${viewRotation * 90}度`);
@@ -3308,7 +3345,7 @@ const Board = (() => {
     units.filter(u=>u.guardian).forEach(u=>guardianTransition(u,true));
     learnedRoute = 'enchant';
     fxp.length = 0; floatLayer.innerHTML = '';
-    cam.z = cam.tz = 1;
+    cam.z = cam.tz = 1; resetView();
     hideMenu();
     document.querySelector('.bt-act').textContent = `${cfg.act || '戦場'}・${Progression.difficulties[difficulty].name}・適正LV ${cfg.recommendedLv}`;
     document.querySelector('.bt-name').textContent = cfg.title || '';
