@@ -139,7 +139,7 @@ const GameArt = (() => {
     const regional = region ? ['shade', 'thorn', 'lead', 'membrane'].map(k => region + '_' + k) : [];
     return load(['aria', 'aria_d0', 'aria_d1', 'aria_d2', 'aria_d3', 'renoir', ...(conf.enemies || []).map(e => e.kind), conf.bossArt, ...(conf.companion ? ['chrome_human'] : []), ...spirits,
       'crystal_slash', 'pray_heal', 'night_sky', ...(conf.guardian ? Object.values(spiritEffects) : []), ...[...spirits, ...learnedSpirits].map(id => spiritEffects[id]),
-      ...((conf.enemies || []).some(e => e.kind === 'chrome') || conf.guardian === 'kaoru' ? ['chrome_wave'] : []), ...regional]);
+      ...((conf.enemies || []).some(e => e.kind === 'chrome') || conf.guardian === 'kaoru' ? ['chrome_wave'] : []), ...(conf.encounter ? ['lead', 'shade', 'thorn', 'membrane', 'boss', 'fisher'] : []), ...regional]);
   }
   const portrait = (id, cls = '') => `<img class="art-portrait ${cls}" src="${ROOT}frames/${id}/000.png" alt="" loading="lazy">`;
   return { ready, load, loadBattle, available, animation, sample, draw, drawMotion, mount, unmount, portrait, spiritEffects, speakers };

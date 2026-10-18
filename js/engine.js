@@ -43,6 +43,8 @@ const Engine = (() => {
   const SIDE_STORIES=['fury','fury_reunion','mari_reunion','kaoru_cafe','seam'];
   const SIDE_HOME={fury:'f_fruit',fury_reunion:'f_fruit',mari_reunion:null,kaoru_cafe:'grey',seam:'grey'};
   const SIDE_OPEN={fury:()=>Fury.available(),fury_reunion:()=>Fury.available()&&Fury.reunionReady(),mari_reunion:()=>MariReturn.available()&&MariReturn.joined(),kaoru_cafe:()=>true,seam:()=>typeof Seam!=='undefined'&&Seam.available()};
+  // ほかのファイルが足す寄り道（王の遣い兵など）
+  if (typeof EXTRA_SIDE_STORIES === 'object' && EXTRA_SIDE_STORIES) for (const [k, v] of Object.entries(EXTRA_SIDE_STORIES)) { if (!SIDE_STORIES.includes(k)) SIDE_STORIES.push(k); SIDE_HOME[k] = v.home || null; SIDE_OPEN[k] = v.open; }
   const BG = { rain: 'rain', cave_sky: 'cave_sky', canyon: 'canyon', teal: 'teal', forest: 'forest', stars: 'stars', glass: 'glass' };
   const PRESET = {
     none: 'none', dim: 'brightness(.72)', night: 'brightness(.55) saturate(.85) hue-rotate(-8deg)', storm: 'brightness(.32) saturate(.45) contrast(1.15)',

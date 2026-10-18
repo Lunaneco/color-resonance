@@ -57,8 +57,18 @@ const Board = (() => {
     membrane: { hp: [20, 5], atk: [9, 2.4], def: [3, 1.2], mov: 3, jump: 1, rng: [1, 2], h: 0.82 },
     chrome: { hp: [60, 24], atk: [14, 2.6], def: [4, 1.6], mov: 2, jump: 2, rng: [1, 2], h: 1.3 },
     noir: { hp: [36, 6], atk: [8, 1.6], def: [4, 1.2], mov: 4, jump: 1, rng: [1, 1], h: 0.7 },
+    // 王の遣い兵（遭遇戦）。穢れではなく、黒く塗られた人間の兵。
+    s_lance: { hp: [26, 6], atk: [10, 2.6], def: [5, 1.6], mov: 4, jump: 1, rng: [1, 1], h: 0.95 },
+    s_sword: { hp: [22, 5.5], atk: [11, 2.7], def: [4, 1.3], mov: 5, jump: 1, rng: [1, 1], h: 0.95 },
+    s_bow: { hp: [18, 4.5], atk: [10, 2.6], def: [3, 1.1], mov: 4, jump: 1, rng: [2, 3], h: 0.9 },
+    s_heavy: { hp: [32, 7], atk: [10, 2.4], def: [8, 2.4], mov: 3, jump: 1, rng: [1, 1], armor: 2, h: 1.05 },
+    s_cavalry: { hp: [26, 6], atk: [11, 2.7], def: [5, 1.5], mov: 6, jump: 1, rng: [1, 1], h: 1.05 },
+    s_captain: { hp: [50, 10], atk: [13, 3], def: [7, 2], mov: 4, jump: 1, rng: [1, 2], h: 1.2 },
+    villager: { hp: [60, 9], atk: [0, 0], def: [7, 2], mov: 0, jump: 0, rng: [1, 1], h: 0.85 },
   };
-  const KIND_NAME = { aria: 'アリア', chrome_human: 'クロム', noir: 'ノアール', shade: '穢れの影', thorn: '茨の影', lead: '鉛の殻', boss: '穢れの核', membrane: '白い膜', chrome: 'クロム' };
+  // 遣い兵の姿は、いまある敵の絵を暗く塗って使う（兵の専用絵はない）。
+  const SOLDIER_ART = { s_lance: 'lead', s_sword: 'shade', s_bow: 'thorn', s_heavy: 'lead', s_cavalry: 'membrane', s_captain: 'boss', villager: 'fisher' };
+  const KIND_NAME = { aria: 'アリア', chrome_human: 'クロム', noir: 'ノアール', s_lance: '遣いの槍兵', s_sword: '遣いの剣兵', s_bow: '遣いの弓兵', s_heavy: '遣いの重装兵', s_cavalry: '遣いの騎兵', s_captain: '遣いの隊長', villager: '村の人', shade: '穢れの影', thorn: '茨の影', lead: '鉛の殻', boss: '穢れの核', membrane: '白い膜', chrome: 'クロム' };
   const SPIRITS = {
     gran: {
       name: 'グラン', color: '#3fb4c9', rgb: '110,205,240',
@@ -536,6 +546,7 @@ const Board = (() => {
     for (const cell of cellsOrder) {
       drawCell(cell, t, now, area, path, atkSet);
       if (cell.beacon) drawBeacon(cell, t);
+      if (cell.decree) drawDecree(cell, t);
       const us = byCell.get(idx(cell.r, cell.c));
       if (us) us.forEach(u => drawUnit(u, t, now));
     }
@@ -574,6 +585,15 @@ const Board = (() => {
       const cell = candidates[0]; if (cell) { cell.beacon = n + 1; cell.beaconOn = false; chosen.push(cell); }
     }
     cfg.restoreBeacons = chosen.length;
+  }
+  // 布告の掲示板（遭遇戦の「たどり着く」目標）
+  function drawDecree(c, t) {
+    const p = topOf(c); g.save();
+    g.fillStyle = '#2a1f38'; g.strokeStyle = '#e8c97a'; g.lineWidth = 2;
+    g.fillRect(p.x - tw * .16, p.y - th * 1.05, tw * .32, th * .62); g.strokeRect(p.x - tw * .16, p.y - th * 1.05, tw * .32, th * .62);
+    g.fillStyle = '#f3e3b0'; g.font = `bold ${Math.max(10, tw * .18)}px sans-serif`; g.textAlign = 'center'; g.fillText('令', p.x, p.y - th * .6);
+    g.globalAlpha = reducedMotion() ? .45 : .35 + Math.sin(t * 2) * .15; g.beginPath(); g.ellipse(p.x, p.y, tw * .3, th * .27, 0, 0, Math.PI * 2); g.stroke();
+    g.restore();
   }
   function drawBeacon(c, t) {
     const p = topOf(c); g.save();
@@ -641,6 +661,7 @@ const Board = (() => {
     const pulse = 0.5 + 0.5 * Math.sin(t * 4);
     if (mode === 'selected' && moveInfo && moveInfo.ends.has(id)) tint(x, y, '120,215,255', 0.14 + 0.04 * pulse, 0.95, true);
     if (threat && threat.ends.has(id)) tint(x, y, '255,120,150', 0.13, 0.35);
+    if (dangerOn && dangerSet && dangerSet.has(id)) tint(x, y, '255,90,90', 0.16, 0.5);
     if (atkSet && atkSet.has(id)) tint(x, y, '255,120,140', 0.2 + 0.1 * pulse, 0.85);
     if (mode === 'target' && targets && targets.has(id)) tint(x, y, targetCmd === 'pray' ? '150,255,190' : targetCmd && (targetCmd.startsWith('summon') || targetCmd === 'sky') ? '200,170,255' : '255,120,150', 0.32 + 0.12 * pulse, 0.95, true);
     if (area && area.has(id)) tint(x, y, '255,245,200', 0.28, 0.9);
@@ -866,7 +887,7 @@ const Board = (() => {
     const flip = artId.startsWith('aria_d') ? false : artId === 'gran' ? dir === 0 || dir === 1 : dir === 2 || dir === 3;
     const height = tw * u.hgt, width = tw * (artId === 'gran' ? (u.guardian?1.6:1.25) : artId==='vard'?1.3:.98);
     g.save();
-    const artOptions={flip,...(u.guardian && u.kind !== 'chrome'?{tone:u.guardianPhase}:artId===u.kind && u.variant?{tint:u.variant.tint}:{})};
+    const artOptions={flip,...(u.guardian && u.kind !== 'chrome'?{tone:u.guardianPhase}:(artId===u.kind||u.soldier) && u.variant?{tint:u.variant.tint}:{})};
     const pose = spritePose(artId, action, elapsed);
     const bob = !pose && u.guardian && !reducedMotion() ? Math.sin(now/680+u.id)*tw*.025 : 0;
     if (pose) {
@@ -1469,6 +1490,8 @@ const Board = (() => {
     const TA = TIER[a.side === 'ally' ? tierA : tierE], TD = TIER[d.side === 'ally' ? tierA : tierE];
     let atk = a.atk * TA.atk * (opt.power || 1) * furyBonus(a);
     if (ownFloor(a, ac)) atk *= 1.1;
+    if (captainNear(a)) atk *= 1.15;   // 隊長の号令
+    if (a.shaken) atk *= 0.8;         // 隊長を失って動揺
     if (opt.normal && (a.resonance || a.enchant && a.enchant.id === 'king')) atk *= 1.25;
     if (opt.normal && a.enchant) atk *= 1 + (bondRank(a.enchant.id) - 1) * 0.03;
     const pierce = opt.pierce || (opt.normal && (a.resonance || a.enchant && a.enchant.id === 'spinel'));
@@ -1647,6 +1670,12 @@ const Board = (() => {
     await wait(420);
     if (my !== sess) return;
     if (d.hp <= 0 && !d.dead) await defeat(d, a);
+    // 遭遇戦の反撃：攻撃された側は、届く距離なら打ち返す（味方の通常攻撃と、敵の攻撃に対して）。
+    if (ENC() && !opt.counter && my === sess && running && !over && !d.dead && d.hp > 0 && !a.dead && a.hp > 0 && d.side !== a.side && !d.npc && (a.side === 'enemy' || opt.normal) && inRange(d, cellOf(d), cellOf(a))) {
+      const q = unitXY(d); floatText(q.x, q.y - tw * d.hgt - 8, '反撃', 'sys');
+      await attack(d, a, { counter: true, power: 0.8 });
+      return;
+    }
     unfocus();
     await wait(180);
   }
@@ -1740,8 +1769,14 @@ const Board = (() => {
       fxp.push({ k: 'ring', x: p.x, y: p.y, r: tw * 0.3, grow: tw * 1.6, col: '255,255,255', life: 0, max: 1.2 });
       if (inv) for (let i = 0; i < 8; i++) fxp.push({ k: 'starburst', x: p.x, y: p.y - tw * 0.4, vx: Math.cos(i * 0.785), vy: Math.sin(i * 0.785) * 0.54, life: 0, max: 1.4 });
       const left = live().filter(u => u.side === 'enemy').length;
-      const word = left === 0 && cfg.rootWord ? cfg.rootWord : d.word;
-      if (word) floatText(p.x, p.y - tw * 0.9, word, 'kegare');
+      const word = d.soldier ? (d.captain ? '隊長は、布告の黒から目を覚ました' : '黒い塗りが剥がれ、兵は我に返った') : left === 0 && cfg.rootWord ? cfg.rootWord : d.word;
+      if (word) floatText(p.x, p.y - tw * 0.9, word, d.soldier ? 'color' : 'kegare', d.soldier ? '#e6dcff' : undefined);
+      if (d.captain) {
+        const rest = live().filter(u => u.side === 'enemy');
+        if (ENC() && ENC().objective === 'commander') {
+          rest.forEach(u => { u.dead = true; u.dieT = performance.now(); const q = unitXY(u); smoke(q.x, q.y - tw * 0.4, 10, '40,34,60'); floatText(q.x, q.y - tw, '退いた', 'sys'); });
+        } else rest.forEach(u => { if (u.soldier) u.shaken = true; });
+      }
       paintArea(dc, 1, 'rainbow', 90);
       if (!inv && cfg.renoir !== false) {
         const rb = $id('renoirBox').getBoundingClientRect();
@@ -1755,8 +1790,9 @@ const Board = (() => {
       refreshHud();
       await wait(450);
       if (stage >= (cfg.finale ? 2 : 1) && !live().some(u => u.side === 'enemy')) win();
-    } else if (d.kind === 'aria' || d.kind === 'chrome_human') {
+    } else if (d.kind === 'aria' || d.kind === 'chrome_human' || d.npc) {
       smoke(p.x, p.y - tw * 0.5, 20, '20,10,30');
+      if (d.npc) floatText(p.x, p.y - tw, `${d.name}が倒れた`, 'sys');
       lose();
     } else if (d.kind === 'noir') {
       smoke(p.x, p.y - tw * 0.4, 16, '20,16,32');
@@ -2051,6 +2087,7 @@ const Board = (() => {
     const my = sess;
     turn++; phase = 'player'; enchantUsed = false; summonsThisTurn = 0;
     units = units.filter(u => !u.dead || performance.now() - u.dieT < 1000);
+    if (checkObjective()) return;
     if (turn > 1) {
       for (const u of live().filter(u => u.until)) { u.summon = u.until - turn; if (u.summon < 0) await departSpirit(u); }
       const a = ariaU();
@@ -2066,7 +2103,7 @@ const Board = (() => {
       const ar = ariaU(); if (ar && GB.regen && ar.hp < ar.mhp) heal(ar, Math.round(ar.mhp * GB.regen / 100));
       if (T.regen) live().filter(u => u.side === 'ally' && u.hp < u.mhp).forEach(u => heal(u, Math.round(u.mhp * T.regen)));
     }
-    live().filter(u => u.side === 'ally').forEach(u => { u.moved = false; u.acted = false; u.normalAttacks = 0; u.undo = null; u.summonChain = false; if (u.hazardRootUntil != null && turn > u.hazardRootUntil) { u.root = 0; u.hazardRootUntil = null; } });
+    live().filter(u => u.side === 'ally').forEach(u => { u.moved = !!u.npc; u.acted = !!u.npc; u.normalAttacks = 0; u.undo = null; u.summonChain = false; if (u.hazardRootUntil != null && turn > u.hazardRootUntil) { u.root = 0; u.hazardRootUntil = null; } });
     if (cfg.finale && stage === 1 && turn > rescueTurn + 1 && awakened < (cfg.spirits || []).length) awaken();
     live().filter(u=>u.guardian).forEach(e=>guardianIntent(e));
     refreshHud();
@@ -2095,7 +2132,9 @@ const Board = (() => {
   async function enemyPhase() {
     const my = sess;
     phase = 'enemy';
-    await showBanner('enemy', 'ENEMY PHASE', cfg.inverted ? '白い膜の手番' : '穢れの手番');
+    await showBanner('enemy', 'ENEMY PHASE', ENC() ? '遣い兵の手番' : cfg.inverted ? '白い膜の手番' : '穢れの手番');
+    if (my !== sess || over) return;
+    await reinforce();
     if (my !== sess || over) return;
     drained = 0;
     const T = TIER[tierE];
@@ -2125,7 +2164,7 @@ const Board = (() => {
     const ec = cellOf(e);
     if (e.guardian) { await guardianResolve(e); if (my !== sess || over || !running) return; }
     // 侵食：まわりの床をくすませる
-    if (e.kind !== 'chrome') {
+    if (e.kind !== 'chrome' && !e.soldier) {
       const n = e.kind === 'boss' ? 2 : 1;
       const cand = shuffle(nb8(ec).filter(c => c.walk && c.floor !== 'dull'));
       cand.slice(0, n).forEach((c, i) => { paint(c, 'dull', i * 120); const p = topOf(c); smoke(p.x, p.y, 5, cfg.inverted ? '240,244,255' : '25,12,30', { a: 0.4 }); });
@@ -2150,6 +2189,16 @@ const Board = (() => {
     }
     const allies = live().filter(u => u.side === 'ally');
     if (!allies.length) return;
+    // 守備兵：近づかれるまで持ち場を動かない。一度動き出したら、ふつうの兵と同じ。
+    if (e.hold) {
+      const reach = e.mov + e.rng[1];
+      if (allies.some(a => dist(a, e) <= reach)) { e.hold = false; const p = unitXY(e); floatText(p.x, p.y - tw, '持ち場を離れた', 'sys'); }
+      else {
+        const t = allies.find(a => inRange(e, cellOf(e), cellOf(a)));
+        if (t) await attack(e, t, { col: '170,110,220' });
+        return;
+      }
+    }
     const rch = reachable(e);
     const options = [rch.start, ...rch.ends];
     let best = null;
@@ -2158,7 +2207,7 @@ const Board = (() => {
       for (const a of allies) {
         if (!inRange(e, cell, cellOf(a))) continue;
         const est = calcDamage(e, a, {}, cell, false).dmg;
-        const score = est + (est >= a.hp ? 60 : 0) + (a.kind === 'aria' ? 6 : 0) + (a.kind === 'noir' ? -8 : 0) + (cell.floor === 'dull' ? 4 : 0) + (cell.h - cellOf(a).h) * 2 - (rch.d.get(id) || 0) * 0.3 + Math.random();
+        const score = est + (est >= a.hp ? 60 : 0) + (a.kind === 'aria' ? 6 : 0) + (a.kind === 'noir' ? -8 : 0) + (a.npc ? 4 : 0) + (cell.floor === 'dull' ? 4 : 0) + (cell.h - cellOf(a).h) * 2 - (rch.d.get(id) || 0) * 0.3 + Math.random();
         if (!best || score > best.score) best = { score, id, a };
       }
     }
@@ -2337,6 +2386,7 @@ const Board = (() => {
       return;
     }
     void r;
+    if (u.kind === 'aria' && checkObjective()) return;
     if (followUpPending(u)) { select(u, true); return; }
     if (u.summonChain && !u.acted) { select(u, true); phaseLabel.textContent = '双彩の王笏：もう1体召喚できる（または待機）'; return; }
     autoEnd();
@@ -2372,7 +2422,71 @@ const Board = (() => {
     endBtn.disabled = false;
     deselect(); showInfo(u); refreshHud(); autoEnd();
   }
+  // ---------- 王の遣い兵（遭遇戦） ----------
+  // 通常戦との違い：反撃、兵種、隊長の号令、守備兵、増援、戦場ごとの勝利条件、危険範囲の表示。兵は穢れではないので、床をくすませず、ノアールも飲まない。
+  const ENC = () => cfg && cfg.encounter;
+  function markSoldier(u, spec = {}) {
+    u.soldier = true; u.artId = SOLDIER_ART[u.kind]; u.variant = { tint: { key: 'envoy', hue: 0, sat: 0.12, glow: 0.4, rgb: [70, 40, 110] } };
+    if (u.kind === 's_heavy') u.hgt = 1.1;
+    if (u.kind === 's_captain') { u.captain = true; u.hgt = 1.35; }
+    if (spec.hold) u.hold = true;
+  }
+  function placeEncounter(plan) {
+    const e = ENC(), a = ariaU();
+    // 守る村人：アリアの近くに置く。動かず、攻撃もしない。倒されると負け。
+    for (let n = 0; n < (e.villagers || 0); n++) {
+      const free = cells.filter(c => c.walk && !unitAt(c) && Math.abs(c.h - cellOf(a).h) <= 1).sort((x, y) => dist(x, a) - dist(y, a));
+      const c = free[Math.min(free.length - 1, 2 + n)]; if (!c) break;
+      units.push(makeUnit('villager', 'ally', Math.max(1, party.aria.lv), c, { npc: true, acted: true, moved: true, artId: SOLDIER_ART.villager, name: e.villagerName || '村の人' }));
+    }
+    // 布告の掲示板：アリアがたどり着けば勝ち。敵の側の奥に置く。
+    if (e.objective === 'seize') {
+      const far = cells.filter(c => c.walk && !unitAt(c)).sort((x, y) => dist(y, a) - dist(x, a))[0];
+      if (far) far.decree = true;
+    }
+  }
+  function captainNear(u) { return !!(u.soldier && !u.captain && live().some(c => c.captain && dist(c, u) <= 2)); }
+  async function reinforce() {
+    const e = ENC(); if (!e || !e.waves) return;
+    const a = ariaU(); if (!a) return;
+    for (const w of e.waves) {
+      if (w.done || (w.turn !== turn && !(w.every && turn >= w.turn && (turn - w.turn) % w.every === 0))) continue;
+      if (!w.every) w.done = true;
+      const edge = cells.filter(c => c.walk && !unitAt(c) && (c.r === 0 || c.c === 0 || c.r === rows - 1 || c.c === cols - 1)).sort((x, y) => dist(y, a) - dist(x, a));
+      let placed = 0;
+      for (const spec of w.units) for (let n = 0; n < (spec.n || 1); n++) {
+        const c = edge[placed++]; if (!c) break;
+        const lvl = Math.max(1, (spec.lv || 1) + (Progression.difficulties[difficulty]?.enemyLevel || 0));
+        const u = makeUnit(spec.kind, 'enemy', lvl, c, {}); markSoldier(u, spec); units.push(u); totalFoes++;
+        const p = topOf(c); smoke(p.x, p.y - tw * 0.3, 12, '25,20,40');
+      }
+      if (placed) { const p = topOf(edge[0]); focus(p.x, p.y, 1.06); floatText(p.x, p.y - tw * 1.1, '遣い兵の増援が来た', 'sys'); Audio2.sfx.expose(); await wait(650); }
+    }
+  }
+  function objectiveText() {
+    const e = ENC(); if (!e) return '';
+    return { commander: '隊長を解放する', protect: `村の人を守り、${e.turns}ターン耐える`, survive: `${e.turns}ターン耐える`, seize: '布告の掲示板にアリアがたどり着く', rout: '遣い兵をすべて解放する' }[e.objective] || '';
+  }
+  function checkObjective() {
+    const e = ENC(); if (!e || over) return false;
+    const a = ariaU();
+    if (e.objective === 'seize' && a && cellOf(a).decree) { say('アリア', '布告を、はがした。黒く塗る命令は、ここで終わり。', 4000); win(); return true; }
+    if ((e.objective === 'protect' || e.objective === 'survive') && turn > e.turns) { win(); return true; }
+    return false;
+  }
+  // 敵全員の攻撃が届く床（危険範囲）
+  let dangerOn = false, dangerSet = null;
+  function dangerCells() {
+    const set = new Set();
+    for (const e of live().filter(u => u.side === 'enemy')) {
+      if (e.hold) { cells.forEach(c => { if (inRange(e, cellOf(e), c)) set.add(idx(c.r, c.c)); }); continue; }
+      const rch = reachable(e);
+      for (const id of [rch.start, ...rch.ends]) cells.forEach(c => { if (inRange(e, cells[id], c)) set.add(idx(c.r, c.c)); });
+    }
+    return set;
+  }
   function absorbBlocked(o) {
+    if (o.soldier) return '人は飲まない。黒い塗りだけを剥がそう';
     if (veiled(o)) return '夜の奥で、形がまだ見えない';
     if (o.kind === 'boss' && cfg.bossShield && cells.some(c => c.beacon && !c.beaconOn)) return '防壁が、澱を渡さない';
     return '';
@@ -2595,6 +2709,7 @@ const Board = (() => {
     await moveAlong(u, path, true);
     if (!running) return;
     u.moved = true; busy = false;
+    if (u.kind === 'aria' && checkObjective()) return;
     tutorialStep('move');
     if (sel === u) { showMenu(u); showInfo(u); phaseLabel.textContent = '行動を選んでください'; }
   })()); }
@@ -2901,6 +3016,7 @@ const Board = (() => {
     const n = live().filter(u => u.side === 'enemy').length;
     $id('kegareCount').innerHTML = `TURN<b>${turn}</b>　${cfg.inverted ? '白い膜' : '穢れ'}<b>${stage < 2 && cfg.finale ? '?' : n}</b>`;
     if (cfg.restoreBeacons) $id('kegareCount').insertAdjacentHTML('beforeend', `　灯<b>${cells.filter(c => c.beaconOn).length}/${cfg.restoreBeacons}</b>`);
+    if (ENC()) { $id('kegareCount').innerHTML = `TURN<b>${turn}</b>　遣い兵<b>${n}</b>　<span class="enc-goal">目標：${objectiveText()}</span>`; if (dangerOn) dangerSet = dangerCells(); }
     document.querySelector('#resonance .rs-val').textContent = sp;
     vignette.style.opacity = 0.15 + D * 0.7;
     if (cfg.rainLink) FX.intensity('rain', 0.2 + D * 1.2);
@@ -3026,7 +3142,7 @@ const Board = (() => {
     const done = st.filter(x => x.ok === true).length;
     box.classList.toggle('closed', !missionOpen);
     fitSide();
-    box.innerHTML = `<div class="mb-h">ミッション<span>${done}/${ms.length}</span></div>` + ms.map((m, i) => `<div class="mb-i ${st[i].ok === true ? 'ok' : st[i].ok === false ? 'ng' : ''}"><i></i><span>${missionText(m)}</span><em>${st[i].prog}</em></div>`).join('');
+    box.innerHTML = `<div class="mb-h">ミッション<span>${done}/${ms.length}</span></div>` + (ENC() ? `<div class="mb-i mb-goal"><i></i><span>勝利条件：${objectiveText()}</span><em></em></div>` : '') + ms.map((m, i) => `<div class="mb-i ${st[i].ok === true ? 'ok' : st[i].ok === false ? 'ng' : ''}"><i></i><span>${missionText(m)}</span><em>${st[i].prog}</em></div>`).join('');
   }
   $id('missionBox').addEventListener('click', e => { e.stopPropagation(); missionOpen = !missionOpen; renderMissions(); });
 
@@ -3218,6 +3334,7 @@ const Board = (() => {
   }, { passive: false });
   addEventListener('keydown', e => {
     if (!running || Panel.isOpen() || paused || e.ctrlKey || e.altKey || e.metaKey || e.target.closest?.('input,textarea,select,[contenteditable="true"]')) return;
+    if (e.key.toLowerCase() === 'd' && ENC()) { e.preventDefault(); toggleDanger(); return; }
     if (['q', 'r', '0'].includes(e.key.toLowerCase())) { e.preventDefault(); if (!e.repeat) rotateView(e.key === '0' ? -viewRotation : e.key.toLowerCase() === 'q' ? -1 : 1); return; }
     if (mode === 'facing') {
       if (e.key === 'Escape') { e.preventDefault(); cancel(); return; }
@@ -3239,6 +3356,13 @@ const Board = (() => {
   endBtn.addEventListener('click', e => { e.stopPropagation(); Audio2.sfx.choose(); endPlayerPhase(); });
   $id('boardHelp').onclick = () => help();
   $id('boardMenu').onclick = () => Main.gameMenu();
+  function toggleDanger(force) {
+    if (!ENC()) return;
+    dangerOn = force === undefined ? !dangerOn : !!force;
+    dangerSet = dangerOn ? dangerCells() : null;
+    $id('dangerZone').setAttribute('aria-pressed', String(dangerOn));
+  }
+  $id('dangerZone').addEventListener('click', e => { e.stopPropagation(); Audio2.sfx.choose(); toggleDanger(); });
   $id('rotateLeft').onclick = () => rotateView(-1);
   $id('rotateRight').onclick = () => rotateView(1);
   // FFタクティクスの羅針盤のように、いまの向きを小さな菱形で見せる
@@ -3352,9 +3476,11 @@ const Board = (() => {
       if (spec.kind === 'chrome') { u.guardian='chrome';u.guardianPhase=0;u.guardianAtk=u.atk; }
       u.word = spec.kind === 'boss' ? (cfg.rootWord || '') : spec.kind === 'chrome' ? '' : (words[kegIdx++ % Math.max(1, words.length)] || '');
       if (spec.kind === 'boss' && cfg.bossName) u.name = cfg.bossName;
+      if (GROW[spec.kind] && spec.kind.startsWith('s_')) markSoldier(u, spec);
       units.push(u);
       if (!u.hidden) totalFoes++;
     });
+    if (cfg.encounter) placeEncounter(plan);
     makeDecor();
     orderCells();
     turn = 0; phase = 'player'; busy = true; over = false; paused = false;
@@ -3365,6 +3491,7 @@ const Board = (() => {
     learnedRoute = 'enchant';
     fxp.length = 0; floatLayer.innerHTML = '';
     cam.z = cam.tz = 1; resetView();
+    dangerOn = false; dangerSet = null; $id('dangerZone').classList.toggle('hidden', !ENC()); $id('dangerZone').setAttribute('aria-pressed', 'false');
     hideMenu();
     document.querySelector('.bt-act').textContent = `${cfg.act || '戦場'}・${Progression.difficulties[difficulty].name}・適正LV ${cfg.recommendedLv}`;
     document.querySelector('.bt-name').textContent = cfg.title || '';

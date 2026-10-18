@@ -421,6 +421,7 @@ const World = (() => {
       if(seamOpen)acts.push(`<button class="wb${sealed?'':' main'}" data-a="seam">${sealed?'最終章を読み返す':'最終章へ'}</button>`);
       acts.push('<button class="wb" data-a="notebook">馨の手帳を開く</button>');
     }
+    if(typeof Envoy!=='undefined')for(const e of Envoy.at(n.id)){const done=Envoy.cleared(e);body+=`<div class="wp-sec">寄り道・王の遣い兵<small>${done?'解放済み':'遭遇戦'}</small></div><p class="wp-note">${e.title} · 適正LV ${e.lv}〜${e.lv+5}。${e.desc}</p>`;acts.push(`<button class="wb${done?'':' main'}" data-a="envoy" data-id="${Envoy.keyOf(e)}">${done?'遭遇戦をもう一度':'遣い兵に会いに行く'}</button>`);}
     const guardianRoute=GUARDIANS.find(p=>!p.chapter.startsWith('restore')&&p.town===n.id&&GuardianJourney.available(GUARDIAN_STAGES['gp_'+p.id]));
     if(guardianRoute){body+=`<div class="wp-sec">章の戦場<small>${guardianRoute.id==='king'?'通常戦とボス戦':'通常戦と精霊ボス戦'}</small></div><p class="wp-note">${guardianRoute.name} · 適正LV ${guardianRoute.lv}〜${guardianRoute.lv+3}。${guardianRoute.counter}</p>`;acts.push(`<button class="wb" data-a="guardians" data-chapter="${guardianRoute.chapter}">この章の戦場を選ぶ</button>`);}
     if (Restoration.joined()) {
@@ -450,6 +451,7 @@ const World = (() => {
       if (a === 'dismiss') dismissPanel();
       else if (a === 'furychat') Fury.start(true);
       else if (a === 'seam') Seam.start();
+      else if (a === 'envoy') Envoy.start(b.dataset.id);
       else if (a === 'restoration') Restoration.open();
       else if (a === 'notebook') Journal.open();
       else if (a === 'journey') go(b.dataset.node);
