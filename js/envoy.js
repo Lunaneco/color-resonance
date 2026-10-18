@@ -52,7 +52,7 @@ const Envoy = (() => {
   const keyOf = e => 'envoy_' + e.key;
   ENVOYS.forEach(e => {
     BOARDS[keyOf(e)] = {
-      id: keyOf(e), act: '寄り道・王の遣い兵', title: e.title, cols: 10, rows: 10, recLv: e.lv, lv: e.lv, spStart: 4, region: false, renoir: true,
+      id: keyOf(e), act: '寄り道・王の遣い兵', title: e.title, cols: 10, rows: 10, recLv: e.lv, lv: e.lv, spStart: 4, region: e.key, renoir: true,
       map: ENVOY_MAPS[e.key], decor: ['rocks', 'mt_small'], hue: e.hue, theme: e.theme, spirits: e.spirits, enemies: e.enemies, encounter: e.encounter,
       missions: e.missions, reward: e.reward, ...(e.companion ? { companion: true } : {}), ordinaryReward: e.ordinaryReward, firstItems: { i_tea: 1 }, desc: e.desc,
       intro: { who: 'アリア', text: `${e.desc}<small>遭遇戦：攻撃すると、届く相手は反撃してくる。「危険範囲」（D）で、敵の攻撃が届く床を確かめよう。</small>` },
