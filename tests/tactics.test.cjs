@@ -40,6 +40,10 @@ const hook = `__tac: {
   kill(id){ const u=units.find(x=>x.id===id); u.hp=0; return defeat(u, ariaU()); },
   walk(id, r, c){ const u=units.find(x=>x.id===id); select(u,true); moveInfo=reachable(u); const cell=cellAt(r,c); if(!moveInfo.ends.has(idx(r,c))) return false; doMove(u, cell); return true; },
   undoable(id){ return !!units.find(x=>x.id===id).undo; },
+  // アリアを歩ける隅へ、敵をそこから最も遠い歩ける床へ並べる（盤の形に左右されない確かめ方）
+  spread(){ const a=ariaU(); const ws=cells.filter(c=>c.walk); const corner=ws.slice().sort((x,y)=>(x.r+x.c)-(y.r+y.c))[0]; a.r=corner.r; a.c=corner.c;
+    const far=ws.filter(c=>c!==corner).sort((x,y)=>dist(y,a)-dist(x,a)); let i=0; units.filter(u=>u.side==='enemy'&&!u.dead&&!u.hidden).forEach(u=>{const c=far[i++]; u.r=c.r; u.c=c.c;});
+    return units.filter(u=>u.side==='enemy'&&!u.dead&&!u.hidden).map(u=>({id:u.id,r:u.r,c:u.c,reach:u.mov+u.rng[1],d:dist(u,a)})); },
 },
 `;
 async function battle(id, difficulty = 'normal') {
@@ -148,10 +152,9 @@ test('With a set advance turn, the enemy holds its ground until then and the mis
     assert.match(s.box, /3ターン目から進軍/);
     const foes = s.units.filter(u => u.side === 'enemy' && u.kind !== 'boss');
     assert(foes.every(u => u.hold && u.holdUntil === 3));
-    // アリアを隅へ置く。近づかれていない敵は、1ターン目の敵の手番に動かない
-    await page.evaluate(() => { const a = Board.__tac.state().units.find(u => u.kind === 'aria'); Board.__tac.place(a.id, { r: 0, c: 0 }); });
-    const far = foes.filter(u => u.r + u.c > 8);
-    assert(far.length > 0);
+    // アリアを隅へ、敵を遠くへ置く。近づかれていない敵は、1ターン目の敵の手番に動かない
+    const far = (await page.evaluate(() => Board.__tac.spread())).filter(u => u.d > u.reach && foes.some(f => f.id === u.id));
+    assert(far.length > 0, 'some soldiers are out of reach');
     await nextTurn(page);
     s = await S(page);
     assert.deepEqual(far.map(f => { const u = s.units.find(x => x.id === f.id); return u.r + ',' + u.c; }), far.map(u => u.r + ',' + u.c), 'they wait before the advance turn');
