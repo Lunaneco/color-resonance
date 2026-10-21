@@ -97,6 +97,6 @@
 #skills.dense .skill.spirit.armed .sk-d,#skills.dense .skill.spirit.fallen .sk-d{display:block;flex-basis:100%;font-size:10px;line-height:1.3}
 #boardScreen.fitting #skills .skill,#boardScreen.fitting #boardSide *{transition:none!important}
 
-#boardScreen.compact .enc-goal{display:none}
+#boardScreen.compact .enc-goal,#boardScreen.compact .enc-turn{display:none}
 #missionBox .mb-goal span{color:#ffd9a8;font-weight:700}
 #missionBox .mb-goal i{border-color:#ffd9a8}

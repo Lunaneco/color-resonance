@@ -59,7 +59,10 @@ async function win(page){await page.evaluate(()=>Board.__furyQA.finish());await 
 async function storyBattles(page,chapter,path,boss,next){
  await page.evaluate(ch=>Engine.play(ch),chapter);
  await advance(page,()=>Board.running);await ready(page);assert.equal(await page.evaluate(()=>Board.__furyQA.state().cfg),path);await win(page);
- await advance(page,()=>Board.running);await ready(page);assert.equal(await page.evaluate(()=>Board.__furyQA.state().cfg),boss);await win(page);
+ await advance(page,()=>Board.running);await ready(page);
+ // 第一・四・五幕は、道中と守り手のあいだに本編の陣取り戦（camp_*）がある
+ if((await page.evaluate(()=>Board.__furyQA.state().cfg)).startsWith('camp_')){await win(page);await advance(page,()=>Board.running);await ready(page);}
+ assert.equal(await page.evaluate(()=>Board.__furyQA.state().cfg),boss);await win(page);
  await advance(page,()=>World.isOpen);assert.equal(await page.evaluate(()=>Engine.load().chapter),next);
 }
 for(const engine of ['chromium','webkit']){

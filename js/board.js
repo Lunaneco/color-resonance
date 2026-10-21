@@ -184,7 +184,7 @@ const Board = (() => {
   let t0 = performance.now(), running = false, sess = 0, renderFrame = null;
   let turn = 0, phase = 'player', stage = 1, busy = false, over = false, paused = false;
   let sel = null, mode = 'idle', moveInfo = null, targets = null, targetCmd = null, hover = null, threat = null, menuSub = null, infoU = null;
-  let sp = 0, skyCharges = 0, enchantUsed = false, renoirUsed = false, summonsThisTurn = 0;
+  let sp = 0, skyCharges = 0, enchantUsed = false, renoirUsed = false, summonsThisTurn = 0, cp = 0, cpMax = 0;
   // パレット王の宝具「双彩の王笏」：1ターンに2体まで召喚できる（1体目の召喚では手番が残り、2体目の召喚か待機だけを選べる）。
   const hasRelic = () => typeof Progression.paletteRelic === 'function' && Progression.paletteRelic(Engine.unlocked());
   let region = null, drained = 0; // 国の色：敵のバリエーションと特性（regions.js）
@@ -277,7 +277,44 @@ const Board = (() => {
     while (q.length) { const c = q.shift(); nb4(c).forEach(n => { if (!seen.has(n) && n.walk && Math.abs(n.h - c.h) <= 1) { seen.add(n); q.push(n); } }); }
     return seen;
   }
+  // 手で描いた盤（陣取り戦）。ground は地形の文字、marks は旗・兵・土嚢の印の文字。どちらも行ごとの文字列。
+  //   ground: . 平地  : 段（高さ1）  # 高台（高さ2）  , 浅瀬  ~ 深い海（通れない）  = 桟橋  r 岩  m 山  H 家  W 城壁
+  //   marks : A 味方の本陣（アリアの初めの位置）  E 敵の本陣（隊長）  n 中立の旗  e 敵の旗  1〜9 兵の持ち場（隊長を除いた並び順）  s 土嚢
+  const GROUND = { '.': ['land_flat', 0], ':': ['land_step', 1], '#': ['land_high', 2], ',': ['sea_shallow', 0], '~': ['sea_deep', 0], '=': ['sea_calm', 0], r: ['rocks', 0], m: ['mt_small', 0], H: ['land_flat', 0], W: ['land_flat', 0] };
+  let layoutCamps = null;
+  function layoutMap() {
+    const L = cfg.layout, at = {}, slots = [];
+    layoutCamps = { n: [], e: [] };
+    cells = [];
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+      const ch = L.ground[r][c], [t, h] = GROUND[ch] || GROUND['.'], mk = L.marks[r][c];
+      const cell = { r, c, h, t, walk: !BLOCK.has(t) && ch !== 'H' && ch !== 'W', floor: 'neutral', prev: 'neutral', flipT: 0, sd: (r * 37 + c * 61) % 100 };
+      if (ch === 'H') cell.house = true;
+      if (ch === 'W') cell.wall = true;
+      if (ch === '=') cell.pier = true;
+      if (mk === 's') cell.cover = true;
+      if (mk === 'A' || mk === 'E') at[mk] = cell;
+      if (mk === 'n' || mk === 'e') layoutCamps[mk].push(cell);
+      if (mk >= '1' && mk <= '9') slots.push({ n: +mk, cell });
+      cells.push(cell);
+    }
+    // 家と城壁は、まわりの地面の高さに建つ
+    cells.forEach(c => { if (c.house || c.wall) c.h = Math.max(0, ...nb4(c).filter(n => !n.house && !n.wall && !OBST.has(n.t)).map(n => n.h)); });
+    slots.sort((a, b) => a.n - b.n);
+    layoutCamps.A = at.A; layoutCamps.E = at.E;
+    const used = new Set([at.A, at.E]), plan = [];
+    let i = 0;
+    (cfg.enemies || []).forEach(e => { for (let k = 0; k < (e.n || 1); k++) {
+      let cell = e.kind === 's_captain' ? at.E : slots[i++] && slots[i - 1].cell;
+      // 持ち場が足りないときは、敵の本陣に近い空いた床へ
+      if (!cell || (used.has(cell) && e.kind !== 's_captain')) cell = cells.filter(c => c.walk && !used.has(c)).sort((x, y) => dist(x, at.E) - dist(y, at.E))[0];
+      used.add(cell); plan.push({ spec: e, cell });
+    } });
+    return { aria: at.A, enemies: plan };
+  }
   function genMap() {
+    if (cfg.layout) return layoutMap();
+    layoutCamps = null;
     const M = Object.assign({ low: ['sea_flat', 'sea_calm'], mid: ['land_flat'], high: ['land_high'], water: null, waterAmt: 0, hills: 0.3, obstacles: ['rocks'], obsAmt: 0.04 }, cfg.map || {});
     const list = [];
     (cfg.enemies || []).forEach(e => { for (let i = 0; i < (e.n || 1); i++) list.push(e); });
@@ -532,9 +569,10 @@ const Board = (() => {
     g.fillStyle = sh; g.fillRect(-W, -H, W * 3, H * 3);
     drawDecor(true);
 
+    fogVis = FOG() ? visibleSet() : null;
     const byCell = new Map();
     for (const u of units) {
-      if (u.hidden) continue;
+      if (u.hidden || (fogVis && lurking(u, fogVis))) continue;
       if (u.dead && (!u.dieT || now - u.dieT > 950)) continue;
       const k = u.dk != null ? u.dk : idx(u.r, u.c);
       if (!byCell.has(k)) byCell.set(k, []);
@@ -547,13 +585,15 @@ const Board = (() => {
       drawCell(cell, t, now, area, path, atkSet);
       if (cell.beacon) drawBeacon(cell, t);
       if (cell.decree) drawDecree(cell, t);
+      if (cell.camp) drawCamp(cell, t);
       const us = byCell.get(idx(cell.r, cell.c));
       if (us) us.forEach(u => drawUnit(u, t, now));
+      if (cell.cover) drawCover(cell);
     }
     drawDecor(false);
     drawArtEffects(now);
     drawParticles();
-    for (const u of units) if (!u.hidden && !u.dead && (!u.bornT || now - u.bornT > 300)) {
+    for (const u of units) if (!u.hidden && !u.dead && (!u.bornT || now - u.bornT > 300) && !(fogVis && lurking(u, fogVis))) {
       const p = unitXY(u, now);
       if (u.side === 'enemy') drawFacing(u, p);
       drawBar(u, p.x, p.y);
@@ -619,8 +659,12 @@ const Board = (() => {
     for (let i = 0; i < c.h; i++) layer(colName, b.y - i * hStep + lift * (i / Math.max(1, c.h)));
     if (OBST.has(c.t) && c.h > 0) layer('land_flat', y);
     layer(c.t, y);
+    const fogged = fogVis && !fogVis.has(idx(c.r, c.c));
+    if (c.house || c.wall) { drawBuilding(c, x, y, fogged); return; }
+    if (c.pier) drawPier(x, y);
     if (!c.walk) {
       if (!OBST.has(c.t)) { g.save(); diamond(x, y, tw * 0.98, th * 0.98); g.fillStyle = 'rgba(4,10,24,.42)'; g.fill(); g.strokeStyle = `rgba(120,170,220,${0.12 + 0.08 * Math.sin(t * 2 + c.sd)})`; g.lineWidth = 1; g.stroke(); g.restore(); }
+      if (fogged) drawFog(c, x, y, t, 0.72);
       return;
     }
     // 床の色
@@ -668,6 +712,7 @@ const Board = (() => {
     if (path && path.has(id)) { g.save(); g.fillStyle = 'rgba(230,245,255,.9)'; g.shadowColor = '#bfe3ff'; g.shadowBlur = 8; g.beginPath(); g.arc(x, y, Math.max(2.5, tw * 0.05), 0, 6.29); g.fill(); g.restore(); }
     if (hover === c && !busy && !over) { g.save(); diamond(x, y, tw * 0.96, th * 0.96); g.shadowColor = 'rgba(230,240,255,1)'; g.shadowBlur = 14; g.strokeStyle = 'rgba(235,245,255,.9)'; g.lineWidth = 2; g.stroke(); g.restore(); }
     if (c.gimmick) drawGimmick(c, x, y, t);
+    if (fogVis) { if (fogged) drawFog(c, x, y, t, 0.8); else if (nb4(c).some(n => !fogVis.has(idx(n.r, n.c)))) drawFog(c, x, y, t, 0.22); }
     const warning = units.some(u => !u.dead && u.guardian && u.intent?.ids.has(id));
     if (warning) {
       const safe = c.floor === 'rainbow';
@@ -675,6 +720,72 @@ const Board = (() => {
       g.strokeStyle = safe ? '#83edca' : '#ffbb9c'; g.lineWidth = 1.8; g.setLineDash([4,3]); g.stroke(); g.setLineDash([]);
       g.font = `bold ${Math.max(8,tw*.18)}px sans-serif`; g.textAlign = 'center'; g.fillStyle = safe ? '#b1ffde' : '#ffe1c7'; g.fillText(safe ? '◇' : '!',x,y+tw*.055); g.restore();
     }
+  }
+  // ---------- 手で描いた盤の建物・桟橋・土嚢 ----------
+  const quad = pts => { g.beginPath(); pts.forEach(([px, py], i) => i ? g.lineTo(px, py) : g.moveTo(px, py)); g.closePath(); };
+  function drawBuilding(c, x, y, fogged) {
+    const P = fogged ? { wall: '#262a3c', wallDark: '#191c2b', roof: '#20243a', roofDark: '#151827', glow: '#2c2f40' }
+      : Object.assign({ wall: '#8d8aa0', wallDark: '#5c5970', roof: '#4d5f7a', roofDark: '#36445a', glow: '#ffd99a' }, cfg.layout.palette || {});
+    const k = 0.84, hw = tw / 2 * k, hh = th / 2 * k, H = c.wall ? th * 1.25 : th * (0.95 + (c.sd % 3) * 0.12);
+    const T = [x, y - hh], R = [x + hw, y], B = [x, y + hh], L = [x - hw, y], up = ([px, py]) => [px, py - H];
+    // 後ろに人が隠れるときは、建物を透かす
+    const behind = live().some(u => dist(u, c) <= 2 && viewDepth(cellOf(u)) < viewDepth(c));
+    g.save(); g.globalAlpha = behind ? 0.42 : 1; g.lineJoin = 'round';
+    g.fillStyle = 'rgba(0,0,0,.3)'; quad([T, R, B, L]); g.fill();
+    g.fillStyle = P.wallDark; quad([L, B, up(B), up(L)]); g.fill();
+    g.fillStyle = P.wall; quad([B, R, up(R), up(B)]); g.fill();
+    g.strokeStyle = 'rgba(10,8,20,.45)'; g.lineWidth = 1;
+    quad([L, B, up(B), up(L)]); g.stroke(); quad([B, R, up(R), up(B)]); g.stroke();
+    if (c.wall) {
+      // 城壁：平らな上面と狭間
+      g.fillStyle = P.wall; quad([up(T), up(R), up(B), up(L)]); g.fill(); g.stroke();
+      g.fillStyle = P.wallDark;
+      for (let i = 0; i < 3; i++) { const f = (i + 0.5) / 3, mx = L[0] + (B[0] - L[0]) * f, my = L[1] + (B[1] - L[1]) * f - H; g.fillRect(mx - tw * .04, my - th * .22, tw * .08, th * .22); }
+      for (let i = 0; i < 3; i++) { const f = (i + 0.5) / 3, mx = B[0] + (R[0] - B[0]) * f, my = B[1] + (R[1] - B[1]) * f - H; g.fillRect(mx - tw * .04, my - th * .22, tw * .08, th * .22); }
+    } else {
+      // 家：窓の灯と、四方へ下る屋根
+      g.fillStyle = P.glow; g.globalAlpha *= 0.85;
+      const win = (A, Bp, f) => { const wx = A[0] + (Bp[0] - A[0]) * f, wy = A[1] + (Bp[1] - A[1]) * f - H * 0.55; g.fillRect(wx - tw * .035, wy - th * .12, tw * .07, th * .2); };
+      win(L, B, 0.5); win(B, R, 0.35); win(B, R, 0.72);
+      g.globalAlpha = behind ? 0.42 : 1;
+      const apex = [x, y - H - th * 0.55], o = 1.08, e = ([px, py]) => [x + (px - x) * o, y - H + (py - y) * o];
+      g.fillStyle = P.roofDark; quad([e(T), e(L), apex]); g.fill(); quad([e(T), e(R), apex]); g.fill();
+      g.fillStyle = P.roofDark; quad([e(L), e(B), apex]); g.fill(); g.stroke();
+      g.fillStyle = P.roof; quad([e(B), e(R), apex]); g.fill(); g.stroke();
+    }
+    g.restore();
+  }
+  // 霧：見えない床を夜の靄で覆う。見える範囲の縁は薄く。
+  function drawFog(c, x, y, t, a) {
+    g.save(); diamond(x, y, tw * 1.02, th * 1.02);
+    g.fillStyle = `rgba(6,8,20,${a})`; g.fill();
+    if (a > 0.5) {
+      g.clip();
+      const drift = reducedMotion() ? 0 : Math.sin(t * 0.4 + c.sd) * tw * 0.12;
+      const gr = g.createRadialGradient(x + drift, y, 0, x + drift, y, tw * 0.5);
+      gr.addColorStop(0, 'rgba(70,78,110,.18)'); gr.addColorStop(1, 'rgba(70,78,110,0)');
+      g.fillStyle = gr; g.fillRect(x - tw, y - th, tw * 2, th * 2);
+    }
+    g.restore();
+  }
+  function drawPier(x, y) {
+    g.save(); diamond(x, y, tw * 0.9, th * 0.9); g.clip();
+    g.fillStyle = '#5b4a3c'; g.fillRect(x - tw / 2, y - th / 2, tw, th);
+    g.strokeStyle = 'rgba(20,12,8,.55)'; g.lineWidth = 1;
+    for (let i = -3; i <= 3; i++) { g.beginPath(); g.moveTo(x + i * tw * .13 - tw * .3, y - th * .3); g.lineTo(x + i * tw * .13 + tw * .3, y + th * .3); g.stroke(); }
+    g.restore();
+  }
+  function drawCover(c) {
+    const p = topOf(c), hw = tw * 0.36, hh = th * 0.36;
+    g.save(); if (fogVis && !fogVis.has(idx(c.r, c.c))) g.globalAlpha = 0.3;
+    g.fillStyle = '#b7a37a'; g.strokeStyle = 'rgba(40,30,15,.6)'; g.lineWidth = 1;
+    // 手前の二辺に沿って、土嚢を低く積む
+    for (const [ax, ay, bx, by] of [[p.x - hw, p.y, p.x, p.y + hh], [p.x, p.y + hh, p.x + hw, p.y]]) {
+      for (let i = 0; i < 3; i++) { const f = (i + 0.5) / 3, bxp = ax + (bx - ax) * f, byp = ay + (by - ay) * f;
+        g.beginPath(); g.ellipse(bxp, byp - th * .08, tw * .09, th * .11, 0, 0, Math.PI * 2); g.fill(); g.stroke();
+        g.beginPath(); g.ellipse(bxp, byp - th * .24, tw * .085, th * .1, 0, 0, Math.PI * 2); g.fill(); g.stroke(); }
+    }
+    g.restore();
   }
   function drawGimmick(c, x, y, t) {
     const gmk = c.gimmick;
@@ -1449,10 +1560,13 @@ const Board = (() => {
   }
   async function moveAlong(u, path, paintIt) {
     u.walkT = performance.now(); u.artMotion = null;
+    const vis = FOG() && u.side === 'enemy' ? visibleSet() : null;
     for (const id of path) {
       if (!running) return;
       const to = cells[id], from = cellAt(u.r, u.c);
       face(u, to);
+      // 霧の中の歩みは見せない（待たずに進める）
+      if (vis && !vis.has(id) && !vis.has(idx(from.r, from.c))) { u.r = to.r; u.c = to.c; continue; }
       const a = topOf(from), b = topOf(to);
       u.dk = viewDepth(to) >= viewDepth(from) ? id : idx(from.r, from.c);
       const hop = u.fly ? th * 0.2 : to.h !== from.h ? th * 0.55 : th * 0.12;
@@ -1476,8 +1590,8 @@ const Board = (() => {
     return true;
   }
   function attackTargets(u, from) {
-    const f = from || cellOf(u), set = new Set();
-    live().forEach(o => { if (foe(u, o) && inRange(u, f, cellOf(o))) set.add(idx(o.r, o.c)); });
+    const f = from || cellOf(u), set = new Set(), vis = FOG() && u.side === 'ally' ? visibleSet() : null;
+    live().forEach(o => { if (foe(u, o) && inRange(u, f, cellOf(o)) && !(vis && lurking(o, vis))) set.add(idx(o.r, o.c)); });
     return set;
   }
   function attackSide(fromCell, d) {
@@ -1502,6 +1616,8 @@ const Board = (() => {
     m *= side === 'back' ? 1.25 + (a.kind === 'aria' ? GB.back / 100 : 0) : side === 'side' ? 1.1 : 1;
     let dmg = atk * m * (rnd ? 0.92 + Math.random() * 0.16 : 1) - def * 0.5;
     if (d.armor > 0 && !pierce) dmg *= 0.35;
+    // 土嚢：離れたところからの攻撃と迎撃を4割減らす（隣からの攻撃には効かない）
+    if (dc.cover && (opt.intercept || dist(ac, dc) >= 2)) dmg *= 0.6;
     if (d.side === 'ally' && difficulty === 'gentle') dmg *= 0.6;
     return { dmg: Math.max(1, Math.round(dmg)), side, dh };
   }
@@ -1607,6 +1723,7 @@ const Board = (() => {
     if (a.side === 'ally' && res.side !== 'front' && !opt.quiet) floatText(pd.x, pd.y - tw * d.hgt - 34, res.side === 'back' ? '背後から！' : '側面から', 'sys');
     if (res.dh > 0 && a.side === 'ally' && !opt.quiet) floatText(pd.x + tw * 0.4, pd.y - tw * d.hgt - 14, '高所', 'sys');
     d.hp = Math.max(0, d.hp - dmg);
+    if (a.commander && a.commander.trait === 'root' && d.hp > 0 && !d.root) { d.root = 1; d.hazardRootUntil = turn + 1; floatText(pd.x, pd.y - tw * d.hgt * 1.3, '緑の蔓が、足を縛った', 'sys'); }
     if (d.guardian && d.hp > 0) guardianTransition(d);
     playMotion(d, 'hurt', 1.5, 260);
     d.flash = performance.now() + 220;
@@ -1671,7 +1788,7 @@ const Board = (() => {
     if (my !== sess) return;
     if (d.hp <= 0 && !d.dead) await defeat(d, a);
     // 遭遇戦の反撃：攻撃された側は、届く距離なら打ち返す（味方の通常攻撃と、敵の攻撃に対して）。
-    if (ENC() && !opt.counter && my === sess && running && !over && !d.dead && d.hp > 0 && !a.dead && a.hp > 0 && d.side !== a.side && !d.npc && (a.side === 'enemy' || opt.normal) && inRange(d, cellOf(d), cellOf(a))) {
+    if (ENC() && ENC().counter && !opt.counter && my === sess && running && !over && !d.dead && d.hp > 0 && !a.dead && a.hp > 0 && d.side !== a.side && !d.npc && (a.side === 'enemy' || opt.normal) && inRange(d, cellOf(d), cellOf(a))) {
       const q = unitXY(d); floatText(q.x, q.y - tw * d.hgt - 8, '反撃', 'sys');
       await attack(d, a, { counter: true, power: 0.8 });
       return;
@@ -1769,8 +1886,14 @@ const Board = (() => {
       fxp.push({ k: 'ring', x: p.x, y: p.y, r: tw * 0.3, grow: tw * 1.6, col: '255,255,255', life: 0, max: 1.2 });
       if (inv) for (let i = 0; i < 8; i++) fxp.push({ k: 'starburst', x: p.x, y: p.y - tw * 0.4, vx: Math.cos(i * 0.785), vy: Math.sin(i * 0.785) * 0.54, life: 0, max: 1.4 });
       const left = live().filter(u => u.side === 'enemy').length;
-      const word = d.soldier ? (d.captain ? '隊長は、布告の黒から目を覚ました' : '黒い塗りが剥がれ、兵は我に返った') : left === 0 && cfg.rootWord ? cfg.rootWord : d.word;
-      if (word) floatText(p.x, p.y - tw * 0.9, word, d.soldier ? 'color' : 'kegare', d.soldier ? '#e6dcff' : undefined);
+      const word = d.commander ? `${d.name}「${d.commander.freed}」` : d.soldier ? (d.captain ? '隊長は、布告の黒から目を覚ました' : '黒い塗りが剥がれ、兵は我に返った') : left === 0 && cfg.rootWord ? cfg.rootWord : d.word;
+      if (word) floatText(p.x, p.y - tw * 0.9, word, d.soldier ? 'color' : 'kegare', d.commander ? d.commander.color : d.soldier ? '#e6dcff' : undefined);
+      if (d.commander) {
+        // 近衛の色が戻る：周りの床に色が広がり、近くの兵が動揺する
+        paintArea(dc, 2, 'rainbow', 80);
+        live().filter(u => u.soldier && u.side === 'enemy' && dist(u, d) <= 3).forEach(u => { u.shaken = true; });
+        if (d.commander.trait === 'fog') { const q = unitXY(d); floatText(q.x, q.y - tw * 1.3, '藍の霧が薄れた', 'sys'); }
+      }
       if (d.captain) {
         const rest = live().filter(u => u.side === 'enemy');
         if (ENC() && ENC().objective === 'commander') {
@@ -2063,6 +2186,8 @@ const Board = (() => {
   function summonCells(a) {
     const set = new Set();
     cells.forEach(c => { const d = dist(c, cellOf(a)); if (d >= 1 && d <= 2 && c.walk && !unitAt(c)) set.add(idx(c.r, c.c)); });
+    // 陣取り：自軍の拠点のそばにも、精霊を呼べる
+    if (CAMP()) campCells('ally').forEach(k => nb4(k).concat([k]).forEach(c => { if (c.walk && !unitAt(c)) set.add(idx(c.r, c.c)); }));
     return set;
   }
   function areaOf(cmd, cell) {
@@ -2103,12 +2228,14 @@ const Board = (() => {
       const ar = ariaU(); if (ar && GB.regen && ar.hp < ar.mhp) heal(ar, Math.round(ar.mhp * GB.regen / 100));
       if (T.regen) live().filter(u => u.side === 'ally' && u.hp < u.mhp).forEach(u => heal(u, Math.round(u.mhp * T.regen)));
     }
-    live().filter(u => u.side === 'ally').forEach(u => { u.moved = !!u.npc; u.acted = !!u.npc; u.normalAttacks = 0; u.undo = null; u.summonChain = false; if (u.hazardRootUntil != null && turn > u.hazardRootUntil) { u.root = 0; u.hazardRootUntil = null; } });
+    if (CAMP()) refillCP();
+    live().filter(u => u.side === 'ally').forEach(u => { if (CAMP()) { u.actions = 0; if (u.baseMov != null) u.mov = u.baseMov; } u.moved = !!u.npc; u.acted = !!u.npc; u.normalAttacks = 0; u.undo = null; u.summonChain = false; if (u.hazardRootUntil != null && turn > u.hazardRootUntil) { u.root = 0; u.hazardRootUntil = null; } });
     if (cfg.finale && stage === 1 && turn > rescueTurn + 1 && awakened < (cfg.spirits || []).length) awaken();
     live().filter(u=>u.guardian).forEach(e=>guardianIntent(e));
     refreshHud();
     await showBanner('player', 'PLAYER PHASE', `TURN ${turn}　—　${floorNames()[0]}の手番`);
     if (my !== sess || over) return;
+    if (CAMP()) { hqAlarm(); commanderSightings(); }
     busy = false; mode = 'idle';
     refreshHud();
     phaseLabel.textContent = '味方を選んでください';
@@ -2135,6 +2262,7 @@ const Board = (() => {
     await showBanner('enemy', 'ENEMY PHASE', ENC() ? '遣い兵の手番' : cfg.inverted ? '白い膜の手番' : '穢れの手番');
     if (my !== sess || over) return;
     await reinforce();
+    await campReinforce();
     if (my !== sess || over) return;
     drained = 0;
     const T = TIER[tierE];
@@ -2190,9 +2318,10 @@ const Board = (() => {
     const allies = live().filter(u => u.side === 'ally');
     if (!allies.length) return;
     // 守備兵：近づかれるまで持ち場を動かない。一度動き出したら、ふつうの兵と同じ。
-    if (e.hold) {
+    // 近衛（anchor）は旗から決して離れない。届く相手だけを打つ。
+    if (e.hold || e.anchor) {
       const reach = e.mov + e.rng[1];
-      if (allies.some(a => dist(a, e) <= reach)) { e.hold = false; const p = unitXY(e); floatText(p.x, p.y - tw, '持ち場を離れた', 'sys'); }
+      if (!e.anchor && allies.some(a => dist(a, e) <= reach)) { e.hold = false; const p = unitXY(e); floatText(p.x, p.y - tw, '持ち場を離れた', 'sys'); }
       else {
         const t = allies.find(a => inRange(e, cellOf(e), cellOf(a)));
         if (t) await attack(e, t, { col: '170,110,220' });
@@ -2213,25 +2342,28 @@ const Board = (() => {
     }
     if (best) {
       const p = unitXY(e);
-      focus(p.x, p.y - tw * 0.4, 1.06);
+      if (!lurking(e)) focus(p.x, p.y - tw * 0.4, 1.06);
       if (best.id !== rch.start) await moveAlong(e, pathTo(rch, best.id), false);
       if (my !== sess || !running) return;
+      if (CAMP() && best.id !== rch.start) { await tryCapture(e); await intercept(e); if (e.dead || over || my !== sess || !running) return; }
       await attack(e, best.a, { col: cfg.inverted ? '235,240,255' : '170,110,220', skill: e.guardian ? GuardianCombat.profile(e.guardian).skills[e.guardianPhase] : e.kind === 'boss' && Math.random() < 0.5 ? (cfg.bossSkill || '黒い言葉') : e.kind === 'chrome' ? '漆黒の波' : null, color: '#c9a8ff' });
     } else if (!e.root) {
-      const f = distField(e, allies);
+      // 陣取りでは、味方だけでなく、まだ自分たちのものでない拠点にも向かう
+      const f = distField(e, CAMP() ? [...allies, ...campCells().filter(c => c.camp.owner !== 'enemy' && (!c.camp.hq || raids(e)))] : allies);
       let pickId = null, bestV = f.has(rch.start) ? f.get(rch.start) : 999;
       for (const id of rch.ends) {
         const v = (f.has(id) ? f.get(id) : 999) - (cells[id].floor !== 'dull' ? 0.3 : 0);
         if (v < bestV) { bestV = v; pickId = id; }
       }
       if (pickId != null) {
-        const p = unitXY(e); focus(p.x, p.y - tw * 0.4, 1.04);
+        const p = unitXY(e); if (!lurking(e)) focus(p.x, p.y - tw * 0.4, 1.04);
         await moveAlong(e, pathTo(rch, pickId), false);
+        if (CAMP()) { await tryCapture(e); await intercept(e); }
       }
     }
     if (e.dead) return;
     e.root = Math.max(0, e.root - 1);
-    if (e.kind !== 'chrome' && paint(cellOf(e), 'dull')) refreshHud();
+    if (e.kind !== 'chrome' && !e.soldier && paint(cellOf(e), 'dull')) refreshHud();
   }
 
   // 終章のクロムは、救援が入るまで（stage 0）だけ「絶望」の予告を使う
@@ -2374,6 +2506,7 @@ const Board = (() => {
     u.acted = !(normal && u.normalAttacks < normalAttackLimit(u));
     u.summonChain = r === 'chainSummon';
     if (u.summonChain) u.acted = false;
+    if (CAMP() && !over && !u.dead) { await tryCapture(u); if (over) return; if (u.acted && !u.npc) spendCP(u); }
     u.moved = true; u.undo = null;
     if (over) return;
     busy = false; endBtn.disabled = false;
@@ -2418,7 +2551,9 @@ const Board = (() => {
   }
   function finishWait(u, dir) {
     if (mode !== 'facing' || !Number.isInteger(dir) || dir < 0 || dir >= DIRS.length) return;
+    const movedNow = u.moved;
     u.dir = dir; u.acted = true; u.moved = true; u.undo = null;
+    if (CAMP() && movedNow) spendCP(u);   // 動いてから待機すると、指揮点を1使う（持ち点があれば、また動ける）
     endBtn.disabled = false;
     deselect(); showInfo(u); refreshHud(); autoEnd();
   }
@@ -2439,13 +2574,166 @@ const Board = (() => {
       const c = free[Math.min(free.length - 1, 2 + n)]; if (!c) break;
       units.push(makeUnit('villager', 'ally', Math.max(1, party.aria.lv), c, { npc: true, acted: true, moved: true, artId: SOLDIER_ART.villager, name: e.villagerName || '村の人' }));
     }
+    if (e.camps) placeCamps();
     // 布告の掲示板：アリアがたどり着けば勝ち。敵の側の奥に置く。
     if (e.objective === 'seize') {
       const far = cells.filter(c => c.walk && !unitAt(c)).sort((x, y) => dist(y, a) - dist(x, a))[0];
       if (far) far.decree = true;
     }
   }
-  function captainNear(u) { return !!(u.soldier && !u.captain && live().some(c => c.captain && dist(c, u) <= 2)); }
+  // ---------- 陣取り（拠点戦） ----------
+  // 戦場のヴァルキュリアの陣取りを、このゲームのマス目と床の色に合わせた形。
+  // 指揮点：毎ターンの持ち点。行動1回で1点、同じ仲間も何度でも動ける（再行動のたびに移動が1減る）。持っている拠点の数だけ増える。
+  // 占領：アリア・ノアール・クロムが、隣に敵のいない拠点に立つと奪える。周りの床が自軍の色に染まる（アリアは浄化で広く）。
+  // 迎撃：敵の攻撃範囲で移動を終えると、敵が迎撃する（敵の移動にも、味方が迎撃する）。スピネルの隣なら迎撃を和らげる。
+  // 本陣を奪えば勝ち、奪われるか、アリアが倒れると負け。
+  const CAMP = () => cfg && cfg.encounter && cfg.encounter.camps;
+  // ---------- 潜伏（陣取り戦の霧） ----------
+  // 見えるのは、味方の周り（ノアールは斥候で5マス、グランとマリーは空から4マス、ほかは3マス）と、虹の床とその隣、味方の旗の周り（本陣は3マス、ほかは2マス）だけ。
+  // 霧の中の敵は描かず、選べず、狙えず、危険範囲にも出ない。旗の位置は霧の中でも見える。
+  // 「危」に出ない敵の射程へ踏みこむと、着いたところで姿を現して迎撃してくる（待ち伏せ）。
+  const FOG = () => !!(cfg && cfg.encounter && cfg.encounter.fog);
+  const SIGHT = { noir: 5, gran: 4, mari: 4 };
+  let fogVis = null;
+  function visibleSet() {
+    const s = new Set(), allies = live().filter(u => u.side === 'ally'), camps = cells.filter(c => c.camp && c.camp.owner === 'ally');
+    // 藍の近衛が立っているあいだは、霧が濃い（見える距離が1減る）
+    const thick = live().some(u => u.side === 'enemy' && u.commander && u.commander.trait === 'fog') ? 1 : 0;
+    for (const c of cells) {
+      if (c.floor === 'rainbow' || nb4(c).some(n => n.floor === 'rainbow') || allies.some(u => dist(u, c) <= Math.max(2, (SIGHT[u.kind] || 3) - thick)) || camps.some(k => dist(k, c) <= (k.camp.hq ? 3 : 2))) s.add(idx(c.r, c.c));
+    }
+    return s;
+  }
+  const lurking = (u, vis) => FOG() && u.side === 'enemy' && !(vis || visibleSet()).has(idx(u.r, u.c));
+  // 霧の中の敵は、そこにいないものとして扱う（盤の操作と表示だけ。敵の動きには関係しない）
+  const seenAt = c => { const u = c && unitAt(c); return u && !lurking(u) ? u : null; };
+  const campCells = owner => cells.filter(c => c.camp && (!owner || c.camp.owner === owner));
+  function placeCamps() {
+    const C = CAMP(), a = ariaU(); if (!C || !a) return;
+    const start = cellOf(a); start.camp = { owner: 'ally', hq: true };
+    const walk = cells.filter(c => c.walk && c !== start);
+    const hq = layoutCamps ? layoutCamps.E : walk.slice().sort((x, y) => dist(y, start) - dist(x, start))[0]; if (!hq) return;
+    hq.camp = { owner: 'enemy', hq: true };
+    const cap = live().find(u => u.captain);
+    if (cap) { const o = unitAt(hq); if (o && o !== cap) { o.r = cap.r; o.c = cap.c; } cap.r = hq.r; cap.c = hq.c; cap.hold = true; }
+    const D = dist(hq, start), chosen = [start, hq];
+    const pick = (lo, hi, owner, n) => {
+      const pool = shuffle(walk.filter(c => !c.camp && dist(c, start) >= D * lo && dist(c, start) <= D * hi));
+      for (const c of pool) { if (n <= 0) break; if (chosen.some(o => dist(o, c) < 3)) continue; c.camp = { owner }; chosen.push(c); n--; }
+    };
+    if (layoutCamps) {
+      // 手で描いた盤：旗は描いた場所に立つ。敵の旗と本陣の周りは、はじめからくすんでいる。
+      layoutCamps.n.forEach(c => { c.camp = { owner: 'neutral' }; });
+      layoutCamps.e.forEach(c => { c.camp = { owner: 'enemy' }; });
+      [hq, ...layoutCamps.e].forEach(c => areaCells(c, c === hq ? 2 : 1).forEach(x => { if (x.walk) x.floor = x.prev = 'dull'; }));
+    } else { pick(0.3, 0.65, 'neutral', C.neutral ?? 2); pick(0.6, 0.9, 'enemy', C.enemyCamps ?? 1); }
+    // 指揮官：本陣には隊長が、敵の旗には一人ずつ、パレット王の眷属「虹の近衛」が立つ。並びは本陣、敵の旗の順。
+    const spots = [hq, ...campCells('enemy').filter(c => !c.camp.hq)];
+    (C.commanders || []).forEach((m, i) => {
+      const c = spots[i]; if (!c) return;
+      let u = unitAt(c);
+      if (!u || u.side !== 'enemy') {
+        const lvl = Math.max(1, (m.lv || 1) + (Progression.difficulties[difficulty]?.enemyLevel || 0));
+        u = makeUnit(m.kind, 'enemy', lvl, c, {}); markSoldier(u); units.push(u); totalFoes++;
+      }
+      makeCommander(u, m);
+      c.camp.guard = u;
+    });
+    units.filter(u => u.kind === 'noir').forEach(u => { u.mov += 2; u.baseMov = u.mov; });   // 小さく身軽な斥候
+  }
+  function makeCommander(u, m) {
+    m = { ...m, seen: false };
+    u.commander = m; u.name = m.name; u.hold = true; u.anchor = true; u.word = '';
+    u.mhp = u.hp = Math.round(u.mhp * (m.hp || 1.8)); u.atk = Math.round(u.atk * (m.atk || 1.25)); u.def = Math.round(u.def * (m.def || 1.15));
+    if (m.mov) u.mov += m.mov;
+    if (m.rng) u.rng = m.rng.slice();
+    u.hgt = Math.max(u.hgt || 1, 1.3);
+    // 絵：assets/generated に cmd_<id> があればそれを使う。なければ兵の絵を近衛の色で塗る。
+    const art = 'cmd_' + m.id;
+    if (typeof GameArt !== 'undefined' && GameArt.available(art)) { u.artId = art; u.variant = null; }
+    else { u.artId = SOLDIER_ART[m.kind] || 'boss'; u.variant = { tint: { key: art, hue: 0, sat: 0.35, glow: 0.7, rgb: m.rgb } }; }
+  }
+  // 近衛が初めて霧から姿を見せたとき、ひとこと
+  function commanderSightings() {
+    if (!CAMP()) return;
+    const vis = visibleSet();
+    for (const u of live().filter(x => x.commander && !x.commander.seen && !lurking(x, vis))) {
+      u.commander.seen = true;
+      const p = unitXY(u); floatText(p.x, p.y - tw * 1.6, `${u.name}「${u.commander.sight}」`, 'color', u.commander.color);
+    }
+  }
+  // 自軍の本陣を狙うのは、騎兵と赤の近衛だけ。ほかの兵は、人と中立・味方の旗へ向かう。
+  const raids = e => e.kind === 's_cavalry' || !!(e.commander && e.commander.trait === 'raid');
+  const canCapture = u => u.side === 'ally' ? ['aria', 'noir', 'chrome_human'].includes(u.kind) : !!u.soldier;
+  async function tryCapture(u) {
+    if (!CAMP() || !u || u.dead || over) return false;
+    const c = cellOf(u);
+    if (!c.camp || c.camp.owner === u.side || !canCapture(u)) return false;
+    if (live().some(o => o.side !== u.side && !o.npc && dist(o, u) === 1)) { const p = topOf(c); floatText(p.x, p.y - tw, '隣に敵がいて、奪えない', 'sys'); return false; }
+    c.camp.owner = u.side;
+    const p = topOf(c), ally = u.side === 'ally';
+    paintArea(c, ally ? (u.kind === 'aria' ? 3 : 2) : 2, ally ? 'rainbow' : 'dull', 60);
+    floatText(p.x, p.y - tw * 1.2, ally ? (c.camp.hq ? '敵の本陣を奪った' : '拠点を奪った') : (c.camp.hq ? '本陣を奪われた' : '拠点を奪われた'), ally ? 'color' : 'sys', ally ? '#bff0ff' : undefined);
+    Audio2.sfx[ally ? 'star' : 'expose'](3);
+    u.undo = null;
+    refreshHud();
+    await wait(420);
+    if (c.camp.hq) { if (ally) win(); else lose(); return true; }
+    return true;
+  }
+  async function intercept(mover) {
+    if (!CAMP() || !mover || mover.dead || mover.npc || over) return;
+    const shooters = live().filter(o => o.side !== mover.side && !o.npc && o.hp > 0 && inRange(o, cellOf(o), cellOf(mover)))
+      .sort((x, y) => (y.rng[1] > 1) - (x.rng[1] > 1) || dist(x, mover) - dist(y, mover)).slice(0, 2);
+    for (const o of shooters) {
+      if (over || mover.dead || mover.hp <= 0 || !running) return;
+      const cover = mover.side === 'ally' && live().some(x => x.kind === 'spinel' && x.side === 'ally' && x !== mover && dist(x, mover) <= 1);
+      const q = unitXY(o); floatText(q.x, q.y - tw * o.hgt - 8, cover ? '迎撃（スピネルの盾）' : '迎撃', 'sys');
+      await attack(o, mover, { intercept: true, power: cover ? 0.25 : 0.5, col: '255,190,150' });
+    }
+  }
+  // 自軍の本陣の3マス以内に敵がいれば知らせる（霧の中でも、本陣の周りは見えている）
+  function hqAlarm() {
+    const hq = campCells('ally').find(c => c.camp.hq); if (!hq) return;
+    const near = live().filter(u => u.side === 'enemy' && dist(u, hq) <= 3).sort((x, y) => dist(x, hq) - dist(y, hq))[0];
+    if (!near) return;
+    const p = topOf(hq); focus(p.x, p.y - tw * 0.4, 1.05);
+    floatText(p.x, p.y - tw * 1.4, '本陣に兵が迫っている', 'sys'); Audio2.sfx.expose();
+    say('アリア', '本陣のそばに、黒い兵がいる。旗を取られたら負け。誰かを戻そう。', 5000);
+  }
+  function refillCP() { const C = CAMP(); cp = cpMax = Math.min(C.cpMax || 8, (C.cp || 3) + campCells('ally').length); }
+  function spendCP(u) {
+    cp = Math.max(0, cp - 1);
+    if (u.baseMov == null) u.baseMov = u.mov;
+    u.actions = (u.actions || 0) + 1;
+    if (cp > 0) { u.acted = false; u.moved = false; u.normalAttacks = 0; u.undo = null; u.mov = Math.max(1, u.baseMov - u.actions); }
+    else live().filter(x => x.side === 'ally').forEach(x => { x.acted = true; });
+    refreshHud();
+  }
+  async function campReinforce() {
+    const C = CAMP(); if (!C || !C.spawn || turn < 2 || turn % (C.spawnEvery || 3) !== 0) return;
+    if (live().filter(u => u.side === 'enemy').length >= (C.spawnCap || 9)) return;
+    // 近衛の立つ旗は、その近衛が倒れると兵を出さなくなる
+    for (const c of campCells('enemy').filter(c => !c.camp.hq && !(c.camp.guard && c.camp.guard.dead))) {
+      const free = nb4(c).filter(n => n.walk && !unitAt(n)); if (!free.length) continue;
+      const lvl = Math.max(1, (C.spawn.lv || 1) + (Progression.difficulties[difficulty]?.enemyLevel || 0));
+      const u = makeUnit(C.spawn.kind || 's_lance', 'enemy', lvl, free[0], {}); markSoldier(u); units.push(u); totalFoes++;
+      const p = topOf(free[0]); smoke(p.x, p.y - tw * 0.3, 12, '25,20,40'); floatText(p.x, p.y - tw, '拠点から兵が出た', 'sys');
+      await wait(300);
+    }
+  }
+  function drawCamp(c, t) {
+    const p = topOf(c), own = c.camp.owner, col = own === 'ally' ? '#9fe6ff' : own === 'enemy' ? '#7a5aa8' : '#c9c4b8';
+    g.save(); g.strokeStyle = '#e9e2cf'; g.lineWidth = 2;
+    const h = th * (c.camp.hq ? 1.5 : 1.15);
+    g.beginPath(); g.moveTo(p.x, p.y); g.lineTo(p.x, p.y - h); g.stroke();
+    const wave = reducedMotion() ? 0 : Math.sin(t * 3 + c.r) * tw * .02;
+    g.fillStyle = col; g.beginPath(); g.moveTo(p.x, p.y - h); g.lineTo(p.x + tw * .3 + wave, p.y - h + th * .2); g.lineTo(p.x, p.y - h + th * .42); g.closePath(); g.fill();
+    if (c.camp.hq) { g.fillStyle = own === 'enemy' ? '#f3e3ff' : '#0e2a38'; g.font = `bold ${Math.max(9, tw * .15)}px sans-serif`; g.textAlign = 'center'; g.fillText('本', p.x + tw * .1, p.y - h + th * .29); }
+    g.globalAlpha = .55; g.strokeStyle = col; g.beginPath(); g.ellipse(p.x, p.y, tw * .3, th * .27, 0, 0, Math.PI * 2); g.stroke();
+    g.restore();
+  }
+  function captainNear(u) { return !!(u.soldier && !u.captain && !u.commander && live().some(c => (c.captain || c.commander) && dist(c, u) <= 2)); }
   async function reinforce() {
     const e = ENC(); if (!e || !e.waves) return;
     const a = ariaU(); if (!a) return;
@@ -2465,7 +2753,7 @@ const Board = (() => {
   }
   function objectiveText() {
     const e = ENC(); if (!e) return '';
-    return { commander: '隊長を解放する', protect: `村の人を守り、${e.turns}ターン耐える`, survive: `${e.turns}ターン耐える`, seize: '布告の掲示板にアリアがたどり着く', rout: '遣い兵をすべて解放する' }[e.objective] || '';
+    return { commander: '隊長を解放する', protect: `村の人を守り、${e.turns}ターン耐える`, survive: `${e.turns}ターン耐える`, seize: '布告の掲示板にアリアがたどり着く', rout: '遣い兵をすべて解放する', camps: '敵の本陣を奪う（自軍の本陣を奪われると負け）' }[e.objective] || '';
   }
   function checkObjective() {
     const e = ENC(); if (!e || over) return false;
@@ -2477,9 +2765,9 @@ const Board = (() => {
   // 敵全員の攻撃が届く床（危険範囲）
   let dangerOn = false, dangerSet = null;
   function dangerCells() {
-    const set = new Set();
-    for (const e of live().filter(u => u.side === 'enemy')) {
-      if (e.hold) { cells.forEach(c => { if (inRange(e, cellOf(e), c)) set.add(idx(c.r, c.c)); }); continue; }
+    const set = new Set(), vis = visibleSet();
+    for (const e of live().filter(u => u.side === 'enemy' && !lurking(u, vis))) {
+      if (e.hold || e.anchor) { cells.forEach(c => { if (inRange(e, cellOf(e), c)) set.add(idx(c.r, c.c)); }); continue; }
       const rch = reachable(e);
       for (const id of [rch.start, ...rch.ends]) cells.forEach(c => { if (inRange(e, cells[id], c)) set.add(idx(c.r, c.c)); });
     }
@@ -2673,7 +2961,7 @@ const Board = (() => {
     hideSay();
     if (mode === 'facing') return;
     if (!cell) { if (mode !== 'selected') cancel(); return; }
-    const id = idx(cell.r, cell.c), u = unitAt(cell);
+    const id = idx(cell.r, cell.c), u = seenAt(cell);
     if (mode === 'target') {
       if (targets && targets.has(id)) execTarget(cell);
       else { Audio2.sfx.wrong(); const p = topOf(cell); floatText(p.x, p.y - tw * 0.5, '光っている場所を選んで（右クリックで戻る）', 'sys'); }
@@ -2708,7 +2996,9 @@ const Board = (() => {
     moveInfo = null;
     await moveAlong(u, path, true);
     if (!running) return;
-    u.moved = true; busy = false;
+    u.moved = true;
+    if (CAMP()) { const hp0 = u.hp, took = await tryCapture(u); if (over) return; commanderSightings(); await intercept(u); if (took || u.hp !== hp0) u.undo = null; if (over || u.dead) { busy = false; return; } }
+    busy = false;
     if (u.kind === 'aria' && checkObjective()) return;
     tutorialStep('move');
     if (sel === u) { showMenu(u); showInfo(u); phaseLabel.textContent = '行動を選んでください'; }
@@ -2882,6 +3172,7 @@ const Board = (() => {
     if (u.guard) st.push('<span style="--c:#ffd25e">守り</span>');
     if (u.armor) st.push(`<span style="--c:#b8bcc8">鉛×${u.armor}</span>`);
     if (u.plate) st.push(`<span style="--c:#ffd25e">金継ぎ×${u.plate}</span>`);
+    if (cellOf(u).cover) st.push('<span style="--c:#d8c08a">土嚢・離れた攻撃と迎撃−40%</span>');
     const f = cellOf(u).floor, fn = floorNames();
     const ft = f === 'rainbow' ? `<span class="ft rainbow">${fn[0]}の床</span>` : f === 'dull' ? `<span class="ft dull">${fn[1]}の床</span>` : '<span class="ft">素の床</span>';
     const rng = effRng(u);
@@ -3016,7 +3307,7 @@ const Board = (() => {
     const n = live().filter(u => u.side === 'enemy').length;
     $id('kegareCount').innerHTML = `TURN<b>${turn}</b>　${cfg.inverted ? '白い膜' : '穢れ'}<b>${stage < 2 && cfg.finale ? '?' : n}</b>`;
     if (cfg.restoreBeacons) $id('kegareCount').insertAdjacentHTML('beforeend', `　灯<b>${cells.filter(c => c.beaconOn).length}/${cfg.restoreBeacons}</b>`);
-    if (ENC()) { $id('kegareCount').innerHTML = `TURN<b>${turn}</b>　遣い兵<b>${n}</b>　<span class="enc-goal">目標：${objectiveText()}</span>`; if (dangerOn) dangerSet = dangerCells(); }
+    if (ENC()) { $id('kegareCount').innerHTML = CAMP() ? `<span class="enc-turn">TURN<b>${turn}</b>　</span>指揮<b>${cp}/${cpMax}</b>　拠点<b>${campCells('ally').length}/${campCells().length}</b>　<span class="enc-goal">目標：敵の本陣を奪う</span>` : `TURN<b>${turn}</b>　遣い兵<b>${n}</b>　<span class="enc-goal">目標：${objectiveText()}</span>`; if (dangerOn) dangerSet = dangerCells(); }
     document.querySelector('#resonance .rs-val').textContent = sp;
     vignette.style.opacity = 0.15 + D * 0.7;
     if (cfg.rainLink) FX.intensity('rain', 0.2 + D * 1.2);
@@ -3260,7 +3551,7 @@ const Board = (() => {
     const c = pick(e.clientX, e.clientY);
     if (c !== hover) {
       hover = c;
-      const u = c && unitAt(c);
+      const u = seenAt(c);
       if (u) showInfo(u); else if (sel) showInfo(sel);
     }
   });
@@ -3307,7 +3598,7 @@ const Board = (() => {
     if (pinched) { e.preventDefault(); return; }
     const t = e.touches[0];
     touchCell = pick(t.clientX, t.clientY); hover = touchCell;
-    const u = touchCell && unitAt(touchCell); if (u) showInfo(u);
+    const u = seenAt(touchCell); if (u) showInfo(u);
     spin = { id: 'touch', x: t.clientX, y: t.clientY, dragged: false };
     e.preventDefault();
   }, { passive: false });
