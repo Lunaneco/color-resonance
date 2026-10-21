@@ -85,3 +85,19 @@ test('Under automation the lessons never open on their own, so every other battl
     assert.equal(await page.locator('#panel:not(.hidden)').count(), 0);
   } finally { await ctx.close(); }
 });
+
+test('A tactic lesson opens once, the first time it happens, and then never again', async () => {
+  const { ctx, page, errors } = await open(['prologue', 'act1', 'act2', 'act3'], ['camp', 'fog', 'guard', 'charge', 'reinforce', 'second', 'spirits', 'noir', 'guardian', 'companion', 'beacons', 'sceptre', 'fury']);
+  try {
+    await fight(page, 'gp_gran');
+    await page.waitForFunction(() => /TURN1/.test(document.getElementById('kegareCount').textContent));
+    const first = page.evaluate(() => Tutorials.once('ambush').then(() => 'closed'));
+    await page.locator('#panel:not(.hidden) .tut-page').waitFor();
+    assert.match(await page.locator('#panel .pn-title').textContent(), /伏兵/);
+    await page.locator('#panel [data-tut=done]').click();
+    assert.equal(await first, 'closed');
+    assert.equal(await page.evaluate(() => Tutorials.once('ambush').then(() => Panel.isOpen())), false, 'the second time resolves without opening');
+    assert(await page.evaluate(() => JSON.parse(localStorage.cr_tutorials).includes('ambush')));
+    assert.deepEqual(errors, []);
+  } finally { await ctx.close(); }
+});

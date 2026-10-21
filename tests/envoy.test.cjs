@@ -38,7 +38,7 @@ after(async () => { if (browser) await browser.close(); if (server) await new Pr
 const hook = `__camp: {
   state(){ return {running,busy,over,turn,phase,cp,cpMax,hud:document.getElementById('kegareCount').textContent,
     camps:cells.filter(c=>c.camp).map(c=>({r:c.r,c:c.c,owner:c.camp.owner,hq:!!c.camp.hq,floor:c.floor})),
-    units:units.map(u=>({id:u.id,kind:u.kind,side:u.side,hp:u.hp,mhp:u.mhp,r:u.r,c:u.c,dead:!!u.dead,acted:!!u.acted,mov:u.mov,captain:!!u.captain,cmd:u.commander?u.commander.id:null,name:u.name,atk:u.atk,rng:u.rng}))}; },
+    units:units.map(u=>({id:u.id,kind:u.kind,side:u.side,hp:u.hp,mhp:u.mhp,r:u.r,c:u.c,dead:!!u.dead,acted:!!u.acted,mov:u.mov,captain:!!u.captain,cmd:u.commander?u.commander.id:null,name:u.name,atk:u.atk,rng:u.rng,ambush:!!u.ambush}))}; },
   place(id, extra){ Object.assign(units.find(u=>u.id===id), extra); refreshHud(); },
   actHit(a, d){ const u=units.find(x=>x.id===a), o=units.find(x=>x.id===d); select(u,true); return act(u, () => attack(u, o, { normal:true }), true); },
   capture(id){ return tryCapture(units.find(u=>u.id===id)); },
@@ -121,7 +121,7 @@ test('Each camp battle is fought on its hand-drawn map: flags, captain, soldiers
       assert.deepEqual([[cap.r, cap.c]], marks('E'), `${id}: the captain holds the marked enemy headquarters`);
       assert.deepEqual(key(s.camps.filter(c => c.owner === 'neutral').map(c => [c.r, c.c])), key(marks('n')), `${id}: neutral flags`);
       assert.deepEqual(key(s.camps.filter(c => c.owner === 'enemy' && !c.hq).map(c => [c.r, c.c])), key(marks('e')), `${id}: enemy flags`);
-      const posts = '123456789'.split('').flatMap(marks), soldiers = s.units.filter(u => u.side === 'enemy' && !u.captain && !u.cmd).map(u => [u.r, u.c]);
+      const posts = '123456789'.split('').flatMap(marks), soldiers = s.units.filter(u => u.side === 'enemy' && !u.captain && !u.cmd && !u.ambush).map(u => [u.r, u.c]);
       assert.deepEqual(key(soldiers), key(posts), `${id}: every soldier stands on a marked post`);
       assert(m.blocked.length > 0 && m.blocked.every(c => !c.walk), `${id}: houses and walls cannot be walked through`);
       assert.deepEqual(key(m.cover.map(c => [c.r, c.c])), key(marks('s')), `${id}: sandbags are where the map marks them`);

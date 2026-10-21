@@ -706,6 +706,7 @@ const Board = (() => {
     if (mode === 'selected' && moveInfo && moveInfo.ends.has(id)) tint(x, y, '120,215,255', 0.14 + 0.04 * pulse, 0.95, true);
     if (threat && threat.ends.has(id)) tint(x, y, '255,120,150', 0.13, 0.35);
     if (dangerOn && dangerSet && dangerSet.has(id)) tint(x, y, '255,90,90', 0.16, 0.5);
+    if (c.waveWarn) { tint(x, y, '255,160,90', 0.22 + 0.14 * pulse, 0.95, true); g.save(); g.font = `bold ${Math.max(9, tw * .2)}px sans-serif`; g.textAlign = 'center'; g.fillStyle = '#ffe2c4'; g.fillText('増', x, y + tw * .07); g.restore(); }
     if (atkSet && atkSet.has(id)) tint(x, y, '255,120,140', 0.2 + 0.1 * pulse, 0.85);
     if (mode === 'target' && targets && targets.has(id)) tint(x, y, targetCmd === 'pray' ? '150,255,190' : targetCmd && (targetCmd.startsWith('summon') || targetCmd === 'sky') ? '200,170,255' : '255,120,150', 0.32 + 0.12 * pulse, 0.95, true);
     if (area && area.has(id)) tint(x, y, '255,245,200', 0.28, 0.9);
@@ -1544,7 +1545,7 @@ const Board = (() => {
       }
     }
     const ends = new Set();
-    d.forEach((_, j) => { const c = cells[j]; if (c.walk && (j === start || !unitAt(c))) ends.add(j); });
+    d.forEach((_, j) => { const c = cells[j]; if (c.walk && (j === start || !unitAt(c)) && !(u.side === 'enemy' && hiddenAt(c))) ends.add(j); });
     ends.delete(start);
     return { d, prev, ends, start };
   }
@@ -1573,11 +1574,15 @@ const Board = (() => {
       Audio2.sfx.step();
       await tween(u.fly ? 110 : 135, k => { u.mv = { x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k - Math.sin(Math.PI * k) * hop }; });
       u.r = to.r; u.c = to.c; u.mv = null; u.dk = null;
+      // 伏兵に近づいたら、その場で足が止まる
+      const near = u.side === 'ally' && TAC() ? ambushNear(u) : [];
+      if (near.length) u.ambushed = near;
       if (paintIt) {
         const list = u.kind === 'aria' && GB.paintStep ? [to, ...nb4(to)] : [to];
         list.forEach((c, i) => { if (u.undo) u.undo.floors.push([c, c.floor]); paint(c, u.side === 'ally' ? 'rainbow' : 'dull', i * 40); });
         refreshHud();
       }
+      if (u.ambushed) break;
     }
   }
 
@@ -1861,6 +1866,7 @@ const Board = (() => {
 
   async function defeat(d, killer) {
     if (d.dead) return;
+    if (d.side === 'enemy' && d.second && !d.second.used && !over) { d.hp = 0; await rise(d); return; }
     d.dead = true; d.dieT = performance.now();
     const p = unitXY(d), dc = cellOf(d);
     const inv = cfg.inverted;
@@ -1912,7 +1918,11 @@ const Board = (() => {
       tutorialStep('kill');
       refreshHud();
       await wait(450);
-      if (stage >= (cfg.finale ? 2 : 1) && !live().some(u => u.side === 'enemy')) win();
+      if (stage >= (cfg.finale ? 2 : 1) && !live().some(u => u.side === 'enemy')) {
+        // 隠れている伏兵が残っていれば、勝ちの前に姿を現す
+        const lurk = units.filter(u => u.hidden && u.ambush && !u.dead);
+        if (lurk.length) { await springAmbush(lurk); } else win();
+      }
     } else if (d.kind === 'aria' || d.kind === 'chrome_human' || d.npc) {
       smoke(p.x, p.y - tw * 0.5, 20, '20,10,30');
       if (d.npc) floatText(p.x, p.y - tw, `${d.name}が倒れた`, 'sys');
@@ -2236,6 +2246,7 @@ const Board = (() => {
     await showBanner('player', 'PLAYER PHASE', `TURN ${turn}　—　${floorNames()[0]}の手番`);
     if (my !== sess || over) return;
     if (CAMP()) { hqAlarm(); commanderSightings(); }
+    if (TAC()) { await warnWaves(); if (my !== sess || over) return; }
     busy = false; mode = 'idle';
     refreshHud();
     phaseLabel.textContent = '味方を選んでください';
@@ -2263,6 +2274,14 @@ const Board = (() => {
     if (my !== sess || over) return;
     await reinforce();
     await campReinforce();
+    if (TAC()) {
+      await spawnWaves(); await revealAmbushes();
+      if (TAC().charge && turn >= TAC().charge.turn && !chargeAnnounced) {
+        chargeAnnounced = true;
+        const a = ariaU(), p = a ? unitXY(a) : { x: W / 2, y: H / 2 };
+        floatText(p.x, p.y - tw * 1.6, '敵が、一斉に動き出した', 'sys'); Audio2.sfx.expose(); await wait(500);
+      }
+    }
     if (my !== sess || over) return;
     drained = 0;
     const T = TIER[tierE];
@@ -2272,6 +2291,7 @@ const Board = (() => {
     for (const e of es) {
       if (my !== sess || over || !running) return;
       if (e.dead) continue;
+      if (e.fresh) { e.fresh = false; continue; }   // 現れたばかりの増援（ハード以外）
       await enemyAct(e);
       await wait(140);
     }
@@ -2319,6 +2339,7 @@ const Board = (() => {
     if (!allies.length) return;
     // 守備兵：近づかれるまで持ち場を動かない。一度動き出したら、ふつうの兵と同じ。
     // 近衛（anchor）は旗から決して離れない。届く相手だけを打つ。
+    if (e.holdUntil && turn >= e.holdUntil) { e.hold = false; e.holdUntil = null; }
     if (e.hold || e.anchor) {
       const reach = e.mov + e.rng[1];
       if (!e.anchor && allies.some(a => dist(a, e) <= reach)) { e.hold = false; const p = unitXY(e); floatText(p.x, p.y - tw, '持ち場を離れた', 'sys'); }
@@ -2733,6 +2754,138 @@ const Board = (() => {
     g.globalAlpha = .55; g.strokeStyle = col; g.beginPath(); g.ellipse(p.x, p.y, tw * .3, th * .27, 0, 0, Math.PI * 2); g.stroke();
     g.restore();
   }
+  // ---------- 敵の作戦（js/tactics.js） ----------
+  // 増援・伏兵・第二形態・進軍。中身は Tactics.of(戦場id) が決め、ここでは盤の上で動かす。
+  const TAC = () => cfg && cfg.tactics;
+  let waves = [], chargeAnnounced = false;
+  const fewer = n => difficulty === 'gentle' ? n - 1 : n;
+  // 増援・伏兵の強さ：lv を書いていなければ、その戦場のふつうの敵の平均（難易度の分は prepare で入っている）
+  function tacticLevel(spec) {
+    if (spec.lv) return Math.max(1, spec.lv + (Progression.difficulties[difficulty]?.enemyLevel || 0));
+    const ls = (cfg.enemies || []).filter(e => !['boss', 'chrome', 's_captain'].includes(e.kind)).map(e => e.lv || 1);
+    return ls.length ? Math.round(ls.reduce((a, b) => a + b, 0) / ls.length) : Math.max(1, cfg.lv || 1);
+  }
+  function spawnEnemy(kind, cell, extra = {}) {
+    const u = makeUnit(kind, 'enemy', extra.lv || 1, cell, extra);
+    if (GROW[kind] && kind.startsWith('s_')) markSoldier(u);
+    units.push(u);
+    return u;
+  }
+  const hiddenAt = c => units.find(u => u.hidden && u.ambush && !u.dead && u.r === c.r && u.c === c.c);
+  function setupTactics(start) {
+    waves = []; chargeAnnounced = false;
+    const T = TAC(); if (!T) return;
+    const reach = flood(start), taken = new Set();
+    const free = c => c.walk && reach.has(c) && !unitAt(c) && !hiddenAt(c) && !c.camp && !taken.has(c);
+    const maxD = Math.max(1, ...cells.filter(c => reach.has(c)).map(c => dist(c, start)));
+    const edge = c => c.r === 0 || c.c === 0 || c.r === rows - 1 || c.c === cols - 1;
+    const boss = units.find(u => u.side === 'enemy' && u.kind === 'boss');
+    // 増援の現れる床は、戦いの始めに決めておく（知らせる床と実際に現れる床を同じにする）
+    for (const w of T.waves || []) {
+      const list = w.units.flatMap(u => Array.from({ length: Math.max(0, fewer(u.n || 1)) }, () => u));
+      if (!list.length) continue;
+      const score = c => w.from === 'rear' ? (dist(c, start) < 4 ? 99 : dist(c, start)) - (edge(c) ? 3 : 0)
+        : w.from === 'flank' ? Math.abs(dist(c, start) - maxD * 0.55) - (edge(c) ? 3 : 0)
+        : w.from === 'boss' && boss ? dist(c, boss)
+        : -dist(c, start) - (edge(c) ? 3 : 0);
+      const pool = cells.filter(free).sort((a, b) => score(a) - score(b));
+      const at = [];
+      for (const c of pool) { if (at.length >= list.length) break; if (at.some(o => dist(o, c) < 2) && pool.length > list.length * 3) continue; at.push(c); taken.add(c); }
+      waves.push({ turn: w.turn, list, cells: at, done: false });
+    }
+    // 伏兵：アリアから離れた、物陰（通れないマスの隣）を好んで隠れる
+    for (const a of T.ambush || []) {
+      for (let k = 0; k < Math.max(0, fewer(a.n || 1)); k++) {
+        const pool = cells.filter(c => free(c) && dist(c, start) >= Math.max(5, maxD * 0.35) && dist(c, start) <= maxD * 0.85)
+          .sort((x, y) => nb4(y).filter(n => !n.walk).length - nb4(x).filter(n => !n.walk).length || dist(x, start) - dist(y, start));
+        const c = pool[Math.floor(pool.length * 0.2 * Math.random())]; if (!c) break;
+        taken.add(c);
+        const u = spawnEnemy(a.kind, c, { lv: tacticLevel(a), hidden: true });
+        u.ambush = { near: Math.max(1, a.near || 2) };
+      }
+    }
+    // 第二形態
+    if (T.second) {
+      const who = T.second.who === 'captain' ? units.find(u => u.side === 'enemy' && u.captain) : units.find(u => u.side === 'enemy' && u.kind === 'boss' && !u.guardian);
+      if (who) who.second = { ...T.second, used: false };
+    }
+    // 進軍：決まったターンまで、敵は持ち場で待つ（近づかれれば動く）
+    if (T.charge) units.filter(u => u.side === 'enemy' && !u.hidden && u.kind !== 'boss' && !u.commander && !u.captain && !u.hold).forEach(u => { u.hold = true; u.holdUntil = T.charge.turn; });
+  }
+  // 見えている作戦（ミッション欄）。伏兵と第二形態は、起きるまで書かない。
+  function tacticsIntel() {
+    const T = TAC(); if (!T) return '';
+    const out = [];
+    const left = waves.filter(w => !w.done).map(w => w.turn);
+    if (left.length) out.push(`増援 ${left.join('・')}ターン目`);
+    if (T.charge && turn < T.charge.turn) out.push(`${T.charge.turn}ターン目から進軍`);
+    else if (T.charge && turn === T.charge.turn && !chargeAnnounced) out.push('この手番の終わりから進軍');
+    return out.join('／');
+  }
+  // ターンの初め：この敵の手番に来る増援の床を知らせる
+  async function warnWaves() {
+    const due = waves.filter(w => !w.done && w.turn === turn && w.cells.length);
+    if (!due.length) return;
+    due.forEach(w => w.cells.forEach(c => { c.waveWarn = true; }));
+    const c = due[0].cells[0], p = topOf(c);
+    focus(p.x, p.y, 1.05); floatText(p.x, p.y - tw * 1.2, `この手番の終わりに、増援が来る（${due.reduce((n, w) => n + w.list.length, 0)}体）`, 'sys');
+    Audio2.sfx.expose();
+    await lesson('reinforce');
+    unfocus();
+  }
+  // 敵の手番の初め：増援が現れる。ハード以外は、現れた手番には動かない。
+  async function spawnWaves() {
+    for (const w of waves.filter(w => !w.done && w.turn === turn)) {
+      w.done = true;
+      w.list.forEach((spec, i) => {
+        let c = w.cells[i];
+        if (!c || unitAt(c) || hiddenAt(c)) c = cells.filter(x => x.walk && !unitAt(x) && !hiddenAt(x)).sort((a, b) => dist(a, w.cells[i] || a) - dist(b, w.cells[i] || b))[0];
+        if (!c) return;
+        const u = spawnEnemy(spec.kind, c, { lv: tacticLevel(spec) }); totalFoes++;
+        u.fresh = difficulty !== 'hard';
+        const p = topOf(c); smoke(p.x, p.y - tw * 0.3, 14, '25,20,40');
+      });
+      w.cells.forEach(c => { c.waveWarn = false; });
+      const p = topOf(w.cells[0] || cellOf(ariaU())); focus(p.x, p.y, 1.06); floatText(p.x, p.y - tw * 1.1, '増援が現れた', 'sys'); Audio2.sfx.expose();
+      refreshHud(); await wait(600);
+    }
+  }
+  // 伏兵：味方が近づくと姿を現す
+  const ambushNear = u => units.filter(a => a.hidden && a.ambush && !a.dead && dist(a, u) <= a.ambush.near);
+  async function springAmbush(list) {
+    for (const a of list) {
+      if (!a.hidden) continue;
+      a.hidden = false; a.bornT = performance.now(); totalFoes++;
+      const p = unitXY(a); smoke(p.x, p.y - tw * 0.4, 18, '20,12,30'); floatText(p.x, p.y - tw * 1.3, '伏兵だ！', 'sys');
+    }
+    const p = unitXY(list[0]); focus(p.x, p.y, 1.08); shake(6); Audio2.sfx.expose();
+    refreshHud(); await wait(650); unfocus();
+    await lesson('ambush');
+  }
+  async function revealAmbushes() {
+    const hit = units.filter(a => a.hidden && a.ambush && !a.dead && live().some(u => u.side === 'ally' && dist(u, a) <= a.ambush.near));
+    if (hit.length) await springAmbush(hit);
+  }
+  // 第二形態：一度だけ、倒れずに立ち上がる
+  async function rise(d) {
+    const s = d.second; s.used = true;
+    d.hp = Math.max(1, Math.round(d.mhp * (s.hp || 0.55)));
+    d.atk = Math.round(d.atk * (s.atk || 1.15)); d.def = Math.round(d.def * 1.1);
+    d.name = `${d.name}・${s.name || '第二形態'}`; d.hgt = (d.hgt || 1) * 1.12; d.shaken = false;
+    if (d.variant && d.variant.tint) d.variant = { ...d.variant, tint: { ...d.variant.tint, key: d.variant.tint.key + '_2', glow: Math.min(1, (d.variant.tint.glow || 0.4) + 0.3) } };
+    const p = unitXY(d); FX.flash('40,10,60', 0.6); shake(12); Audio2.sfx.expose();
+    fxp.push({ k: 'ring', x: p.x, y: p.y, r: tw * 0.3, grow: tw * 2.6, col: '150,110,200', life: 0, max: 1.2 });
+    floatText(p.x, p.y - tw * 1.6, s.line || '黒をまとい直して、立ち上がった', 'kegare');
+    areaCells(cellOf(d), 2).forEach((c, i) => { if (c.walk) paint(c, cfg.inverted ? 'rainbow' : 'dull', i * 30); });
+    if (s.summon) {
+      const spots = cells.filter(c => c.walk && !unitAt(c) && !hiddenAt(c) && dist(c, d) <= 2).sort((a, b) => dist(a, d) - dist(b, d));
+      for (let i = 0; i < Math.max(0, fewer(s.summon.n || 1)) && spots[i]; i++) { spawnEnemy(s.summon.kind, spots[i], { lv: tacticLevel(s.summon) }); totalFoes++; }
+    }
+    refreshHud(); await wait(700);
+    await lesson('second');
+  }
+  // その場で初めて起きた作戦を、説明する（一度だけ）
+  function lesson(id) { return typeof Tutorials !== 'undefined' && Tutorials.once ? Tutorials.once(id) : Promise.resolve(); }
   function captainNear(u) { return !!(u.soldier && !u.captain && !u.commander && live().some(c => (c.captain || c.commander) && dist(c, u) <= 2)); }
   async function reinforce() {
     const e = ENC(); if (!e || !e.waves) return;
@@ -2997,6 +3150,7 @@ const Board = (() => {
     await moveAlong(u, path, true);
     if (!running) return;
     u.moved = true;
+    if (u.ambushed) { const list = u.ambushed; u.ambushed = null; u.undo = null; await springAmbush(list); if (over || !running) return; }
     if (CAMP()) { const hp0 = u.hp, took = await tryCapture(u); if (over) return; commanderSightings(); await intercept(u); if (took || u.hp !== hp0) u.undo = null; if (over || u.dead) { busy = false; return; } }
     busy = false;
     if (u.kind === 'aria' && checkObjective()) return;
@@ -3427,13 +3581,14 @@ const Board = (() => {
   let missionOpen = true;
   function renderMissions() {
     const box = $id('missionBox'), ms = cfg.missions || [];
-    if (!ms.length) { box.style.display = 'none'; return; }
+    // ミッションの無い戦場でも、敵の作戦があれば欄を出す
+    if (!ms.length && !tacticsIntel()) { box.style.display = 'none'; return; }
     box.style.display = '';
     const st = ms.map(m => missionState(m, false));
     const done = st.filter(x => x.ok === true).length;
     box.classList.toggle('closed', !missionOpen);
     fitSide();
-    box.innerHTML = `<div class="mb-h">ミッション<span>${done}/${ms.length}</span></div>` + (ENC() ? `<div class="mb-i mb-goal"><i></i><span>勝利条件：${objectiveText()}</span><em></em></div>` : '') + ms.map((m, i) => `<div class="mb-i ${st[i].ok === true ? 'ok' : st[i].ok === false ? 'ng' : ''}"><i></i><span>${missionText(m)}</span><em>${st[i].prog}</em></div>`).join('');
+    box.innerHTML = (ms.length ? `<div class="mb-h">ミッション<span>${done}/${ms.length}</span></div>` : '<div class="mb-h">敵の作戦<span></span></div>') + (ENC() ? `<div class="mb-i mb-goal"><i></i><span>勝利条件：${objectiveText()}</span><em></em></div>` : '') + (tacticsIntel() ? `<div class="mb-i mb-intel"><i></i><span>敵の作戦：${tacticsIntel()}</span><em></em></div>` : '') + ms.map((m, i) => `<div class="mb-i ${st[i].ok === true ? 'ok' : st[i].ok === false ? 'ng' : ''}"><i></i><span>${missionText(m)}</span><em>${st[i].prog}</em></div>`).join('');
   }
   $id('missionBox').addEventListener('click', e => { e.stopPropagation(); missionOpen = !missionOpen; renderMissions(); });
 
@@ -3701,6 +3856,7 @@ const Board = (() => {
       <h4>ノアール</h4>序章で名前を聞いたあと、布の中から一緒に戦う。終章の絶望では出ない。<b>吸収</b>（2マス・HP30%以下）で瀕死の穢れを消し、その形を一度だけ技として残す。二度目は残らない。守り手・ボス・クロムを飲むと、その相手だけの大技を覚え、ノアールのHPが30%戻り、共鳴が2増える。覚えた技は「預かった技」から、共鳴を使って出す（ふつうの技は2〜3、大技は4〜6）。倒されると、その戦闘だけ布へ戻る。<h4>復興の灯</h4>復興編は敵の全滅と、番号のついた灯をすべて点けることが目的です。アリアとクロムの<b>「浄化」（共鳴2）</b>で2マス以内の灯そのものを選んでください。周り2マスも虹に戻ります。防壁を持つ核は、灯が全部点くまで攻撃が届きません。<h4>難易度・依頼</h4>マップの戦場や依頼でやさしい・ふつう・ハードの3段階の難易度を選べます。適正LV・報酬・ミッション実績は難易度ごとに表示されます。戦闘開始後は再挑戦も同じ難易度です。町の「依頼」でサブクエストを探せます。
       <h4>国の色の敵</h4>敵は、戦う土地の色に染まっています。名前と色がちがい、<b>特性</b>を一つ持つ種類がいます（押し流し・燠火・絡め取り・金の被膜・色吸い・霞）。敵を選ぶと、特性の内容が見られます。
       <h4>陣取り戦</h4>第一幕・第四幕・第五幕の物語の途中で起こる戦いです。<b>敵の本陣の旗を奪えば勝ち</b>、自分の本陣を奪われると負け。毎ターンの<b>指揮点</b>で同じ仲間も何度でも動けます（再行動のたびに移動−1）。アリア・ノアール・クロムが隣に敵のいない旗に立つと奪えます。敵の射程で止まると<b>迎撃</b>され、<b>土嚢</b>の上なら離れた攻撃と迎撃を4割減らせます。<b>霧</b>のせいで、見えるのは仲間の周りと虹の床のそばだけ。敵の本陣と旗には<b>虹の近衛</b>が立ち、倒すと色が戻ってその旗の増援が止まります。
+      <h4>敵の作戦</h4>戦場によって、敵は作戦を持っています。<b>増援</b>：決まったターンの敵の手番に現れる。そのターンの初めに、現れる床が橙の「増」で光る（ハードでは現れた手番から動く）。<b>伏兵</b>：物陰に隠れていて、近づくと姿を現し、近づいた仲間の移動はそこで止まる。<b>第二形態</b>：強い核や隊長が、一度倒れても黒をまとい直して立ち上がる。<b>進軍</b>：決まったターンまで持ち場で待ち、そこから一斉に動く。増援と進軍のターンは、ミッション欄の「敵の作戦」に出ます。
       ${typeof Tutorials !== 'undefined' ? `<h4>しくみの説明を読み直す</h4><div class="tut-topics">${Tutorials.topics().map(t => `<button class="ghost" data-tut-topic="${t.id}">${t.title}</button>`).join('')}</div>` : ''}
       <p style="margin-top:12px;color:#ffd98a">「切るのは穢れだけ。その人の色は、一滴も切らない」</p>`);
     Panel.body().querySelectorAll('[data-tut-topic]').forEach(b => b.onclick = () => Tutorials.show([b.dataset.tutTopic], { mark: false, title: 'しくみの説明', doneLabel: '閉じる' }));
@@ -3730,6 +3886,7 @@ const Board = (() => {
     cancelPending();
     cfg = Progression.prepare(baseCfg, baseCfg.difficulty);
     cfg.onEvent = baseCfg.onEvent;
+    if (!cfg.tactics && !cfg.tutorial && !cfg.finale && typeof Tactics !== 'undefined') cfg.tactics = Tactics.of(cfg.id);
     region = typeof Regions !== 'undefined' ? Regions.of(cfg) : null; drained = 0;
     guardianHistory = [];
     screen.classList.toggle('guardian-battle',!!(cfg.guardian || cfg.finale));
@@ -3775,6 +3932,7 @@ const Board = (() => {
       if (!u.hidden) totalFoes++;
     });
     if (cfg.encounter) placeEncounter(plan);
+    setupTactics(plan.aria);
     makeDecor();
     orderCells();
     turn = 0; phase = 'player'; busy = true; over = false; paused = false;
@@ -3818,7 +3976,7 @@ const Board = (() => {
   function tutorialContext() {
     const sp = cfg.spirits || [];
     return { camps: !!CAMP(), fog: FOG(), guards: units.some(u => u.commander), spirits: sp.length, noir: units.some(u => u.kind === 'noir'),
-      guardian: !!cfg.guardian, companion: units.some(u => u.kind === 'chrome_human'), beacons: !!cfg.restoreBeacons, relic: hasRelic() && sp.length >= 2, fury: sp.includes('vard') };
+      charge: !!(TAC() && TAC().charge), guardian: !!cfg.guardian, companion: units.some(u => u.kind === 'chrome_human'), beacons: !!cfg.restoreBeacons, relic: hasRelic() && sp.length >= 2, fury: sp.includes('vard') };
   }
   // ---------- 終章：クロム戦の流れ ----------
   // 0 絶望（刃は届かない・盤は白い膜）→ ノアールの救援 → 1 夜が戻る（精霊が一人ずつ還る）

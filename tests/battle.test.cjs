@@ -539,14 +539,15 @@ test('Real nonboss victories award lower-tier S items and hard S ordinary equipm
 
 test('Hard boss A grants no unique gear, a later S grants it once, and another boss has a distinct reward',async()=>{
   await boot('cove');
-  await fixture('cove',{id:'q_orchard',unique:'u_quest_orchard',enemies:[{kind:'boss',lv:1}],difficulty:'hard',missions:[{type:'noItem'},{type:'hp',n:60},{type:'back',n:99}]});
+  // 報酬だけを確かめる。核の第二形態（js/tactics.js）は外す
+  await fixture('cove',{id:'q_orchard',unique:'u_quest_orchard',enemies:[{kind:'boss',lv:1}],tactics:{},difficulty:'hard',missions:[{type:'noItem'},{type:'hp',n:60},{type:'back',n:99}]});
   await attack();await page.locator('#resNext').waitFor({timeout:12000});
   assert.equal(await page.locator('.r-rank').textContent(),'A');
   assert(!await page.evaluate(()=>Board.party.owned.includes('u_quest_orchard')));
   assert(!await page.evaluate(()=>Board.party.stages.q_orchard.difficulties.hard.sRewardClaimed));
   await page.locator('#resNext').click();
   for(const id of ['q_orchard','q_orchard','q_bridge']) {
-    await fixture('cove',{id,unique:'u_quest_'+id.slice(2),enemies:[{kind:'boss',lv:1}],difficulty:'hard',missions:[]});
+    await fixture('cove',{id,unique:'u_quest_'+id.slice(2),enemies:[{kind:'boss',lv:1}],tactics:{},difficulty:'hard',missions:[]});
     await attack();await page.locator('#resNext').waitFor({timeout:12000});
     assert.equal(await page.locator('.r-rank').textContent(),'S');
     assert(await page.evaluate(id=>Board.party.owned.includes('u_quest_'+id.slice(2)),id));

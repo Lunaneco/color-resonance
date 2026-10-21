@@ -133,3 +133,5 @@
 .tut-nav .btn-main{min-width:0;margin:0;padding:10px 24px;letter-spacing:.12em}
 .tut-nav .ghost,.tut-topics .ghost{padding:9px 18px;border-radius:999px;border:1px solid rgba(207,224,255,.4);color:#dfe8ff;background:rgba(190,215,255,.06)}
 .tut-nav .ghost:hover,.tut-topics .ghost:hover{background:rgba(190,215,255,.16)}
+#missionBox .mb-intel span{color:#ffc9a0}
+#missionBox .mb-intel i{border-color:#ffc9a0}
