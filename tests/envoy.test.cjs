@@ -38,13 +38,15 @@ after(async () => { if (browser) await browser.close(); if (server) await new Pr
 const hook = `__camp: {
   state(){ return {running,busy,over,turn,phase,cp,cpMax,hud:document.getElementById('kegareCount').textContent,
     camps:cells.filter(c=>c.camp).map(c=>({r:c.r,c:c.c,owner:c.camp.owner,hq:!!c.camp.hq,floor:c.floor})),
-    units:units.map(u=>({id:u.id,kind:u.kind,side:u.side,hp:u.hp,mhp:u.mhp,r:u.r,c:u.c,dead:!!u.dead,acted:!!u.acted,mov:u.mov,captain:!!u.captain,cmd:u.commander?u.commander.id:null,name:u.name,atk:u.atk,rng:u.rng,ambush:!!u.ambush}))}; },
+    units:units.map(u=>({id:u.id,kind:u.kind,side:u.side,hp:u.hp,mhp:u.mhp,r:u.r,c:u.c,dead:!!u.dead,acted:!!u.acted,moved:!!u.moved,mov:u.mov,captain:!!u.captain,cmd:u.commander?u.commander.id:null,name:u.name,atk:u.atk,rng:u.rng,ambush:!!u.ambush}))}; },
   place(id, extra){ Object.assign(units.find(u=>u.id===id), extra); refreshHud(); },
   actHit(a, d){ const u=units.find(x=>x.id===a), o=units.find(x=>x.id===d); select(u,true); return act(u, () => attack(u, o, { normal:true }), true); },
   capture(id){ return tryCapture(units.find(u=>u.id===id)); },
   intercept(id){ return intercept(units.find(u=>u.id===id)); },
   kill(id){ const u=units.find(x=>x.id===id); u.hp=0; return defeat(u, ariaU()); },
   summonCells(){ return [...summonCells(ariaU())].map(i=>({r:cells[i].r,c:cells[i].c})); },
+  reason(id, r, c){ return blockedReason(units.find(u=>u.id===id), cellAt(r,c)); },
+  canMove(id){ const u=units.find(x=>x.id===id); return !u.moved && !u.acted && reachable(u).ends.size > 0; },
   map(){ return { cols, rows, blocked: cells.filter(c=>c.house||c.wall).map(c=>({r:c.r,c:c.c,walk:c.walk})), cover: cells.filter(c=>c.cover).map(c=>({r:c.r,c:c.c})), pier: cells.filter(c=>c.pier&&c.walk).length }; },
   dmg(a, d, cover){ const A=units.find(x=>x.id===a), D=units.find(x=>x.id===d), c=cellOf(D), old=c.cover; c.cover=cover; const v=calcDamage(A,D,{},null,false).dmg; c.cover=old; return v; },
   fog(){ const vis=visibleSet(); return { on: FOG(), vis: [...vis].map(i=>({r:cells[i].r,c:cells[i].c})), lurking: live().filter(u=>lurking(u,vis)).map(u=>u.id), targets: [...attackTargets(ariaU())], danger: [...dangerCells()].length }; },
@@ -91,6 +93,8 @@ test('Camps, command points, re-action with shrinking movement, capture painting
     s = await S(page);
     let me = s.units.find(u => u.id === aria.id);
     assert.equal(s.cp, 3); assert.equal(me.acted, false, 'Aria may act again while points remain'); assert.equal(me.mov, mov0 - 1, 'a second action moves one tile less');
+    assert.equal(me.moved, false, 'after attacking, the next action can move again');
+    assert.equal(await page.evaluate(id => Board.__camp.canMove(id), aria.id), true, 'and there are floors to move to');
     // 迎撃：敵の攻撃範囲にいるアリアへ、敵が打ちこむ
     const hp0 = me.hp;
     await page.evaluate(id => Board.__camp.intercept(id), aria.id); await idle(page);
@@ -127,6 +131,8 @@ test('Each camp battle is fought on its hand-drawn map: flags, captain, soldiers
       assert.deepEqual(key(m.cover.map(c => [c.r, c.c])), key(marks('s')), `${id}: sandbags are where the map marks them`);
       assert(s.camps.filter(c => c.owner === 'enemy').every(c => c.floor === 'dull'), `${id}: enemy flags start on dull floor`);
       if (id === 'camp_port') assert(m.pier > 0, 'the harbour has walkable piers');
+      // 行けない床に触れると、理由を知らせる
+      assert.equal(await page.evaluate(({ a, h }) => Board.__camp.reason(a, h.r, h.c), { a: aria.id, h: m.blocked[0] }), L.ground[m.blocked[0].r][m.blocked[0].c] === 'W' ? '城壁は通れない' : '家は通れない');
       // 虹の近衛：本陣の隊長と、敵の旗ごとに一人
       const guards = await page.evaluate(id => BOARDS[id].encounter.camps.commanders.map(g => g.id), id);
       const cmds = s.units.filter(u => u.cmd);

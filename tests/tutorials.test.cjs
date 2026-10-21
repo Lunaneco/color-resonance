@@ -53,12 +53,14 @@ test('The first camp battle opens the camp, fog and guard lessons before the fir
     assert.equal(await page.locator('#panel:not(.hidden)').count(), 0);
     // 「？」から、いつでも読み直せる。読み直しは記録を変えない
     await page.evaluate(() => Board.help());
-    assert(await page.locator('[data-tut-topic]').count() >= 8);
-    await page.locator('[data-tut-topic=guardian]').click();
-    assert.match(await page.locator('#panel .pn-title').textContent(), /しくみの説明 · 守り手との戦い/);
+    // 読み直しの一覧は、読んだ説明だけ。まだ出会っていない仕組みや仲間の名前は出ない
+    assert.deepEqual((await page.locator('[data-tut-topic]').evaluateAll(b => b.map(x => x.dataset.tutTopic))).sort(), ['camp', 'fog', 'guard', 'noir']);
+    const help = await page.locator('#panel .pn-body').textContent();
+    for (const name of ['クロム', 'スピネル', 'マリー', 'グラン', 'アイビー', 'ヴァルド']) assert(!help.includes(name), `the first-act help does not name ${name}`);
+    await page.locator('[data-tut-topic=fog]').click();
+    assert.match(await page.locator('#panel .pn-title').textContent(), /しくみの説明 · 霧（潜伏）/);
     await page.locator('#panel [data-tut=next]').click(); await page.locator('#panel [data-tut=done]').click();
     assert.equal(await page.locator('#panel:not(.hidden)').count(), 0);
-    assert(!(await page.evaluate(() => JSON.parse(localStorage.cr_tutorials))).includes('guardian'));
     assert.deepEqual(errors, []);
   } finally { await ctx.close(); }
 });
@@ -98,6 +100,28 @@ test('A tactic lesson opens once, the first time it happens, and then never agai
     assert.equal(await first, 'closed');
     assert.equal(await page.evaluate(() => Tutorials.once('ambush').then(() => Panel.isOpen())), false, 'the second time resolves without opening');
     assert(await page.evaluate(() => JSON.parse(localStorage.cr_tutorials).includes('ambush')));
+    assert.deepEqual(errors, []);
+  } finally { await ctx.close(); }
+});
+
+test('System lessons never name a companion; each companion is introduced once, the first battle they join', async () => {
+  const c = require('node:vm').createContext({ localStorage: { getItem: () => null, setItem() {} }, navigator: {} });
+  require('node:vm').runInContext(await fs.readFile(path.join(root, 'js/tutorials.js'), 'utf8') + ';globalThis.T=Tutorials;', c);
+  const names = ['グラン', 'アイビー', 'スピネル', 'マリー', 'ヴァルド', 'クロム'];
+  const own = { ally_gran: 'グラン', ally_ivy: 'アイビー', ally_spinel: 'スピネル', ally_mari: 'マリー', fury: 'ヴァルド', companion: 'クロム', beacons: 'クロム' };  // 復興の灯はクロムが加わった復興編だけに出る
+  for (const t of c.T.LIST) {
+    const text = t.title + t.pages.map(p => p.h + p.t + (p.fig || '')).join('');
+    for (const n of names) if (own[t.id] !== n) assert(!text.includes(n), `${t.id} must not name ${n}`);
+  }
+  const { ctx, page, errors } = await open(['prologue', 'act1', 'act2', 'act3'], ['spirits', 'noir', 'guardian', 'fury']);
+  try {
+    await fight(page, 'gp_ivy');
+    await page.locator('#panel:not(.hidden) .tut-page').waitFor();
+    const titles = [];
+    for (let i = 0; i < 10; i++) { titles.push(await page.locator('#panel .pn-title').textContent()); const done = page.locator('#panel [data-tut=done]'); if (await done.count()) { await done.click(); break; } await page.locator('#panel [data-tut=next]').click(); }
+    assert(titles.some(t => /新しい仲間 · グラン/.test(t)), 'Gran is introduced when she joins the battle');
+    assert(!titles.some(t => /スピネル|マリー/.test(t)), 'companions who have not joined are not introduced');
+    await page.waitForFunction(() => /TURN1/.test(document.getElementById('kegareCount').textContent));
     assert.deepEqual(errors, []);
   } finally { await ctx.close(); }
 });

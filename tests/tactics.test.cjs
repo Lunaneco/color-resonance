@@ -63,19 +63,21 @@ const nextTurn = async page => { await page.evaluate(() => Board.__tac.end()); a
 // アリアを敵から遠い隅へ置き、敵の手番で倒されないようにする
 const park = page => page.evaluate(() => { const s = Board.__tac.state(); const a = s.units.find(u => u.kind === 'aria'); Board.__tac.place(a.id, { hp: 99999, mhp: 99999, def: 9999 }); });
 
-for (const difficulty of ['normal', 'hard']) test(`Reinforcements are announced on their floors at the start of their turn and arrive in that enemy phase (${difficulty})`, async () => {
+for (const difficulty of ['normal', 'hard']) test(`Reinforcements arrive in the enemy phase of their turn; normal announces them on their floors, hard gives no warning (${difficulty})`, async () => {
   const { ctx, page, errors } = await battle('gp_gran', difficulty);
   try {
     await park(page);
     let s = await S(page);
-    assert.match(s.box, /敵の作戦：増援 3ターン目/);
+    if (difficulty === 'hard') assert.doesNotMatch(s.box, /増援/, 'hard does not tell when they come');
+    else assert.match(s.box, /敵の作戦：増援 3ターン目/);
     const planned = s.waves[0].cells;
     assert.equal(planned.length, 2);
     assert.deepEqual(s.warn, [], 'nothing is announced before its turn');
     await nextTurn(page); await nextTurn(page);
     s = await S(page);
     assert.equal(s.turn, 3);
-    assert.deepEqual(s.warn.map(c => c.r + ',' + c.c).sort(), planned.map(c => c.r + ',' + c.c).sort(), 'turn 3 marks exactly where they will appear');
+    if (difficulty === 'hard') assert.deepEqual(s.warn, [], 'hard shows no warning floors');
+    else assert.deepEqual(s.warn.map(c => c.r + ',' + c.c).sort(), planned.map(c => c.r + ',' + c.c).sort(), 'turn 3 marks exactly where they will appear');
     const before = s.units.filter(u => u.side === 'enemy' && !u.dead).length;
     await nextTurn(page);
     s = await S(page);

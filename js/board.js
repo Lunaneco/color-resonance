@@ -700,10 +700,17 @@ const Board = (() => {
       g.restore();
       if (wRain > 0) drawStars(c, x, y, t, wRain);
     }
+    // 霧は範囲の色より先に塗る（霧の中でも、歩ける床と狙える敵の光が見えるように）
+    if (fogVis) { if (fogged) drawFog(c, x, y, t, 0.8); else if (nb4(c).some(n => !fogVis.has(idx(n.r, n.c)))) drawFog(c, x, y, t, 0.22); }
     // 範囲
     const id = idx(c.r, c.c);
     const pulse = 0.5 + 0.5 * Math.sin(t * 4);
-    if (mode === 'selected' && moveInfo && moveInfo.ends.has(id)) tint(x, y, '120,215,255', 0.14 + 0.04 * pulse, 0.95, true);
+    if (mode === 'selected' && moveInfo && moveInfo.ends.has(id)) tint(x, y, '120,215,255', (fogged ? 0.3 : 0.14) + 0.04 * pulse, 0.95, true);
+    // 移動力の内側なのに行けない床（段差・敵にさえぎられている）は、小さな×で示す。霧の中は示さない。
+    else if (mode === 'selected' && moveInfo && sel && !sel.moved && !fogged && dist(c, sel) <= effMov(sel) && dist(c, sel) > 0 && !moveInfo.d.has(id) && !unitAt(c)) {
+      g.save(); g.globalAlpha = 0.55; g.strokeStyle = '#ffb3a8'; g.lineWidth = Math.max(1.2, tw * 0.025); const k = tw * 0.08;
+      g.beginPath(); g.moveTo(x - k, y - k * 0.54); g.lineTo(x + k, y + k * 0.54); g.moveTo(x + k, y - k * 0.54); g.lineTo(x - k, y + k * 0.54); g.stroke(); g.restore();
+    }
     if (threat && threat.ends.has(id)) tint(x, y, '255,120,150', 0.13, 0.35);
     if (dangerOn && dangerSet && dangerSet.has(id)) tint(x, y, '255,90,90', 0.16, 0.5);
     if (c.waveWarn) { tint(x, y, '255,160,90', 0.22 + 0.14 * pulse, 0.95, true); g.save(); g.font = `bold ${Math.max(9, tw * .2)}px sans-serif`; g.textAlign = 'center'; g.fillStyle = '#ffe2c4'; g.fillText('増', x, y + tw * .07); g.restore(); }
@@ -713,7 +720,6 @@ const Board = (() => {
     if (path && path.has(id)) { g.save(); g.fillStyle = 'rgba(230,245,255,.9)'; g.shadowColor = '#bfe3ff'; g.shadowBlur = 8; g.beginPath(); g.arc(x, y, Math.max(2.5, tw * 0.05), 0, 6.29); g.fill(); g.restore(); }
     if (hover === c && !busy && !over) { g.save(); diamond(x, y, tw * 0.96, th * 0.96); g.shadowColor = 'rgba(230,240,255,1)'; g.shadowBlur = 14; g.strokeStyle = 'rgba(235,245,255,.9)'; g.lineWidth = 2; g.stroke(); g.restore(); }
     if (c.gimmick) drawGimmick(c, x, y, t);
-    if (fogVis) { if (fogged) drawFog(c, x, y, t, 0.8); else if (nb4(c).some(n => !fogVis.has(idx(n.r, n.c)))) drawFog(c, x, y, t, 0.22); }
     const warning = units.some(u => !u.dead && u.guardian && u.intent?.ids.has(id));
     if (warning) {
       const safe = c.floor === 'rainbow';
@@ -730,7 +736,8 @@ const Board = (() => {
     const k = 0.84, hw = tw / 2 * k, hh = th / 2 * k, H = c.wall ? th * 1.25 : th * (0.95 + (c.sd % 3) * 0.12);
     const T = [x, y - hh], R = [x + hw, y], B = [x, y + hh], L = [x - hw, y], up = ([px, py]) => [px, py - H];
     // 後ろに人が隠れるときは、建物を透かす
-    const behind = live().some(u => dist(u, c) <= 2 && viewDepth(cellOf(u)) < viewDepth(c));
+    const behind = live().some(u => dist(u, c) <= 2 && viewDepth(cellOf(u)) < viewDepth(c))
+      || (mode === 'selected' && moveInfo && [...moveInfo.ends].some(i => dist(cells[i], c) <= 2 && viewDepth(cells[i]) < viewDepth(c)));
     g.save(); g.globalAlpha = behind ? 0.42 : 1; g.lineJoin = 'round';
     g.fillStyle = 'rgba(0,0,0,.3)'; quad([T, R, B, L]); g.fill();
     g.fillStyle = P.wallDark; quad([L, B, up(B), up(L)]); g.fill();
@@ -2527,8 +2534,9 @@ const Board = (() => {
     u.acted = !(normal && u.normalAttacks < normalAttackLimit(u));
     u.summonChain = r === 'chainSummon';
     if (u.summonChain) u.acted = false;
-    if (CAMP() && !over && !u.dead) { await tryCapture(u); if (over) return; if (u.acted && !u.npc) spendCP(u); }
     u.moved = true; u.undo = null;
+    // 陣取り：指揮点が残っていれば spendCP が手番を開き直す（移動も戻る）。その後で moved を立て直さないこと。
+    if (CAMP() && !over && !u.dead) { await tryCapture(u); if (over) return; if (u.acted && !u.npc) spendCP(u); }
     if (over) return;
     busy = false; endBtn.disabled = false;
     deselect();
@@ -2545,6 +2553,17 @@ const Board = (() => {
     if (u.summonChain && !u.acted) { select(u, true); phaseLabel.textContent = '双彩の王笏：もう1体召喚できる（または待機）'; return; }
     autoEnd();
   })()); }
+  // 行けない床に触れたとき、その理由を短く知らせる
+  function blockedReason(u, cell) {
+    if (cell.house) return '家は通れない';
+    if (cell.wall) return '城壁は通れない';
+    if (!cell.walk) return OBST.has(cell.t) ? '岩や山は越えられない' : '深い水は渡れない';
+    if (u.root) return '縛られていて、動けない';
+    const mi = moveInfo || reachable(u), id = idx(cell.r, cell.c);
+    if (mi.d.has(id)) return '人がいて、止まれない';
+    if (dist(cell, u) > effMov(u)) return `移動力が足りない（あと${effMov(u)}マスまで）`;
+    return '段差や敵にさえぎられて、届かない';
+  }
   function autoEnd() {
     if (paused || over) return;
     if (!live().filter(u => u.side === 'ally').every(u => u.acted)) return;
@@ -2816,7 +2835,8 @@ const Board = (() => {
   function tacticsIntel() {
     const T = TAC(); if (!T) return '';
     const out = [];
-    const left = waves.filter(w => !w.done).map(w => w.turn);
+    // ハードでは、増援のターンも場所も知らせない
+    const left = difficulty === 'hard' ? [] : waves.filter(w => !w.done).map(w => w.turn);
     if (left.length) out.push(`増援 ${left.join('・')}ターン目`);
     if (T.charge && turn < T.charge.turn) out.push(`${T.charge.turn}ターン目から進軍`);
     else if (T.charge && turn === T.charge.turn && !chargeAnnounced) out.push('この手番の終わりから進軍');
@@ -2824,6 +2844,7 @@ const Board = (() => {
   }
   // ターンの初め：この敵の手番に来る増援の床を知らせる
   async function warnWaves() {
+    if (difficulty === 'hard') return;   // ハードは予告なしで現れる
     const due = waves.filter(w => !w.done && w.turn === turn && w.cells.length);
     if (!due.length) return;
     due.forEach(w => w.cells.forEach(c => { c.waveWarn = true; }));
@@ -2846,8 +2867,10 @@ const Board = (() => {
         const p = topOf(c); smoke(p.x, p.y - tw * 0.3, 14, '25,20,40');
       });
       w.cells.forEach(c => { c.waveWarn = false; });
-      const p = topOf(w.cells[0] || cellOf(ariaU())); focus(p.x, p.y, 1.06); floatText(p.x, p.y - tw * 1.1, '増援が現れた', 'sys'); Audio2.sfx.expose();
+      const p = topOf(w.cells[0] || cellOf(ariaU())); focus(p.x, p.y, 1.06); floatText(p.x, p.y - tw * 1.1, difficulty === 'hard' ? '予告なしの増援だ！' : '増援が現れた', 'sys'); Audio2.sfx.expose();
       refreshHud(); await wait(600);
+      // ハードは予告が無いので、初めての増援の説明は現れたときに開く
+      if (difficulty === 'hard') await lesson('reinforce');
     }
   }
   // 伏兵：味方が近づくと姿を現す
@@ -3130,7 +3153,7 @@ const Board = (() => {
       }
       // 選んだままにしておく：敵は情報だけ、届かない床は知らせるだけ
       if (u) { showInfo(u); Audio2.sfx.hover(); return; }
-      if (!sel.moved) { Audio2.sfx.wrong(); const p = topOf(cell); floatText(p.x, p.y - tw * 0.5, cell.walk ? 'そこへは届かない' : 'そこは歩けない', 'sys'); }
+      if (!sel.moved) { Audio2.sfx.wrong(); const p = topOf(cell); floatText(p.x, p.y - tw * 0.5, blockedReason(sel, cell), 'sys'); }
       return;
     }
     threat = null;
@@ -3840,8 +3863,11 @@ const Board = (() => {
 
   function help() {
     hideSay();
+    // まだ仲間になっていない人の名前は出さない（クロムは復興編で加わるまで、仲間としては書かない）
+    const chromeOk = cfg.postgame || cfg.companion || (typeof Restoration !== 'undefined' && Restoration.joined && Restoration.joined());
+    const takers = ['アリア', 'ノアール', ...(chromeOk ? ['クロム'] : [])].join('・');
     Panel.open('戦い方', `
-      <h4>目的</h4>盤のどこかにいる<b>穢れの影</b>を、すべて心剣で切り分けてください。アリアが倒れると、やり直しになります。復興編はクロムも毎ターン操作でき、二人のどちらかが倒れると再挑戦です。
+      <h4>目的</h4>盤のどこかにいる<b>穢れの影</b>を、すべて心剣で切り分けてください。アリアが倒れると、やり直しになります。${chromeOk ? '復興編はクロムも毎ターン操作でき、二人のどちらかが倒れると再挑戦です。' : ''}
       <h4>動かし方</h4>味方に触れると、<b>光る床</b>が歩ける場所。床に触れると移動し、そのあとメニューが開きます。<br>動かずに行動したいときは、本人にもう一度触れるか「その場で行動」。届く敵に直接触れても攻撃できます。<br><b>待機は4方向から向きを選んで確定</b>。Esc／戻るで取り消しても行動は消費せず、移動も戻せます。方向キーで選び、Enterで確定できます。<br>右クリック／Esc／「選び直す」：戻る　E：ターン終了　A：攻撃　W：待機の向き選び
       <h4>マップの回転</h4>ファイナルファンタジータクティクスと同じく、視点は<b>90度ずつ、4方向</b>に回ります。<b>↶／↷</b>ボタン（キーボードは<b>Q：左、R：右、0：初期の視点</b>）か、盤を<b>横へはらう</b>と、盤が滑らかに回ります。ボタンの間の菱形は、いまの向きです（黄色い印が、元の「奥」の角）。短いタップは、今までどおり床や人を選びます。回転は移動や行動を使わず、位置・射程・正面／背後の判定はそのままです。移動や攻撃の演出中は回転できません。
       <div class="tip-tiles"><div><span class="tip-rainbow-floor${cfg.inverted ? ' night' : ''}"><img src="assets/tiles/dark_land_flat.png" alt=""></span>${floorNames()[0]}の床（味方）</div><div><img src="assets/tiles/dark_land_flat.png" alt="">${floorNames()[1]}の床（穢れ）</div></div>
@@ -3852,11 +3878,11 @@ const Board = (() => {
       <h4>道具とミッション</h4>町で買った道具は、メニューの「道具」から使えます（行動を使う）。<br>右上のミッションをすべて達成するとSランク。S評価の報酬は難易度別。<b>ハードのボス戦はユニーク装備、通常戦は通常装備。ふつう・やさしいはアイテム</b>です。各難易度で1回ずつ受け取れ、所持済みの通常装備は価格の半分のしずくになります。
       <h4>LV</h4>攻撃と撃破で経験値が入り、100たまるとLVが上がります。精霊は、召喚や宿しで育ちます。
       <h4>精霊との絆・覚えた技</h4>召喚で絆+3、心剣に宿すと+2。召喚した精霊の攻撃や、宿した心剣が命中すると+1、覚えた技を使うと+2。絆は精霊と技の強さを育てます。<b>習得はエンチャントと召喚の熟練を別々に判定</b>し、それぞれ8・20・40で3種ずつ、6精霊で36種。貫く一閃と近い癒やしは、精霊ごとに覚えて使います。宿すとエンチャント熟練+2、宿した通常攻撃の命中で+1。召喚すると召喚熟練+3、精霊の命中で+1。覚えた技の使用は熟練に入りません。<br>習得後は「覚えた技」から、召喚や宿しをせずに使えます。絆が深まるほど精霊のHP・攻撃・守りと、宿した心剣・覚えた技の効果が育ちます。負けても絆と習得は残ります。
-      <h4>ノアールの四響エンチャント</h4>クロムだけが使う切り札です。共鳴6・1戦闘に1回。3ターン、4精霊のエンチャント効果をまとめて宿し、通常攻撃が毎ターン2回になります。宿す行動は消費しません。アリアの隣でノアールが身につけた浄化と精霊の力が剣に宿っているので、他の精霊の召喚中・戦闘不能でも使えます。ノアール自身は剣ではありません。クロム自身に精霊の召喚能力はありません。再挑戦・次の戦闘で使用回数は戻ります。
-      <h4>ノアール</h4>序章で名前を聞いたあと、布の中から一緒に戦う。終章の絶望では出ない。<b>吸収</b>（2マス・HP30%以下）で瀕死の穢れを消し、その形を一度だけ技として残す。二度目は残らない。守り手・ボス・クロムを飲むと、その相手だけの大技を覚え、ノアールのHPが30%戻り、共鳴が2増える。覚えた技は「預かった技」から、共鳴を使って出す（ふつうの技は2〜3、大技は4〜6）。倒されると、その戦闘だけ布へ戻る。<h4>復興の灯</h4>復興編は敵の全滅と、番号のついた灯をすべて点けることが目的です。アリアとクロムの<b>「浄化」（共鳴2）</b>で2マス以内の灯そのものを選んでください。周り2マスも虹に戻ります。防壁を持つ核は、灯が全部点くまで攻撃が届きません。<h4>難易度・依頼</h4>マップの戦場や依頼でやさしい・ふつう・ハードの3段階の難易度を選べます。適正LV・報酬・ミッション実績は難易度ごとに表示されます。戦闘開始後は再挑戦も同じ難易度です。町の「依頼」でサブクエストを探せます。
+      ${chromeOk ? `<h4>ノアールの四響エンチャント</h4>クロムだけが使う切り札です。共鳴6・1戦闘に1回。3ターン、4精霊のエンチャント効果をまとめて宿し、通常攻撃が毎ターン2回になります。宿す行動は消費しません。アリアの隣でノアールが身につけた浄化と精霊の力が剣に宿っているので、他の精霊の召喚中・戦闘不能でも使えます。ノアール自身は剣ではありません。クロム自身に精霊の召喚能力はありません。再挑戦・次の戦闘で使用回数は戻ります。` : ''}
+      <h4>ノアール</h4>序章で名前を聞いたあと、布の中から一緒に戦う。終章の絶望では出ない。<b>吸収</b>（2マス・HP30%以下）で瀕死の穢れを消し、その形を一度だけ技として残す。二度目は残らない。守り手やボスを飲むと、その相手だけの大技を覚え、ノアールのHPが30%戻り、共鳴が2増える。覚えた技は「預かった技」から、共鳴を使って出す（ふつうの技は2〜3、大技は4〜6）。倒されると、その戦闘だけ布へ戻る。${chromeOk ? `<h4>復興の灯</h4>復興編は敵の全滅と、番号のついた灯をすべて点けることが目的です。アリアとクロムの<b>「浄化」（共鳴2）</b>で2マス以内の灯そのものを選んでください。周り2マスも虹に戻ります。防壁を持つ核は、灯が全部点くまで攻撃が届きません。` : ''}<h4>難易度・依頼</h4>マップの戦場や依頼でやさしい・ふつう・ハードの3段階の難易度を選べます。適正LV・報酬・ミッション実績は難易度ごとに表示されます。戦闘開始後は再挑戦も同じ難易度です。町の「依頼」でサブクエストを探せます。
       <h4>国の色の敵</h4>敵は、戦う土地の色に染まっています。名前と色がちがい、<b>特性</b>を一つ持つ種類がいます（押し流し・燠火・絡め取り・金の被膜・色吸い・霞）。敵を選ぶと、特性の内容が見られます。
-      <h4>陣取り戦</h4>第一幕・第四幕・第五幕の物語の途中で起こる戦いです。<b>敵の本陣の旗を奪えば勝ち</b>、自分の本陣を奪われると負け。毎ターンの<b>指揮点</b>で同じ仲間も何度でも動けます（再行動のたびに移動−1）。アリア・ノアール・クロムが隣に敵のいない旗に立つと奪えます。敵の射程で止まると<b>迎撃</b>され、<b>土嚢</b>の上なら離れた攻撃と迎撃を4割減らせます。<b>霧</b>のせいで、見えるのは仲間の周りと虹の床のそばだけ。敵の本陣と旗には<b>虹の近衛</b>が立ち、倒すと色が戻ってその旗の増援が止まります。
-      <h4>敵の作戦</h4>戦場によって、敵は作戦を持っています。<b>増援</b>：決まったターンの敵の手番に現れる。そのターンの初めに、現れる床が橙の「増」で光る（ハードでは現れた手番から動く）。<b>伏兵</b>：物陰に隠れていて、近づくと姿を現し、近づいた仲間の移動はそこで止まる。<b>第二形態</b>：強い核や隊長が、一度倒れても黒をまとい直して立ち上がる。<b>進軍</b>：決まったターンまで持ち場で待ち、そこから一斉に動く。増援と進軍のターンは、ミッション欄の「敵の作戦」に出ます。
+      <h4>陣取り戦</h4>第一幕・第四幕・第五幕の物語の途中で起こる戦いです。<b>敵の本陣の旗を奪えば勝ち</b>、自分の本陣を奪われると負け。毎ターンの<b>指揮点</b>で同じ仲間も何度でも動けます（再行動のたびに移動−1）。${takers}が隣に敵のいない旗に立つと奪えます。敵の射程で止まると<b>迎撃</b>され、<b>土嚢</b>の上なら離れた攻撃と迎撃を4割減らせます。<b>霧</b>のせいで、見えるのは仲間の周りと虹の床のそばだけ。敵の本陣と旗には<b>虹の近衛</b>が立ち、倒すと色が戻ってその旗の増援が止まります。
+      <h4>敵の作戦</h4>戦場によって、敵は作戦を持っています。<b>増援</b>：決まったターンの敵の手番に現れる。ふつう・やさしいでは、そのターンの初めに現れる床が橙の「増」で光り、ミッション欄にターンが出る。<b>ハードでは予告も場所の表示もなく</b>、現れたその手番から動く。<b>伏兵</b>：物陰に隠れていて、近づくと姿を現し、近づいた仲間の移動はそこで止まる。<b>第二形態</b>：強い核や隊長が、一度倒れても黒をまとい直して立ち上がる。<b>進軍</b>：決まったターンまで持ち場で待ち、そこから一斉に動く。増援と進軍のターンは、ミッション欄の「敵の作戦」に出ます。
       ${typeof Tutorials !== 'undefined' ? `<h4>しくみの説明を読み直す</h4><div class="tut-topics">${Tutorials.topics().map(t => `<button class="ghost" data-tut-topic="${t.id}">${t.title}</button>`).join('')}</div>` : ''}
       <p style="margin-top:12px;color:#ffd98a">「切るのは穢れだけ。その人の色は、一滴も切らない」</p>`);
     Panel.body().querySelectorAll('[data-tut-topic]').forEach(b => b.onclick = () => Tutorials.show([b.dataset.tutTopic], { mark: false, title: 'しくみの説明', doneLabel: '閉じる' }));
@@ -3976,7 +4002,7 @@ const Board = (() => {
   function tutorialContext() {
     const sp = cfg.spirits || [];
     return { camps: !!CAMP(), fog: FOG(), guards: units.some(u => u.commander), spirits: sp.length, noir: units.some(u => u.kind === 'noir'),
-      charge: !!(TAC() && TAC().charge), guardian: !!cfg.guardian, companion: units.some(u => u.kind === 'chrome_human'), beacons: !!cfg.restoreBeacons, relic: hasRelic() && sp.length >= 2, fury: sp.includes('vard') };
+      allies: sp, charge: !!(TAC() && TAC().charge), guardian: !!cfg.guardian, companion: units.some(u => u.kind === 'chrome_human'), beacons: !!cfg.restoreBeacons, relic: hasRelic() && sp.length >= 2, fury: sp.includes('vard') };
   }
   // ---------- 終章：クロム戦の流れ ----------
   // 0 絶望（刃は届かない・盤は白い膜）→ ノアールの救援 → 1 夜が戻る（精霊が一人ずつ還る）
