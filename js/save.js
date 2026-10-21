@@ -134,7 +134,8 @@ const SaveData = (() => {
     } catch (e) { return { ok: false, message: e.message }; }
   }
   function clearProgress() {
-    try { withBackup(() => apply({}, progress)); return { ok: true, message: '新しい旅の準備ができました' }; }
+    // 新しい旅では、戦闘の仕組みの説明（cr_tutorials）も最初から開く
+    try { withBackup(() => apply({}, progress)); try { localStorage.removeItem('cr_tutorials'); } catch {} return { ok: true, message: '新しい旅の準備ができました' }; }
     catch (e) { return { ok: false, message: e.message }; }
   }
   function exportText() { return JSON.stringify(wrap(validate(snapshot())), null, 2); }

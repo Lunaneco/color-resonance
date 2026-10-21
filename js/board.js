@@ -3700,7 +3700,10 @@ const Board = (() => {
       <h4>ノアールの四響エンチャント</h4>クロムだけが使う切り札です。共鳴6・1戦闘に1回。3ターン、4精霊のエンチャント効果をまとめて宿し、通常攻撃が毎ターン2回になります。宿す行動は消費しません。アリアの隣でノアールが身につけた浄化と精霊の力が剣に宿っているので、他の精霊の召喚中・戦闘不能でも使えます。ノアール自身は剣ではありません。クロム自身に精霊の召喚能力はありません。再挑戦・次の戦闘で使用回数は戻ります。
       <h4>ノアール</h4>序章で名前を聞いたあと、布の中から一緒に戦う。終章の絶望では出ない。<b>吸収</b>（2マス・HP30%以下）で瀕死の穢れを消し、その形を一度だけ技として残す。二度目は残らない。守り手・ボス・クロムを飲むと、その相手だけの大技を覚え、ノアールのHPが30%戻り、共鳴が2増える。覚えた技は「預かった技」から、共鳴を使って出す（ふつうの技は2〜3、大技は4〜6）。倒されると、その戦闘だけ布へ戻る。<h4>復興の灯</h4>復興編は敵の全滅と、番号のついた灯をすべて点けることが目的です。アリアとクロムの<b>「浄化」（共鳴2）</b>で2マス以内の灯そのものを選んでください。周り2マスも虹に戻ります。防壁を持つ核は、灯が全部点くまで攻撃が届きません。<h4>難易度・依頼</h4>マップの戦場や依頼でやさしい・ふつう・ハードの3段階の難易度を選べます。適正LV・報酬・ミッション実績は難易度ごとに表示されます。戦闘開始後は再挑戦も同じ難易度です。町の「依頼」でサブクエストを探せます。
       <h4>国の色の敵</h4>敵は、戦う土地の色に染まっています。名前と色がちがい、<b>特性</b>を一つ持つ種類がいます（押し流し・燠火・絡め取り・金の被膜・色吸い・霞）。敵を選ぶと、特性の内容が見られます。
+      <h4>陣取り戦</h4>第一幕・第四幕・第五幕の物語の途中で起こる戦いです。<b>敵の本陣の旗を奪えば勝ち</b>、自分の本陣を奪われると負け。毎ターンの<b>指揮点</b>で同じ仲間も何度でも動けます（再行動のたびに移動−1）。アリア・ノアール・クロムが隣に敵のいない旗に立つと奪えます。敵の射程で止まると<b>迎撃</b>され、<b>土嚢</b>の上なら離れた攻撃と迎撃を4割減らせます。<b>霧</b>のせいで、見えるのは仲間の周りと虹の床のそばだけ。敵の本陣と旗には<b>虹の近衛</b>が立ち、倒すと色が戻ってその旗の増援が止まります。
+      ${typeof Tutorials !== 'undefined' ? `<h4>しくみの説明を読み直す</h4><div class="tut-topics">${Tutorials.topics().map(t => `<button class="ghost" data-tut-topic="${t.id}">${t.title}</button>`).join('')}</div>` : ''}
       <p style="margin-top:12px;color:#ffd98a">「切るのは穢れだけ。その人の色は、一滴も切らない」</p>`);
+    Panel.body().querySelectorAll('[data-tut-topic]').forEach(b => b.onclick = () => Tutorials.show([b.dataset.tutTopic], { mark: false, title: 'しくみの説明', doneLabel: '閉じる' }));
   }
 
   // ---------- 開始・終了 ----------
@@ -3796,10 +3799,26 @@ const Board = (() => {
     missionOpen = !screen.classList.contains('compact');
     hudReady = false; refreshHud(); hudReady = true;
     showInfo(units[0]);
+    // 新しい仕組みが初めて出る戦いでは、始める前に説明を開く。読み終えるまで手番は始まらない。
+    const lessons = typeof Tutorials !== 'undefined' && !cfg.tutorial && !cfg.finale ? Tutorials.pending(tutorialContext()) : [];
     if (cfg.tutorial) { tut = { steps: cfg.tutorial, i: 0 }; const s = tut.steps[0]; say(s.who, s.text); }
-    else { tut = null; if (cfg.intro) say(cfg.intro.who, cfg.intro.text, 7000); else hideSay(); }
+    else { tut = null; if (cfg.intro && !lessons.length) say(cfg.intro.who, cfg.intro.text, 7000); else hideSay(); }
     if (!running) { running = true; t0 = performance.now(); renderFrame = requestAnimationFrame(render); }
-    runTask(playerPhase());
+    const my = sess;
+    runTask((async () => {
+      if (lessons.length) {
+        await Tutorials.show(lessons);
+        if (my !== sess) return;
+        if (cfg.intro) say(cfg.intro.who, cfg.intro.text, 7000);
+      }
+      await playerPhase();
+    })());
+  }
+  // その戦いにある仕組み（Tutorials.LIST の when が読む）
+  function tutorialContext() {
+    const sp = cfg.spirits || [];
+    return { camps: !!CAMP(), fog: FOG(), guards: units.some(u => u.commander), spirits: sp.length, noir: units.some(u => u.kind === 'noir'),
+      guardian: !!cfg.guardian, companion: units.some(u => u.kind === 'chrome_human'), beacons: !!cfg.restoreBeacons, relic: hasRelic() && sp.length >= 2, fury: sp.includes('vard') };
   }
   // ---------- 終章：クロム戦の流れ ----------
   // 0 絶望（刃は届かない・盤は白い膜）→ ノアールの救援 → 1 夜が戻る（精霊が一人ずつ還る）

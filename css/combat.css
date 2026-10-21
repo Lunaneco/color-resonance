@@ -100,3 +100,36 @@
 #boardScreen.compact .enc-goal,#boardScreen.compact .enc-turn{display:none}
 #missionBox .mb-goal span{color:#ffd9a8;font-weight:700}
 #missionBox .mb-goal i{border-color:#ffd9a8}
+
+/* はじめての仕組み（js/tutorials.js） */
+.tut-page h4{margin:0 0 10px;font-size:17px;color:#fff3d6}
+.tut-page p{line-height:1.85;margin:12px 0 0}
+.tut-page b{color:#ffe39a}
+.tut-grid{display:grid;grid-template-columns:repeat(var(--cols),minmax(0,34px));gap:3px;justify-content:center;margin:6px auto 0;padding:10px;border-radius:12px;background:rgba(4,8,22,.55);width:max-content;max-width:100%}
+.tut-grid i{aspect-ratio:1;border-radius:5px;background:#3a3f55;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:700;color:#fff;line-height:1}
+.tut-grid i.rb{background:linear-gradient(135deg,#7fd7dd,#b6a6ec 40%,#ecaac9 70%,#f3d89b)}
+.tut-grid i.fog{background:#0b0e1c;box-shadow:inset 0 0 0 1px rgba(120,130,170,.15)}
+.tut-grid i.house{background:#8a6cc4;box-shadow:inset 0 -6px 0 #5f4a8e}
+.tut-grid i.sand{background:#3a3f55;color:#d8c08a}
+.tut-grid i.danger{background:rgba(255,90,90,.55)}
+.tut-grid i.ally{background:#2b6f86;box-shadow:0 0 0 2px #9fe6ff inset}
+.tut-grid i.ally.noir{background:#1a1730}
+.tut-grid i.foe{background:#4a2f63;box-shadow:0 0 0 2px #c9a8ff inset}
+.tut-grid i.foe.guard{background:#7a4ab0;box-shadow:0 0 0 2px #ffd760 inset}
+.tut-grid i.flag{color:#e6e0d0}
+.tut-grid i.flag.own{color:#9fe6ff}
+.tut-grid i.flag.enemy{color:#c9a8ff}
+.tut-grid i.hq{background:#3c2752}
+.tut-grid i.flag.own.hq{background:#163848;color:#9fe6ff}
+.tut-grid i.warn{background:rgba(240,137,131,.4);color:#ffe1c7;box-shadow:inset 0 0 0 1px #ffbb9c}
+.tut-grid i.safe{color:#1b4a3c}
+.tut-grid i.lamp{background:#352642;color:#ffe9bd}
+.tut-grid figcaption{grid-column:1/-1;text-align:center;font-size:12px;color:#c8d2ea;margin-top:6px}
+.tut-hud{text-align:center;font-family:var(--latin, serif);letter-spacing:.08em;font-size:18px;padding:12px;border-radius:12px;background:rgba(4,8,22,.55);margin:6px 0 0}
+.tut-hud b{font-size:22px;color:#fff}
+.tut-nav{display:flex;align-items:center;gap:10px;justify-content:flex-end;width:100%}
+.tut-nav span{margin-right:auto;font-size:13px;color:#c8d2ea}
+.tut-topics{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.tut-nav .btn-main{min-width:0;margin:0;padding:10px 24px;letter-spacing:.12em}
+.tut-nav .ghost,.tut-topics .ghost{padding:9px 18px;border-radius:999px;border:1px solid rgba(207,224,255,.4);color:#dfe8ff;background:rgba(190,215,255,.06)}
+.tut-nav .ghost:hover,.tut-topics .ghost:hover{background:rgba(190,215,255,.16)}
