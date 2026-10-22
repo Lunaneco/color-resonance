@@ -2428,8 +2428,8 @@ const Board = (() => {
     const hit = live().filter(u=>u.side==='ally'&&ids.has(idx(u.r,u.c)));
     await skillBanner(p.skills[intent.phase],p.colour);
     danger.forEach((c,i)=>paint(c,'dull',i*12));
-    if(p.id==='vard')playMotion(e,'attack');
     if(p.id==='chrome')playMotion(e,'wave',2.5);
+    else playMotion(e, GameArt.animation(resolvedArt(e), 'cast') ? 'cast' : 'attack');
     const q=unitXY(e); artEffect(p.id==='chrome'||p.id==='kaoru'?'chrome_wave':GameArt.spiritEffects[p.id==='vard'?'vard':p.material==='m_teal'?'gran':p.material==='m_green'?'ivy':p.material==='m_gold'?'spinel':'king'],cellOf(e),2.4);
     fxp.push({k:'ring',x:q.x,y:q.y,r:tw*.3,grow:tw*2,col:p.id==='vard'?'245,121,101':p.id==='chrome'?'225,232,255':'210,155,200',life:0,max:1});
     for (const u of hit) {
@@ -2601,7 +2601,9 @@ const Board = (() => {
   // 通常戦との違い：反撃、兵種、隊長の号令、守備兵、増援、戦場ごとの勝利条件、危険範囲の表示。兵は穢れではないので、床をくすませず、ノアールも飲まない。
   const ENC = () => cfg && cfg.encounter;
   function markSoldier(u, spec = {}) {
-    u.soldier = true; u.artId = SOLDIER_ART[u.kind]; u.variant = { tint: { key: 'envoy', hue: 0, sat: 0.12, glow: 0.4, rgb: [70, 40, 110] } };
+    u.soldier = true;
+    u.artId = GameArt.available(u.kind) ? u.kind : SOLDIER_ART[u.kind];
+    u.variant = u.artId === u.kind ? null : { tint: { key: 'envoy', hue: 0, sat: 0.12, glow: 0.4, rgb: [70, 40, 110] } };
     if (u.kind === 's_heavy') u.hgt = 1.1;
     if (u.kind === 's_captain') { u.captain = true; u.hgt = 1.35; }
     if (spec.hold) u.hold = true;
@@ -3003,6 +3005,7 @@ const Board = (() => {
     const pd = unitXY(d);
     focus(pd.x, pd.y - tw * 0.4, 1.16);
     await skillBanner('吸収', '#1a1028');
+    playMotion(u, 'absorb', 1.4);
     if (typeof Renoir !== 'undefined') Renoir.gulp();
     Audio2.sfx.absorb();
     const result = NoirAbsorb.absorb(party.noir, d, cfg && cfg.id);

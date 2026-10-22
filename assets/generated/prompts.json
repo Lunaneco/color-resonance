@@ -285,47 +285,6 @@
     "file": "source/stone_child.png"
   },
   {
-    "id": "kaoru",
-    "name": "馨（カオル）",
-    "category": "npc",
-    "tool": "user-supplied reference sheet (cut out, not regenerated)",
-    "reference": "art-source/kaoru/reference.webp",
-    "file": "source/kaoru.png",
-    "subject": "Kaoru as drawn in the supplied tactics-style pixel-art sheet: messy black hair, navy hooded jacket over a gray tee, black trousers.",
-    "poses": "cel 1 idle / 2 breathing / 3-4 walk (mirrored) / 5-6 speaking (nod) / 7-8 greeting (raised hand) from the sheet's battle poses",
-    "processing": "flood-fill background removal, ground-shadow removal, one scale and baseline, Lanczos resize with light unsharp mask",
-    "sheetSha256": "820491ede7814b9eed968d5b71b0df4a963ab039e307e0f31bb923991354ba1f"
-  },
-  {
-    "id": "mari",
-    "name": "マリー",
-    "category": "npc",
-    "references": [
-      "assets/img/mari.png"
-    ],
-    "poses": "Eight poses: 1 perched neutral with folded wings; 2 sleepy half blink with folded wings; 3 left foot forward bird walking; 4 right foot forward bird walking; 5 open beak as if talking with one wing raised; 6 closed beak, gently lowered wing; 7 both wings spread in a cheerful greeting; 8 wings settle halfway. Same foot contact point. Preserve feather shapes and colors, do not make humanoid arms or hands.",
-    "subject": "Image 1 is the original Marie identity reference. Keep this SAME small golden-yellow migratory bird, large glossy dark eyes, charcoal short beak and feet, 3-point swept-back crest with one pale rainbow tip, gray-gold wing tops and pale translucent rainbow-tipped flight feathers. Keep the simple single fleur-de-lis chest mark without any text. Simplify feather microtexture into broad clean smooth feather shapes. No extra bird or reference-sheet fragments.",
-    "prompt": "Use case: identity-preserve. Asset type: layout repair of an eight-cell animation sprite sheet. Input is the current 1536x1024, 4 columns x 2 rows Marie sprite sheet. Keep the SAME golden bird identity, face, opaque crest, rainbow-tipped feathers, chest symbol, eight poses and transparent background. The wide wings in cell 7 currently cross its cell borders. REDRAW all eight birds at exactly 70% of their CURRENT common character scale, keeping the new scale IDENTICAL across all eight cells. Place each bird centered in its own exact 384x512 cell with the same lowest foot contact at local y=88%, including the wing-spread pose. Every single wing tip, crest and tail must be completely contained in its own cell with at least 30 pixels blank padding to the cell boundaries. Keep 4x2 equal cells at the original full canvas dimensions. No overlap, cropping, clipping, extra birds, background, grid or labels. Do not rescale each pose independently: use a single common scale for all eight.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
-    "rejected": [
-      {
-        "prompt": "Use case: illustration-story. Asset type: production-ready animation sprite sheet for the Japanese fantasy tactical game Color Resonance.\nOutput one image, canvas 1536 x 1024, exactly 4 columns x 2 rows of equally sized cells, eight sequential poses in row-major order. Every cell and the full backdrop have genuine transparent alpha, not a colored backdrop or checkerboard.\nStyle: clean illustrated anime tactical-game art, gently painted cel shading, readable silhouettes, restrained jewel colors, modest smooth highlights. Consistent 3/4-front view, one soft upper-left light. Full subject in every cell at the SAME scale, same design, same face, SAME camera, SAME baseline, same lighting. No camera changes or zoom between cells. Pose changes must be clearly different, but preserve identity and design.\nFor each cell, place the bottom contact at x=50%, y=88%. Allow 8% clear padding all sides and keep every appendage, long hair, tail, weapon and effect wholly inside its OWN cell. Exact evenly spaced mechanical grid, no frame borders, text, labels, numbers, captions, scenery, ground plane, UI or watermark. Do not draw checkerboard.\n\nSubject: Image 1 is the original Marie identity reference. Keep this SAME small golden-yellow migratory bird, large glossy dark eyes, charcoal short beak and feet, 3-point swept-back crest with one pale rainbow tip, gray-gold wing tops and pale translucent rainbow-tipped flight feathers. Keep the simple single fleur-de-lis chest mark without any text. Simplify feather microtexture into broad clean smooth feather shapes. No extra bird or reference-sheet fragments.\nEight poses: 1 perched neutral with folded wings; 2 sleepy half blink with folded wings; 3 left foot forward bird walking; 4 right foot forward bird walking; 5 open beak as if talking with one wing raised; 6 closed beak, gently lowered wing; 7 both wings spread in a cheerful greeting; 8 wings settle halfway. Same foot contact point. Preserve feather shapes and colors, do not make humanoid arms or hands.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
-        "file": "exec-765eae2a-decf-448a-9163-604b2a2406f8.png",
-        "reason": "翼を広げたコマが隣のセルに重なっていた"
-      }
-    ],
-    "previousAttempts": [
-      {
-        "reason": "翼・尾・盾の微小なはみ出しに余白を追加",
-        "file": "exec-b99bc429-4157-446f-a96f-76dd7f7d490e.png"
-      }
-    ],
-    "prompts": [
-      "Edit this game sprite sheet to fix its grid spacing and clipping. The current wide gestures extend into the following cell. Reconstruct and preserve all EIGHT complete poses, one pose per cell on an exact 4 columns by 2 rows grid on the SAME 1536x1024 transparent canvas (cells384x512). Uniformly reduce all eight poses to 50% of their current scale, including their arms, weapons, hair, smoke and magic. Keep the same character design, colors and pose order. Keep a consistent subject scale and foot anchor across the poses, centered at each cell's horizontal center. Entire silhouettes and every effect must fit completely inside their OWN cell with AT LEAST 30 pixels empty transparent padding on every side. Recreate any missing tips; remove all stray fragments spilled from neighbouring poses. No part of a figure or effect may cross a cell boundary. Do not simply shrink the entire sheet; rearrange complete poses into their own unchanged384x512 cells. No new background, floor, shadow plate, text, numbering, or grid lines. Background alpha zero; body/hair opaque.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。\nLAYOUT PRIORITY: Make each entire pose visibly much smaller with abundant negative space. Maximum artwork bounds within EACH cell: width260px, height350px. Each cell's sprite anchor is at (192,390) relative to its cell. Preserve the existing idle/blink/walk/walk/windup/attack/hurt/cast pose order. No leftover crescent, limb or weapon fragments from a neighboring pose.\nPreserve the exact creature, established markings and anatomy. The whale retains its town on its back; the golden beast retains its golden-lit LEFT chest wound; the yellow bird retains its chest emblem, feather crest and gray-gold wings with rainbow tips. All eight existing specific poses must remain, including the bird's fully open wings in cel7. No human redesign."
-    ],
-    "tool": "built-in imagegen",
-    "file": "source/mari.png"
-  },
-  {
     "id": "renoir",
     "name": "ルノワール",
     "category": "support",
@@ -6801,5 +6760,117 @@
         "pivotAlpha": 0
       }
     ]
+  },
+  {
+    "id": "cmd_marina",
+    "tool": "built-in imagegen",
+    "prompt": "Edit this Marina sprite sheet into a new EXACT 3-column by3-row equal grid, square1536x1536 TRANSPARENT canvas. Same blue haired human woman, spear, silver armour, lantern, cape, ink-covered tassels, same chibi identity and soft rendering. Nine full-body poses row-major:0 idle spear upright;1 samebody blink;2 walking left foot;3 walking right foot;4 spear windup held diagonally across OWN cell;5 compact spear thrust with foreshortening pointing right-up diagonal, the ENTIRE spear and its tip MUST fit inside this cell;6 recoil wounded, no extra spear from neighboring cell;7 spear raised commanding;8 calm relieved face with restored BLUE tassel and silver armour. Each cell512x512, same scale3-head proportions, feet baseline90%cell centered50%, no overlap or clippedweapons, generousclear8%margins. No text, grid, backdrop or ground. True alpha. Never let a spear enter another cell.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "reference": "docs/rainbow-guard.md",
+    "processing": "Whole alpha-component cel extraction; common scale and fixed foot contact; no repainting, pose warping or colour-key removal."
+  },
+  {
+    "id": "cmd_sion",
+    "tool": "built-in imagegen",
+    "prompt": "Use case: illustration-story, game sprite animation. ONE character only. Sion, slim young adult MAN, indigo long fringe covering one eye, hooded indigo cape, silver breastplate over leather armour, tall longbow and indigo tassel. Quiet tense face.\nCute polished Japanese fantasy RPG chibi, 3 heads tall, smooth soft opaque shading and clean shapes matching supplied Aria's style, not pixel art. This guard is compelled by a false royal decree: colored cape lining and tassels smeared with black ink, armour dull silver, eyes dim violet. Keep hair identity colour. Exact equal 4-column 2-row grid on a transparent 1536x1024 canvas. Eight poses in row-major order: 0 neutral; 1 neutral blinking, same body; 2 left-foot walk; 3 right-foot walk; 4,5,6,7 respectively: draw bow; loose an arrow to the right; flinch clutching shoulder; raise bow summoning dark fog. Camera front three-quarter, same scale/baseline local y90% and feet x50% across cells. All weapons/horses inside cell. Broad padding, no overlap, text, frames, ground, background, grid or particles obscuring body. True transparent background.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "reference": "docs/rainbow-guard.md",
+    "processing": "Whole alpha-component cel extraction; common scale and fixed foot contact; no repainting, pose warping or colour-key removal."
+  },
+  {
+    "id": "cmd_ocher",
+    "tool": "built-in imagegen",
+    "prompt": "Use case: illustration-story, game sprite animation. ONE character only. Ocher, broad stocky middle aged MAN, sandy short hair and stubble, kind eye wrinkles, heavy silver breastplate and gauntlets, enormous rectangular shield with yellow stones, stone mason's hammer.\nCute polished Japanese fantasy RPG chibi, 3 heads tall, smooth soft opaque shading and clean shapes matching supplied Aria's style, not pixel art. This guard is compelled by a false royal decree: colored cape lining and tassels smeared with black ink, armour dull silver, eyes dim violet. Keep hair identity colour. Exact equal 4-column 2-row grid on a transparent 1536x1024 canvas. Eight poses in row-major order: 0 neutral; 1 neutral blinking, same body; 2 left-foot walk; 3 right-foot walk; 4,5,6,7 respectively: brace shield; swing hammer right; crouch behind shield taking hit; plant shield and command. Camera front three-quarter, same scale/baseline local y90% and feet x50% across cells. All weapons/horses inside cell. Broad padding, no overlap, text, frames, ground, background, grid or particles obscuring body. True transparent background.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "reference": "docs/rainbow-guard.md",
+    "processing": "Whole alpha-component cel extraction; common scale and fixed foot contact; no repainting, pose warping or colour-key removal."
+  },
+  {
+    "id": "cmd_amber",
+    "tool": "built-in imagegen",
+    "prompt": "Use case: illustration-story, game sprite animation. ONE character only. Amber, sturdy adult WOMAN, orange curly hair wrapped in cloth, freckles, rolled sleeves, cooking apron under silver breastplate, two handed axe with orange tassel.\nCute polished Japanese fantasy RPG chibi, 3 heads tall, smooth soft opaque shading and clean shapes matching supplied Aria's style, not pixel art. This guard is compelled by a false royal decree: colored cape lining and tassels smeared with black ink, armour dull silver, eyes dim violet. Keep hair identity colour. Exact equal 4-column 2-row grid on a transparent 1536x1024 canvas. Eight poses in row-major order: 0 neutral; 1 neutral blinking, same body; 2 left-foot walk; 3 right-foot walk; 4,5,6,7 respectively: raise axe; chop axe right; recoil holding axe; raise axe commanding. Camera front three-quarter, same scale/baseline local y90% and feet x50% across cells. All weapons/horses inside cell. Broad padding, no overlap, text, frames, ground, background, grid or particles obscuring body. True transparent background.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "reference": "docs/rainbow-guard.md",
+    "processing": "Whole alpha-component cel extraction; common scale and fixed foot contact; no repainting, pose warping or colour-key removal."
+  },
+  {
+    "id": "cmd_viola",
+    "tool": "built-in imagegen",
+    "prompt": "Viola, tall slender adult WOMAN commander, black hair tinted purple tied in high ponytail, narrow calm anguished eyes, ornate silver armour, long purple lined cape, slim longsword with purple tassel. ONE character, Japanese fantasy chibi matching Aria rendering, 3-head proportions, clean smooth opaque shading. Silver armour blackened by false royal decree, coloured cloth/tassels mostly smeared with ink, dim violet eyes, hair retains identity colour. Exact 4x2 equal grid on1536x1024 TRANSPARENT canvas. Row-major cells:0 idle;1 blink;2 left-step;3 right-step;4,5,6,7: draw sword back; slash to right; recoil; raise sword giving command. Consistent scale, camera, baseline90%cell, feet centered50%. All weapons and silhouettes inside cell, ample padding. No text, grid, ground or backdrop.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "reference": "docs/rainbow-guard.md",
+    "processing": "Whole alpha-component cel extraction; common scale and fixed foot contact; no repainting, pose warping or colour-key removal."
+  },
+  {
+    "id": "cmd_carmine",
+    "tool": "built-in imagegen",
+    "prompt": "Carmine, young adult MAN with short spiky red hair and small fang, light silver breastplate, short red-lined cape, riding a small dark HORSE with red saddle, cavalry lance red tassel. Rider AND horse visible in every cell. ONE character, Japanese fantasy chibi matching Aria rendering, 3-head proportions, clean smooth opaque shading. Silver armour blackened by false royal decree, coloured cloth/tassels mostly smeared with ink, dim violet eyes, hair retains identity colour. Exact 4x2 equal grid on1536x1024 TRANSPARENT canvas. Row-major cells:0 idle;1 blink;2 left-step;3 right-step;4,5,6,7: horse rear gently as rider pulls lance back; mounted lance charge to right; horse recoil with rider; raise lance commanding. Consistent scale, camera, baseline90%cell, feet centered50%. All weapons and silhouettes inside cell, ample padding. No text, grid, ground or backdrop.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "reference": "docs/rainbow-guard.md",
+    "processing": "Whole alpha-component cel extraction; common scale and fixed foot contact; no repainting, pose warping or colour-key removal."
+  },
+  {
+    "id": "cmd_verde",
+    "tool": "built-in imagegen",
+    "prompt": "Verde, petite adult WOMAN with shoulder-length green bob, gardening apron under silver breastplate, dirty gloves, pruning scissors at waist, short bow green tassel, vines around quiver. ONE character, Japanese fantasy chibi matching Aria rendering, 3-head proportions, clean smooth opaque shading. Silver armour blackened by false royal decree, coloured cloth/tassels mostly smeared with ink, dim violet eyes, hair retains identity colour. Exact 4x2 equal grid on1536x1024 TRANSPARENT canvas. Row-major cells:0 idle;1 blink;2 left-step;3 right-step;4,5,6,7: draw bow; shoot arrow right; flinch; lift bow summoning a single broad vine. Consistent scale, camera, baseline90%cell, feet centered50%. All weapons and silhouettes inside cell, ample padding. No text, grid, ground or backdrop.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "reference": "docs/rainbow-guard.md",
+    "processing": "Whole alpha-component cel extraction; common scale and fixed foot contact; no repainting, pose warping or colour-key removal."
+  },
+  {
+    "id": "s_lance",
+    "tool": "built-in imagegen",
+    "prompt": "Use case: polished fantasy tactics game sprite animation, ONE HUMAN character (not cat, not elf, no animal ears). Smooth clean painted anime chibi, 3-head proportions, soft shading, plain opaque colours, simple readable uniform. NO reference to any existing heroine. Anonymous royal spear infantry MAN, simple grey silver breastplate and open face helmet, dark uniform, long spear, small plain shield. No named character colours. All eight poses SAME human identity/costume, exact4-column x2-row grid on transparent1536x1024 canvas. Poses row-major0 neutral;1 blink;2 left-step;3 right-step;4,5,6,7: pull spear back; spear thrust right; hit recoil; spear raised on guard. 3/4-front camera same scale, feet localcell50%,90%. Keep compact weapon poses DIAGONAL so every object is fully inside its own cell with8%padding. Real human soldier in allcells. No scene, floor, captions, grid or text.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "reference": "js/envoy.js",
+    "processing": "Whole alpha-component cel extraction; common scale and fixed foot contact; no repainting, pose warping or colour-key removal."
+  },
+  {
+    "id": "s_sword",
+    "tool": "built-in imagegen",
+    "prompt": "Use case: polished fantasy tactics game sprite animation, ONE HUMAN character (not cat, not elf, no animal ears). Smooth clean painted anime chibi, 3-head proportions, soft shading, plain opaque colours, simple readable uniform. NO reference to any existing heroine. Anonymous royal sword infantry WOMAN, simple grey silver breastplate and open face helmet, dark uniform, short sword and round shield. All eight poses SAME human identity/costume, exact4-column x2-row grid on transparent1536x1024 canvas. Poses row-major0 neutral;1 blink;2 left-step;3 right-step;4,5,6,7: pull sword back; slash right; hit recoil; shield raised on guard. 3/4-front camera same scale, feet localcell50%,90%. Keep compact weapon poses DIAGONAL so every object is fully inside its own cell with8%padding. Real human soldier in allcells. No scene, floor, captions, grid or text.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "reference": "js/envoy.js",
+    "processing": "Whole alpha-component cel extraction; common scale and fixed foot contact; no repainting, pose warping or colour-key removal."
+  },
+  {
+    "id": "s_bow",
+    "tool": "built-in imagegen",
+    "prompt": "Use case: polished fantasy tactics game sprite animation, ONE HUMAN character (not cat, not elf, no animal ears). Smooth clean painted anime chibi, 3-head proportions, soft shading, plain opaque colours, simple readable uniform. NO reference to any existing heroine. Anonymous royal archer MAN, leather tunic and dull silver chestplate, hood and quiver, short bow, dark grey uniform. All eight poses SAME human identity/costume, exact4-column x2-row grid on transparent1536x1024 canvas. Poses row-major0 neutral;1 blink;2 left-step;3 right-step;4,5,6,7: draw bow; shoot arrow right; hit recoil; watchful bow raised. 3/4-front camera same scale, feet localcell50%,90%. Keep compact weapon poses DIAGONAL so every object is fully inside its own cell with8%padding. Real human soldier in allcells. No scene, floor, captions, grid or text.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "reference": "js/envoy.js",
+    "processing": "Whole alpha-component cel extraction; common scale and fixed foot contact; no repainting, pose warping or colour-key removal."
+  },
+  {
+    "id": "s_heavy",
+    "tool": "built-in imagegen",
+    "prompt": "ONE HUMAN royal soldier, polished fantasy tactical RPG chibi, smooth painted shapes, dark hair and human ears, simple readable uniform. Anonymous royal heavy infantry MAN, bulky enclosed silver armour and dark uniform, broad axe, square shield, visible face visor. All eight poses SAME human identity/costume, exact4-column x2-row grid on transparent1536x1024 canvas. Poses row-major0 neutral;1 blink;2 left-step;3 right-step;4,5,6,7: raise axe; axe chop right; stagger behind shield; brace shield. 3/4-front camera same scale, feet localcell50%,90%. Keep compact weapon poses DIAGONAL so every object is fully inside its own cell with8%padding. Real human soldier in allcells. No scene, floor, captions, grid or text.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "reference": "js/envoy.js",
+    "processing": "Whole alpha-component cel extraction; common scale and fixed foot contact; no repainting, pose warping or colour-key removal."
+  },
+  {
+    "id": "s_cavalry",
+    "tool": "built-in imagegen",
+    "prompt": "ONE HUMAN royal soldier, polished fantasy tactical RPG chibi, smooth painted shapes, dark hair and human ears, simple readable uniform. Anonymous royal cavalry WOMAN on small dark horse, simple silver breastplate and helmet, dark uniform, short cavalry spear, horse and rider fully contained every cell. All eight poses SAME human identity/costume, exact4-column x2-row grid on transparent1536x1024 canvas. Poses row-major0 neutral;1 blink;2 left-step;3 right-step;4,5,6,7: pull lance back; mounted lance charge right; horse and rider recoil; raise lance. 3/4-front camera same scale, feet localcell50%,90%. Keep compact weapon poses DIAGONAL so every object is fully inside its own cell with8%padding. Real human soldier in allcells. No scene, floor, captions, grid or text.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。 CRITICAL: the rider is RIDING a small dark HORSE in EVERY cell; horse body, four legs, head and saddle must be fully visible. Never depict the rider standing alone.",
+    "reference": "js/envoy.js",
+    "processing": "Whole alpha-component cel extraction; common scale and fixed foot contact; no repainting, pose warping or colour-key removal."
+  },
+  {
+    "id": "s_captain",
+    "tool": "built-in imagegen",
+    "prompt": "ONE HUMAN royal soldier, polished fantasy tactical RPG chibi, smooth painted shapes, dark hair and human ears, simple readable uniform. Anonymous royal field captain MAN, silver breastplate and crested open face helmet, charcoal cloak, longsword and kite shield, no individual rainbow colour. All eight poses SAME human identity/costume, exact4-column x2-row grid on transparent1536x1024 canvas. Poses row-major0 neutral;1 blink;2 left-step;3 right-step;4,5,6,7: pull sword back; sword slash right; hit recoil; sword lifted giving command. 3/4-front camera same scale, feet localcell50%,90%. Keep compact weapon poses DIAGONAL so every object is fully inside its own cell with8%padding. Real human soldier in allcells. No scene, floor, captions, grid or text.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "reference": "js/envoy.js",
+    "processing": "Whole alpha-component cel extraction; common scale and fixed foot contact; no repainting, pose warping or colour-key removal."
+  },
+  {
+    "id": "kaoru",
+    "tool": "built-in imagegen",
+    "prompt": "Use case: identity-preserve game animation cel sheet. Image 1 is Kaoru's exact identity and costume; image 2 is the chibi game rendering style. Depict Kaoru as a 3-head tall chibi young adult MAN with messy opaque BLACK hair, GREY eyes, open dark navy hoodie, plain WHITE T-shirt, dark trousers, black low shoes. No fantasy armour, ornaments, weapons or costume changes. Gentle reserved serious face. Exact 4-column by 3-row equal-cell sprite sheet, transparent canvas 1536x1536. Twelve poses row-major: 0 relaxed standing hands by sides; 1 same pose eyes blink closed; 2 walking left leg forward; 3 walking right leg forward; 4 raise right hand, gathering a small dark grey tear of space; 5 reach right hand forward releasing one dark crescent, no weapon; 6 recoil wounded one hand on chest; 7 both hands raised conjuring dark seam above; 8 speaking mouth slightly open one hand on chest; 9 speaking mouth open palm offered; 10 gentle greeting one hand lifted; 11 exhausted but peaceful standing. All are the SAME identity and clothing, front three-quarter camera, scale and baseline local cell y=90%, feet centered x50%, full body contained, at least8% blank margins. Soft smooth chibi illustration like image2, NOT pixel art. Clearly distinct hands/face/poses. No background, shadow plate, grid, captions, symbols or text. True transparent alpha.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "reference": "art-source/cast-20261022/kaoru-reference.jpeg",
+    "processing": "Whole alpha-component cel extraction; common scale and fixed foot contact; no repainting, pose warping or colour-key removal."
+  },
+  {
+    "id": "cocoon",
+    "tool": "built-in imagegen",
+    "prompt": "Use case: fantasy game monster sprite animation, ONE creature eight poses. A closed dark cocoon containing an UNKNOWN bird: soft oval woven from broad ink-black feathers and smoky dark ribbons, NO human face and NO recognizable yellow bird visible, no eye. A faint warm gold crack can glimmer deep inside. Polished cute yet sorrowful Japanese RPG rendering, clean smooth shapes, minimal texture. Eight equal cells in exact4 columns x2rows transparent1536x1024 sheet. Row-major:0 intact cocoon quietly hovering;1 same cocoon slightly compressed with faint inner glow;2 cocoon tilt left;3 tilt right;4 ribbons wind up;5 two broad black feather ribbons lash to right;6 shell recoils with one bright crack;7 a few black ribbons open at top with muffled gold glow but bird still hidden. Same design/camera/scale, anchor bottom90%cell center50%, generous clear margins. No terrain, backdrop, ground, labels, frames or text. True transparent alpha. Match the soft rendering of supplied reference without copying the girl.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "reference": "js/mari-return.js",
+    "processing": "Whole alpha-component cel extraction; common scale and fixed foot contact; no repainting, pose warping or colour-key removal."
+  },
+  {
+    "id": "mari",
+    "tool": "built-in imagegen",
+    "prompt": "Use case: identity-preserve animation sprite sheet for a fantasy RPG. One character: Marii, the SAME small golden-yellow bird from reference, black beak, large dark round eyes, golden crest with smooth rainbow feather tips, rainbow wing and tail tips, tiny gold heart mark on chest, dark feet. NOT human or humanoid. Exact4-columns x3-rows12 equalcells, square1536x1536 transparent canvas. Fullbird same scale/camera/footbaseline90%cellcenter50%. Row-major0 perched neutral;1 neutral blink;2 walk leftfoot;3 walk rightfoot;4 lean forward wings back preparing strike;5 short forward wing-strike right with focused face;6 recoil hurt wings tucked head bowed eyes squeezed;7 wings spread upwards healing prayer, small smooth light;8 chirp mouth halfopen;9 chirp beak open;10 one wing raised warm greeting;11 both wings open happy. Distinct real expression/wing/head/foot cels, fixed identity, no wholeimage stretching or transformation. Clean soft painted chibi like reference, minimal texture. True transparent alpha, eachbirdentirelyinsideowncell, generousclearspace. No backdrop, scenery, text, grid or ground.\n髪は全て透過せず、下位レイヤーを描写しない\n髪の不透明度は100％とする\nintricate textures（複雑な質感）の要素は抑えめにし、過剰な微細描写、エッジノイズ、粒状のきらめき、鱗状の模様、等間隔に繰り返す細かな波打ちを避け、全体になめらかで清潔感のある質感を強調してください。",
+    "reference": "art-source/cast-20261022/mari-reference.png",
+    "processing": "Whole alpha-component cel extraction; common scale and fixed foot contact; no repainting, pose warping or colour-key removal."
   }
 ]

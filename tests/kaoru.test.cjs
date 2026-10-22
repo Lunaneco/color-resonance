@@ -38,15 +38,17 @@ test('Kaoru stays in Terra Cotta during the restoration, and the restoration tra
   // 差し込み位置は、マリーの救出が使う
   assert(s.restore4.includes('記録院の扉は、十六年前の夜から、一度も開いていなかった。'));assert(s.restore3.includes('@next restore4'));
 });
-test('Kaoru is drawn from the supplied pixel-art sheet, kept on the standard cel grid with real transparency',async()=>{
+test('Kaoru preserves the supplied hoodie identity and has real dialogue and final-battle cels',async()=>{
   const m=JSON.parse(await fs.readFile(path.join(root,'assets/generated/manifest.json'),'utf8')),a=m.assets.find(x=>x.id==='kaoru');
-  assert(a.pixelArt);assert.equal(a.reference,'art-source/kaoru/reference.webp');assert.deepEqual(a.grid.cellSize,[288,384]);assert.equal(a.frames.length,8);
-  for(const k of ['idle','walk','talk','greet'])assert(a.animations[k].gif,k+' keeps its animation');
+  assert.equal(a.reference,'art-source/cast-20261022/kaoru-reference.jpeg');assert.equal(a.grid.columns,4);assert.equal(a.grid.rows,3);assert.equal(a.frames.length,12);
+  for(const k of ['idle','walk','talk','greet','attack','hurt','cast'])assert(a.animations[k].gif,k+' keeps its animation');
   await fs.access(path.join(root,a.reference));
-  const sheet=await fs.readFile(path.join(root,'assets/generated',a.sheet));assert.equal(sheet.readUInt32BE(16),1152);assert.equal(sheet.readUInt32BE(20),768);
+  const sheet=await fs.readFile(path.join(root,'assets/generated',a.sheet));assert.equal(sheet.readUInt32BE(16),a.grid.cellSize[0]*4);assert.equal(sheet.readUInt32BE(20),a.grid.cellSize[1]*3);
+  assert.notDeepEqual(a.animations.talk.sequence,a.animations.attack.sequence);
+  assert.notDeepEqual(await fs.readFile(path.join(root,'assets/generated',a.frames[4])),await fs.readFile(path.join(root,'assets/generated',a.frames[5])));
   const rec=JSON.parse(await fs.readFile(path.join(root,'assets/generated/prompts.json'),'utf8')).find(r=>r.id==='kaoru');
-  assert.match(rec.tool,/user-supplied/);assert.match(rec.processing,/no|flood-fill/i);
-  const q=JSON.parse(await fs.readFile(path.join(root,'assets/generated/quality-report.json'),'utf8')).alpha.find(r=>r.id==='kaoru');assert.equal(q.alphaRange[0],0);assert(q.alphaRange[1]>=250);
+  assert.match(rec.tool,/imagegen/);assert.match(rec.prompt,/GREY eyes/);
+  const q=JSON.parse(await fs.readFile(path.join(root,'assets/generated/quality-report.json'),'utf8')).alpha.find(r=>r.id==='kaoru');assert.deepEqual(q.alphaRange,[0,255]);
 });
 
 // ---------- 画面 ----------

@@ -1,6 +1,6 @@
 // 復興の苗床に届いた羽音から、闇に取り込まれたマリーを探す。
 const MariReturn = (() => {
-  const p={id:'cocoon',name:'闇の繭',art:'shade',chapter:'mari_return',act:'復興本編・マリーの帰還',town:'nowhere',place:'クリスタリアの苗床',lv:22,
+  const p={id:'cocoon',name:'闇の繭',art:'cocoon',chapter:'mari_return',act:'復興本編・マリーの帰還',town:'nowhere',place:'クリスタリアの苗床',lv:22,
     pathId:'gp_cocoon',bossId:'mr_cocoon',colour:'#d8c6ed',material:'m_violet',pattern:'cocoon',effect:'sp',
     counter:'羽音を閉じ込めた黒い繭。予告の輪を虹に戻すと、傷と共鳴の流出を防げる。二人の浄化で道をつなごう。',
     skills:['声を閉じる輪','帰路をほどく輪','残された夜の輪'],
@@ -22,7 +22,7 @@ const MariReturn = (() => {
     intro:{who:'戦場の声',text:'<b>黒い鳥</b> ……かえるな……だれも……まって、ない……<br><b>グラン</b> 何だ、この声は。……聞いたことのない声だ。<small>穢れHPの2/3・1/3で会話と輪の予告が変化。予告床を虹にして、共鳴を守ろう。</small>'}};
   GUARDIANS.push(p);for(const c of [path,boss]){BOARDS[c.id]=c;GUARDIAN_STAGES[c.id]=c;RESTORATION_STAGES[c.id]=c;}
   SPEAKERS['闇の繭']=p.colour;SPEAKERS['黒い鳥']='#5d5866';
-  if (typeof GameArt !== 'undefined') GameArt.speakers['黒い鳥']='mari';
+  if (typeof GameArt !== 'undefined') GameArt.speakers['黒い鳥']='cocoon';
   const rescue=`
 @bg restoration dawn
 @bgm fate

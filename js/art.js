@@ -4,7 +4,8 @@ const GameArt = (() => {
   const assets = new Map(), cache = new Map(), mounts = new WeakMap();
   const spiritEffects = { gran: 'gran_tide', ivy: 'ivy_vines', spinel: 'spinel_shield', king: 'king_prism', vard: 'crystal_slash', mari:'pray_heal' };
   const speakers = { アリア: 'aria', リラ: 'lila', 老漁師: 'fisher', ルミナ: 'lumina', 石の子: 'stone_child', 馨: 'kaoru', マリー: 'mari', グラン: 'gran', アイビー: 'ivy', スピネル: 'spinel', パレット王: 'king', クロム: 'chrome', ノアール: 'renoir', ノア: 'renoir', アクロマ: 'achroma', ヴァルド: 'vard', 紅角のヴァルド: 'vard' };
-  const ready = fetch(ROOT + 'manifest.json?v=20261011-aria4', { signal: AbortSignal.timeout(8000) })
+  Object.assign(speakers, {マリナ:'cmd_marina',シオン:'cmd_sion',オーカー:'cmd_ocher',アンバー:'cmd_amber',ヴィオラ:'cmd_viola',カーマイン:'cmd_carmine',ヴェルデ:'cmd_verde','闇の繭':'cocoon','黒い鳥':'cocoon'});
+  const ready = fetch(ROOT + 'manifest.json?v=20261022-cast1', { signal: AbortSignal.timeout(8000) })
     .then(r => { if (!r.ok) throw new Error('art manifest'); return r.json(); })
     .then(m => m.assets.forEach(a => assets.set(a.id, a))).catch(() => {});
 
@@ -39,7 +40,7 @@ const GameArt = (() => {
           resolve(entry.image);
         };
         const timer = setTimeout(() => finish(false), 8000);
-        im.onload = () => finish(true); im.onerror = () => finish(false); im.src = ROOT + a.sheet + '?v=20261011-aria4';
+        im.onload = () => finish(true); im.onerror = () => finish(false); im.src = ROOT + a.sheet + '?v=20261022-cast1';
       });
       cache.set(id, entry); return entry.promise;
     }));
@@ -139,7 +140,7 @@ const GameArt = (() => {
     const regional = region ? ['shade', 'thorn', 'lead', 'membrane'].map(k => region + '_' + k) : [];
     return load(['aria', 'aria_d0', 'aria_d1', 'aria_d2', 'aria_d3', 'renoir', ...(conf.enemies || []).map(e => e.kind), conf.bossArt, ...(conf.companion ? ['chrome_human'] : []), ...spirits,
       'crystal_slash', 'pray_heal', 'night_sky', ...(conf.guardian ? Object.values(spiritEffects) : []), ...[...spirits, ...learnedSpirits].map(id => spiritEffects[id]),
-      ...((conf.enemies || []).some(e => e.kind === 'chrome') || conf.guardian === 'kaoru' ? ['chrome_wave'] : []), ...(conf.encounter ? ['lead', 'shade', 'thorn', 'membrane', 'boss', 'fisher'] : []), ...((conf.encounter && conf.encounter.camps && conf.encounter.camps.commanders) || []).map(m => 'cmd_' + m.id), ...regional]);
+      ...((conf.enemies || []).some(e => e.kind === 'chrome') || conf.guardian === 'kaoru' ? ['chrome_wave'] : []), ...(conf.encounter ? ['s_lance', 's_sword', 's_bow', 's_heavy', 's_cavalry', 's_captain', 'lead', 'shade', 'thorn', 'membrane', 'boss', 'fisher'] : []), ...((conf.encounter && conf.encounter.camps && conf.encounter.camps.commanders) || []).map(m => 'cmd_' + m.id), ...regional]);
   }
   const portrait = (id, cls = '') => `<img class="art-portrait ${cls}" src="${ROOT}frames/${id}/000.png" alt="" loading="lazy">`;
   return { ready, load, loadBattle, available, animation, sample, draw, drawMotion, mount, unmount, portrait, spiritEffects, speakers };

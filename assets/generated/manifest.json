@@ -2,11 +2,11 @@
   "version": 1,
   "title": "Color Resonance ゲーム素材",
   "counts": {
-    "characters": 30,
+    "characters": 73,
     "effects": 37,
-    "sourceSheets": 67,
-    "pngCels": 562,
-    "gifs": 157
+    "sourceSheets": 110,
+    "pngCels": 985,
+    "gifs": 211
   },
   "production": {
     "generator": "built-in imagegen",
@@ -175,6 +175,12 @@
           "gifRepeatsForPreview": true,
           "gifAlphaThreshold": 96
         }
+      },
+      "displayBounds": {
+        "l": 60,
+        "t": 92,
+        "r": 256,
+        "b": 325
       }
     },
     {
@@ -325,6 +331,12 @@
           "gifRepeatsForPreview": true,
           "gifAlphaThreshold": 96
         }
+      },
+      "displayBounds": {
+        "l": 56,
+        "t": 85,
+        "r": 287,
+        "b": 372
       }
     },
     {
@@ -476,6 +488,12 @@
           "gifRepeatsForPreview": true,
           "gifAlphaThreshold": 96
         }
+      },
+      "displayBounds": {
+        "l": 10,
+        "t": 55,
+        "r": 285,
+        "b": 350
       }
     },
     {
@@ -629,6 +647,12 @@
           "gifRepeatsForPreview": true,
           "gifAlphaThreshold": 96
         }
+      },
+      "displayBounds": {
+        "l": 40,
+        "t": 86,
+        "r": 269,
+        "b": 338
       }
     },
     {
@@ -779,6 +803,12 @@
           "gifRepeatsForPreview": true,
           "gifAlphaThreshold": 96
         }
+      },
+      "displayBounds": {
+        "l": 45,
+        "t": 80,
+        "r": 266,
+        "b": 338
       }
     },
     {
@@ -1005,6 +1035,12 @@
           "gifRepeatsForPreview": true,
           "gifAlphaThreshold": 96
         }
+      },
+      "displayBounds": {
+        "l": 29,
+        "t": 71,
+        "r": 282,
+        "b": 366
       }
     },
     {
@@ -1764,6 +1800,12 @@
           "gifRepeatsForPreview": true,
           "gifAlphaThreshold": 96
         }
+      },
+      "displayBounds": {
+        "l": 35,
+        "t": 68,
+        "r": 261,
+        "b": 366
       }
     },
     {
@@ -1993,6 +2035,12 @@
           "gifRepeatsForPreview": true,
           "gifAlphaThreshold": 96
         }
+      },
+      "displayBounds": {
+        "l": 28,
+        "t": 82,
+        "r": 271,
+        "b": 290
       }
     },
     {
@@ -2221,6 +2269,12 @@
           "gifRepeatsForPreview": true,
           "gifAlphaThreshold": 96
         }
+      },
+      "displayBounds": {
+        "l": 38,
+        "t": 73,
+        "r": 267,
+        "b": 339
       }
     },
     {
@@ -2448,6 +2502,12 @@
           "gifRepeatsForPreview": true,
           "gifAlphaThreshold": 96
         }
+      },
+      "displayBounds": {
+        "l": 42,
+        "t": 76,
+        "r": 251,
+        "b": 327
       }
     },
     {
@@ -2674,6 +2734,12 @@
           "gifRepeatsForPreview": true,
           "gifAlphaThreshold": 96
         }
+      },
+      "displayBounds": {
+        "l": 34,
+        "t": 77,
+        "r": 270,
+        "b": 360
       }
     },
     {
@@ -2805,6 +2871,12 @@
           "gifRepeatsForPreview": true,
           "gifAlphaThreshold": 96
         }
+      },
+      "displayBounds": {
+        "l": 59,
+        "t": 15,
+        "r": 245,
+        "b": 373
       }
     },
     {
@@ -2936,6 +3008,12 @@
           "gifRepeatsForPreview": true,
           "gifAlphaThreshold": 96
         }
+      },
+      "displayBounds": {
+        "l": 42,
+        "t": 13,
+        "r": 272,
+        "b": 353
       }
     },
     {
@@ -3068,6 +3146,12 @@
           "gifRepeatsForPreview": true,
           "gifAlphaThreshold": 96
         }
+      },
+      "displayBounds": {
+        "l": 20,
+        "t": 3,
+        "r": 272,
+        "b": 355
       }
     },
     {
@@ -3200,349 +3284,12 @@
           "gifRepeatsForPreview": true,
           "gifAlphaThreshold": 96
         }
-      }
-    },
-    {
-      "id": "kaoru",
-      "name": "馨（カオル）",
-      "category": "npc",
-      "source": "source/kaoru.png",
-      "sheet": "sheets/kaoru.png",
-      "frames": [
-        "frames/kaoru/000.png",
-        "frames/kaoru/001.png",
-        "frames/kaoru/002.png",
-        "frames/kaoru/003.png",
-        "frames/kaoru/004.png",
-        "frames/kaoru/005.png",
-        "frames/kaoru/006.png",
-        "frames/kaoru/007.png"
-      ],
-      "grid": {
-        "columns": 4,
-        "rows": 2,
-        "cellSize": [
-          288,
-          384
-        ],
-        "order": "row-major"
       },
-      "scenes": [
-        "act2",
-        "epilogue"
-      ],
-      "animations": {
-        "idle": {
-          "name": "待機",
-          "sequence": [
-            0,
-            1,
-            0
-          ],
-          "durationsMs": [
-            1100,
-            160,
-            900
-          ],
-          "loop": true,
-          "gif": "gifs/kaoru/idle.gif",
-          "size": [
-            288,
-            384
-          ],
-          "gifFrameCount": 3,
-          "durationMs": 2160,
-          "gifRepeatsForPreview": true,
-          "gifAlphaThreshold": 96
-        },
-        "walk": {
-          "name": "移動",
-          "sequence": [
-            2,
-            0,
-            3,
-            0
-          ],
-          "durationsMs": [
-            150,
-            100,
-            150,
-            100
-          ],
-          "loop": true,
-          "gif": "gifs/kaoru/walk.gif",
-          "size": [
-            288,
-            384
-          ],
-          "gifFrameCount": 4,
-          "durationMs": 500,
-          "gifRepeatsForPreview": true,
-          "gifAlphaThreshold": 96
-        },
-        "talk": {
-          "name": "会話",
-          "sequence": [
-            4,
-            5,
-            4,
-            5,
-            0
-          ],
-          "durationsMs": [
-            220,
-            140,
-            180,
-            140,
-            700
-          ],
-          "loop": true,
-          "gif": "gifs/kaoru/talk.gif",
-          "size": [
-            288,
-            384
-          ],
-          "gifFrameCount": 5,
-          "durationMs": 1380,
-          "gifRepeatsForPreview": true,
-          "gifAlphaThreshold": 96
-        },
-        "greet": {
-          "name": "挨拶",
-          "sequence": [
-            0,
-            6,
-            7,
-            0
-          ],
-          "durationsMs": [
-            280,
-            350,
-            300,
-            600
-          ],
-          "loop": false,
-          "gif": "gifs/kaoru/greet.gif",
-          "size": [
-            288,
-            384
-          ],
-          "gifFrameCount": 4,
-          "durationMs": 1530,
-          "gifRepeatsForPreview": true,
-          "gifAlphaThreshold": 96
-        }
-      },
-      "pixelArt": true,
-      "reference": "art-source/kaoru/reference.webp"
-    },
-    {
-      "id": "mari",
-      "name": "マリー",
-      "category": "npc",
-      "source": "source/mari.png",
-      "sheet": "sheets/mari.png",
-      "frames": [
-        "frames/mari/000.png",
-        "frames/mari/001.png",
-        "frames/mari/002.png",
-        "frames/mari/003.png",
-        "frames/mari/004.png",
-        "frames/mari/005.png",
-        "frames/mari/006.png",
-        "frames/mari/007.png"
-      ],
-      "grid": {
-        "columns": 4,
-        "rows": 2,
-        "cellSize": [
-          288,
-          384
-        ],
-        "order": "row-major"
-      },
-      "scenes": [
-        "act1",
-        "act2"
-      ],
-      "animations": {
-        "idle": {
-          "name": "待機",
-          "sequence": [
-            0,
-            1,
-            0
-          ],
-          "durationsMs": [
-            1100,
-            160,
-            900
-          ],
-          "loop": true,
-          "gif": "gifs/mari/idle.gif",
-          "size": [
-            288,
-            384
-          ],
-          "gifFrameCount": 3,
-          "durationMs": 2160,
-          "gifRepeatsForPreview": true,
-          "gifAlphaThreshold": 96
-        },
-        "walk": {
-          "name": "移動",
-          "sequence": [
-            2,
-            0,
-            3,
-            0
-          ],
-          "durationsMs": [
-            150,
-            100,
-            150,
-            100
-          ],
-          "loop": true,
-          "gif": "gifs/mari/walk.gif",
-          "size": [
-            288,
-            384
-          ],
-          "gifFrameCount": 4,
-          "durationMs": 500,
-          "gifRepeatsForPreview": true,
-          "gifAlphaThreshold": 96
-        },
-        "talk": {
-          "name": "会話",
-          "sequence": [
-            4,
-            5,
-            4,
-            5,
-            0
-          ],
-          "durationsMs": [
-            220,
-            140,
-            180,
-            140,
-            700
-          ],
-          "loop": true,
-          "gif": "gifs/mari/talk.gif",
-          "size": [
-            288,
-            384
-          ],
-          "gifFrameCount": 5,
-          "durationMs": 1380,
-          "gifRepeatsForPreview": true,
-          "gifAlphaThreshold": 96
-        },
-        "greet": {
-          "name": "挨拶",
-          "sequence": [
-            0,
-            6,
-            7,
-            0
-          ],
-          "durationsMs": [
-            280,
-            350,
-            300,
-            600
-          ],
-          "loop": false,
-          "gif": "gifs/mari/greet.gif",
-          "size": [
-            288,
-            384
-          ],
-          "gifFrameCount": 4,
-          "durationMs": 1530,
-          "gifRepeatsForPreview": true,
-          "gifAlphaThreshold": 96
-        },
-        "attack": {
-          "name": "風切りの羽",
-          "sequence": [
-            0,
-            6,
-            7,
-            0
-          ],
-          "durationsMs": [
-            280,
-            350,
-            300,
-            600
-          ],
-          "loop": false,
-          "gif": "gifs/mari/greet.gif",
-          "size": [
-            288,
-            384
-          ],
-          "gifFrameCount": 4,
-          "durationMs": 1530,
-          "gifRepeatsForPreview": true,
-          "gifAlphaThreshold": 96
-        },
-        "summon": {
-          "name": "帰り道の羽音",
-          "sequence": [
-            0,
-            6,
-            7,
-            0
-          ],
-          "durationsMs": [
-            280,
-            350,
-            300,
-            600
-          ],
-          "loop": false,
-          "gif": "gifs/mari/greet.gif",
-          "size": [
-            288,
-            384
-          ],
-          "gifFrameCount": 4,
-          "durationMs": 1530,
-          "gifRepeatsForPreview": true,
-          "gifAlphaThreshold": 96
-        },
-        "hurt": {
-          "name": "被弾",
-          "sequence": [
-            4,
-            5,
-            4,
-            5,
-            0
-          ],
-          "durationsMs": [
-            220,
-            140,
-            180,
-            140,
-            700
-          ],
-          "loop": false,
-          "gif": "gifs/mari/talk.gif",
-          "size": [
-            288,
-            384
-          ],
-          "gifFrameCount": 5,
-          "durationMs": 1380,
-          "gifRepeatsForPreview": true,
-          "gifAlphaThreshold": 96
-        }
+      "displayBounds": {
+        "l": 36,
+        "t": 66,
+        "r": 241,
+        "b": 335
       }
     },
     {
@@ -3750,7 +3497,61 @@
           "durationMs": 2140,
           "gifRepeatsForPreview": true,
           "gifAlphaThreshold": 96
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            2,
+            4,
+            0
+          ],
+          "durationsMs": [
+            260,
+            180,
+            220,
+            500
+          ],
+          "loop": false,
+          "gif": "gifs/renoir/attack.gif",
+          "size": [
+            288,
+            384
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 1160,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "hurt": {
+          "name": "被ダメージ",
+          "sequence": [
+            0,
+            5,
+            0
+          ],
+          "durationsMs": [
+            100,
+            180,
+            400
+          ],
+          "loop": false,
+          "gif": "gifs/renoir/hurt.gif",
+          "size": [
+            288,
+            384
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 680,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
         }
+      },
+      "displayBounds": {
+        "l": 15,
+        "t": 56,
+        "r": 278,
+        "b": 354
       }
     },
     {
@@ -8267,6 +8068,12 @@
           "loop": false,
           "durationMs": 1300
         }
+      },
+      "displayBounds": {
+        "l": 8,
+        "t": 0,
+        "r": 597,
+        "b": 632
       }
     },
     {
@@ -8383,6 +8190,12 @@
           "loop": false,
           "durationMs": 1300
         }
+      },
+      "displayBounds": {
+        "l": 43,
+        "t": 0,
+        "r": 503,
+        "b": 768
       }
     },
     {
@@ -8477,6 +8290,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 0,
+        "t": 22,
+        "r": 411,
+        "b": 433
       }
     },
     {
@@ -8571,6 +8390,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 0,
+        "t": 21,
+        "r": 411,
+        "b": 413
       }
     },
     {
@@ -8665,6 +8490,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 35,
+        "t": 8,
+        "r": 374,
+        "b": 418
       }
     },
     {
@@ -8759,6 +8590,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 27,
+        "t": 9,
+        "r": 414,
+        "b": 427
       }
     },
     {
@@ -8853,6 +8690,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 56,
+        "t": 19,
+        "r": 414,
+        "b": 512
       }
     },
     {
@@ -8947,6 +8790,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 23,
+        "t": 13,
+        "r": 460,
+        "b": 512
       }
     },
     {
@@ -9041,6 +8890,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 32,
+        "t": 14,
+        "r": 417,
+        "b": 506
       }
     },
     {
@@ -9135,6 +8990,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 48,
+        "t": 0,
+        "r": 505,
+        "b": 499
       }
     },
     {
@@ -9229,6 +9090,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 77,
+        "t": 0,
+        "r": 416,
+        "b": 497
       }
     },
     {
@@ -9323,6 +9190,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 26,
+        "t": 22,
+        "r": 483,
+        "b": 486
       }
     },
     {
@@ -9434,6 +9307,12 @@
           "durationMs": 1040,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 4,
+        "t": 26,
+        "r": 512,
+        "b": 479
       }
     },
     {
@@ -9528,6 +9407,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 140,
+        "t": 28,
+        "r": 372,
+        "b": 476
       }
     },
     {
@@ -9622,6 +9507,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 79,
+        "t": 28,
+        "r": 432,
+        "b": 476
       }
     },
     {
@@ -9716,6 +9607,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 36,
+        "t": 56,
+        "r": 476,
+        "b": 476
       }
     },
     {
@@ -9810,6 +9707,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 71,
+        "t": 28,
+        "r": 441,
+        "b": 476
       }
     },
     {
@@ -9904,6 +9807,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 105,
+        "t": 28,
+        "r": 407,
+        "b": 476
       }
     },
     {
@@ -9998,6 +9907,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 146,
+        "t": 28,
+        "r": 366,
+        "b": 476
       }
     },
     {
@@ -10092,6 +10007,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 36,
+        "t": 40,
+        "r": 476,
+        "b": 476
       }
     },
     {
@@ -10186,6 +10107,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 92,
+        "t": 28,
+        "r": 419,
+        "b": 476
       }
     },
     {
@@ -10280,6 +10207,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 101,
+        "t": 28,
+        "r": 411,
+        "b": 476
       }
     },
     {
@@ -10374,6 +10307,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 86,
+        "t": 28,
+        "r": 426,
+        "b": 476
       }
     },
     {
@@ -10468,6 +10407,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 36,
+        "t": 42,
+        "r": 476,
+        "b": 476
       }
     },
     {
@@ -10562,6 +10507,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 84,
+        "t": 28,
+        "r": 427,
+        "b": 476
       }
     },
     {
@@ -10656,6 +10607,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 114,
+        "t": 28,
+        "r": 397,
+        "b": 476
       }
     },
     {
@@ -10750,6 +10707,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 142,
+        "t": 28,
+        "r": 370,
+        "b": 476
       }
     },
     {
@@ -10844,6 +10807,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 37,
+        "t": 28,
+        "r": 475,
+        "b": 476
       }
     },
     {
@@ -10938,6 +10907,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 94,
+        "t": 28,
+        "r": 418,
+        "b": 476
       }
     },
     {
@@ -11032,6 +11007,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 103,
+        "t": 28,
+        "r": 408,
+        "b": 476
       }
     },
     {
@@ -11126,6 +11107,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 144,
+        "t": 28,
+        "r": 367,
+        "b": 476
       }
     },
     {
@@ -11220,6 +11207,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 36,
+        "t": 35,
+        "r": 476,
+        "b": 476
       }
     },
     {
@@ -11314,6 +11307,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 102,
+        "t": 28,
+        "r": 410,
+        "b": 476
       }
     },
     {
@@ -11408,6 +11407,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 98,
+        "t": 28,
+        "r": 413,
+        "b": 476
       }
     },
     {
@@ -11502,6 +11507,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 61,
+        "t": 28,
+        "r": 450,
+        "b": 476
       }
     },
     {
@@ -11596,6 +11607,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 40,
+        "t": 28,
+        "r": 472,
+        "b": 476
       }
     },
     {
@@ -11690,6 +11707,12 @@
           "durationMs": 860,
           "loop": false
         }
+      },
+      "displayBounds": {
+        "l": 102,
+        "t": 28,
+        "r": 409,
+        "b": 476
       }
     },
     {
@@ -11797,6 +11820,12 @@
           "loop": false,
           "durationMs": 1600
         }
+      },
+      "displayBounds": {
+        "l": 0,
+        "t": 74,
+        "r": 276,
+        "b": 366
       }
     },
     {
@@ -11904,6 +11933,12 @@
           "loop": false,
           "durationMs": 1600
         }
+      },
+      "displayBounds": {
+        "l": 11,
+        "t": 74,
+        "r": 288,
+        "b": 366
       }
     },
     {
@@ -12011,6 +12046,12 @@
           "loop": false,
           "durationMs": 1600
         }
+      },
+      "displayBounds": {
+        "l": 28,
+        "t": 74,
+        "r": 288,
+        "b": 366
       }
     },
     {
@@ -12118,6 +12159,2634 @@
           "loop": false,
           "durationMs": 1600
         }
+      },
+      "displayBounds": {
+        "l": 12,
+        "t": 74,
+        "r": 288,
+        "b": 366
+      }
+    },
+    {
+      "id": "cmd_marina",
+      "name": "青のマリナ",
+      "category": "enemy",
+      "source": "source/cmd_marina.png",
+      "sheet": "sheets/cmd_marina.png",
+      "frames": [
+        "frames/cmd_marina/000.png",
+        "frames/cmd_marina/001.png",
+        "frames/cmd_marina/002.png",
+        "frames/cmd_marina/003.png",
+        "frames/cmd_marina/004.png",
+        "frames/cmd_marina/005.png",
+        "frames/cmd_marina/006.png",
+        "frames/cmd_marina/007.png",
+        "frames/cmd_marina/008.png"
+      ],
+      "grid": {
+        "columns": 3,
+        "rows": 3,
+        "cellSize": [
+          384,
+          512
+        ],
+        "order": "row-major"
+      },
+      "scenes": [],
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            1,
+            0
+          ],
+          "durationsMs": [
+            1100,
+            160,
+            900
+          ],
+          "loop": true,
+          "gif": "gifs/cmd_marina/idle.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 2160,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            100,
+            150,
+            100
+          ],
+          "loop": true,
+          "gif": "gifs/cmd_marina/walk.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 500,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            180,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/cmd_marina/attack.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 1240,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "hurt": {
+          "name": "被ダメージ",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            180,
+            700
+          ],
+          "loop": false,
+          "gif": "gifs/cmd_marina/hurt.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1140,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "cast": {
+          "name": "力の発動",
+          "sequence": [
+            0,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            720,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/cmd_marina/cast.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1600,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        }
+      },
+      "reference": "docs/rainbow-guard.md",
+      "production": "imagegen: actual pose and expression cels; whole alpha components, one common scale and foot baseline",
+      "displayBounds": {
+        "l": 30,
+        "t": 115,
+        "r": 356,
+        "b": 462
+      }
+    },
+    {
+      "id": "cmd_sion",
+      "name": "藍のシオン",
+      "category": "enemy",
+      "source": "source/cmd_sion.png",
+      "sheet": "sheets/cmd_sion.png",
+      "frames": [
+        "frames/cmd_sion/000.png",
+        "frames/cmd_sion/001.png",
+        "frames/cmd_sion/002.png",
+        "frames/cmd_sion/003.png",
+        "frames/cmd_sion/004.png",
+        "frames/cmd_sion/005.png",
+        "frames/cmd_sion/006.png",
+        "frames/cmd_sion/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          384,
+          512
+        ],
+        "order": "row-major"
+      },
+      "scenes": [],
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            1,
+            0
+          ],
+          "durationsMs": [
+            1100,
+            160,
+            900
+          ],
+          "loop": true,
+          "gif": "gifs/cmd_sion/idle.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 2160,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            100,
+            150,
+            100
+          ],
+          "loop": true,
+          "gif": "gifs/cmd_sion/walk.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 500,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            180,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/cmd_sion/attack.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 1240,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "hurt": {
+          "name": "被ダメージ",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            180,
+            700
+          ],
+          "loop": false,
+          "gif": "gifs/cmd_sion/hurt.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1140,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "cast": {
+          "name": "力の発動",
+          "sequence": [
+            0,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            720,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/cmd_sion/cast.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1600,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        }
+      },
+      "reference": "docs/rainbow-guard.md",
+      "production": "imagegen: actual pose and expression cels; whole alpha components, one common scale and foot baseline",
+      "displayBounds": {
+        "l": 73,
+        "t": 170,
+        "r": 355,
+        "b": 462
+      }
+    },
+    {
+      "id": "cmd_ocher",
+      "name": "黄のオーカー",
+      "category": "enemy",
+      "source": "source/cmd_ocher.png",
+      "sheet": "sheets/cmd_ocher.png",
+      "frames": [
+        "frames/cmd_ocher/000.png",
+        "frames/cmd_ocher/001.png",
+        "frames/cmd_ocher/002.png",
+        "frames/cmd_ocher/003.png",
+        "frames/cmd_ocher/004.png",
+        "frames/cmd_ocher/005.png",
+        "frames/cmd_ocher/006.png",
+        "frames/cmd_ocher/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          384,
+          512
+        ],
+        "order": "row-major"
+      },
+      "scenes": [],
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            1,
+            0
+          ],
+          "durationsMs": [
+            1100,
+            160,
+            900
+          ],
+          "loop": true,
+          "gif": "gifs/cmd_ocher/idle.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 2160,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            100,
+            150,
+            100
+          ],
+          "loop": true,
+          "gif": "gifs/cmd_ocher/walk.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 500,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            180,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/cmd_ocher/attack.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 1240,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "hurt": {
+          "name": "被ダメージ",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            180,
+            700
+          ],
+          "loop": false,
+          "gif": "gifs/cmd_ocher/hurt.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1140,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "cast": {
+          "name": "力の発動",
+          "sequence": [
+            0,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            720,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/cmd_ocher/cast.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1600,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        }
+      },
+      "reference": "docs/rainbow-guard.md",
+      "production": "imagegen: actual pose and expression cels; whole alpha components, one common scale and foot baseline",
+      "displayBounds": {
+        "l": 28,
+        "t": 167,
+        "r": 340,
+        "b": 462
+      }
+    },
+    {
+      "id": "cmd_amber",
+      "name": "橙のアンバー",
+      "category": "enemy",
+      "source": "source/cmd_amber.png",
+      "sheet": "sheets/cmd_amber.png",
+      "frames": [
+        "frames/cmd_amber/000.png",
+        "frames/cmd_amber/001.png",
+        "frames/cmd_amber/002.png",
+        "frames/cmd_amber/003.png",
+        "frames/cmd_amber/004.png",
+        "frames/cmd_amber/005.png",
+        "frames/cmd_amber/006.png",
+        "frames/cmd_amber/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          384,
+          512
+        ],
+        "order": "row-major"
+      },
+      "scenes": [],
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            1,
+            0
+          ],
+          "durationsMs": [
+            1100,
+            160,
+            900
+          ],
+          "loop": true,
+          "gif": "gifs/cmd_amber/idle.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 2160,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            100,
+            150,
+            100
+          ],
+          "loop": true,
+          "gif": "gifs/cmd_amber/walk.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 500,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            180,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/cmd_amber/attack.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 1240,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "hurt": {
+          "name": "被ダメージ",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            180,
+            700
+          ],
+          "loop": false,
+          "gif": "gifs/cmd_amber/hurt.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1140,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "cast": {
+          "name": "力の発動",
+          "sequence": [
+            0,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            720,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/cmd_amber/cast.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1600,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        }
+      },
+      "reference": "docs/rainbow-guard.md",
+      "production": "imagegen: actual pose and expression cels; whole alpha components, one common scale and foot baseline",
+      "displayBounds": {
+        "l": 100,
+        "t": 225,
+        "r": 355,
+        "b": 461
+      }
+    },
+    {
+      "id": "cmd_viola",
+      "name": "紫のヴィオラ",
+      "category": "enemy",
+      "source": "source/cmd_viola.png",
+      "sheet": "sheets/cmd_viola.png",
+      "frames": [
+        "frames/cmd_viola/000.png",
+        "frames/cmd_viola/001.png",
+        "frames/cmd_viola/002.png",
+        "frames/cmd_viola/003.png",
+        "frames/cmd_viola/004.png",
+        "frames/cmd_viola/005.png",
+        "frames/cmd_viola/006.png",
+        "frames/cmd_viola/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          384,
+          512
+        ],
+        "order": "row-major"
+      },
+      "scenes": [],
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            1,
+            0
+          ],
+          "durationsMs": [
+            1100,
+            160,
+            900
+          ],
+          "loop": true,
+          "gif": "gifs/cmd_viola/idle.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 2160,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            100,
+            150,
+            100
+          ],
+          "loop": true,
+          "gif": "gifs/cmd_viola/walk.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 500,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            180,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/cmd_viola/attack.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 1240,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "hurt": {
+          "name": "被ダメージ",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            180,
+            700
+          ],
+          "loop": false,
+          "gif": "gifs/cmd_viola/hurt.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1140,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "cast": {
+          "name": "力の発動",
+          "sequence": [
+            0,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            720,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/cmd_viola/cast.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1600,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        }
+      },
+      "reference": "docs/rainbow-guard.md",
+      "production": "imagegen: actual pose and expression cels; whole alpha components, one common scale and foot baseline",
+      "displayBounds": {
+        "l": 30,
+        "t": 128,
+        "r": 351,
+        "b": 462
+      }
+    },
+    {
+      "id": "cmd_carmine",
+      "name": "赤のカーマイン",
+      "category": "enemy",
+      "source": "source/cmd_carmine.png",
+      "sheet": "sheets/cmd_carmine.png",
+      "frames": [
+        "frames/cmd_carmine/000.png",
+        "frames/cmd_carmine/001.png",
+        "frames/cmd_carmine/002.png",
+        "frames/cmd_carmine/003.png",
+        "frames/cmd_carmine/004.png",
+        "frames/cmd_carmine/005.png",
+        "frames/cmd_carmine/006.png",
+        "frames/cmd_carmine/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          384,
+          512
+        ],
+        "order": "row-major"
+      },
+      "scenes": [],
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            1,
+            0
+          ],
+          "durationsMs": [
+            1100,
+            160,
+            900
+          ],
+          "loop": true,
+          "gif": "gifs/cmd_carmine/idle.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 2160,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            100,
+            150,
+            100
+          ],
+          "loop": true,
+          "gif": "gifs/cmd_carmine/walk.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 500,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            180,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/cmd_carmine/attack.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 1240,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "hurt": {
+          "name": "被ダメージ",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            180,
+            700
+          ],
+          "loop": false,
+          "gif": "gifs/cmd_carmine/hurt.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1140,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "cast": {
+          "name": "力の発動",
+          "sequence": [
+            0,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            720,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/cmd_carmine/cast.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1600,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        }
+      },
+      "reference": "docs/rainbow-guard.md",
+      "production": "imagegen: actual pose and expression cels; whole alpha components, one common scale and foot baseline",
+      "displayBounds": {
+        "l": 67,
+        "t": 194,
+        "r": 356,
+        "b": 462
+      }
+    },
+    {
+      "id": "cmd_verde",
+      "name": "緑のヴェルデ",
+      "category": "enemy",
+      "source": "source/cmd_verde.png",
+      "sheet": "sheets/cmd_verde.png",
+      "frames": [
+        "frames/cmd_verde/000.png",
+        "frames/cmd_verde/001.png",
+        "frames/cmd_verde/002.png",
+        "frames/cmd_verde/003.png",
+        "frames/cmd_verde/004.png",
+        "frames/cmd_verde/005.png",
+        "frames/cmd_verde/006.png",
+        "frames/cmd_verde/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          384,
+          512
+        ],
+        "order": "row-major"
+      },
+      "scenes": [],
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            1,
+            0
+          ],
+          "durationsMs": [
+            1100,
+            160,
+            900
+          ],
+          "loop": true,
+          "gif": "gifs/cmd_verde/idle.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 2160,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            100,
+            150,
+            100
+          ],
+          "loop": true,
+          "gif": "gifs/cmd_verde/walk.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 500,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            180,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/cmd_verde/attack.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 1240,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "hurt": {
+          "name": "被ダメージ",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            180,
+            700
+          ],
+          "loop": false,
+          "gif": "gifs/cmd_verde/hurt.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1140,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "cast": {
+          "name": "力の発動",
+          "sequence": [
+            0,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            720,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/cmd_verde/cast.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1600,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        }
+      },
+      "reference": "docs/rainbow-guard.md",
+      "production": "imagegen: actual pose and expression cels; whole alpha components, one common scale and foot baseline",
+      "displayBounds": {
+        "l": 29,
+        "t": 102,
+        "r": 356,
+        "b": 462
+      }
+    },
+    {
+      "id": "s_lance",
+      "name": "王の槍兵",
+      "category": "enemy",
+      "source": "source/s_lance.png",
+      "sheet": "sheets/s_lance.png",
+      "frames": [
+        "frames/s_lance/000.png",
+        "frames/s_lance/001.png",
+        "frames/s_lance/002.png",
+        "frames/s_lance/003.png",
+        "frames/s_lance/004.png",
+        "frames/s_lance/005.png",
+        "frames/s_lance/006.png",
+        "frames/s_lance/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          384,
+          512
+        ],
+        "order": "row-major"
+      },
+      "scenes": [],
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            1,
+            0
+          ],
+          "durationsMs": [
+            1100,
+            160,
+            900
+          ],
+          "loop": true,
+          "gif": "gifs/s_lance/idle.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 2160,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            100,
+            150,
+            100
+          ],
+          "loop": true,
+          "gif": "gifs/s_lance/walk.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 500,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            180,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/s_lance/attack.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 1240,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "hurt": {
+          "name": "被ダメージ",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            180,
+            700
+          ],
+          "loop": false,
+          "gif": "gifs/s_lance/hurt.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1140,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "cast": {
+          "name": "力の発動",
+          "sequence": [
+            0,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            720,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/s_lance/cast.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1600,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        }
+      },
+      "reference": "js/envoy.js",
+      "production": "imagegen: actual pose and expression cels; whole alpha components, one common scale and foot baseline",
+      "displayBounds": {
+        "l": 52,
+        "t": 180,
+        "r": 356,
+        "b": 462
+      }
+    },
+    {
+      "id": "s_sword",
+      "name": "王の剣兵",
+      "category": "enemy",
+      "source": "source/s_sword.png",
+      "sheet": "sheets/s_sword.png",
+      "frames": [
+        "frames/s_sword/000.png",
+        "frames/s_sword/001.png",
+        "frames/s_sword/002.png",
+        "frames/s_sword/003.png",
+        "frames/s_sword/004.png",
+        "frames/s_sword/005.png",
+        "frames/s_sword/006.png",
+        "frames/s_sword/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          384,
+          512
+        ],
+        "order": "row-major"
+      },
+      "scenes": [],
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            1,
+            0
+          ],
+          "durationsMs": [
+            1100,
+            160,
+            900
+          ],
+          "loop": true,
+          "gif": "gifs/s_sword/idle.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 2160,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            100,
+            150,
+            100
+          ],
+          "loop": true,
+          "gif": "gifs/s_sword/walk.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 500,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            180,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/s_sword/attack.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 1240,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "hurt": {
+          "name": "被ダメージ",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            180,
+            700
+          ],
+          "loop": false,
+          "gif": "gifs/s_sword/hurt.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1140,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "cast": {
+          "name": "力の発動",
+          "sequence": [
+            0,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            720,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/s_sword/cast.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1600,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        }
+      },
+      "reference": "js/envoy.js",
+      "production": "imagegen: actual pose and expression cels; whole alpha components, one common scale and foot baseline",
+      "displayBounds": {
+        "l": 42,
+        "t": 122,
+        "r": 354,
+        "b": 462
+      }
+    },
+    {
+      "id": "s_bow",
+      "name": "王の弓兵",
+      "category": "enemy",
+      "source": "source/s_bow.png",
+      "sheet": "sheets/s_bow.png",
+      "frames": [
+        "frames/s_bow/000.png",
+        "frames/s_bow/001.png",
+        "frames/s_bow/002.png",
+        "frames/s_bow/003.png",
+        "frames/s_bow/004.png",
+        "frames/s_bow/005.png",
+        "frames/s_bow/006.png",
+        "frames/s_bow/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          384,
+          512
+        ],
+        "order": "row-major"
+      },
+      "scenes": [],
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            1,
+            0
+          ],
+          "durationsMs": [
+            1100,
+            160,
+            900
+          ],
+          "loop": true,
+          "gif": "gifs/s_bow/idle.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 2160,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            100,
+            150,
+            100
+          ],
+          "loop": true,
+          "gif": "gifs/s_bow/walk.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 500,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            180,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/s_bow/attack.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 1240,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "hurt": {
+          "name": "被ダメージ",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            180,
+            700
+          ],
+          "loop": false,
+          "gif": "gifs/s_bow/hurt.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1140,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "cast": {
+          "name": "力の発動",
+          "sequence": [
+            0,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            720,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/s_bow/cast.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1600,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        }
+      },
+      "reference": "js/envoy.js",
+      "production": "imagegen: actual pose and expression cels; whole alpha components, one common scale and foot baseline",
+      "displayBounds": {
+        "l": 29,
+        "t": 130,
+        "r": 341,
+        "b": 462
+      }
+    },
+    {
+      "id": "s_heavy",
+      "name": "王の重装兵",
+      "category": "enemy",
+      "source": "source/s_heavy.png",
+      "sheet": "sheets/s_heavy.png",
+      "frames": [
+        "frames/s_heavy/000.png",
+        "frames/s_heavy/001.png",
+        "frames/s_heavy/002.png",
+        "frames/s_heavy/003.png",
+        "frames/s_heavy/004.png",
+        "frames/s_heavy/005.png",
+        "frames/s_heavy/006.png",
+        "frames/s_heavy/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          384,
+          512
+        ],
+        "order": "row-major"
+      },
+      "scenes": [],
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            1,
+            0
+          ],
+          "durationsMs": [
+            1100,
+            160,
+            900
+          ],
+          "loop": true,
+          "gif": "gifs/s_heavy/idle.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 2160,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            100,
+            150,
+            100
+          ],
+          "loop": true,
+          "gif": "gifs/s_heavy/walk.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 500,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            180,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/s_heavy/attack.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 1240,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "hurt": {
+          "name": "被ダメージ",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            180,
+            700
+          ],
+          "loop": false,
+          "gif": "gifs/s_heavy/hurt.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1140,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "cast": {
+          "name": "力の発動",
+          "sequence": [
+            0,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            720,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/s_heavy/cast.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1600,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        }
+      },
+      "reference": "js/envoy.js",
+      "production": "imagegen: actual pose and expression cels; whole alpha components, one common scale and foot baseline",
+      "displayBounds": {
+        "l": 68,
+        "t": 215,
+        "r": 355,
+        "b": 462
+      }
+    },
+    {
+      "id": "s_cavalry",
+      "name": "王の騎兵",
+      "category": "enemy",
+      "source": "source/s_cavalry.png",
+      "sheet": "sheets/s_cavalry.png",
+      "frames": [
+        "frames/s_cavalry/000.png",
+        "frames/s_cavalry/001.png",
+        "frames/s_cavalry/002.png",
+        "frames/s_cavalry/003.png",
+        "frames/s_cavalry/004.png",
+        "frames/s_cavalry/005.png",
+        "frames/s_cavalry/006.png",
+        "frames/s_cavalry/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          384,
+          512
+        ],
+        "order": "row-major"
+      },
+      "scenes": [],
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            1,
+            0
+          ],
+          "durationsMs": [
+            1100,
+            160,
+            900
+          ],
+          "loop": true,
+          "gif": "gifs/s_cavalry/idle.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 2160,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            100,
+            150,
+            100
+          ],
+          "loop": true,
+          "gif": "gifs/s_cavalry/walk.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 500,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            180,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/s_cavalry/attack.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 1240,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "hurt": {
+          "name": "被ダメージ",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            180,
+            700
+          ],
+          "loop": false,
+          "gif": "gifs/s_cavalry/hurt.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1140,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "cast": {
+          "name": "力の発動",
+          "sequence": [
+            0,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            720,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/s_cavalry/cast.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1600,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        }
+      },
+      "reference": "js/envoy.js",
+      "production": "imagegen: actual pose and expression cels; whole alpha components, one common scale and foot baseline",
+      "displayBounds": {
+        "l": 28,
+        "t": 203,
+        "r": 319,
+        "b": 462
+      }
+    },
+    {
+      "id": "s_captain",
+      "name": "王の隊長",
+      "category": "enemy",
+      "source": "source/s_captain.png",
+      "sheet": "sheets/s_captain.png",
+      "frames": [
+        "frames/s_captain/000.png",
+        "frames/s_captain/001.png",
+        "frames/s_captain/002.png",
+        "frames/s_captain/003.png",
+        "frames/s_captain/004.png",
+        "frames/s_captain/005.png",
+        "frames/s_captain/006.png",
+        "frames/s_captain/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          384,
+          512
+        ],
+        "order": "row-major"
+      },
+      "scenes": [],
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            1,
+            0
+          ],
+          "durationsMs": [
+            1100,
+            160,
+            900
+          ],
+          "loop": true,
+          "gif": "gifs/s_captain/idle.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 2160,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            100,
+            150,
+            100
+          ],
+          "loop": true,
+          "gif": "gifs/s_captain/walk.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 500,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            180,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/s_captain/attack.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 1240,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "hurt": {
+          "name": "被ダメージ",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            180,
+            700
+          ],
+          "loop": false,
+          "gif": "gifs/s_captain/hurt.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1140,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "cast": {
+          "name": "力の発動",
+          "sequence": [
+            0,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            720,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/s_captain/cast.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1600,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        }
+      },
+      "reference": "js/envoy.js",
+      "production": "imagegen: actual pose and expression cels; whole alpha components, one common scale and foot baseline",
+      "displayBounds": {
+        "l": 28,
+        "t": 172,
+        "r": 288,
+        "b": 462
+      }
+    },
+    {
+      "id": "kaoru",
+      "name": "馨",
+      "category": "npc",
+      "source": "source/kaoru.png",
+      "sheet": "sheets/kaoru.png",
+      "frames": [
+        "frames/kaoru/000.png",
+        "frames/kaoru/001.png",
+        "frames/kaoru/002.png",
+        "frames/kaoru/003.png",
+        "frames/kaoru/004.png",
+        "frames/kaoru/005.png",
+        "frames/kaoru/006.png",
+        "frames/kaoru/007.png",
+        "frames/kaoru/008.png",
+        "frames/kaoru/009.png",
+        "frames/kaoru/010.png",
+        "frames/kaoru/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          384,
+          512
+        ],
+        "order": "row-major"
+      },
+      "scenes": [],
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            1,
+            0
+          ],
+          "durationsMs": [
+            1100,
+            160,
+            900
+          ],
+          "loop": true,
+          "gif": "gifs/kaoru/idle.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 2160,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            100,
+            150,
+            100
+          ],
+          "loop": true,
+          "gif": "gifs/kaoru/walk.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 500,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            180,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/kaoru/attack.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 1240,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "hurt": {
+          "name": "被ダメージ",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            180,
+            700
+          ],
+          "loop": false,
+          "gif": "gifs/kaoru/hurt.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1140,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "cast": {
+          "name": "力の発動",
+          "sequence": [
+            0,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            720,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/kaoru/cast.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1600,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "talk": {
+          "name": "会話",
+          "sequence": [
+            0,
+            8,
+            9,
+            8
+          ],
+          "durationsMs": [
+            650,
+            180,
+            200,
+            180
+          ],
+          "loop": true,
+          "gif": "gifs/kaoru/talk.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 1210,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "greet": {
+          "name": "挨拶",
+          "sequence": [
+            0,
+            10,
+            11
+          ],
+          "durationsMs": [
+            260,
+            650,
+            480
+          ],
+          "loop": false,
+          "gif": "gifs/kaoru/greet.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1390,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        }
+      },
+      "reference": "art-source/cast-20261022/kaoru-reference.jpeg",
+      "production": "imagegen: actual pose and expression cels; whole alpha components, one common scale and foot baseline",
+      "displayBounds": {
+        "l": 30,
+        "t": 79,
+        "r": 331,
+        "b": 462
+      }
+    },
+    {
+      "id": "cocoon",
+      "name": "闇の繭",
+      "category": "enemy",
+      "source": "source/cocoon.png",
+      "sheet": "sheets/cocoon.png",
+      "frames": [
+        "frames/cocoon/000.png",
+        "frames/cocoon/001.png",
+        "frames/cocoon/002.png",
+        "frames/cocoon/003.png",
+        "frames/cocoon/004.png",
+        "frames/cocoon/005.png",
+        "frames/cocoon/006.png",
+        "frames/cocoon/007.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 2,
+        "cellSize": [
+          384,
+          512
+        ],
+        "order": "row-major"
+      },
+      "scenes": [],
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            1,
+            0
+          ],
+          "durationsMs": [
+            1100,
+            160,
+            900
+          ],
+          "loop": true,
+          "gif": "gifs/cocoon/idle.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 2160,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "walk": {
+          "name": "待機",
+          "sequence": [
+            0,
+            1,
+            0
+          ],
+          "durationsMs": [
+            1100,
+            160,
+            900
+          ],
+          "loop": true,
+          "gif": "gifs/cocoon/walk.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 2160,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            180,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/cocoon/attack.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 1240,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "hurt": {
+          "name": "被ダメージ",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            180,
+            700
+          ],
+          "loop": false,
+          "gif": "gifs/cocoon/hurt.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1140,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "cast": {
+          "name": "力の発動",
+          "sequence": [
+            0,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            720,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/cocoon/cast.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1600,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        }
+      },
+      "reference": "js/mari-return.js",
+      "production": "imagegen: actual pose and expression cels; whole alpha components, one common scale and foot baseline",
+      "displayBounds": {
+        "l": 91,
+        "t": 207,
+        "r": 355,
+        "b": 462
+      }
+    },
+    {
+      "id": "mari",
+      "name": "マリー",
+      "category": "ally",
+      "source": "source/mari.png",
+      "sheet": "sheets/mari.png",
+      "frames": [
+        "frames/mari/000.png",
+        "frames/mari/001.png",
+        "frames/mari/002.png",
+        "frames/mari/003.png",
+        "frames/mari/004.png",
+        "frames/mari/005.png",
+        "frames/mari/006.png",
+        "frames/mari/007.png",
+        "frames/mari/008.png",
+        "frames/mari/009.png",
+        "frames/mari/010.png",
+        "frames/mari/011.png"
+      ],
+      "grid": {
+        "columns": 4,
+        "rows": 3,
+        "cellSize": [
+          384,
+          512
+        ],
+        "order": "row-major"
+      },
+      "scenes": [],
+      "animations": {
+        "idle": {
+          "name": "待機",
+          "sequence": [
+            0,
+            1,
+            0
+          ],
+          "durationsMs": [
+            1100,
+            160,
+            900
+          ],
+          "loop": true,
+          "gif": "gifs/mari/idle.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 2160,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "walk": {
+          "name": "移動",
+          "sequence": [
+            2,
+            0,
+            3,
+            0
+          ],
+          "durationsMs": [
+            150,
+            100,
+            150,
+            100
+          ],
+          "loop": true,
+          "gif": "gifs/mari/walk.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 500,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "attack": {
+          "name": "攻撃",
+          "sequence": [
+            0,
+            4,
+            5,
+            0
+          ],
+          "durationsMs": [
+            260,
+            200,
+            180,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/mari/attack.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 1240,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "hurt": {
+          "name": "被ダメージ",
+          "sequence": [
+            0,
+            6,
+            0
+          ],
+          "durationsMs": [
+            260,
+            180,
+            700
+          ],
+          "loop": false,
+          "gif": "gifs/mari/hurt.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1140,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "cast": {
+          "name": "力の発動",
+          "sequence": [
+            0,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            720,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/mari/cast.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1600,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "talk": {
+          "name": "会話",
+          "sequence": [
+            0,
+            8,
+            9,
+            8
+          ],
+          "durationsMs": [
+            650,
+            180,
+            200,
+            180
+          ],
+          "loop": true,
+          "gif": "gifs/mari/talk.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 4,
+          "durationMs": 1210,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "greet": {
+          "name": "挨拶",
+          "sequence": [
+            0,
+            10,
+            11
+          ],
+          "durationsMs": [
+            260,
+            650,
+            480
+          ],
+          "loop": false,
+          "gif": "gifs/mari/greet.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1390,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        },
+        "summon": {
+          "name": "召喚",
+          "sequence": [
+            0,
+            7,
+            0
+          ],
+          "durationsMs": [
+            280,
+            720,
+            600
+          ],
+          "loop": false,
+          "gif": "gifs/mari/summon.gif",
+          "size": [
+            384,
+            512
+          ],
+          "gifFrameCount": 3,
+          "durationMs": 1600,
+          "gifRepeatsForPreview": true,
+          "gifAlphaThreshold": 96
+        }
+      },
+      "reference": "art-source/cast-20261022/mari-reference.png",
+      "production": "imagegen: actual pose and expression cels; whole alpha components, one common scale and foot baseline",
+      "displayBounds": {
+        "l": 53,
+        "t": 173,
+        "r": 355,
+        "b": 462
       }
     }
   ]

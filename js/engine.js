@@ -72,7 +72,7 @@ const Engine = (() => {
   }
   function showSpeakerArt(who) {
     if (scene.cgs.includes('lila-wave')) { clearSpeakerArt(); return; }
-    const id = who === 'クロム' && chapter?.startsWith('restore') ? 'chrome_human' : GameArt.speakers[who];
+    const id = who === 'クロム' && (chapter?.startsWith('restore') || ['mari_reunion', 'seam'].includes(chapter)) ? 'chrome_human' : GameArt.speakers[who];
     if (!id || id === 'aria' || scene.gran && id === 'gran' || scene.mari && id === 'mari' || scene.renoir && id === 'renoir') {
       if (speakerArt) { speakerArt.classList.add('dim'); GameArt.mount(speakerArt, speakerArtId, 'idle'); }
       return;
@@ -84,9 +84,9 @@ const Engine = (() => {
     const changed = speakerArtId !== id;
     speakerArtId = id; speakerArt.classList.remove('dim');
     speakerArt.classList.toggle('small', !['lila', 'fisher', 'chrome', 'chrome_human', 'achroma', 'king'].includes(id));
-    speakerArt.classList.toggle('chibi', id === 'kaoru');   // ドット絵の頭身が低いので、立ち絵より小さめに置く
+    speakerArt.classList.toggle('chibi', id === 'kaoru');
     speakerArt.setAttribute('role', 'img'); speakerArt.setAttribute('aria-label', who);
-    GameArt.mount(speakerArt, id, ['lila', 'fisher', 'lumina', 'stone_child', 'kaoru', 'mari'].includes(id) ? 'talk' : 'idle');
+    GameArt.mount(speakerArt, id, GameArt.animation(id, 'talk') ? 'talk' : 'idle');
     if (changed) { speakerArt.classList.remove('show'); requestAnimationFrame(() => speakerArt?.classList.add('show')); }
   }
 
