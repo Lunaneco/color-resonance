@@ -490,7 +490,8 @@ const Engine = (() => {
         if((!SIDE_STORIES.includes(chapter)&&chapter!=='restore4')||!excursionReturn) break;
         const bookmark=excursionReturn,mariStory=chapter.startsWith('mari_')||chapter==='restore4';
         // 丘を読み終えたら、残っている本編の場所（森、または揃った谷）へ案内する。
-        const home=chapter==='fury'&&bookmark.map&&{act3:'thorn',act4:'canyon'}[bookmark.chapter]||SIDE_HOME[chapter];resetStage();excursionReturn=null;
+        const kingdom=bookmark.map&&typeof Envoy!=='undefined'&&Envoy.gate(bookmark.chapter);
+        const home=kingdom?.town||chapter==='fury'&&bookmark.map&&{act3:'thorn',act4:'canyon'}[bookmark.chapter]||SIDE_HOME[chapter];resetStage();excursionReturn=null;
         localStorage.setItem('cr_save',JSON.stringify(bookmark));World.open(mariStory?{}:{at:home||'f_fruit'});if(mariStory)Restoration.open();return 'stop';
       }
       case 'next': { if(chapter==='restore4'&&excursionReturn)return command('sideend','');const mine = token, node = arrival; arrival = null; unlock(a[0]); await fadeOut(); if (mine === token) toMap(a[0], node); return 'stop'; }
@@ -527,6 +528,7 @@ const Engine = (() => {
     if (!Object.hasOwn(SCRIPT, key)) return;
     const gate = Progression.journeyGate(key, unlocked(), load()?.colors);
     if (gate) { resetStage(); World.open({at:gate.node}); toast(gate.message); return; }
+    if(from===0&&(!restore||restore.map)&&typeof Envoy!=='undefined'&&!Envoy.episode(key)){const episode=Envoy.gate(key);if(episode){Envoy.start(episode.id);return;}}
     if(SIDE_STORIES.includes(key)){
       if(!SIDE_OPEN[key]())return;
       const bookmark=restore?.returnStory || load()?.returnStory || load() || {chapter:'act3',idx:0,map:true};
@@ -599,13 +601,24 @@ const Engine = (() => {
         for(let i=0;i<chapterLines.length;i++)if(lineId(chapterLines[i])===id&&n++===occurrence)return i;
       }
     }
+    // 1.24〜1.26で章の途中にあった兵士戦は、独立した王国編へ移った。
+    // 消えた行の数値位置へ飛ばず、旧本文の次の残っている台詞へ復帰する。
+    const embedded=typeof Envoy!=='undefined'&&Envoy.legacyScript(s.chapter);
+    if(s.scriptVersion===3&&embedded){
+      const oldLines=parse(embedded);let oldAt=s.idx;
+      if(s.cursor){let n=0;const found=oldLines.findIndex(l=>lineId(l)===s.cursor.id&&n++===s.cursor.n);if(found>=0)oldAt=found;}
+      for(let j=oldAt;j<oldLines.length;j++){
+        const l=oldLines[j];if(l.t==='cmd'&&l.name!=='board')continue;
+        const id=lineId(l),i=chapterLines.findIndex(v=>lineId(v)===id);if(i>=0)return i;
+      }
+    }
     // この版で増えた序章のCG命令2行を、以前の数値位置へ足す。
     if (!s.scriptVersion && s.chapter === 'prologue' && at >= 106) at += at >= 109 ? 2 : 1;
     return Math.max(0, Math.min(chapterLines.length - 1, at));
   }
   function save() {
     try {
-      localStorage.setItem('cr_save', JSON.stringify({ chapter, idx, cursor: cursorAt(idx), scriptVersion: 3, scene, colors: Renoir.state.colors, sky: Renoir.state.sky, shavings: prog.shavings, tints, ...(excursionReturn?{returnStory:excursionReturn}:{}), at: Date.now() }));
+      localStorage.setItem('cr_save', JSON.stringify({ chapter, idx, cursor: cursorAt(idx), scriptVersion: 4, scene, colors: Renoir.state.colors, sky: Renoir.state.sky, shavings: prog.shavings, tints, ...(excursionReturn?{returnStory:excursionReturn}:{}), at: Date.now() }));
     } catch (e) {}
   }
   function load() { try { const value = SaveData.story(JSON.parse(localStorage.getItem('cr_save') || 'null')); return Object.hasOwn(SCRIPT, value.chapter) ? value : null; } catch (e) { return null; } }
@@ -624,9 +637,10 @@ const Engine = (() => {
     // 森を先に読み終えて丘が残っているときは、谷ではなく赤い丘へ案内する。
     if (!node && next === 'act4' && Fury.pending()) node = 'f_fruit';
     token++; running = false;
-    try { localStorage.setItem('cr_save', JSON.stringify({ chapter: next, idx: 0, map: true, at: Date.now() })); } catch (e) {}
+    try { localStorage.setItem('cr_save', JSON.stringify({ chapter: next, idx: 0, map: true, scriptVersion: 4, at: Date.now() })); } catch (e) {}
     resetStage();
-    World.open(node ? { at: node } : { arrive: next });
+    const kingdom=!node&&typeof Envoy!=='undefined'&&Envoy.gate(next);
+    World.open(node||kingdom ? { at: node||kingdom.town } : { arrive: next });
     if (next.startsWith('restore')) Restoration.open();
   }
 

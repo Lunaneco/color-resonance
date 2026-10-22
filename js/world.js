@@ -218,12 +218,19 @@ const World = (() => {
   function stageRec(id) { return party.stages[id] || null; }
   // 「物語」の印：本編の次の章、または森と並ぶ赤い丘の章（どちらから読んでもよい）
   function storyHere(n) {
+    const s=nextChapter();
+    if(typeof Envoy!=='undefined'&&s){
+      const ongoing=Envoy.episode(s.chapter);
+      if(ongoing)return ongoing.town===n.id?{...s,royal:ongoing.id}:null;
+      const required=s.map&&Envoy.gate(s.chapter);
+      if(required)return required.town===n.id?{chapter:required.story,idx:0,map:true,royal:required.id}:null;
+    }
     if (!n.chapter) return null;
-    const s = nextChapter();
     if (s && n.chapter === s.chapter) return s;
     if (n.chapter === 'fury' && Fury.pending()) return { chapter: 'fury', idx: 0, map: true };
     return null;
   }
+
   // 精霊になった仲間（物語の進み具合で決まる）
   function spiritsNow() { return Progression.companions(unlocked(), Engine.load()?.colors); }
   const replayable = (n, rec) => !Progression.journeyGate(n.chapter,unlocked(),Engine.load()?.colors) && !!(rec?.cleared || n.type === 'free' || (n.type === 'quest' && bondReady(SIDE_QUESTS[n.quest])) || (n.clearedBy && has(n.clearedBy)));
@@ -301,7 +308,7 @@ const World = (() => {
       const meta = legendary ? `${baseMeta ? baseMeta + ' / ' : ''}伝説級LV${Progression.level(legendary, 'hard')}` : baseMeta;
       b.setAttribute('aria-label', view(n).name + (meta ? '・適正' + meta : ''));
       const icon = n.type === 'town' ? '⌂' : n.type === 'free' ? '◇' : n.type === 'story' ? '✧' : '◆';
-      b.innerHTML = `<i class="wn-dot">${icon}</i><span class="wn-name">${view(n).name}</span>${meta ? `<span class="wn-meta">${meta}</span>` : ''}${rec && rec.best ? `<span class="wn-rank r${rec.best}">${rec.best}</span>` : ''}${story ? '<span class="wn-story">物語</span>' : ''}`;
+      b.innerHTML = `<i class="wn-dot">${icon}</i><span class="wn-name">${view(n).name}</span>${meta ? `<span class="wn-meta">${meta}</span>` : ''}${rec && rec.best ? `<span class="wn-rank r${rec.best}">${rec.best}</span>` : ''}${story ? `<span class="wn-story">${story.royal?'王国編':'物語'}</span>` : ''}`;
       b.onclick = (e) => { e.stopPropagation(); go(n.id); };
       nodesEl.appendChild(b);
     });
@@ -378,10 +385,10 @@ const World = (() => {
       if (party.aria.lv < Progression.level(conf, key)) body += '<p class="wp-level-note">アリアのLVより高めの戦場です。装備と精霊の力を整えて挑戦できます。</p>';
     }
     if (story) {
-      const ch = CHAPTERS.find(c => c.key === story.chapter);
+      const ch = CHAPTERS.find(c => c.key === story.chapter) || (typeof Envoy!=='undefined'&&Envoy.episode(story.chapter));
       body += `<div class="wp-story"><small>次の物語</small><b>${ch ? ch.act + '　' + ch.title : ''}</b></div>`;
       if (journeyGate) { body += `<p class="wp-note">${journeyGate.message}</p>`; acts.push(`<button class="wb main" data-a="journey" data-node="${journeyGate.node}">${WORLD_NODES.find(v=>v.id===journeyGate.node).name}へ向かう</button>`); }
-      else acts.push(`<button class="wb main" data-a="story">物語を進める</button>`);
+      else acts.push(`<button class="wb main" data-a="story">${story.royal?'王国編を読む':'物語を進める'}</button>`);
     }
     if (conf && replayable(n, rec)) {
       const key = chosen(conf), record = diffRec(conf, key), lv = Progression.level(conf, key);
@@ -421,7 +428,10 @@ const World = (() => {
       if(seamOpen)acts.push(`<button class="wb${sealed?'':' main'}" data-a="seam">${sealed?'最終章を読み返す':'最終章へ'}</button>`);
       acts.push('<button class="wb" data-a="notebook">馨の手帳を開く</button>');
     }
-    if(typeof Envoy!=='undefined')for(const e of Envoy.at(n.id)){body+=`<div class="wp-sec">陣取り戦・王の遣い兵<small>${e.act}</small></div><p class="wp-note">${e.title} · 適正LV ${e.lv}〜${e.lv+5}。${e.desc}</p>`;acts.push(`<button class="wb" data-a="envoy" data-id="${e.id}">陣取り戦をもう一度</button>`);}
+    if(typeof Envoy!=='undefined')for(const e of Envoy.at(n.id)){
+      if(story?.royal!==e.id){body+=`<div class="wp-sec">${e.act}<small>黒い旗の物語</small></div><p class="wp-note">${e.title} · 精霊の章とは別のエピソード。適正LV ${e.lv}〜${e.lv+5}。</p>`;acts.push(`<button class="wb" data-a="kingdom" data-id="${e.id}">${Envoy.completed(e)?'王国編を読み返す（旅の記録）':'王国編を読む'}</button>`);}
+      if(Envoy.completed(e))acts.push(`<button class="wb" data-a="envoy" data-id="${e.id}">戦闘だけ再戦</button>`);
+    }
     const guardianRoute=GUARDIANS.find(p=>!p.chapter.startsWith('restore')&&p.town===n.id&&GuardianJourney.available(GUARDIAN_STAGES['gp_'+p.id]));
     if(guardianRoute){body+=`<div class="wp-sec">章の戦場<small>${guardianRoute.id==='king'?'通常戦とボス戦':'通常戦と精霊ボス戦'}</small></div><p class="wp-note">${guardianRoute.name} · 適正LV ${guardianRoute.lv}〜${guardianRoute.lv+3}。${guardianRoute.counter}</p>`;acts.push(`<button class="wb" data-a="guardians" data-chapter="${guardianRoute.chapter}">この章の戦場を選ぶ</button>`);}
     if (Restoration.joined()) {
@@ -452,6 +462,7 @@ const World = (() => {
       else if (a === 'furychat') Fury.start(true);
       else if (a === 'seam') Seam.start();
       else if (a === 'envoy') Envoy.replay(b.dataset.id);
+      else if (a === 'kingdom') Envoy.start(b.dataset.id);
       else if (a === 'restoration') Restoration.open();
       else if (a === 'notebook') Journal.open();
       else if (a === 'journey') go(b.dataset.node);
@@ -468,6 +479,7 @@ const World = (() => {
 
   // ---------- 物語・出撃 ----------
   function playStory(s) {
+    if(s.royal){Envoy.start(s.royal);return;}
     close();
     if (s.map) Engine.play(s.chapter); else Engine.cont();
   }
@@ -625,7 +637,8 @@ const World = (() => {
     isOpen = true;
     panel.dataset.node = '';
     panel.classList.add('hidden');
-    const target = arrive || (s && s.map ? CHAPTER_NODE[s.chapter] : null);
+    const kingdom=s?.map&&typeof Envoy!=='undefined'&&Envoy.gate(s.chapter);
+    const target = arrive || kingdom?.town || (s && s.map ? CHAPTER_NODE[s.chapter] : null);
     const token = visit;
     if (target && node(target) && visible(node(target))) arrivalTimer = setTimeout(() => { if (isOpen && token === visit) go(target); }, 450);
     else showPanel(node(current));

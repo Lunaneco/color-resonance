@@ -112,6 +112,23 @@ test('Stable story cursors resume the same sentence after commands are inserted 
   await page.evaluate(saved=>{Main.toTitle();SCRIPT.prologue='@wait 0\n'+SCRIPT.prologue;localStorage.setItem('cr_save',saved);Engine.cont();},saved);
   await finishText();assert.equal(await page.locator('#text').textContent(),'次の文章。');
 });
+test('A version 3 save inside an embedded army battle resumes at the next surviving main-story sentence',async()=>{
+  await boot();
+  const expected=await page.evaluate(()=>{
+    const rows=s=>s.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#'));
+    const old=rows(Envoy.legacyScript('act1')),current=rows(SCRIPT.act1),idx=old.indexOf('@board camp_port');
+    const next=old.slice(idx+1).find(l=>!/^[@>]/.test(l)&&current.includes(l));
+    if(idx<0||!next)throw Error('The old army checkpoint must have a surviving main-story successor');
+    localStorage.setItem('cr_unlocked',JSON.stringify(['prologue','act1']));
+    localStorage.setItem('cr_save',JSON.stringify({chapter:'act1',idx,scriptVersion:3,colors:[],shavings:0}));
+    Board.start=()=>{throw Error('The removed embedded battle must not restart');};
+    Engine.cont();return next;
+  });
+  await finishText();
+  const m=expected.match(/^[^「」\s]{1,8}「([\s\S]*)」$/);
+  assert.equal(await page.locator('#text').textContent(),m?'「'+m[1]+'」':expected);
+  assert.equal(await page.evaluate(()=>Engine.load().scriptVersion),4);
+});
 test('Auto reading pauses while a log is open and resumes after closing it',async()=>{
   await boot();await page.evaluate(()=>{SCRIPT.prologue='一\n二\n三';Engine.play('prologue');});await finishText();await page.locator('[data-act=auto]').click();await page.waitForFunction(()=>document.getElementById('text').textContent==='二');await finishText();
   await page.locator('[data-act=log]').click();await page.waitForTimeout(2100);assert.equal(await page.locator('#text').textContent(),'二');assert(await page.locator('#panel').isVisible());
@@ -151,7 +168,7 @@ test('The complete main journey includes the red hill and exports every scene th
     document.documentElement.dataset.motion='reduced';window.storyRecordErrors=[];window.seenChapters=[];
     const schedule=window.setTimeout.bind(window);window.setTimeout=(fn,ms,...args)=>schedule(fn,Math.min(ms,1),...args);
     const set=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){set.call(this,k,v);if(k==='cr_save'){try{SaveData.exportText();}catch(e){storyRecordErrors.push(e.message);}}};
-    Board.start=(conf,done)=>schedule(()=>done(true),1);
+    Board.start=(conf,done)=>{Board.party.stages[conf.id]={cleared:true};Board.saveParty();return schedule(()=>done(true),1);};
     const source=Object.keys(CHOICES);window.storyPilot=setInterval(()=>{const box=document.getElementById('choiceBox');if(!box.classList.contains('hidden')){const prompt=box.querySelector('.cprompt')?.textContent,key=source.find(k=>CHOICES[k].prompt===prompt),at=key&&CHOICES[key].options.findIndex(o=>o.ok);if(at>=0)box.querySelectorAll('button')[at]?.click();}},10);
     Engine.play('prologue');
   });
@@ -161,6 +178,11 @@ test('The complete main journey includes the red hill and exports every scene th
       await page.evaluate(()=>Engine.play('fury'));
       await page.waitForFunction(()=>World.isOpen&&Fury.joined()&&Engine.load()?.chapter==='act4',null,{timeout:15000});
       assert.equal(await page.evaluate(()=>Progression.journeyGate('act4',Engine.unlocked())),null);
+    }
+    const royal=await page.evaluate(key=>Envoy.gate(key)?.id,key);
+    if(royal){
+      await page.evaluate(id=>Envoy.start(id),royal);
+      await page.waitForFunction(key=>World.isOpen&&Engine.load()?.map&&Engine.load().chapter===key&&!Envoy.gate(key),key,{timeout:15000});
     }
     if(key!=='prologue')await page.evaluate(key=>Engine.play(key),key);
     await page.waitForFunction(next=>Engine.load()?.map&&Engine.load().chapter===next,next,{timeout:15000});assert((await page.evaluate(()=>Engine.unlocked())).includes(next));

@@ -9,20 +9,18 @@ async function content() {
   for (const f of ['progression', 'story', 'quests', 'restoration-content', 'guardian-content', 'guardian-combat', 'envoy']) vm.runInContext(await fs.readFile(path.join(root, 'js', f + '.js'), 'utf8'), c);
   return c;
 }
-test('The envoy camp battles are part of the story in three towns, not side trips, and Terra Cotta still has no battle', async () => {
-  const c = await content();
-  const r = JSON.parse(vm.runInContext(`JSON.stringify({ boards: CAMP_BATTLES.map(e => ({ id: e.id, chapter: e.chapter, town: e.town, mode: BOARDS[e.id].encounter.objective, camps: !!BOARDS[e.id].encounter.camps })),
-    act1: SCRIPT.act1, act2: SCRIPT.act2, act4: SCRIPT.act4, act5: SCRIPT.act5, legacy: Envoy.LEGACY.map(k => SCRIPT[k].trim()), sides: Object.keys(EXTRA_SIDE_STORIES) })`, c));
-  assert.deepEqual(r.boards.map(b => [b.id, b.chapter, b.town]), [['camp_port', 'act1', 'aquamist'], ['camp_valley', 'act4', 'stone'], ['camp_town', 'act5', 'rainbow']]);
-  assert(r.boards.every(b => b.mode === 'camps' && b.camps));
-  for (const [key, id, before, boss] of [['act1', 'camp_port', 'gp_gran', 'gran'], ['act4', 'camp_valley', 'gp_spinel', 'spinel'], ['act5', 'camp_town', 'gp_king', 'king']]) {
-    const s = r[key], at = w => s.indexOf('@board ' + w);
-    assert(at(before) >= 0 && at(before) < at(id) && at(id) < at(boss), `${key}: ${id} happens in the story between ${before} and ${boss}`);
-  }
-  assert(!/^@board/m.test(r.act2), 'Terra Cotta keeps its no-battle rule');
-  for (const s of [r.act1, r.act4, r.act5]) assert(!/^ノアール「/m.test(s), 'Noir still does not speak before the finale');
-  assert(r.legacy.every(t => t === '@sideend'), 'old side-trip saves only return to their checkpoint');
-  assert.match(r.act1, /黒い旗/); assert.match(r.act1, /針みたいな字/);
+test('Royal army battles are three independent episodes between complete spirit chapters', async () => {
+ const c=await content();
+ const r=JSON.parse(vm.runInContext(`JSON.stringify({episodes:CAMP_BATTLES.map(e=>({id:e.id,story:e.story,before:e.before,act:e.act,town:e.town,text:SCRIPT[e.story],spirits:BOARDS[e.id].spirits})),main:Object.fromEntries(['act1','act2','act3','act4','act5'].map(k=>[k,SCRIPT[k]])),legacy:Envoy.LEGACY.map(k=>SCRIPT[k].trim()),sides:Object.keys(EXTRA_SIDE_STORIES)})`,c));
+ assert.deepEqual(r.episodes.map(e=>[e.id,e.story,e.before]),[['camp_port','kingdom_port','act2'],['camp_valley','kingdom_valley','act4'],['camp_town','kingdom_town','act5']]);
+ for(const [chapter,text]of Object.entries(r.main))assert(!/@board camp_/.test(text),chapter+' does not interrupt its spirit story');
+ assert(!/^@board/m.test(r.main.act2),'Terra Cotta stays a quiet chapter');
+ for(const e of r.episodes){assert.equal((e.text.match(/@board camp_/g)||[]).length,1);assert(e.text.trim().endsWith('@sideend'));assert(r.sides.includes(e.story));assert(!/^ノアール「/m.test(e.text));assert.match(e.act,/王国編/);}
+ assert(r.episodes[0].spirits.includes('gran'),'the port is after Gran joined');
+ assert(!r.episodes[1].spirits.includes('spinel'),'the village precedes Spinel');
+ assert(r.episodes[2].spirits.includes('spinel'),'all four spirits are present before the king');
+ assert.match(r.main.act5,/門は開いていた/);assert(!r.main.act5.includes('自分の盾を黒く塗っていた'));
+ assert(r.legacy.every(t=>t==='@sideend'));
 });
 
 let browser, server, base;
@@ -257,4 +255,49 @@ test('Once the story battle is behind, the town offers it again from the map', a
     assert.deepEqual(await page.evaluate(() => window.__conf), { id: 'camp_port', mode: 'camps' });
     assert.deepEqual(errors, []);
   } finally { await ctx.close(); }
+});
+
+
+test('New journeys open the royal episode from the map and return to the exact main-story bookmark',async()=>{
+ const {ctx,page,errors}=await battle(null,['prologue','act1','act2']);
+ try{
+  const bookmark={chapter:'act2',idx:0,map:true,scriptVersion:4,at:1234};
+  await page.evaluate(s=>{localStorage.cr_save=JSON.stringify(s);World.open({at:'aquamist'});},bookmark);
+  const normalizedBookmark=await page.evaluate(()=>Engine.load());
+  await page.locator('#wmPanel [data-a=story]').waitFor();
+  assert.equal(await page.locator('#wmPanel [data-a=story]').textContent(),'王国編を読む');
+  assert.equal(await page.locator('.wn[data-node=aquamist] .wn-story').textContent(),'王国編');
+  assert.equal(await page.evaluate(()=>Envoy.gate('act2').id),'camp_port');
+  await page.locator('#wmPanel [data-a=story]').click();
+  await page.waitForFunction(()=>Engine.chapter==='kingdom_port');
+  await page.locator('#chapterCard').click();
+  await page.waitForFunction(()=>Engine.load()?.chapter==='kingdom_port');
+  assert.deepEqual(await page.evaluate(()=>Engine.load().returnStory),normalizedBookmark);
+  await page.evaluate(()=>{
+   const s=Engine.load();Board.party.stages.camp_port={cleared:true};Board.saveParty();
+   const last=SCRIPT.kingdom_port.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#')).length-1;
+   Engine.play('kingdom_port',last,s);
+  });
+  await page.locator('#world').waitFor({state:'visible'});
+  assert.deepEqual(await page.evaluate(()=>Engine.load()),normalizedBookmark);
+  assert.equal(await page.evaluate(()=>Envoy.gate('act2')),null);
+  await page.evaluate(()=>{World.close();Engine.play('act2');});await page.waitForFunction(()=>Engine.chapter==='act2');
+  assert.deepEqual(errors,[]);
+ }finally{await ctx.close();}
+});
+
+test('Valley waits for both forest and hill; old journeys are not rewound into a new episode',async()=>{
+ const {ctx,page,errors}=await battle(null,['prologue','act1','act2','act3','act4']);
+ try{
+  const data=await page.evaluate(()=>{
+   localStorage.cr_save=JSON.stringify({chapter:'act4',idx:0,map:true,scriptVersion:4});
+   Board.party.stages.camp_port={cleared:true};Board.saveParty();
+   const before=Envoy.gate('act4');
+   localStorage.cr_unlocked=JSON.stringify([...Engine.unlocked(),'vardbond']);
+   const after=Envoy.gate('act4')?.id;
+   localStorage.cr_save=JSON.stringify({chapter:'act4',idx:0,map:true,scriptVersion:3});
+   return {before,after,legacy:Envoy.gate('act4')};
+  });
+  assert.deepEqual(data,{before:null,after:'camp_valley',legacy:null});assert.deepEqual(errors,[]);
+ }finally{await ctx.close();}
 });

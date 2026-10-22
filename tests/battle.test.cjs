@@ -845,7 +845,7 @@ test('Conversation sprites show every prepared NPC and are cleared on returning 
   await boot('king',{width:390,height:844});await page.evaluate(()=>Board.stop());await recordArt();
   for(const [who,id] of [['リラ','lila'],['老漁師','fisher'],['ルミナ','lumina'],['石の子','stone_child'],['馨','kaoru'],['マリー','mari']]){
     await page.evaluate(who=>{SCRIPT.artReview=`@bg forest\n${who}「ここで話す」`;Engine.play('artReview');},who);
-    await page.locator(`.speaker-art[data-art=${id}]`).waitFor();await drew(id,4,id);
+    await page.locator(`.speaker-art[data-art=${id}]`).waitFor();await drew(id,['kaoru','mari'].includes(id)?8:4,id);
     const r=await page.locator('.speaker-art').boundingBox();assert(r.x<390&&r.x+r.width>0&&r.y<600&&r.y+r.height>250);
     assert.equal(await page.locator('.speaker-art').evaluate(e=>getComputedStyle(e).pointerEvents),'none','The portrait must not block dialogue controls');
   }

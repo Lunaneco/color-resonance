@@ -1,5 +1,5 @@
 // 本編の陣取り戦「王の遣い兵」。偽の布告で黒く塗られた兵が、町に黒い旗を立てている。
-// 第一幕のアクアミスト、第四幕の石の子の村、第五幕の虹の城下町で、物語の途中にそのまま起こる（寄り道ではない）。
+// 精霊の章へ差し込まず、章の区切りにマップから読む独立した「王国編」3話。
 // テラ・コッタには置かない（最終章のほかに戦闘を置かない決まり）。
 // 戦いの仕組み（指揮点・拠点の占領・迎撃・本陣）は board.js の cfg.encounter.camps が受け持つ。兵は穢れではないので、倒すと黒い塗りが剥がれて我に返る。
 // 陣取り戦の盤は手で描く（戦場のヴァルキュリアの市街戦の形）。文字の意味は board.js の layoutMap を参照。
@@ -115,19 +115,19 @@ const RAINBOW_GUARD = {
   verde: { id: 'verde', name: '緑のヴェルデ', color: '#8ee6a0', rgb: [40, 140, 70], kind: 's_bow', trait: 'root', hp: 1.8, atk: 1.15, def: 1.15, sight: '芽は、摘む', freed: '土の匂いがする' },
 };
 const CAMP_BATTLES = [
-  { id: 'camp_port', chapter: 'act1', town: 'aquamist', region: 'sea', act: '第一幕', title: '港の黒い旗', lv: 3, spirits: [],
+  { id: 'camp_port', chapter: 'act1', story: 'kingdom_port', before: 'act2', town: 'aquamist', region: 'sea', act: '王国編 I', title: '港の黒い旗', lv: 3, spirits: ['gran'],
     theme: { bg: 'rain', preset: 'dusk', fx: 'rain:0.3', bgm: 'fate' }, hue: '#8fc7da', reward: 200, ordinaryReward: 'a_rain',
     camps: { commanders: [{ ...RAINBOW_GUARD.marina, hp: 1.3, atk: 1.05 }, { ...RAINBOW_GUARD.sion, lv: 2, hp: 1.5, atk: 1 }], cp: 3, cpMax: 6, spawn: { kind: 's_lance', lv: 2 }, spawnEvery: 3, spawnCap: 7 },
     enemies: [{ kind: 's_captain', lv: 3 }, { kind: 's_lance', lv: 2, n: 2 }, { kind: 's_bow', lv: 2, n: 1, hold: true }, { kind: 's_sword', lv: 2, n: 1 }],
     missions: [{ type: 'turns', n: 10 }, { type: 'hp', n: 50 }, { type: 'rainbow', n: 40 }],
     desc: '船着き場の桟橋に、黒い旗が立てられた。桟橋の先の本陣には青のマリナ、丘の旗には藍のシオン。旗を一本ずつ取り返し、本陣の旗を奪う。' },
-  { id: 'camp_valley', chapter: 'act4', town: 'stone', region: 'canyon', act: '第四幕', title: '石の子の村の旗', lv: 8, spirits: ['gran', 'ivy'],
+  { id: 'camp_valley', chapter: 'act3', story: 'kingdom_valley', before: 'act4', town: 'stone', region: 'canyon', act: '王国編 II', title: '石の子の村の旗', lv: 8, spirits: ['gran', 'ivy', 'vard'],
     theme: { bg: 'canyon', preset: 'dusk', fx: 'gold:0.3', bgm: 'fate' }, hue: '#f5d27e', reward: 380, ordinaryReward: 'a_gold',
     camps: { commanders: [{ ...RAINBOW_GUARD.ocher, hp: 1.4, def: 1.4 }, { ...RAINBOW_GUARD.amber, lv: 9 }], cp: 3, cpMax: 7, spawn: { kind: 's_lance', lv: 8 }, spawnEvery: 3, spawnCap: 9 },
     enemies: [{ kind: 's_captain', lv: 9 }, { kind: 's_heavy', lv: 8, n: 2, hold: true }, { kind: 's_bow', lv: 8, n: 2, hold: true }, { kind: 's_lance', lv: 8, n: 1 }],
     missions: [{ type: 'turns', n: 12 }, { type: 'noDown' }, { type: 'rainbow', n: 45 }],
     desc: '石の子の村の屋根に、黒い旗が立っている。上の段の本陣には黄のオーカー、左の段の旗には橙のアンバー。旗を取り返して指揮点を増やし、本陣を奪う。' },
-  { id: 'camp_town', chapter: 'act5', town: 'rainbow', region: 'spire', act: '第五幕', title: '城下町の黒い旗', lv: 11, spirits: ['gran', 'ivy', 'spinel'],
+  { id: 'camp_town', chapter: 'act4', story: 'kingdom_town', before: 'act5', town: 'rainbow', region: 'spire', act: '王国編 III', title: '城下町の黒い旗', lv: 11, spirits: ['gran', 'ivy', 'vard', 'spinel'],
     theme: { bg: 'glass', preset: 'dim', fx: 'sparkle:0.3', bgm: 'fate' }, hue: '#cdb8f5', reward: 480, ordinaryReward: 'e_prism',
     camps: { commanders: [{ ...RAINBOW_GUARD.viola, hp: 1.25, def: 1.1 }, { ...RAINBOW_GUARD.carmine, lv: 11, hp: 1.5, atk: 1.2 }, { ...RAINBOW_GUARD.verde, lv: 11, hp: 1.5 }], cp: 3, cpMax: 8, spawn: { kind: 's_lance', lv: 10 }, spawnEvery: 4, spawnCap: 9 },
     enemies: [{ kind: 's_captain', lv: 12 }, { kind: 's_cavalry', lv: 10, n: 1 }, { kind: 's_heavy', lv: 10, n: 1, hold: true }, { kind: 's_bow', lv: 10, n: 2, hold: true }, { kind: 's_sword', lv: 10, n: 1, hold: true }],
@@ -154,7 +154,7 @@ const Envoy = (() => {
 桟橋の先に、房飾りのついた長い槍を持った女が立っていた。房飾りの先まで、黒く塗られていた。
 マリナ「この港は、本日より王の布告のもとに置く。桟橋は、すべて黒で揃える」
 マリナ「揃えれば、誰も迷わない。迷わなければ、誰も沈まない。……そうだろう？」
-老漁師「マリナ嬢ちゃん。灯台守の娘が、何を言ってる。旗を立てられた桟橋には、もう船が帰れん。……あの鯨が泣いているうちは、港しか帰り道がないってのに」
+老漁師「マリナ嬢ちゃん。灯台守の娘が、何を言ってる。旗を立てられた桟橋には、もう船が帰れん。……ようやく帰ってきた船を、また追い返すつもりか」
 倉庫の丘から、冷たい霧が降りてきた。霧の奥で、弓の弦が鳴った。
 シオン「見えるものは、全部撃つ。……霧の中なら、誰も見ずに済む」
 老漁師「シオンの坊主まで。二人とも、虹の近衛に上がった港の子だ。王さまの、七人の近衛に」
@@ -209,31 +209,104 @@ const Envoy = (() => {
 ヴィオラ「……やっと、自分の声で言える。王を、助けてください。王も、黒く塗られている」
 カーマイン「走るのは好きだった。……何から逃げてたんだろうな、俺は」
 ヴェルデ「城の庭の苗、まだ間に合いますか」
-ヴィオラ「七人とも、目が覚めた。近衛は門を開ける。アリア、王のところへ」
-アリアはうなずいて、門をくぐった。`,
+ヴィオラ「七人とも、自分の色を取り戻した。町は私たちが守る。アリア、王の声を聞いてきてください」
+アリアはうなずいた。門の外で、ヴィオラが自分の剣を鞘に収めた。
+町の旗は取り戻した。その先で待っている王には、まだ、会っていない。`,
     },
   };
-  // 本編へ差しこむ。物語の場面の続きとして、そのまま陣取り戦が始まる。
-  CAMP_BATTLES.forEach(e => {
-    const sc = scenes[e.id], key = e.chapter;
-    if (!SCRIPT[key] || !SCRIPT[key].includes(sc.anchor)) return;
-    SCRIPT[key] = SCRIPT[key].replace(sc.anchor, `${sc.anchor}\n${sc.before}\n@board ${e.id}\n${sc.after}`);
-  });
-  // 1.23.0 の寄り道（envoy_*）を読みかけていた記録は、開いても元の場所へ戻るだけ。
+  // 1.24〜1.26 の途中セーブだけに使う旧配置。新しい本文には挿入しない。
+  const inlineLegacy = Object.fromEntries(CAMP_BATTLES.map(e => {
+    const oldChapter = {camp_port:'act1',camp_valley:'act4',camp_town:'act5'}[e.id];
+    const sc=scenes[e.id];
+    return [oldChapter,SCRIPT[oldChapter].replace(sc.anchor,`${sc.anchor}\n${sc.before}\n@board ${e.id}\n${sc.after}`)];
+  }));
+  const openings = {
+    camp_port:`@bg rain dusk
+@fx rain:0.3
+@bgm fate
+@pouch show
+グランの背で雲を抜けたとき、アリアは海の下を振り返った。港の灯台が、短く三度、明滅していた。
+グラン「あれは、帰港の合図ではない。助けを呼んでいる」
+青い翼が傾いた。雲の下へ戻ると、さっきまで灯の見えていた桟橋が、霧に沈んでいた。
+アリアは港へ降りた。グランは灯台に預けた潮を細く引き、船が沖で待てる場所を残した。
+`,
+    camp_valley:`@bg canyon dusk
+@fx gold:0.2
+@bgm fate
+@pouch show
+森と赤い丘を離れた夕方、アリアたちは金色の谷へ向かった。グランの横をアイビーが歩き、ヴァルドは荷物を角にかけていた。
+谷へ入る前に、食事と寝床を探して石の子の村へ寄った。ところが、煙突からは一本の煙も上がっていなかった。
+道端に、港で見たものと同じ、王の印のある布告が落ちていた。
+`,
+    camp_town:`@bg glass dim
+@fx sparkle:0.2
+@bgm fate
+@pouch show
+スピネルとの旅を手帳へ残し、アリアたちはテラ・コッタを発った。向かう先は、布告の印のある城だった。
+虹の尖塔が見えはじめても、城下町からは市場の声が聞こえなかった。
+港と村で剥がしたものと同じ黒が、通りの入口に垂れていた。
+`,
+  };
+  const closings = {
+    camp_port:`グランが灯台へ顔を寄せた。碧い光は、今度は途切れずに灯っていた。
+マリナとシオンは桟橋に残り、帰ってくる船へ灯を振った。
+アリアたちは灰色の街へ向かう旅を再開した。港を発つ理由も、帰れる場所も、もう失われてはいなかった。`,
+    camp_valley:`その夜、アンバーの鍋から湯気が立った。オーカーは割れた椅子を持ってきて、座れるように直した。
+村の道は開いた。アリアたちは明日、谷の奥を訪ねることにした。
+今夜は、かまどの火を消さずに眠れた。`,
+    camp_town:`グラン、アイビー、ヴァルド、スピネルが、開いた門の前にそろった。
+アリアは心剣から手を離した。ここからは、命令を受けた人たちではなく、その命令の出た場所へ向かう。
+王のもとへ行こう。今度こそ、本人の声を聞くために。`,
+  };
+  for(const e of CAMP_BATTLES){
+    const sc=scenes[e.id];
+    SCRIPT[e.story]=`@chapter ${e.act}|${e.title}\n${openings[e.id]}\n${sc.before}\n@board ${e.id}\n${sc.after}\n${closings[e.id]}\n@sideend`;
+  }
+  // 城下町の解放は王国編IIIで完結。第五幕は、開いた門の内側から始める。
+  const kingOpening=SCRIPT.act5.indexOf('パレット・パレスは、');
+  const kingThrone=SCRIPT.act5.indexOf('@aura kingDark',kingOpening);
+  if(kingOpening>=0&&kingThrone>kingOpening)SCRIPT.act5=SCRIPT.act5.slice(0,kingOpening)+`パレット・パレスの門は開いていた。ヴィオラたちに町を託し、アリアは仲間と城の内側へ入った。
+虹色の尖塔は、黒い靄に覆われていた。宝石の壁へ、誰の足音も返ってこない。
+旅のあいだに見た布告は、すべてこの城の印だった。けれど、その命令を書かせた声の持ち主には、まだ会っていない。
+グランも、アイビーも、ヴァルドも、スピネルも、ここにいる。アリアは玉座の間の扉へ手をかけた。
+`+SCRIPT.act5.slice(kingThrone);
+
   const LEGACY = ['envoy_sea', 'envoy_forest', 'envoy_hill', 'envoy_canyon', 'envoy_spire', 'envoy_veil'];
   LEGACY.forEach(k => { SCRIPT[k] = '\n@sideend\n'; });
   const ORDER = ['prologue', 'act1', 'act2', 'act3', 'act4', 'act5', 'finale', 'epilogue', 'done'];
   const reachedAfter = ch => { const u = Engine.unlocked(), i = ORDER.indexOf(ch); return u.some(k => ORDER.indexOf(k) > i); };
   const cleared = e => !!(Board.party.stages && Board.party.stages[e.id] && Board.party.stages[e.id].cleared);
-  // 物語で戦ったあとは、町からもう一度戦える（物語は進めない）。
-  const at = town => CAMP_BATTLES.filter(e => e.town === town && (cleared(e) || reachedAfter(e.chapter)));
+  const fulfilled = e => {
+    const s=Engine.load();
+    // 旧版で次章まで到着した旅を、追加した幕間へ巻き戻さない。
+    const legacy=(!s||!s.scriptVersion||s.scriptVersion<4)&&Engine.unlocked().includes(e.before);
+    return cleared(e)||reachedAfter(e.before)||!!legacy;
+  };
+  const episode = key => CAMP_BATTLES.find(e => e.story===key);
+  function available(e){
+    if(typeof e==='string')e=CAMP_BATTLES.find(x=>x.id===e||x.story===e);
+    if(!e||!Engine.unlocked().includes(e.before)&&!reachedAfter(e.before))return false;
+    if(Progression.journeyGate(e.before,Engine.unlocked(),Engine.load()?.colors))return false;
+    const i=CAMP_BATTLES.indexOf(e);
+    return i===0||fulfilled(CAMP_BATTLES[i-1]);
+  }
+  function gate(chapter){
+    const e=CAMP_BATTLES.find(x=>x.before===chapter);
+    return e&&!fulfilled(e)&&available(e)?e:null;
+  }
+  const at = town => CAMP_BATTLES.filter(e => e.town === town && available(e));
+  function start(id){
+    const e=CAMP_BATTLES.find(x=>x.id===id);if(!e||!available(e))return;
+    Panel.close();World.close();Engine.play(e.story);
+  }
   function replay(id) {
-    const e = CAMP_BATTLES.find(x => x.id === id); if (!e) return;
+    const e = CAMP_BATTLES.find(x => x.id === id); if (!e || !available(e)) return;
     Panel.close(); World.close(); Engine.resetStage();
     Engine.setBg(e.theme.bg, e.theme.preset); FX.set(e.theme.fx); Audio2.playBgm(e.theme.bgm);
     Board.start({ ...BOARDS[id], difficulty: Progression.selected(Board.party, id), resultLabel: 'マップへ戻る' }, () => World.open({ at: e.town }));
   }
-  return { CAMP_BATTLES, LEGACY, at, cleared, replay };
+  return { CAMP_BATTLES, LEGACY, at, cleared, completed:fulfilled, available, episode, gate, start, replay, legacyScript:key=>inlineLegacy[key] };
+
 })();
 var EXTRA_SIDE_STORIES = Object.assign(typeof EXTRA_SIDE_STORIES === 'object' && EXTRA_SIDE_STORIES ? EXTRA_SIDE_STORIES : {},
-  Object.fromEntries(Envoy.LEGACY.map(k => [k, { home: null, open: () => true }])));
+  Object.fromEntries([...Envoy.LEGACY.map(k => [k, { home: null, open: () => true }]), ...CAMP_BATTLES.map(e=>[e.story,{home:e.town,open:()=>Envoy.available(e)}]) ]));
