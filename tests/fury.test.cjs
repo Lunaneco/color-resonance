@@ -66,6 +66,14 @@ async function storyBattles(page,chapter,path,boss,next){
  assert.equal(await page.evaluate(()=>Board.__furyQA.state().cfg),boss);await win(page);
  await advance(page,()=>World.isOpen);assert.equal(await page.evaluate(()=>Engine.load().chapter),next);
 }
+// 1.27.0 から、森と丘のあと（王国編II）とスピネル加入のあと（王国編III）に、独立した王国編が入る。
+// 地図の「王国編を読む」から始め、陣取り戦に勝つと本筋の同じ章へ戻る。
+async function kingdom(page,chapter,camp,town){
+ await page.locator('#wmPanel:not(.hidden) .wp-name').waitFor();assert.equal(await page.evaluate(()=>document.getElementById('wmPanel').dataset.node),town,'the map leads to the royal episode town');
+ await page.locator('#wmPanel [data-a=story]').click();
+ await advance(page,()=>Board.running);await ready(page);assert.equal(await page.evaluate(()=>Board.__furyQA.state().cfg),camp);await win(page);
+ await advance(page,()=>World.isOpen);assert.equal(await page.evaluate(()=>Engine.load().chapter),chapter);assert.equal(await page.evaluate(ch=>Envoy.gate(ch),chapter),null);
+}
 for(const engine of ['chromium','webkit']){
  test(`${engine}: Ivy joins the red hill battle only after the forest story`,async()=>{
   await session(engine,async page=>{
@@ -98,7 +106,9 @@ for(const engine of ['chromium','webkit']){
    assert.equal(await page.evaluate(()=>Progression.journeyGate('act4',Engine.unlocked())),null);
    assert(await page.evaluate(()=>GuardianJourney.available(BOARDS.gp_spinel)));
    const log=await page.evaluate(()=>document.getElementById('text').textContent);assert(log!==undefined);
+   await kingdom(page,'act4','camp_valley','stone');
    await storyBattles(page,'act4','gp_spinel','spinel','act5');
+   await kingdom(page,'act5','camp_town','rainbow');
    assert.deepEqual(await page.evaluate(()=>Progression.companions(Engine.unlocked())),['gran','ivy','spinel','vard']);
    assert.equal(await page.evaluate(()=>Progression.journeyGate('act5',Engine.unlocked())),null);
    await page.evaluate(()=>Engine.play('act5'));await advance(page,()=>Board.running);await ready(page);

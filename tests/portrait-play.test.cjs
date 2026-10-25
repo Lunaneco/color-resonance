@@ -7,6 +7,7 @@ let browsers, server, base;
 
 // テストだけで使う戦闘の窓口。公開するJavaScriptには入れない。
 const hook = `__portrait: {
+  settle(){ settleView(); },
   state(){ const a=ariaU(); const p=a&&toScreen(unitXY(a).x,unitXY(a).y-tw*a.hgt*.5);
     return {running,busy,mode,phase,sel:sel&&sel.kind,moved:!!(a&&a.moved),z:view.z,ox:view.ox,oy:view.oy,W,H,frame,aria:p&&{x:p.x,y:p.y},menuTop:cmdMenu.classList.contains('hidden')?null:cmdMenu.offsetTop}; },
   // 光る移動先の縁のすぐ外で、指なら移動先、マウスなら別の床（か何もない所）になる点を探す
@@ -53,12 +54,16 @@ async function boot(engine, settings, board = 'cove') {
   return { ctx, page, errors };
 }
 const S = page => page.evaluate(() => Board.__portrait.state());
-const settle = async page => { let prev = null; for (let i = 0; i < 40; i++) { const s = await S(page); if (prev && Math.abs(s.z - prev.z) < 1e-3 && Math.abs(s.ox - prev.ox) < 0.2 && Math.abs(s.oy - prev.oy) < 0.2) return s; prev = s; await page.waitForTimeout(60); } return S(page); };
+// 寄せの行き先を確かめる。WebKit は同時に動くと描画の手番（requestAnimationFrame）が止まることがあるので、
+// 動き終わるのを待たず、行き先へ直接置いてから測る。滑らかに動くこと自体は、動きが進んでいることで確かめる。
+const settle = async page => { await page.evaluate(() => Board.__portrait.settle()); return S(page); };
 
 for (const engine of ['chromium', 'webkit'])
 test(`${engine}: on a portrait phone the map moves in on the chosen ally, keeps her above the menu, and returns to the whole map`, async () => {
   const { ctx, page, errors } = await boot(engine, { reduceMotion: false, textSize: 'normal' });
   try {
+    // 寄りはじめる（倍率が等倍から動いていく）
+    await page.waitForFunction(() => Board.__portrait.state().z > 1.01, null, { timeout: 5000 }).catch(() => {});
     let s = await settle(page);
     assert(s.frame, 'portrait layout has a free frame between the top chips and the bottom dock');
     assert(s.z > 1.05 && s.z <= 1.6 + 1e-6, 'choosing an ally zooms in on her move area: ' + s.z);

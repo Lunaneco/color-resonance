@@ -43,10 +43,11 @@ test('The first camp battle opens the camp, fog and guard lessons before the fir
       if (await done.count()) { await done.click(); break; }
       await page.locator('#panel [data-tut=next]').click();
     }
-    assert.deepEqual([...new Set(topics)], ['陣取り戦', '霧（潜伏）', '虹の近衛', 'ノアールの吸収'], 'every new system in this battle, in order');
+    // 1.27.0 から港の旗はグラン加入の直後。グランが仲間として戦う最初の戦いなので、グランと精霊の説明もここで開く
+    assert.deepEqual([...new Set(topics)], ['陣取り戦', '霧（潜伏）', '虹の近衛', 'グラン', '精霊の召喚と宿し', 'ノアールの吸収'], 'every new system in this battle, in order');
     assert(topics.filter(t => t === '陣取り戦').length >= 5, 'the camp lesson has several pages');
     await page.waitForFunction(() => /TURN1/.test(document.getElementById('kegareCount').textContent));
-    assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.cr_tutorials).sort()), ['camp', 'fog', 'guard', 'noir']);
+    assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.cr_tutorials).sort()), ['ally_gran', 'camp', 'fog', 'guard', 'noir', 'spirits']);
     // もう一度戦っても、説明は開かない
     await page.evaluate(() => Board.stop()); await fight(page, 'camp_port');
     await page.waitForFunction(() => /TURN1/.test(document.getElementById('kegareCount').textContent));
@@ -54,9 +55,9 @@ test('The first camp battle opens the camp, fog and guard lessons before the fir
     // 「？」から、いつでも読み直せる。読み直しは記録を変えない
     await page.evaluate(() => Board.help());
     // 読み直しの一覧は、読んだ説明だけ。まだ出会っていない仕組みや仲間の名前は出ない
-    assert.deepEqual((await page.locator('[data-tut-topic]').evaluateAll(b => b.map(x => x.dataset.tutTopic))).sort(), ['camp', 'fog', 'guard', 'noir']);
+    assert.deepEqual((await page.locator('[data-tut-topic]').evaluateAll(b => b.map(x => x.dataset.tutTopic))).sort(), ['ally_gran', 'camp', 'fog', 'guard', 'noir', 'spirits']);
     const help = await page.locator('#panel .pn-body').textContent();
-    for (const name of ['クロム', 'スピネル', 'マリー', 'グラン', 'アイビー', 'ヴァルド']) assert(!help.includes(name), `the first-act help does not name ${name}`);
+    for (const name of ['クロム', 'スピネル', 'マリー', 'アイビー', 'ヴァルド']) assert(!help.includes(name), `the first-act help does not name ${name}`);
     await page.locator('[data-tut-topic=fog]').click();
     assert.match(await page.locator('#panel .pn-title').textContent(), /しくみの説明 · 霧（潜伏）/);
     await page.locator('#panel [data-tut=next]').click(); await page.locator('#panel [data-tut=done]').click();

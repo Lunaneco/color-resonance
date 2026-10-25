@@ -490,9 +490,11 @@ const Engine = (() => {
         if((!SIDE_STORIES.includes(chapter)&&chapter!=='restore4')||!excursionReturn) break;
         const bookmark=excursionReturn,mariStory=chapter.startsWith('mari_')||chapter==='restore4';
         // 丘を読み終えたら、残っている本編の場所（森、または揃った谷）へ案内する。
+        // 王国編が残っているかは本編の記録で決まる（旧版の旅は巻き戻さない）ので、記録を戻してから調べる。
+        localStorage.setItem('cr_save',JSON.stringify(bookmark));
         const kingdom=bookmark.map&&typeof Envoy!=='undefined'&&Envoy.gate(bookmark.chapter);
         const home=kingdom?.town||chapter==='fury'&&bookmark.map&&{act3:'thorn',act4:'canyon'}[bookmark.chapter]||SIDE_HOME[chapter];resetStage();excursionReturn=null;
-        localStorage.setItem('cr_save',JSON.stringify(bookmark));World.open(mariStory?{}:{at:home||'f_fruit'});if(mariStory)Restoration.open();return 'stop';
+        World.open(mariStory?{}:{at:home||'f_fruit'});if(mariStory)Restoration.open();return 'stop';
       }
       case 'next': { if(chapter==='restore4'&&excursionReturn)return command('sideend','');const mine = token, node = arrival; arrival = null; unlock(a[0]); await fadeOut(); if (mine === token) toMap(a[0], node); return 'stop'; }
       case 'rejoin': Restoration.join(); break;

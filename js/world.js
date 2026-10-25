@@ -137,7 +137,7 @@ const WORLD_NODES = [
   { id: 'grey', type: 'town', name: 'テラ・コッタ', sub: 'チクタクの音の街', chapter: 'act2', x: 425, y: 455, shop: 'grey', bg: 'cave_sky', preset: 'gray', desc: '時計の音ばかりが聞こえる、灰色の街。ここには切り分けるものがない。角のカフェでは、馨がカモミールを頼んでいる。' },
   { id: 'thorn', clearedBy: 'act4',  type: 'stage', board: 'ivy', chapter: 'act3', name: '茨の鳥籠', sub: '第三幕', x: 365, y: 235, theme: { bg: 'forest', preset: 'dim', fx: 'motes:0.5', bgm: 'forest' }, desc: '木漏れ日を妬む茨が、光の精霊を閉じこめている森。' },
   { id: 'canyon', clearedBy: 'act5',  type: 'stage', board: 'spinel', chapter: 'act4', name: '鉛のドーム', sub: '第四幕', x: 600, y: 320, theme: { bg: 'canyon', preset: 'dim', fx: 'gold:0.5', bgm: 'forest' }, desc: '夕日に金色に燃える渓谷。その真ん中に、鉛の丸屋根がある。' },
-  { id: 'stone', type: 'town', name: '石の子の村', sub: '黄金の渓谷', need: 'act5', x: 665, y: 435, shop: 'stone', bg: 'canyon', preset: 'dusk', desc: '鉛から解き放たれた石の子たちの村。渓谷の金で、よい刻印を彫る。' },
+  { id: 'stone', type: 'town', name: '石の子の村', sub: '黄金の渓谷', need: 'act5', x: 665, y: 435, shop: 'stone', bg: 'canyon', preset: 'dusk', desc: '鉛から解き放たれた石の子たちの村。渓谷の金で、よい刻印を彫る。', early: { desc: '金色の谷へ入る手前の、石の子たちの村。' } },
   { id: 'spire', clearedBy: 'finale',  type: 'stage', board: 'king', chapter: 'act5', name: '虹の尖塔', sub: '第五幕', x: 770, y: 195, theme: { bg: 'glass', preset: 'dim', fx: 'sparkle:0.3', bgm: 'fate' }, desc: '世界の色の調和を守ってきた王の塔。いまは漆黒が玉座を満たしている。' },
   { id: 'rainbow', type: 'town', name: '虹の城下町', sub: '王の街', need: 'finale', x: 870, y: 95, shop: 'rainbow', bg: 'glass', preset: 'bright', desc: '色の戻った城下町。世界中の品が集まる大きな市がある。' },
   { id: 'veil', clearedBy: 'epilogue',  type: 'stage', board: 'chrome', chapter: 'finale', name: '黒い靄の奥', sub: '終章', x: -135, y: 395, theme: { bg: 'stars', preset: 'dark', fx: 'stars:0.6', bgm: 'fate' },
@@ -196,14 +196,18 @@ const World = (() => {
   const has = (k) => !k || unlocked().includes(k);
   const save = () => Engine.load();
   function nextChapter() { const s = save(); return s && SCRIPT[s.chapter] ? s : null; }
+  // 王国編の舞台が、まだ本編では着いていない町のこともある（王国編IIの石の子の村は第五幕より前）。
+  // 王国編が読めるあいだは地図に出し、町の店や遊びは本編で着くまで開かない（early）。
+  const early = n => !!n.need && !has(n.need);
   function visible(n) {
     if (n.id==='f_fruit') return Fury.available();
     if (n.chapter) return has(n.chapter);
+    if (early(n) && typeof Envoy !== 'undefined' && Envoy.at(n.id).length) return true;
     return has(n.need);
   }
   const node = (id) => WORLD_NODES.find(n => n.id === id) || questNode(id);
   // 物語が進むと名前や説明が変わる場所（黒い靄の奥 → クリスタリア）
-  const view = n => { const a = n.after && Object.entries(n.after).find(([k]) => has(k)); return a ? { ...n, ...a[1] } : n; };
+  const view = n => { const a = n.after && Object.entries(n.after).find(([k]) => has(k)); return a ? { ...n, ...a[1] } : n.early && early(n) ? { ...n, ...n.early } : n; };
   function questNode(id) {
     const q = SIDE_QUESTS[id]; if (!q) return null;
     const town = WORLD_NODES.find(n => n.id === q.town);
@@ -301,7 +305,7 @@ const World = (() => {
       b.className = `wn t-${n.type}${story ? ' story' : ''}${locked ? ' dim' : ''}${current === n.id ? ' here' : ''}`;
       b.style.left = ((n.x - MAP.x0) / MAP.w * 100) + '%'; b.style.top = (n.y / MAP.h * 100) + '%';
       b.dataset.node = n.id;
-      const qs = n.type === 'town' ? questsAt(n.id) : [];
+      const qs = n.type === 'town' && !early(n) ? questsAt(n.id) : [];
       const levels = qs.map(q => Progression.level(q, chosen(q)));
       const legendary = typeof Restoration !== 'undefined' && Restoration.joined() && LEGEND_QUESTS.find(q => q.town === n.id);
       const baseMeta = conf ? `LV${Progression.level(conf, key)}・${Progression.difficulties[key].name}` : qs.length ? `依頼${qs.length}件・LV${Math.min(...levels)}〜${Math.max(...levels)}` : '';
@@ -410,14 +414,14 @@ const World = (() => {
     } else if (n.type === 'stage' && !story) {
       body += '<p class="wp-note">物語が進むと、ここで戦えるようになる。</p>';
     }
-    if (n.type === 'town') {
+    if (n.type === 'town' && !early(n)) {
       acts.push(`<button class="wb main" data-a="shop">店に入る</button>`);
       acts.push(`<button class="wb" data-a="games">色と音の休憩所</button>`);
       acts.push(`<button class="wb" data-a="forge">スキル強化</button>`);
       const townNote = { aquamist: '港の硝子盤に灯りを戻す、灯台守の小さな遊び。', grey: '時計の音のあいだに、精霊のこだまが帰ってきた。', stone: '金継ぎの硝子盤と、谷に響く四つの音。', rainbow: '祭りのあとも、色と音は広場で遊んでいる。' }[n.id];
       body += `<div class="wp-sec">町の余白<small>戦わずに遊べる</small></div><p class="wp-note">${townNote} 制限時間のないパズルと記憶あそびで、ひと休みできます。</p>`;
     }
-    if (n.type === 'town' && questsAt(n.id).length) body += `<div class="wp-sec">町の依頼<small>${questsAt(n.id).length}件</small></div>${questList(n.id)}`;
+    if (n.type === 'town' && !early(n) && questsAt(n.id).length) body += `<div class="wp-sec">町の依頼<small>${questsAt(n.id).length}件</small></div>${questList(n.id)}`;
     if(n.id==='f_fruit' && Fury.available()){
       body+=`<div class="wp-sec">紅角の精霊<small>憤怒を攻撃力へ</small></div><p class="wp-note">${Fury.joined()?'ヴァルドは仲間になった。怒りを攻撃力に変える精霊で、傷を負うほど強くなる。':'影を払う通常戦と、汚染された紅い竜のボス戦。物語の結末でヴァルドが仲間になります。森の物語と、どちらが先でもかまいません。'}</p>`;
       if(Fury.reunionReady())acts.push('<button class="wb" data-a="furychat">精霊たちの語らい</button>');
