@@ -149,7 +149,9 @@ for(const engine of ['chromium','webkit']){
       btn.click();
       btn.click();   // 回っている途中の2回目は受け付けない
       Board.__viewQA.stretch(8000);
-      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+      // 負荷が高いと最初の2フレームがほぼ同時に来て、角度がほとんど進まない（羅針盤のCSSは丸められて同じ値になる）。
+      // 目に見えるほど回るまで、フレームを待つ。
+      for (let i = 0; i < 120; i++) { await new Promise(r => requestAnimationFrame(r)); if (Board.__viewQA.state().viewQ > 0.01) break; }
       return Board.__viewQA.state();
     });
     assert.equal(mid.rotation, 1, 'the turn is committed at once, and a second press mid-turn is ignored');

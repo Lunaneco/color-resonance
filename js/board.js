@@ -1698,8 +1698,10 @@ const Board = (() => {
 
   // ---------- 経験とLV ----------
   const MAX_LV = 99;
-  const expHit = (a, d) => Math.max(2, Math.min(25, 8 + (d.lv - a.lv) * 2));
-  const expKill = (a, d) => Math.max(6, Math.min(80, 30 + (d.lv - a.lv) * 7 + (d.kind === 'boss' ? 30 : 0)));
+  // 経験は相手の強さ（難易度で上げ下げした能力のLV）で決まる。表示のLVは難易度で変わらない。
+  const strength = d => d.plv ?? d.lv;
+  const expHit = (a, d) => Math.max(2, Math.min(25, 8 + (strength(d) - a.lv) * 2));
+  const expKill = (a, d) => Math.max(6, Math.min(80, 30 + (strength(d) - a.lv) * 7 + (d.kind === 'boss' ? 30 : 0)));
   function gainExp(kind, amt, u) {
     const r = rec(kind);
     // セーブの育成範囲と統一。上限に届く分だけ受け取り、経験値の繰り越しを止める。
@@ -1742,13 +1744,15 @@ const Board = (() => {
     return s;
   }
   function makeUnit(kind, side, lv, cell, extra = {}) {
-    const G = GROW[kind], s = statsFor(kind, lv), ar = kind === 'aria';
+    // 難易度は敵のLVを変えず、能力値だけを何LV分か上げ下げする（cfg.enemyPower、Progression.difficulties の power）。
+    const plv = side === 'enemy' ? Math.max(1, lv + (cfg?.enemyPower || 0)) : lv;
+    const G = GROW[kind], s = statsFor(kind, plv), ar = kind === 'aria';
     const v = side === 'enemy' && region && typeof Regions !== 'undefined' ? Regions.variant(region, kind) : null;
     if (side === 'enemy' && cfg.enemyBoost) { s.mhp = Math.round(s.mhp * cfg.enemyBoost.hp); s.atk = Math.round(s.atk * cfg.enemyBoost.atk); }
     // 序盤の戦場だけ、敵の強さを戦場ごとに下げる（LV1のアリアがひとりでもノーコンで越えられるように）。
     if (side === 'enemy' && cfg.enemyScale) { s.mhp = Math.max(1, Math.round(s.mhp * (cfg.enemyScale.hp || 1))); s.atk = Math.max(1, Math.round(s.atk * (cfg.enemyScale.atk || 1))); }
     return Object.assign({
-      id: uid++, kind, side, lv, r: cell.r, c: cell.c, hp: s.mhp, mhp: s.mhp, atk: s.atk, def: s.def, mov: G.mov + (ar ? GB.mov : 0), jump: G.jump + (ar ? GB.jump : 0), rng: G.rng, fly: !!G.fly, armor: G.armor || 0, hgt: G.h,
+      id: uid++, kind, side, lv, plv, r: cell.r, c: cell.c, hp: s.mhp, mhp: s.mhp, atk: s.atk, def: s.def, mov: G.mov + (ar ? GB.mov : 0), jump: G.jump + (ar ? GB.jump : 0), rng: G.rng, fly: !!G.fly, armor: G.armor || 0, hgt: G.h,
       dir: side === 'ally' ? 0 : 2, moved: false, acted: false, normalAttacks: 0, root: 0, guard: 0, enchant: null, summon: 0, name: (v && v.name) || KIND_NAME[kind] || (SPIRITS[kind] && SPIRITS[kind].name) || kind, word: '', variant: v, trait: v ? v.trait : null, artId: v && v.art ? v.art : null,
       flash: 0, lunge: null, knock: null, mv: null, dk: null, dieT: 0, bornT: performance.now(), hidden: false, dead: false,
     }, extra);
@@ -1949,7 +1953,7 @@ const Board = (() => {
         d.intent = null;
       }
       stats.kills++;
-      stats.gold += 8 + d.lv * 2;
+      stats.gold += 8 + strength(d) * 2;
       if (killer && killer.until) stats.summonKills++;
       if (killer && (killer.resonance || killer.kind === 'aria' && killer.enchant)) stats.enchantKills++;
       if (d.kind === 'boss' && live().some(u => u.side === 'enemy')) stats.bossEarly = true;
@@ -3709,7 +3713,7 @@ const Board = (() => {
     if (ms.length) r = n >= ms.length ? 'S' : n === ms.length - 1 ? 'A' : n >= 1 ? 'B' : 'C';
     else { const par = cfg.par || totalFoes + 3; r = turn <= par ? 'S' : turn <= par + 2 ? 'A' : turn <= par + 5 ? 'B' : 'C'; }
     // しずく（お金）
-    const lvs = units.filter(u => u.side !== 'ally').map(u => u.lv);
+    const lvs = units.filter(u => u.side !== 'ally').map(u => u.plv ?? u.lv);
     const avg = lvs.length ? lvs.reduce((a, b) => a + b, 0) / lvs.length : 1;
     const clear = cfg.reward || Math.round(30 + avg * 10);
     const mult = { S: 1.5, A: 1.25, B: 1.1, C: 1 }[r];

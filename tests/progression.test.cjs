@@ -35,7 +35,13 @@ test('Difficulty changes enemy strength and recommendation without raising the s
   const original = JSON.stringify(B.ivy);
   const normal = P.prepare(B.ivy, 'normal'), hard = P.prepare(B.ivy, 'hard'), expert = P.prepare(B.ivy, 'expert');
   assert.equal(hard.recLv, normal.recLv); assert.equal(hard.recommendedLv, normal.recommendedLv + 3);
-  assert.equal(hard.enemies[0].lv, normal.enemies[0].lv + 2);
+  // 難易度で敵のLVは変えず、能力値（power＝何LV分の強さか・HP・攻撃の倍率）で差を付ける
+  const gentle = P.prepare(B.ivy, 'gentle');
+  assert.equal(hard.enemies[0].lv, normal.enemies[0].lv); assert.equal(gentle.enemies[0].lv, normal.enemies[0].lv);
+  assert.deepEqual([gentle.enemyPower, normal.enemyPower, hard.enemyPower], [-3, 0, 2]);
+  assert(gentle.enemyBoost.hp < normal.enemyBoost.hp && normal.enemyBoost.hp < hard.enemyBoost.hp);
+  // 入り江（序章）も、敵LVは3つの難易度で同じ
+  assert.deepEqual(['gentle', 'normal', 'hard'].map(k => P.prepare(B.cove, k).enemies[0].lv), Array(3).fill(P.prepare(B.cove, 'normal').enemies[0].lv));
   assert.equal(expert.difficulty, 'hard'); assert.equal(expert.enemyBoost.hp, hard.enemyBoost.hp); assert.equal(JSON.stringify(B.ivy), original);
   assert.deepEqual(Object.keys(P.difficulties), ['gentle', 'normal', 'hard']);
   assert.equal(P.prepare(B.cove, 'gentle').recommendedLv, 1);

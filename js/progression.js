@@ -1,10 +1,13 @@
 // マップと戦闘で共通の難易度・精霊の絆。
 const Progression = (() => {
+  // 1.21.0：ふつうを旧ハードの強さに、ハードをその上に引き上げた。
+  // 1.29.0：難易度で敵のLVは変えない（どの難易度でも ふつう と同じLV）。差は能力値だけで付ける。
+  //   power … 敵のHP・攻撃・防御を、成長の伸びに沿って何LV分ぶん上げ下げするか（旧版の敵LVの差と同じ強さ）。経験としずくもこの強さで決まる。
+  //   hp / atk … その上に掛ける倍率。
   const difficulties = {
-    gentle: { name: 'やさしい', level: -1, enemyLevel: -1, hp: 0.85, atk: 1, reward: 0.8, desc: '敵のHPが少なく、受ける傷も軽い' },
-    // 1.21.0：ふつうを旧ハードの強さに、ハードをその上に引き上げた。
-    normal: { name: 'ふつう', level: 2, enemyLevel: 2, hp: 1.15, atk: 1.08, reward: 1, desc: '標準の敵と報酬' },
-    hard: { name: 'ハード', level: 5, enemyLevel: 4, hp: 1.3, atk: 1.18, reward: 1.5, desc: '敵がさらに強くなる・しずく1.5倍・ボスSでユニーク／通常戦Sで通常装備' },
+    gentle: { name: 'やさしい', level: -1, enemyLevel: 2, power: -3, hp: 0.85, atk: 1, reward: 0.8, desc: '敵の能力が低く、受ける傷も軽い' },
+    normal: { name: 'ふつう', level: 2, enemyLevel: 2, power: 0, hp: 1.15, atk: 1.08, reward: 1, desc: '標準の敵と報酬' },
+    hard: { name: 'ハード', level: 5, enemyLevel: 2, power: 2, hp: 1.3, atk: 1.18, reward: 1.5, desc: '敵の能力がさらに高い・しずく1.5倍・ボスSでユニーク／通常戦Sで通常装備' },
   };
   const spirits = {
     gran: { name: 'グラン', color: '#3fb4c9' }, ivy: { name: 'アイビー', color: '#5fd07a' },
@@ -107,8 +110,14 @@ const Progression = (() => {
     return normalize(party.stageDifficulty?.[id] || fallback);
   }
   // 序章の入り江（introStage）は最初の一戦なので、ふつう・ハードとも旧来の強さのまま。ハード専用の伝説も旧ハードの強さのまま。
-  const INTRO_NORMAL = { level: 0, enemyLevel: 0, hp: 1, atk: 1 }, LEGACY_HARD = { level: 3, enemyLevel: 2, hp: 1.15, atk: 1.08 };
-  const tableFor = (conf, key) => { const k = normalize(key), d = difficulties[k]; return conf && (conf.hardOnly || conf.introStage && k === 'hard') ? { ...d, ...LEGACY_HARD } : conf && conf.introStage && k === 'normal' ? { ...d, ...INTRO_NORMAL } : d; };
+  // 入り江の敵LVは、どの難易度でも ふつう と同じ（+0）。旧版の LV−1／+2 の差は power で残す。
+  const INTRO_NORMAL = { level: 0, enemyLevel: 0, power: 0, hp: 1, atk: 1 }, LEGACY_HARD = { level: 3, enemyLevel: 2, power: 0, hp: 1.15, atk: 1.08 };
+  const tableFor = (conf, key) => {
+    const k = normalize(key), d = difficulties[k];
+    if (conf && conf.hardOnly) return { ...d, ...LEGACY_HARD };
+    if (conf && conf.introStage) return k === 'hard' ? { ...d, ...LEGACY_HARD, enemyLevel: 0, power: 2 } : k === 'normal' ? { ...d, ...INTRO_NORMAL } : { ...d, enemyLevel: 0, power: -1 };
+    return d;
+  };
   const level = (conf, key) => Math.max(1, (conf.recLv || conf.lv || 1) + tableFor(conf, key).level);
   const rank = points => thresholds.filter(n => (points || 0) >= n).length;
   const learned = (party, id, route) => skills.filter(s => (!id || s.spirit === id) && (!route || s.route === route) && party.aria.skills.includes(s.id)).sort((a, b) => Object.keys(spirits).indexOf(a.spirit) - Object.keys(spirits).indexOf(b.spirit) || a.at - b.at).map(s => skill(party, s.id));
@@ -340,8 +349,9 @@ const Progression = (() => {
     copy.recommendedLv = level(conf, copy.difficulty);
     copy.enemies = (copy.enemies || []).map(e => ({ ...e, lv: Math.max(1, (e.lv || 1) + d.enemyLevel) }));
     copy.enemyBoost = { hp: d.hp, atk: d.atk };
+    copy.enemyPower = d.power || 0;
     // 序盤の補正：推奨LVが低い戦場ほど敵の攻撃とHPを下げる（LV1で攻撃0.5倍・HP0.75倍、LV12で補正なし）。
-    // 依頼を済ませたLVなら、ふつうのメインをノーコンで越えられる強さにする。ハードはこの上に敵LV+2・HP・攻撃の上乗せが残る。
+    // 依頼を済ませたLVなら、ふつうのメインをノーコンで越えられる強さにする。ハードはこの上に能力2LV分・HP・攻撃の上乗せが残る。
     if (!copy.enemyScale) {
       const base = Math.max(1, conf.recLv || conf.lv || 1), t = Math.min(1, (base - 1) / 11);
       if (t < 1) copy.enemyScale = { hp: +(0.75 + 0.25 * t).toFixed(3), atk: +(0.5 + 0.5 * t).toFixed(3) };

@@ -580,12 +580,14 @@ test('An owned hard nonboss S reward converts to half its price once and every s
   }
 });
 
-test('Hard enemies are stronger without raising Aria’s level, and retry keeps the chosen difficulty',async()=>{
+test('Hard enemies keep their level but have higher stats, Aria’s level does not change, and retry keeps the chosen difficulty',async()=>{
   await boot();
   const start=key=>page.evaluate(key=>Board.start({...BOARDS.cove,difficulty:key,tutorial:null,intro:null,enemies:[{kind:'shade',lv:4}]}),key);
   await start('normal');await idle();const normal=enemy(await state());
   await start('hard');await idle();const hard=enemy(await state());
-  assert.equal(hard.lv,normal.lv+2);assert(hard.mhp>normal.mhp&&hard.atk>normal.atk);assert.equal(aria(await state()).lv,1);
+  assert.equal(hard.lv,normal.lv,'difficulty does not change the enemy level');assert(hard.mhp>normal.mhp&&hard.atk>normal.atk);
+  await start('gentle');await idle();const gentle=enemy(await state());assert.equal(gentle.lv,normal.lv);assert(gentle.mhp<normal.mhp&&gentle.atk<normal.atk);
+  await start('hard');await idle();assert.equal(aria(await state()).lv,1);
   await page.evaluate(()=>{Math.random=()=>.5;Board.setDifficulty('gentle');Board.__test.arrange([{kind:'aria',hp:1},{kind:'shade',hp:1000,atk:1000,r:4,c:4}]);});
   assert.equal((await state()).difficulty,'hard');
   await page.locator('#endTurn').click();await page.locator('#resRetry').waitFor({timeout:15000});await page.locator('#resRetry').click();await idle();
