@@ -2,12 +2,13 @@
 const Progression = (() => {
   // 1.21.0：ふつうを旧ハードの強さに、ハードをその上に引き上げた。
   // 1.29.0：難易度で敵のLVは変えない（どの難易度でも ふつう と同じLV）。差は能力値だけで付ける。
-  //   power … 敵のHP・攻撃・防御を、成長の伸びに沿って何LV分ぶん上げ下げするか（旧版の敵LVの差と同じ強さ）。経験としずくもこの強さで決まる。
+  //   power … 敵のHP・攻撃・防御を、成長の伸びに沿って何LV分ぶん上げ下げするか（旧版の敵LVの差と同じ強さ）。
   //   hp / atk … その上に掛ける倍率。
+  // 1.29.1：経験としずくは難易度で変えない（敵のLVと戦いの結果だけで決まる）。難易度で違うのは、S評価の装備などの品物だけ。
   const difficulties = {
-    gentle: { name: 'やさしい', level: -1, enemyLevel: 2, power: -3, hp: 0.85, atk: 1, reward: 0.8, desc: '敵の能力が低く、受ける傷も軽い' },
-    normal: { name: 'ふつう', level: 2, enemyLevel: 2, power: 0, hp: 1.15, atk: 1.08, reward: 1, desc: '標準の敵と報酬' },
-    hard: { name: 'ハード', level: 5, enemyLevel: 2, power: 2, hp: 1.3, atk: 1.18, reward: 1.5, desc: '敵の能力がさらに高い・しずく1.5倍・ボスSでユニーク／通常戦Sで通常装備' },
+    gentle: { name: 'やさしい', level: -1, enemyLevel: 2, power: -3, hp: 0.85, atk: 1, desc: '敵の能力が低く、受ける傷も軽い' },
+    normal: { name: 'ふつう', level: 2, enemyLevel: 2, power: 0, hp: 1.15, atk: 1.08, desc: '標準の敵' },
+    hard: { name: 'ハード', level: 5, enemyLevel: 2, power: 2, hp: 1.3, atk: 1.18, desc: '敵の能力がさらに高い・ボスSでユニーク／通常戦Sで通常装備' },
   };
   const spirits = {
     gran: { name: 'グラン', color: '#3fb4c9' }, ivy: { name: 'アイビー', color: '#5fd07a' },

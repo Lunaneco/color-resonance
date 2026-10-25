@@ -498,7 +498,7 @@ test('Difficulty clears and first quest rewards are separate, while old clears r
   const old=partyWithBond(0);old.stages={cove:{cleared:true,best:'S',missions:[true,true,true],clears:2}};
   await boot('cove',{width:1440,height:900},{cr_party:old});
   assert.equal(await page.evaluate(()=>Board.party.stages.cove.difficulties.normal.clears),2);
-  const rewards=[];
+  const rewards=[await page.evaluate(()=>Board.party.gold)];
   for(const key of ['normal','hard','hard']) {
     await fixture('cove',{id:'q_harbor',difficulty:key,reward:100,firstItems:{i_shard:1},missions:[]});
     await attack();await page.locator('#resNext').waitFor({timeout:12000});
@@ -509,7 +509,8 @@ test('Difficulty clears and first quest rewards are separate, while old clears r
   assert.equal(p.stages.q_harbor.difficulties.normal.clears,1);assert.equal(p.stages.q_harbor.difficulties.hard.clears,2);
   assert.equal(p.stages.q_harbor.clears,3);assert.equal(p.items.i_shard,4);assert.equal(p.items.i_powder,1);
   assert(p.stages.q_harbor.difficulties.normal.sRewardClaimed);assert(p.stages.q_harbor.difficulties.hard.sRewardClaimed);
-  assert(rewards[1]-rewards[0]>rewards[0]);
+  // しずくは難易度で変えない：同じ戦い方なら、ふつうとハードで同じだけ入る
+  assert(rewards[1]>rewards[0]);assert.equal(rewards[2]-rewards[1],rewards[1]-rewards[0],'difficulty does not change the しずく');
 });
 
 test('Real nonboss victories award lower-tier S items and hard S ordinary equipment only once per tier',async()=>{

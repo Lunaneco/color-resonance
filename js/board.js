@@ -1698,10 +1698,9 @@ const Board = (() => {
 
   // ---------- 経験とLV ----------
   const MAX_LV = 99;
-  // 経験は相手の強さ（難易度で上げ下げした能力のLV）で決まる。表示のLVは難易度で変わらない。
-  const strength = d => d.plv ?? d.lv;
-  const expHit = (a, d) => Math.max(2, Math.min(25, 8 + (strength(d) - a.lv) * 2));
-  const expKill = (a, d) => Math.max(6, Math.min(80, 30 + (strength(d) - a.lv) * 7 + (d.kind === 'boss' ? 30 : 0)));
+  // 経験は相手のLVで決まる。敵のLVは難易度で変わらないので、経験も難易度で変わらない。
+  const expHit = (a, d) => Math.max(2, Math.min(25, 8 + (d.lv - a.lv) * 2));
+  const expKill = (a, d) => Math.max(6, Math.min(80, 30 + (d.lv - a.lv) * 7 + (d.kind === 'boss' ? 30 : 0)));
   function gainExp(kind, amt, u) {
     const r = rec(kind);
     // セーブの育成範囲と統一。上限に届く分だけ受け取り、経験値の繰り越しを止める。
@@ -1953,7 +1952,7 @@ const Board = (() => {
         d.intent = null;
       }
       stats.kills++;
-      stats.gold += 8 + strength(d) * 2;
+      stats.gold += 8 + d.lv * 2;
       if (killer && killer.until) stats.summonKills++;
       if (killer && (killer.resonance || killer.kind === 'aria' && killer.enchant)) stats.enchantKills++;
       if (d.kind === 'boss' && live().some(u => u.side === 'enemy')) stats.bossEarly = true;
@@ -3713,11 +3712,12 @@ const Board = (() => {
     if (ms.length) r = n >= ms.length ? 'S' : n === ms.length - 1 ? 'A' : n >= 1 ? 'B' : 'C';
     else { const par = cfg.par || totalFoes + 3; r = turn <= par ? 'S' : turn <= par + 2 ? 'A' : turn <= par + 5 ? 'B' : 'C'; }
     // しずく（お金）
-    const lvs = units.filter(u => u.side !== 'ally').map(u => u.plv ?? u.lv);
+    const lvs = units.filter(u => u.side !== 'ally').map(u => u.lv);
     const avg = lvs.length ? lvs.reduce((a, b) => a + b, 0) / lvs.length : 1;
     const clear = cfg.reward || Math.round(30 + avg * 10);
     const mult = { S: 1.5, A: 1.25, B: 1.1, C: 1 }[r];
-    const gold = Math.round((stats.gold + clear) * mult * Progression.difficulties[difficulty].reward);
+    // しずくは難易度で変えない
+    const gold = Math.round((stats.gold + clear) * mult);
     party.gold += gold;
     // ステージの記録
     let unique = null, equipment = null, equipmentGold = 0;
