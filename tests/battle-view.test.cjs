@@ -1,5 +1,6 @@
 const {test,before,after}=require('node:test');
 const assert=require('node:assert/strict');
+const stillCamera=require('./still-camera.cjs');
 const fs=require('node:fs/promises'),path=require('node:path'),http=require('node:http');
 const {chromium,webkit}=require('playwright');
 const root=path.resolve(__dirname,'..');
@@ -39,7 +40,7 @@ async function session(engine,viewport,run,settings={reduceMotion:true}){
   page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.url().startsWith(base)&&r.status()>=400)errors.push(`${r.status()} ${r.url()}`);});
   await context.addInitScript(s=>{localStorage.setItem('cr_settings',JSON.stringify(s));localStorage.setItem('cr_unlocked',JSON.stringify(['prologue','act1','act2','act3','fury','vardbond']));},settings);
   const source=await fs.readFile(path.join(root,'js/board.js'),'utf8'),marker='    start, enterPhase1, help, stop,';
-  assert(source.includes(marker));await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:source.replace(marker,hook+marker)}));
+  assert(source.includes(marker));await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:stillCamera(source.replace(marker,hook+marker))}));
   await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({contentType:'text/css',body:''}));
   try{await page.goto(base+'#board=king',{waitUntil:'networkidle'});await page.locator('#gate').click();await idle(page);await run(page,viewport);assert.deepEqual(errors,[]);}
   finally{await context.close();}

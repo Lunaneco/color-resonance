@@ -1,5 +1,6 @@
 const {test,before,after}=require('node:test');
 const assert=require('node:assert/strict');
+const stillCamera=require('./still-camera.cjs');
 const fs=require('node:fs/promises'),path=require('node:path'),http=require('node:http'),vm=require('node:vm');
 const {chromium}=require('playwright');
 const root=path.resolve(__dirname,'..');
@@ -99,7 +100,7 @@ async function battle(id,unlocked,run){
   await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({contentType:'text/css',body:''}));
   const source=await fs.readFile(path.join(root,'js/board.js'),'utf8'),marker='    start, enterPhase1, help, stop,';
   assert(source.includes(marker),'the battle test hook must match the public API');
-  await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:source.replace(marker,hook+marker)}));
+  await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:stillCamera(source.replace(marker,hook+marker))}));
   try{
     await page.goto(base+'#board='+id,{waitUntil:'networkidle'});await page.locator('#gate').click();
     await page.waitForFunction(()=>{try{const s=Board.__noir&&Board.__noir.state();return s&&s.running&&!s.busy&&s.units.some(u=>u.kind==='aria');}catch{return false;}});

@@ -1,5 +1,6 @@
 const {test,before,after,afterEach}=require('node:test');
 const assert=require('node:assert/strict');
+const stillCamera=require('./still-camera.cjs');
 const fs=require('node:fs/promises'),path=require('node:path'),http=require('node:http');
 const {chromium}=require('playwright');
 const root=path.resolve(__dirname,'..');
@@ -34,7 +35,7 @@ async function open({hash='#board=chrome',save}={}){
   await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({contentType:'text/css',body:''}));
   const source=await fs.readFile(path.join(root,'js/board.js'),'utf8'),marker='    start, enterPhase1, help, stop,';
   assert(source.includes(marker));
-  await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:source.replace(marker,hook+marker)}));
+  await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:stillCamera(source.replace(marker,hook+marker))}));
   await page.goto(base+hash,{waitUntil:'networkidle'});
   await page.locator('#gate').click();
 }

@@ -1,5 +1,6 @@
 const {test,before,after}=require('node:test');
 const assert=require('node:assert/strict');
+const stillCamera=require('./still-camera.cjs');
 const fs=require('node:fs/promises'),path=require('node:path'),http=require('node:http');
 const {chromium,webkit}=require('playwright');
 const root=path.resolve(__dirname,'..');
@@ -30,7 +31,7 @@ async function session(engine,viewport,run,hash='#world'){
     localStorage.setItem('cr_party',JSON.stringify({aria:{lv:1,exp:95},gold:100,stages:{cove:{cleared:true,best:'S',missions:[true,true,true]}}}));
   },chapters);
   const source=await fs.readFile(path.join(root,'js/board.js'),'utf8'),marker='    start, enterPhase1, help, stop,';
-  assert(source.includes(marker));await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:source.replace(marker,hook+marker)}));
+  assert(source.includes(marker));await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:stillCamera(source.replace(marker,hook+marker))}));
   await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({contentType:'text/css',body:''}));
   try{await page.goto(base+hash,{waitUntil:'networkidle'});
     await page.evaluate(()=>{

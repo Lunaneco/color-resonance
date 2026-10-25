@@ -1,5 +1,6 @@
 const {test,before,after,afterEach}=require('node:test');
 const assert=require('node:assert/strict');
+const stillCamera=require('./still-camera.cjs');
 const fs=require('node:fs/promises'),path=require('node:path'),http=require('node:http');
 const {chromium}=require('playwright');
 const root=path.resolve(__dirname,'..');
@@ -27,7 +28,7 @@ async function arena(region,kind,{foeAt=[4,4],ariaAt=[5,4],hp=1000}={}){
   page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
   await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({contentType:'text/css',body:''}));
   const source=await fs.readFile(path.join(root,'js/board.js'),'utf8'),marker='    start, enterPhase1, help, stop,';
-  await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:source.replace(marker,hook+marker)}));
+  await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:stillCamera(source.replace(marker,hook+marker))}));
   await page.goto(base+'#board=cove',{waitUntil:'networkidle'});await page.locator('#gate').click();
   await page.evaluate(({region,kind})=>Board.start({...BOARDS.cove,region,intro:null,tutorial:null,beats:[],map:{low:['land_flat'],mid:['land_flat'],high:['land_flat'],hills:0,obsAmt:0,water:null},enemies:[{kind,lv:3}],missions:[]}),{region,kind});
   await page.waitForFunction(()=>{const s=Board.__r.state();return s.running&&!s.busy&&!s.paused;},{},{timeout:20000});

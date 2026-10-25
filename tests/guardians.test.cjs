@@ -1,5 +1,6 @@
 const {test,before,after}=require('node:test');
 const assert=require('node:assert/strict');
+const stillCamera=require('./still-camera.cjs');
 const fs=require('node:fs/promises'),path=require('node:path'),http=require('node:http'),vm=require('node:vm');
 const {chromium,webkit}=require('playwright');
 const root=path.resolve(__dirname,'..');
@@ -74,7 +75,7 @@ after(async()=>{for(const b of Object.values(browsers||{}))await b.close();if(se
 async function session(engine,viewport,run,{unlocked=['prologue','act1','act2','act3','act4','act5','finale','epilogue','done','vardbond',...Array.from({length:8},(_,i)=>'restore'+(i+1))],started=true,progress=8}={}){
  const ctx=await browsers[engine].newContext({viewport,hasTouch:viewport.width<900}),page=await ctx.newPage(),errors=[];page.setDefaultTimeout(12000);page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.url().startsWith(base)&&r.status()>=400)errors.push(r.status()+' '+r.url());});
  await ctx.addInitScript(({unlocked,started,progress})=>{if(localStorage.cr_guardian_seeded)return;localStorage.cr_guardian_seeded='1';localStorage.cr_unlocked=JSON.stringify(unlocked);localStorage.cr_settings=JSON.stringify({reduceMotion:true,textSize:'normal'});localStorage.cr_speed='0';localStorage.cr_party=JSON.stringify({aria:{lv:16,exp:0},postgame:{started,progress},chrome:{lv:16,exp:0},gold:400});},{unlocked,started,progress});
- const source=await fs.readFile(path.join(root,'js/board.js'),'utf8'),marker='    start, enterPhase1, help, stop,';assert(source.includes(marker));await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:source.replace(marker,hook+marker)}));await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({contentType:'text/css',body:''}));
+ const source=await fs.readFile(path.join(root,'js/board.js'),'utf8'),marker='    start, enterPhase1, help, stop,';assert(source.includes(marker));await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:stillCamera(source.replace(marker,hook+marker))}));await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({contentType:'text/css',body:''}));
  try{await page.goto(base+'#world',{waitUntil:'networkidle'});await page.locator('#gate').click();await page.locator('#world').waitFor({state:'visible'});try{await run(page);}catch(e){e.message+='; browser errors: '+JSON.stringify(errors);throw e;}assert.deepEqual(errors,[]);}finally{await ctx.close();}
 }
 const state=page=>page.evaluate(()=>Board.__guardianQA.state()),ready=page=>page.waitForFunction(()=>Board.__guardianQA.ready(),null,{timeout:20000});

@@ -410,7 +410,7 @@ const Board = (() => {
     // 縦画面の余白は css/portrait.css の下帯（操作76+精霊50+情報60）と上のチップ列に合わせる。
     const portrait = narrow && !short;
     const bossBand = (cfg.guardian || cfg.finale) && !short;
-    let top = portrait ? (bossBand ? 156 : 100) : (narrow ? 74 : 96) + (bossBand ? 44 : 0);
+    let top = portrait ? (bossBand ? 170 : 100) : (narrow ? 74 : 96) + (bossBand ? 44 : 0);
     const bottom = portrait ? 208 : (narrow ? 70 : 84);
     const availW = Math.max(80, narrow ? W - (short ? 340 : 12) : W - 60);
     const span = (cols + rows) / 2;
@@ -421,6 +421,7 @@ const Board = (() => {
       if (avail < need) top = Math.max(128, top - (need - avail));
     }
     const availH = Math.max(60, H - top - bottom);
+    frame = portrait ? { top, bottom } : null;
     tw = Math.min(availW / span, availH / (span * 0.54 + 1.05), 116);
     th = tw * 0.54; hStep = th * 0.44;
     updateOx();
@@ -469,8 +470,56 @@ const Board = (() => {
     view.ox = cx - qx * view.z; view.oy = cy - qy * view.z;
     clampView();
   }
-  function resetView() { view.z = 1; view.ox = view.oy = 0; }
+  function resetView() { view.z = 1; view.ox = view.oy = 0; viewManual = false; }
+  // 縦のスマホでは盤が横幅で決まり、マスが指より小さくなる。仲間を選んでいるあいだは、
+  // 動ける床・狙える相手・本人が収まるところまで寄せ、行動メニューに隠れない位置へ動かす。
+  // 2本指でつまんだらその倍率を優先し、等倍へ戻すと自動に戻る。動きを減らす設定では寄せない。
+  let frame = null, viewManual = false, autoT = 0;
+  const AUTO_MAX = 1.6;
+  function autoView() {
+    if (!frame || viewManual || reducedMotion() || pinch) return null;
+    if (over || phase !== 'player' || !sel || sel.dead) return { z: 1, ox: 0, oy: 0 };
+    if (mode === 'acting') return 'keep';
+    const list = [cellOf(sel)];
+    if (mode === 'target' && targets) targets.forEach(id => list.push(cells[id]));
+    else if (mode === 'selected') {
+      if (moveInfo && !sel.moved) moveInfo.ends.forEach(id => list.push(cells[id]));
+      attackTargets(sel).forEach(id => list.push(cells[id]));
+    }
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+    for (const c of list) {
+      if (!c) continue;
+      const p = topOf(c), u = c === list[0] ? sel : unitAt(c), up = u ? tw * (u.hgt || 1) + 6 : th / 2;
+      x0 = Math.min(x0, p.x - tw / 2); x1 = Math.max(x1, p.x + tw / 2);
+      y0 = Math.min(y0, p.y - up); y1 = Math.max(y1, p.y + th / 2);
+    }
+    if (sel.mv) { const p = unitXY(sel); x0 = Math.min(x0, p.x - tw / 2); x1 = Math.max(x1, p.x + tw / 2); y0 = Math.min(y0, p.y - tw * (sel.hgt || 1)); y1 = Math.max(y1, p.y + th / 2); }
+    if (!isFinite(x0)) return { z: 1, ox: 0, oy: 0 };
+    // 下は操作帯、行動メニューが出ていればその上まで
+    const menuTop = cmdMenu.classList.contains('hidden') ? H : cmdMenu.offsetTop;
+    const f = { x0: 8, x1: W - 8, y0: frame.top, y1: Math.min(H - frame.bottom, menuTop - 8) };
+    if (f.y1 - f.y0 < 80) f.y0 = Math.max(48, f.y1 - 80);
+    const z = Math.max(1, Math.min(AUTO_MAX, (f.x1 - f.x0) / (x1 - x0), (f.y1 - f.y0) / (y1 - y0)));
+    // 範囲は、空いている所の真ん中へ
+    return { z, ox: (f.x0 + f.x1) / 2 - (x0 + x1) / 2 * z, oy: (f.y0 + f.y1) / 2 - (y0 + y1) / 2 * z };
+  }
+  // 寄せの途中を飛ばして、いまの目標の位置へすぐ置く（画面の向きや大きさが変わったとき）
+  function settleView() {
+    const goal = autoView();
+    if (goal && goal !== 'keep') { view.z = goal.z; view.ox = goal.ox; view.oy = goal.oy; }
+    autoT = 0;
+  }
+  function easeView(now) {
+    const dt = Math.min(100, now - (autoT || now)); autoT = now;
+    const goal = autoView();
+    if (!goal || goal === 'keep') return;
+    const k = 1 - Math.exp(-dt / 110);
+    view.z += (goal.z - view.z) * k; view.ox += (goal.ox - view.ox) * k; view.oy += (goal.oy - view.oy) * k;
+    if (Math.abs(goal.z - view.z) < 0.002 && Math.abs(goal.ox - view.ox) < 0.3 && Math.abs(goal.oy - view.oy) < 0.3) { view.z = goal.z; view.ox = goal.ox; view.oy = goal.oy; }
+  }
   const reducedMotion = () => document.documentElement.dataset.motion === 'reduced';
+  // 指で遊ぶ画面（マウスもキーボードもない）では、右クリックやEscの案内を出さない
+  const touchUI = () => matchMedia('(hover: none) and (pointer: coarse)').matches;
   function focus(x, y, z = 1.15) { cam.tx = x; cam.ty = y; cam.tz = reducedMotion() ? 1 : z; }
   function unfocus() { cam.tz = 1; }
 
@@ -487,7 +536,7 @@ const Board = (() => {
     }
     return { x, y };
   }
-  function pick(sx, sy) {
+  function pick(sx, sy, touch = false) {
     const { x: mx, y: my } = toWorld(sx, sy);
     // 床：上面に加えて、段の側面も「その床」として拾う（手前から順に）
     let tile = null;
@@ -496,13 +545,25 @@ const Board = (() => {
       const yy = Math.max(p.y, Math.min(yb, my));
       if (Math.abs(mx - p.x) / (tw / 2) + Math.abs(my - yy) / (th / 2) <= 1) { tile = c; break; }
     }
-    const tid = tile ? idx(tile.r, tile.c) : -1;
     let hitUnit = null;
     const us = live().sort((a, b) => viewDepth(b) - viewDepth(a));
     for (const u of us) {
-      const p = unitXY(u), hw = tw * 0.22, top = p.y - tw * u.hgt * 0.9;
+      const p = unitXY(u), hw = tw * (touch ? 0.3 : 0.22), top = p.y - tw * u.hgt * 0.9;
       if (mx > p.x - hw && mx < p.x + hw && my > top && my < p.y + th * 0.2) { hitUnit = u; break; }
     }
+    // 指は細い床の端を外しやすい。光っている床（移動先・対象）の縁の近くに触れたら、そちらを選ぶ（人の体に触れたときは、その人を優先）。
+    // 光っていない床の真ん中に触れたときは、そのまま（行けない理由を知らせるため）。
+    const ok = !touch ? null : mode === 'selected' && sel && !sel.moved && moveInfo ? moveInfo.ends : mode === 'target' ? targets : null;
+    if (ok && !hitUnit && !(tile && ok.has(idx(tile.r, tile.c)))) {
+      let best = null, bd = 1.4;
+      ok.forEach(id => {
+        const c = cells[id], p = topOf(c), yb = base(c.r, c.c).y, yy = Math.max(p.y, Math.min(yb, my));
+        const d = Math.abs(mx - p.x) / (tw / 2) + Math.abs(my - yy) / (th / 2);
+        if (d < bd) { bd = d; best = c; }
+      });
+      if (best) tile = best;
+    }
+    const tid = tile ? idx(tile.r, tile.c) : -1;
     const uid = hitUnit ? idx(hitUnit.r, hitUnit.c) : -1;
     // 本人・味方・届く敵の体に触れたら、その者を選ぶ。
     // それ以外の体に隠れた移動先は、床を選べるようにしておく。
@@ -557,6 +618,7 @@ const Board = (() => {
       updateOx(); orderCells(); showCompass();
     }
     cam.z += (cam.tz - cam.z) * 0.12; cam.x += (cam.tx - cam.x) * 0.12; cam.y += (cam.ty - cam.y) * 0.12;
+    easeView(now);
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     g.clearRect(0, 0, W, H);
     g.setTransform(dpr * cam.z * view.z, 0, 0, dpr * cam.z * view.z, dpr * (view.z * cam.x * (1 - cam.z) + view.ox), dpr * (view.z * cam.y * (1 - cam.z) + view.oy));
@@ -2480,6 +2542,7 @@ const Board = (() => {
   const followUpPending = u => u && !u.acted && u.normalAttacks > 0 && u.normalAttacks < normalAttackLimit(u);
   const selectionPrompt = u => followUpPending(u) ? 'あと1回攻撃できます／待機で向きを選んで終了' : u.moved ? '行動を選んでください' : '光る床へ移動／本人に触れて、その場で行動';
   function select(u, quiet) {
+    if (u !== sel) viewManual = false;
     sel = u; mode = 'selected'; threat = null; menuSub = null;
     moveInfo = u.moved ? null : reachable(u);
     // 移動先を選ぶ間はメニューを閉じておく（床を隠さないように）
@@ -2519,7 +2582,7 @@ const Board = (() => {
     if (!set || !set.size) { Audio2.sfx.wrong(); return; }
     mode = 'target'; targetCmd = cmd; targets = set; moveInfo = null;
     hideMenu();
-    phaseLabel.textContent = '対象を選んでください（右クリック／Escで戻る）';
+    phaseLabel.textContent = touchUI() ? '光る場所に触れて対象を選ぶ（下の「戻る」で戻る）' : '対象を選んでください（右クリック／Escで戻る）';
   }
   function act(u, fn, normal = false) {
     if (!running || phase !== 'player' || busy || over || paused || u.acted || (u.normalAttacks && !normal) || (normal && u.normalAttacks >= normalAttackLimit(u))) return;
@@ -2577,7 +2640,7 @@ const Board = (() => {
     // 向きを確定するまで行動も移動取り消しの記録も消費しない。
     mode = 'facing'; targets = null; targetCmd = null; moveInfo = null;
     endBtn.disabled = true;
-    phaseLabel.textContent = '正面を向ける方向を選んで待機（Escで戻る）';
+    phaseLabel.textContent = touchUI() ? '正面を向ける方向を選んで待機' : '正面を向ける方向を選んで待機（Escで戻る）';
     showMenu(u, 'facing'); updateBar();
     cmdMenu.querySelector(`[data-k="facewait"][data-a="${u.dir}"]`)?.focus({ preventScroll: true });
   }
@@ -3143,7 +3206,7 @@ const Board = (() => {
     const id = idx(cell.r, cell.c), u = seenAt(cell);
     if (mode === 'target') {
       if (targets && targets.has(id)) execTarget(cell);
-      else { Audio2.sfx.wrong(); const p = topOf(cell); floatText(p.x, p.y - tw * 0.5, '光っている場所を選んで（右クリックで戻る）', 'sys'); }
+      else { Audio2.sfx.wrong(); const p = topOf(cell); floatText(p.x, p.y - tw * 0.5, touchUI() ? '光っている場所を選んで' : '光っている場所を選んで（右クリックで戻る）', 'sys'); }
       return;
     }
     if (mode === 'selected' && sel) {
@@ -3738,7 +3801,7 @@ const Board = (() => {
   });
   cv.addEventListener('mouseleave', () => { hover = null; });
   // トラックパッドのピンチ（ctrl＋ホイール）でも拡大縮小する。
-  cv.addEventListener('wheel', e => { if (!running || !e.ctrlKey) return; e.preventDefault(); zoomView(view.z * Math.exp(-e.deltaY * 0.01), e.clientX, e.clientY); }, { passive: false });
+  cv.addEventListener('wheel', e => { if (!running || !e.ctrlKey) return; e.preventDefault(); viewManual = true; zoomView(view.z * Math.exp(-e.deltaY * 0.01), e.clientX, e.clientY); }, { passive: false });
   cv.addEventListener('contextmenu', e => e.preventDefault());
   // 盤を横へはらうと、視点が90度ずつ回る（FFタクティクスのL/Rと同じ。1回のはらいで1段）。
   // 動かさずに離す短いタップは、今までどおり床や人を選ぶ。
@@ -3773,12 +3836,12 @@ const Board = (() => {
     if (e.touches.length >= 2) {
       const m = touchMid(e.touches);
       pinch = { d0: Math.max(10, m.d), z0: view.z, qx: (m.x - view.ox) / view.z, qy: (m.y - view.oy) / view.z };
-      pinched = true; spin = null; touchCell = null; cv.classList.remove('turning');
+      pinched = true; viewManual = true; spin = null; touchCell = null; cv.classList.remove('turning');
       e.preventDefault(); return;
     }
     if (pinched) { e.preventDefault(); return; }
     const t = e.touches[0];
-    touchCell = pick(t.clientX, t.clientY); hover = touchCell;
+    touchCell = pick(t.clientX, t.clientY, true); hover = touchCell;
     const u = seenAt(touchCell); if (u) showInfo(u);
     spin = { id: 'touch', x: t.clientX, y: t.clientY, dragged: false };
     e.preventDefault();
@@ -3824,7 +3887,7 @@ const Board = (() => {
     else if ((e.key === 'w' || e.key === 'W') && sel && mode === 'selected' && !busy) command('wait');
     else if (e.key === 'e' || e.key === 'E') endPlayerPhase();
   });
-  addEventListener('resize', () => { if (running) { layout(); clampView(); if (sel && !cmdMenu.classList.contains('hidden')) showMenu(sel, menuSub); } });
+  addEventListener('resize', () => { if (running) { layout(); clampView(); settleView(); if (sel && !cmdMenu.classList.contains('hidden')) showMenu(sel, menuSub); } });
   endBtn.addEventListener('click', e => { e.stopPropagation(); Audio2.sfx.choose(); endPlayerPhase(); });
   $id('boardHelp').onclick = () => help();
   $id('boardMenu').onclick = () => Main.gameMenu();

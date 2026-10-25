@@ -3,18 +3,22 @@ const Main = (() => {
   const title = document.getElementById('title');
   const gate = document.getElementById('gate');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  let preferences = { reduceMotion: reduced.matches, textSize: 'normal' };
+  // 戦闘画面の明るさ。auto はスマートフォンの画面（戦闘の compact 表示）だけ明るくする。
+  const LIGHTS = ['auto', 'normal', 'bright', 'brighter'];
+  let preferences = { reduceMotion: reduced.matches, textSize: 'normal', battleLight: 'auto' };
   try {
     const saved = JSON.parse(localStorage.getItem('cr_settings') || 'null');
     if (saved && typeof saved === 'object') {
       if (typeof saved.reduceMotion === 'boolean') preferences.reduceMotion = saved.reduceMotion;
       if (saved.textSize === 'large') preferences.textSize = 'large';
+      if (LIGHTS.includes(saved.battleLight)) preferences.battleLight = saved.battleLight;
     }
   } catch (e) {}
 
   function applyPreferences(save = false) {
     document.documentElement.dataset.motion = preferences.reduceMotion ? 'reduced' : 'full';
     document.documentElement.dataset.textSize = preferences.textSize;
+    document.documentElement.dataset.battleLight = preferences.battleLight;
     if (save) {
       try { localStorage.setItem('cr_settings', JSON.stringify(preferences)); }
       catch (e) { Engine.toast('表示設定をこの端末に記録できませんでした。'); }
@@ -22,11 +26,12 @@ const Main = (() => {
   }
   applyPreferences();
   function syncImportedSettings() {
-    preferences = { reduceMotion: reduced.matches, textSize: 'normal' };
+    preferences = { reduceMotion: reduced.matches, textSize: 'normal', battleLight: 'auto' };
     try {
       const settings = JSON.parse(localStorage.getItem('cr_settings') || 'null');
       if (settings && typeof settings.reduceMotion === 'boolean') preferences.reduceMotion = settings.reduceMotion;
       if (settings && settings.textSize === 'large') preferences.textSize = 'large';
+      if (settings && LIGHTS.includes(settings.battleLight)) preferences.battleLight = settings.battleLight;
       const volume = JSON.parse(localStorage.getItem('cr_vol') || 'null') || { bgm: 0.55, sfx: 0.7 };
       Audio2.setVol('bgm', volume.bgm); Audio2.setVol('sfx', volume.sfx);
     } catch (e) {}
@@ -170,7 +175,9 @@ const Main = (() => {
         <fieldset class="setting-group"><legend>物語の文字サイズ</legend><div class="seg" id="textSize"><button data-v="normal">ふつう</button><button data-v="large">大きく</button></div></fieldset>
         <label class="setting-switch"><input type="checkbox" id="reduceMotion" ${preferences.reduceMotion ? 'checked' : ''}><span>動きを軽減する<small>背景の揺れ、点滅、画面の動きを抑えます。</small></span></label>
       </section>
-      <section class="settings-section"><h4>戦い</h4><fieldset class="setting-group"><legend>基本の難易度</legend><div class="seg" id="df">${Object.entries(Progression.difficulties).map(([id, d]) => `<button data-v="${id}">${d.name}</button>`).join('')}</div></fieldset>
+      <section class="settings-section"><h4>戦い</h4><fieldset class="setting-group"><legend>戦闘画面の明るさ</legend><div class="seg" id="battleLight"><button data-v="auto">自動</button><button data-v="normal">ふつう</button><button data-v="bright">明るく</button><button data-v="brighter">最大</button></div></fieldset>
+        <p class="wp-note">自動は、スマートフォンでだけ盤を明るくします。屋外では「最大」が見やすくなります。</p>
+        <fieldset class="setting-group"><legend>基本の難易度</legend><div class="seg" id="df">${Object.entries(Progression.difficulties).map(([id, d]) => `<button data-v="${id}">${d.name}</button>`).join('')}</div></fieldset>
         <p class="wp-note">各ステージでも選べます。ここでの変更は次の出撃から適用されます。戦闘中と再挑戦の難易度は変わりません。</p>
       </section>
       <section class="settings-section"><h4>旅の記録</h4><p class="wp-note">記録をファイルに保存して、別の端末でも続けられます。</p>
@@ -196,6 +203,7 @@ const Main = (() => {
     segment('sp', speed, value => { try { localStorage.setItem('cr_speed', value); } catch (e) { Engine.toast('文字の速さを記録できませんでした。'); } });
     segment('df', diff, value => Board.setDifficulty(value));
     segment('textSize', preferences.textSize, value => { preferences.textSize = value; applyPreferences(true); });
+    segment('battleLight', preferences.battleLight, value => { preferences.battleLight = value; applyPreferences(true); });
     body.querySelector('#reduceMotion').onchange = e => { preferences.reduceMotion = e.target.checked; applyPreferences(true); };
     bindSaves(body);
     body.querySelector('#resetSave').onclick = () => {

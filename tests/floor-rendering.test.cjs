@@ -1,5 +1,6 @@
 const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
+const stillCamera=require('./still-camera.cjs');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const http = require('node:http');
@@ -38,7 +39,7 @@ before(async () => {
       const file = path.resolve(root,'.'+(pathname==='/'?'/index.html':decodeURIComponent(pathname)));
       if(!file.startsWith(root+path.sep)) throw new Error('outside root');
       let body = await fs.readFile(file);
-      if(file===path.join(root,'js/board.js')) body=body.toString().replace('    start, enterPhase1, help, stop,',hook+'    start, enterPhase1, help, stop,');
+      if(file===path.join(root,'js/board.js')) body=stillCamera(body.toString().replace('    start, enterPhase1, help, stop,',hook+'    start, enterPhase1, help, stop,'));
       res.writeHead(200,{'Content-Type':mime[path.extname(file)]||'application/octet-stream'});res.end(body);
     } catch {res.writeHead(404);res.end();}
   });

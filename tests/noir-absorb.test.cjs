@@ -1,5 +1,6 @@
 const { test, before, after, afterEach } = require('node:test');
 const assert = require('node:assert/strict');
+const stillCamera=require('./still-camera.cjs');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const http = require('node:http');
@@ -147,7 +148,7 @@ test('Noir joins a battle only when flagged, absorbs a dying shade, and lists th
   const source = await fs.readFile(path.join(root, 'js/board.js'), 'utf8');
   const marker = '    start, enterPhase1, help, stop,';
   assert(source.includes(marker));
-  await page.route('**/js/board.js*', r => r.fulfill({ contentType: 'application/javascript', body: source.replace(marker, hook + marker) }));
+  await page.route('**/js/board.js*', r => r.fulfill({ contentType: 'application/javascript', body: stillCamera(source.replace(marker, hook + marker)) }));
   await page.goto(base + '#board=cove', { waitUntil: 'networkidle' });
   await page.locator('#gate').click();
   await page.waitForFunction(() => Board.__noirQA.state().running && !Board.__noirQA.state().busy, null, { timeout: 20000 });
@@ -238,7 +239,7 @@ test('Swallowing a boss heals Noir, returns resonance and teaches a big skill; s
   page.on('pageerror', e => errors.push(e.message));
   await page.route('https://fonts.googleapis.com/**', r => r.fulfill({ contentType: 'text/css', body: '' }));
   const source = await fs.readFile(path.join(root, 'js/board.js'), 'utf8'), marker = '    start, enterPhase1, help, stop,';
-  await page.route('**/js/board.js*', r => r.fulfill({ contentType: 'application/javascript', body: source.replace(marker, hook + marker) }));
+  await page.route('**/js/board.js*', r => r.fulfill({ contentType: 'application/javascript', body: stillCamera(source.replace(marker, hook + marker)) }));
   await page.goto(base + '#board=cove', { waitUntil: 'networkidle' });
   await page.locator('#gate').click();
   await page.waitForFunction(() => Board.__noirQA.state().running && !Board.__noirQA.state().busy, null, { timeout: 20000 });

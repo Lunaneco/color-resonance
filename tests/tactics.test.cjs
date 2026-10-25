@@ -1,5 +1,6 @@
 const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
+const stillCamera=require('./still-camera.cjs');
 const fs = require('node:fs/promises'), path = require('node:path'), http = require('node:http'), vm = require('node:vm');
 const { chromium } = require('playwright');
 const root = path.resolve(__dirname, '..');
@@ -52,7 +53,7 @@ async function battle(id, difficulty = 'normal') {
   await ctx.addInitScript(() => { localStorage.setItem('cr_unlocked', JSON.stringify(['prologue', 'act1', 'act2', 'act3', 'fury', 'vardbond', 'act4', 'act5', 'finale', 'epilogue', 'done'])); localStorage.setItem('cr_settings', JSON.stringify({ reduceMotion: true })); localStorage.setItem('cr_speed', '0'); localStorage.setItem('cr_party', JSON.stringify({ aria: { lv: 40, exp: 0 }, gold: 0 })); });
   await page.route('https://fonts.googleapis.com/**', r => r.fulfill({ contentType: 'text/css', body: '' }));
   const source = await fs.readFile(path.join(root, 'js/board.js'), 'utf8'), marker = '    start, enterPhase1, help, stop,';
-  await page.route('**/js/board.js*', r => r.fulfill({ contentType: 'application/javascript', body: source.replace(marker, hook + marker) }));
+  await page.route('**/js/board.js*', r => r.fulfill({ contentType: 'application/javascript', body: stillCamera(source.replace(marker, hook + marker)) }));
   await page.goto(base + '#world', { waitUntil: 'networkidle' }); await page.locator('#gate').click();
   await page.evaluate(({ id, difficulty }) => { World.close(); Engine.resetStage(); document.getElementById('title').style.display = 'none'; Board.start({ ...(BOARDS[id] || SIDE_QUESTS[id] || FREE_STAGES[id] || RESTORATION_STAGES[id]), intro: null, beats: [], difficulty }, () => {}); }, { id, difficulty });
   await page.waitForFunction(() => Board.__tac && Board.__tac.state().running && !Board.__tac.state().busy && Board.__tac.state().phase === 'player', {}, { timeout: 20000 });

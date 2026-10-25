@@ -1,5 +1,6 @@
 const {test,before,after}=require('node:test');
 const assert=require('node:assert/strict');
+const stillCamera=require('./still-camera.cjs');
 const fs=require('node:fs/promises'),path=require('node:path'),http=require('node:http'),vm=require('node:vm');
 const {chromium,webkit}=require('playwright');
 const root=path.resolve(__dirname,'..');
@@ -26,7 +27,7 @@ after(async()=>{for(const b of Object.values(browsers||{}))await b.close();if(se
 async function session(engine,run,{joined=false,progress=3,checkpoint={chapter:'restore4',idx:0,map:true,at:12345}}={}){
  const ctx=await browsers[engine].newContext({viewport:{width:390,height:844},hasTouch:true}),page=await ctx.newPage(),errors=[];page.setDefaultTimeout(15000);page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.url().startsWith(base)&&r.status()>=400)errors.push(r.status()+' '+r.url());});
  await ctx.addInitScript(({joined,progress,checkpoint})=>{if(localStorage.cr_mari_seed)return;localStorage.cr_mari_seed='1';localStorage.cr_unlocked=JSON.stringify(['prologue','act1','act2','act3','act4','act5','finale','epilogue','done',...Array.from({length:8},(_,i)=>'restore'+(i+1)),...(joined?['maribond']:[])]);localStorage.cr_settings=JSON.stringify({reduceMotion:true,textSize:'normal'});localStorage.cr_speed='0';localStorage.cr_save=JSON.stringify(checkpoint);localStorage.cr_party=JSON.stringify({aria:{lv:26,exp:0},chrome:{lv:26,exp:0},postgame:{started:true,progress},gold:400,spirits:{mari:{lv:26,bond:80,training:{enchant:40,summon:40}}}});},{joined,progress,checkpoint});
- const source=await fs.readFile(path.join(root,'js/board.js'),'utf8');await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:source.replace('    start, enterPhase1, help, stop,',hook+'    start, enterPhase1, help, stop,')}));await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({contentType:'text/css',body:''}));
+ const source=await fs.readFile(path.join(root,'js/board.js'),'utf8');await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:stillCamera(source.replace('    start, enterPhase1, help, stop,',hook+'    start, enterPhase1, help, stop,'))}));await page.route('https://fonts.googleapis.com/**',r=>r.fulfill({contentType:'text/css',body:''}));
  try{await page.goto(base+'#world',{waitUntil:'networkidle'});await page.locator('#gate').click();await page.locator('#world').waitFor({state:'visible'});try{await run(page);}catch(e){e.message+='; errors: '+JSON.stringify(errors);await page.screenshot({path:'/tmp/cr-mari-failure-'+engine+'.png'});throw e;}assert.deepEqual(errors,[]);}finally{await ctx.close();}
 }
 const ready=p=>p.waitForFunction(()=>Board.__mariQA.ready(),null,{timeout:20000}),state=p=>p.evaluate(()=>Board.__mariQA.state());

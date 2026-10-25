@@ -122,7 +122,7 @@ test('Volume, text size and reduced motion apply immediately and survive reload'
   assert.equal(await page.locator('html').getAttribute('data-motion'), 'full');
   assert.equal(await page.locator('#textSize [data-v=large]').getAttribute('aria-pressed'), 'true');
   const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('cr_settings')));
-  assert.deepEqual(stored, { reduceMotion: false, textSize: 'large' });
+  assert.deepEqual(stored, { reduceMotion: false, textSize: 'large', battleLight: 'auto' });
   await page.reload({ waitUntil: 'networkidle' });
   await page.locator('#gate').press('Enter');
   await page.locator('#gate').waitFor({ state: 'detached' });

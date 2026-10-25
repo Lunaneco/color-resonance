@@ -11,6 +11,12 @@
   --dock-unit:60px;
 }
 
+/* 周辺を暗くする効果は、縦では盤の左右の端（横幅いっぱいに広がる）を暗く沈めてしまう。
+   縦では上と下の帯だけを暗くし、盤の上は明るいままにする。濃さ（opacity）は くすみの割合で board.js が決める。 */
+#boardScreen.compact:not(.short) #vignette{
+  background:linear-gradient(180deg,rgba(0,0,0,.8),rgba(0,0,0,.25) 16%,transparent 26%,transparent 68%,rgba(0,0,0,.35) 80%,rgba(0,0,0,.7));
+}
+
 #boardScreen.compact:not(.short)::before{
   content:"";
   position:absolute;
@@ -30,14 +36,14 @@
   align-items:center;
 }
 #boardScreen.compact:not(.short) #boardTitle{flex:0 1 34%;min-width:0;max-width:38%}
-#boardScreen.compact:not(.short) .bt-act{font-size:9px;letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#boardScreen.compact:not(.short) .bt-act{font-size:10px;letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #boardScreen.compact:not(.short) .bt-name{font-size:14px;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #boardScreen.compact:not(.short) #floorBar{order:0;flex:1 1 auto;flex-basis:auto;max-width:none;min-width:0;padding:4px 8px;border-radius:12px}
 #boardScreen.compact:not(.short) .fb-row{gap:4px}
-#boardScreen.compact:not(.short) .fb-l{min-width:0;font-size:10px;letter-spacing:0}
-#boardScreen.compact:not(.short) .fb-l b{font-size:13px}
+#boardScreen.compact:not(.short) .fb-l{min-width:0;font-size:11px;letter-spacing:0}
+#boardScreen.compact:not(.short) .fb-l b{font-size:14px}
 #boardScreen.compact:not(.short) .fb-buff{display:none}
-#boardScreen.compact:not(.short) #kegareCount{flex:none;min-width:0;margin:0;padding:0;font-size:10px;letter-spacing:0;white-space:nowrap}
+#boardScreen.compact:not(.short) #kegareCount{flex:none;min-width:0;margin:0;padding:0;font-size:11px;letter-spacing:0;white-space:nowrap}
 #boardScreen.compact:not(.short) #kegareCount b{font-size:15px;margin:0 2px}
 #boardScreen.compact:not(.short) #boardHelp,
 #boardScreen.compact:not(.short) #boardMenu{
@@ -88,7 +94,7 @@
   z-index:6;
   padding:4px 8px;
 }
-#boardScreen.guardian-battle.compact:not(.short) #boardSide{top:calc(var(--safe-t) + 100px)}
+#boardScreen.guardian-battle.compact:not(.short) #boardSide{top:calc(var(--safe-t) + 114px)}
 
 /* 説明は上のチップの下。下の操作帯には被せない。 */
 #boardScreen.compact:not(.short) #hint{
@@ -102,7 +108,7 @@
   transform:none;
   z-index:8;
 }
-#boardScreen.guardian-battle.compact:not(.short) #hint{top:calc(var(--safe-t) + 150px)}
+#boardScreen.guardian-battle.compact:not(.short) #hint{top:calc(var(--safe-t) + 164px)}
 #boardScreen.compact:not(.short) #skillName{top:38%}
 
 /* 選択中のユニット。戦闘に必要な行だけ。 */
@@ -140,7 +146,7 @@
 #boardScreen.compact:not(.short) #unitInfo .ui-facing b{width:18px;height:18px;font-size:16px}
 #boardScreen.compact:not(.short) #unitInfo .ui-approach{grid-column:1/-1;grid-row:2;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #boardScreen.compact:not(.short) #unitInfo .ui-bar.hp{grid-column:1;grid-row:3;height:14px}
-#boardScreen.compact:not(.short) #unitInfo .ui-st{grid-column:2;grid-row:3;gap:6px;font-size:10px;flex-wrap:nowrap}
+#boardScreen.compact:not(.short) #unitInfo .ui-st{grid-column:2;grid-row:3;gap:6px;font-size:11px;flex-wrap:nowrap}
 #boardScreen.compact:not(.short) #unitInfo .ui-st b{font-size:13px;margin-left:2px}
 
 /* 精霊は縦の列ではなく、横に払って選ぶ。 */
@@ -180,7 +186,7 @@
 #boardScreen.compact:not(.short) #skills .skill.spirit .sk-d,
 #boardScreen.compact:not(.short) #skills .skill.spirit.fallen .sk-d{
   display:block;
-  font-size:10px;
+  font-size:11px;
   line-height:1.2;
   white-space:nowrap;
   overflow:hidden;
@@ -188,7 +194,7 @@
 }
 #boardScreen.compact:not(.short) #skills .sk-art{top:5px;width:26px;height:34px}
 #boardScreen.compact:not(.short) .battle-companion{min-width:132px}
-#boardScreen.compact:not(.short) .battle-companion small{display:block;font-size:10px;white-space:nowrap}
+#boardScreen.compact:not(.short) .battle-companion small{display:block;font-size:11px;white-space:nowrap}
 
 /* 操作バー。案内1行 + 行動と回転。回転は上ではなく親指の位置。高さは76px。 */
 #boardScreen.compact:not(.short) #cmdBar{
@@ -214,7 +220,7 @@
   min-height:0;
   padding:0;
   display:block;
-  font-size:11px;
+  font-size:12px;
   line-height:16px;
   letter-spacing:0;
   white-space:nowrap;
@@ -283,6 +289,11 @@
 }
 #boardScreen.compact:not(.short) #cmdMenu.sheet.facing .cm-face{min-height:64px;min-width:0}
 #boardScreen.compact:not(.short) #cmdMenu.sheet.facing [data-k=back]{min-height:48px}
+/* 指だけの端末では、キーボードの案内を出さない */
+@media (hover:none) and (pointer:coarse){
+  #boardScreen.compact .cm-facing-keys,
+  #boardScreen.compact #endTurn kbd{display:none}
+}
 
 /* 縦の地図・会話。ボタンは指の幅。 */
 @media(max-width:600px) and (orientation:portrait){
@@ -296,3 +307,9 @@
   #choiceBox button{min-height:48px}
   #textbox{bottom:max(10px,env(safe-area-inset-bottom))}
 }
+
+/* 戦闘画面の明るさ（設定 → 戦い）。自動はスマートフォンの戦闘（compact）だけを明るくする。
+   盤の絵（canvas）だけに掛け、文字や操作の欄には掛けない。 */
+html[data-battle-light=auto] #boardScreen.compact #boardCanvas,
+html[data-battle-light=bright] #boardCanvas{filter:brightness(1.18) contrast(1.05) saturate(1.1)}
+html[data-battle-light=brighter] #boardCanvas{filter:brightness(1.36) contrast(1.03) saturate(1.14)}

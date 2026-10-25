@@ -1,5 +1,6 @@
 const { test, before, after, afterEach } = require('node:test');
 const assert = require('node:assert/strict');
+const stillCamera=require('./still-camera.cjs');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const http = require('node:http');
@@ -63,7 +64,7 @@ async function boot(id='cove', viewport={width:1440,height:900}, storage={}, set
   const source=await fs.readFile(path.join(root,'js/board.js'),'utf8');
   const marker='    start, enterPhase1, help, stop,';
   assert(source.includes(marker),'Battle test hook must match the public API');
-  await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:source.replace(marker,hook+marker)}));
+  await page.route('**/js/board.js*',r=>r.fulfill({contentType:'application/javascript',body:stillCamera(source.replace(marker,hook+marker))}));
   if(setup)await setup(page);
   await page.goto(base+'#board='+id,{waitUntil:'networkidle'});
   await page.locator('#gate').click();
@@ -115,7 +116,9 @@ for(const viewport of [{width:1440,height:900},{width:390,height:844},{width:667
     if(viewport.width<900)await page.locator('#hintText').tap();else await page.locator('#hintText').click();
     assert(!await page.locator('#hint').evaluate(e=>e.classList.contains('show')));
     const after=await state();assert.deepEqual([aria(after).r,aria(after).c,after.turn,after.mode],[aria(before).r,aria(before).c,before.turn,before.mode]);
-    assert.equal(after.sp,before.sp);assert.deepEqual(after.cells,before.cells);
+    assert.equal(after.sp,before.sp);
+    // 縦のスマホでは選んだ仲間へ盤が寄るので、画面上の位置ではなく床の状態だけを比べる
+    const floors=s=>s.cells.map(c=>[c.id,c.r,c.c,c.floor]);assert.deepEqual(floors(after),floors(before));
     assert(!aria(after).moved&&!aria(after).acted);
     await page.locator('#boardHelp').click();assert(await page.evaluate(()=>Panel.isOpen()));
     assert((await page.locator('.pn-body').textContent()).includes('動かし方'));
