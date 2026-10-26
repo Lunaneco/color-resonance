@@ -59,15 +59,14 @@ const S = page => page.evaluate(() => Board.__portrait.state());
 const settle = async page => { await page.evaluate(() => Board.__portrait.settle()); return S(page); };
 
 for (const engine of ['chromium', 'webkit'])
-test(`${engine}: on a portrait phone the map moves in on the chosen ally, keeps her above the menu, and returns to the whole map`, async () => {
+test(`${engine}: on a portrait phone the map centres the chosen ally without changing its size, keeps her above the menu, and returns to its place`, async () => {
   const { ctx, page, errors } = await boot(engine, { reduceMotion: false, textSize: 'normal' });
   try {
-    // 寄りはじめる（倍率が等倍から動いていく）
-    await page.waitForFunction(() => Board.__portrait.state().z > 1.01, null, { timeout: 5000 }).catch(() => {});
     let s = await settle(page);
     assert(s.frame, 'portrait layout has a free frame between the top chips and the bottom dock');
-    assert(s.z > 1.05 && s.z <= 1.6 + 1e-6, 'choosing an ally zooms in on her move area: ' + s.z);
-    assert(s.aria.y > s.frame.top && s.aria.y < s.H - s.frame.bottom, 'Aria sits in the free part of the screen: ' + s.aria.y);
+    assert.equal(s.z, 1, 'the map keeps its size');
+    assert(Math.abs(s.aria.x - s.W / 2) < 1, 'Aria is centred across the screen: ' + s.aria.x);
+    assert(Math.abs(s.aria.y - (s.frame.top + s.H - s.frame.bottom) / 2) < 1, 'Aria is centred in the free part of the screen: ' + s.aria.y);
     // 光る床の縁に指で触れると、外れずにその床へ動く
     const e = await page.evaluate(() => Board.__portrait.edge());
     assert(e, 'there is a point just outside a lit tile that only the finger snaps to');
@@ -76,13 +75,14 @@ test(`${engine}: on a portrait phone the map moves in on the chosen ally, keeps 
     s = await settle(page);
     assert(s.menuTop != null, 'after moving, the action menu opens');
     assert(s.aria.y < s.menuTop, 'Aria stays above the action menu: ' + s.aria.y + ' < ' + s.menuTop);
+    assert.equal(s.z, 1, 'the map still keeps its size');
     // 選び直すと、盤の全体へ戻る
     await page.locator('#cancelSel').click();
     await page.waitForFunction(() => !Board.__portrait.state().moved);
     await page.locator('#cancelSel').click();
     await page.waitForFunction(() => Board.__portrait.state().sel === null);
     s = await settle(page);
-    assert(Math.abs(s.z - 1) < 0.01 && Math.abs(s.ox) < 1 && Math.abs(s.oy) < 1, 'without a chosen ally the whole map shows: ' + JSON.stringify([s.z, s.ox, s.oy]));
+    assert(Math.abs(s.z - 1) < 0.01 && Math.abs(s.ox) < 1 && Math.abs(s.oy) < 1, 'without a chosen ally the map returns to its place: ' + JSON.stringify([s.z, s.ox, s.oy]));
     assert.match(await page.locator('#phaseLabel').textContent(), /味方を選んで/);
     assert.deepEqual(errors, []);
   } finally { await ctx.close(); }

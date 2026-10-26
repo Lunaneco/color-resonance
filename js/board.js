@@ -471,37 +471,19 @@ const Board = (() => {
     clampView();
   }
   function resetView() { view.z = 1; view.ox = view.oy = 0; viewManual = false; }
-  // 縦のスマホでは盤が横幅で決まり、マスが指より小さくなる。仲間を選んでいるあいだは、
-  // 動ける床・狙える相手・本人が収まるところまで寄せ、行動メニューに隠れない位置へ動かす。
-  // 2本指でつまんだらその倍率を優先し、等倍へ戻すと自動に戻る。動きを減らす設定では寄せない。
+  // 縦のスマホでは、仲間を選んでいるあいだ、その仲間が空いている所（上のチップと下の操作帯・行動メニューのあいだ）の
+  // 真ん中に来るよう盤を動かす。盤の大きさ（倍率）は変えない。選んでいなければ、盤の全体を元の位置に戻す。
+  // 2本指でつまんだらその倍率と位置を優先し、次の仲間を選ぶと自動に戻る。動きを減らす設定では動かさない。
   let frame = null, viewManual = false, autoT = 0;
-  const AUTO_MAX = 1.6;
   function autoView() {
     if (!frame || viewManual || reducedMotion() || pinch) return null;
     if (over || phase !== 'player' || !sel || sel.dead) return { z: 1, ox: 0, oy: 0 };
     if (mode === 'acting') return 'keep';
-    const list = [cellOf(sel)];
-    if (mode === 'target' && targets) targets.forEach(id => list.push(cells[id]));
-    else if (mode === 'selected') {
-      if (moveInfo && !sel.moved) moveInfo.ends.forEach(id => list.push(cells[id]));
-      attackTargets(sel).forEach(id => list.push(cells[id]));
-    }
-    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
-    for (const c of list) {
-      if (!c) continue;
-      const p = topOf(c), u = c === list[0] ? sel : unitAt(c), up = u ? tw * (u.hgt || 1) + 6 : th / 2;
-      x0 = Math.min(x0, p.x - tw / 2); x1 = Math.max(x1, p.x + tw / 2);
-      y0 = Math.min(y0, p.y - up); y1 = Math.max(y1, p.y + th / 2);
-    }
-    if (sel.mv) { const p = unitXY(sel); x0 = Math.min(x0, p.x - tw / 2); x1 = Math.max(x1, p.x + tw / 2); y0 = Math.min(y0, p.y - tw * (sel.hgt || 1)); y1 = Math.max(y1, p.y + th / 2); }
-    if (!isFinite(x0)) return { z: 1, ox: 0, oy: 0 };
+    const p = unitXY(sel), cx = p.x, cy = p.y - tw * (sel.hgt || 1) * 0.5;
     // 下は操作帯、行動メニューが出ていればその上まで
     const menuTop = cmdMenu.classList.contains('hidden') ? H : cmdMenu.offsetTop;
-    const f = { x0: 8, x1: W - 8, y0: frame.top, y1: Math.min(H - frame.bottom, menuTop - 8) };
-    if (f.y1 - f.y0 < 80) f.y0 = Math.max(48, f.y1 - 80);
-    const z = Math.max(1, Math.min(AUTO_MAX, (f.x1 - f.x0) / (x1 - x0), (f.y1 - f.y0) / (y1 - y0)));
-    // 範囲は、空いている所の真ん中へ
-    return { z, ox: (f.x0 + f.x1) / 2 - (x0 + x1) / 2 * z, oy: (f.y0 + f.y1) / 2 - (y0 + y1) / 2 * z };
+    const y0 = frame.top, y1 = Math.max(y0 + 40, Math.min(H - frame.bottom, menuTop - 8));
+    return { z: 1, ox: W / 2 - cx, oy: (y0 + y1) / 2 - cy };
   }
   // 寄せの途中を飛ばして、いまの目標の位置へすぐ置く（画面の向きや大きさが変わったとき）
   function settleView() {
